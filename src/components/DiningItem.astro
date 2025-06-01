@@ -1,0 +1,36 @@
+---
+interface DiningItem {
+  type: string;
+  title: string;
+  description: string;
+  image: string;
+  detailsLink: string;
+}
+
+interface Props {
+  dining: DiningItem;
+}
+
+const { dining } = Astro.props;
+---
+<div class="p-4">
+  <div class="flex items-stretch justify-between gap-4 rounded-lg">
+    <div class="flex flex-[2_2_0px] flex-col gap-4">
+      <div class="flex flex-col gap-1">
+        <p class="text-[#637888] text-sm font-normal leading-normal">{dining.type}</p>
+        <p class="text-[#111518] text-base font-bold leading-tight">{dining.title}</p>
+        <p class="text-[#637888] text-sm font-normal leading-normal">{dining.description}</p>
+      </div>
+      <a
+        href={dining.detailsLink}
+        class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 flex-row-reverse bg-[#f0f3f4] text-[#111518] text-sm font-medium leading-normal w-fit"
+      >
+        <span class="truncate">View Details</span>
+      </a>
+    </div>
+    <div
+      class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg flex-1"
+      style={`background-image: url('${dining.image}');`}
+    ></div>
+  </div>
+</div> 

@@ -1,0 +1,86 @@
+@keyframes falling {
+  0% {
+    transform: translateY(-100%) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.autumn-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, 
+    #fef3c7 0%, 
+    #fde68a 30%, 
+    #fbbf24 60%, 
+    #d97706 100%
+  );
+  overflow: hidden;
+  z-index: -1;
+}
+
+.leaf {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: #f59e0b;
+  border-radius: 50% 0 50% 50%;
+  opacity: 0.6;
+  animation: falling 15s linear infinite;
+}
+
+.leaf:nth-child(2n) {
+  background: #d97706;
+  width: 16px;
+  height: 16px;
+  animation-duration: 18s;
+}
+
+.leaf:nth-child(3n) {
+  background: #b45309;
+  width: 20px;
+  height: 20px;
+  animation-duration: 16s;
+}
+
+.leaf:nth-child(4n) {
+  background: #92400e;
+  width: 17px;
+  height: 17px;
+  animation-duration: 20s;
+}
+
+.leaf:nth-child(5n) {
+  background: #78350f;
+  width: 19px;
+  height: 19px;
+  animation-duration: 17s;
+}
+
+/* Generate 20 leaves with different starting positions and delays */
+.leaf:nth-child(1) { left: 10%; animation-delay: 0s; }
+.leaf:nth-child(2) { left: 20%; animation-delay: 3s; }
+.leaf:nth-child(3) { left: 30%; animation-delay: 6s; }
+.leaf:nth-child(4) { left: 40%; animation-delay: 2s; }
+.leaf:nth-child(5) { left: 50%; animation-delay: 5s; }
+.leaf:nth-child(6) { left: 60%; animation-delay: 8s; }
+.leaf:nth-child(7) { left: 70%; animation-delay: 4s; }
+.leaf:nth-child(8) { left: 80%; animation-delay: 7s; }
+.leaf:nth-child(9) { left: 90%; animation-delay: 1s; }
+.leaf:nth-child(10) { left: 15%; animation-delay: 4s; }
+.leaf:nth-child(11) { left: 25%; animation-delay: 7s; }
+.leaf:nth-child(12) { left: 35%; animation-delay: 2s; }
+.leaf:nth-child(13) { left: 45%; animation-delay: 5s; }
+.leaf:nth-child(14) { left: 55%; animation-delay: 8s; }
+.leaf:nth-child(15) { left: 65%; animation-delay: 3s; }
+.leaf:nth-child(16) { left: 75%; animation-delay: 6s; }
+.leaf:nth-child(17) { left: 85%; animation-delay: 1s; }
+.leaf:nth-child(18) { left: 95%; animation-delay: 4s; }
+.leaf:nth-child(19) { left: 5%; animation-delay: 7s; }
+.leaf:nth-child(20) { left: 15%; animation-delay: 2s; } 

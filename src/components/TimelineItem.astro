@@ -1,0 +1,41 @@
+---
+interface Props {
+  time: string;
+  title: string;
+  description: string;
+  location?: string;
+  image?: string;
+}
+
+const { time, title, description, location, image } = Astro.props;
+---
+<div class="relative pl-8 pb-8">
+  <!-- Timeline line -->
+  <div class="absolute left-0 top-0 h-full w-0.5 bg-blue-500"></div>
+  
+  <!-- Timeline dot -->
+  <div class="absolute left-[-4px] top-2 h-4 w-4 rounded-full bg-blue-500"></div>
+  
+  <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
+    <div class="flex items-start gap-4">
+      {image && (
+        <div class="w-24 h-24 flex-shrink-0">
+          <img src={image} alt={title} class="w-full h-full object-cover rounded-lg" />
+        </div>
+      )}
+      <div class="flex-1">
+        <div class="text-blue-600 font-semibold mb-1">{time}</div>
+        <h3 class="text-xl font-bold text-gray-800 mb-2">{title}</h3>
+        <p class="text-gray-600 mb-2">{description}</p>
+        {location && (
+          <div class="flex items-center text-gray-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+            </svg>
+            {location}
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+</div> 

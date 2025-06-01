@@ -1,0 +1,21 @@
+---
+import PlaceItem from './PlaceItem.astro';
+
+interface PlaceItem {
+  title: string;
+  description: string;
+  image: string;
+}
+
+interface Props {
+  places: PlaceItem[];
+}
+
+const { places } = Astro.props;
+---
+<h2 class="text-[#111518] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">Places to Visit</h2>
+<div class="grid grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-3 p-4">
+  {places.map((place) => (
+    <PlaceItem place={place} />
+  ))}
+</div> 

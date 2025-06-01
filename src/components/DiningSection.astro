@@ -1,0 +1,21 @@
+---
+import DiningItem from './DiningItem.astro';
+
+interface DiningItem {
+  type: string;
+  title: string;
+  description: string;
+  image: string;
+  detailsLink: string;
+}
+
+interface Props {
+  dining: DiningItem[];
+}
+
+const { dining } = Astro.props;
+---
+<h2 class="text-[#111518] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">Dining Recommendations</h2>
+{dining.map((item) => (
+  <DiningItem dining={item} />
+))} 

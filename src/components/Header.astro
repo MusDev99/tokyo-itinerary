@@ -1,0 +1,51 @@
+---
+const firstDay = new Date('2025-11-18');
+const today = new Date();
+
+// Calculate time difference
+const timeDiff = firstDay.getTime() - today.getTime();
+
+// Calculate years, months, and days
+const years = Math.floor(timeDiff / (1000 * 60 * 60 * 24 * 365));
+const months = Math.floor((timeDiff % (1000 * 60 * 60 * 24 * 365)) / (1000 * 60 * 60 * 24 * 30));
+const days = Math.floor((timeDiff % (1000 * 60 * 60 * 24 * 30)) / (1000 * 60 * 60 * 24));
+---
+
+<header class="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-amber-100/50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <div class="flex items-center gap-3">
+        <div class="text-amber-600">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6">
+            <path d="M6 6H42L36 24L42 42H6L12 24L6 6Z" fill="currentColor"></path>
+          </svg>
+        </div>
+        <h2 class="text-xl font-bold text-amber-900 tracking-tight">My Itinerary</h2>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <span class="text-amber-800/80 text-sm font-medium">Trip starts in</span>
+        <div class="flex gap-2">
+          <div class="flex flex-col items-center">
+            <div class="px-3 py-1 bg-amber-100/50 rounded-lg border border-amber-200/50 text-amber-900 font-mono font-bold min-w-[3rem] text-center">
+              {years}
+            </div>
+            <span class="text-xs text-amber-800/60 mt-1">Years</span>
+          </div>
+          <div class="flex flex-col items-center">
+            <div class="px-3 py-1 bg-amber-100/50 rounded-lg border border-amber-200/50 text-amber-900 font-mono font-bold min-w-[3rem] text-center">
+              {months}
+            </div>
+            <span class="text-xs text-amber-800/60 mt-1">Months</span>
+          </div>
+          <div class="flex flex-col items-center">
+            <div class="px-3 py-1 bg-amber-100/50 rounded-lg border border-amber-200/50 text-amber-900 font-mono font-bold min-w-[3rem] text-center">
+              {days}
+            </div>
+            <span class="text-xs text-amber-800/60 mt-1">Days</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header> 
