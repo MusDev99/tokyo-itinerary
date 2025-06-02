@@ -18,9 +18,10 @@ interface TimelineItemProps {
   location: Location;
   price: Price;
   note: string;
+  images?: string;
 }
 
-export default function TimelineItem({ time, title, description, location, price, note }: TimelineItemProps) {
+export default function TimelineItem({ time, title, description, location, price, note, images }: TimelineItemProps) {
   const formatPrice = (price: Price) => {
     if (price.amount === 0) return 'Free';
     return new Intl.NumberFormat('ja-JP', {
@@ -43,6 +44,10 @@ export default function TimelineItem({ time, title, description, location, price
 
         {/* Content card */}
         <div className="bg-gradient-to-br from-bg to-secondary/30 rounded-xl shadow-md border border-primary/20 p-6 hover:shadow-lg transition-shadow duration-200">
+          {/* Image if exists */}
+          {images && (
+            <img src={images} alt={title} className="w-full max-h-56 object-cover rounded-lg mb-4 border border-primary/10 shadow-sm" loading="lazy" />
+          )}
           {/* Title */}
           <h3 className="text-xl font-semibold text-text mb-2">{title}</h3>
 

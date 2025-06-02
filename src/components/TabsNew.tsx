@@ -20,6 +20,7 @@ interface TimelineItem {
   location: Location;
   price: Price;
   note: string;
+  images?:string;
 }
 
 interface DayItinerary {

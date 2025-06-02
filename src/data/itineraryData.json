@@ -33,22 +33,6 @@
           "notes": "Per night"
         },
         "note": "Early check-in available for additional fee"
-      },
-      {
-        "time": "2:00 PM",
-        "title": "Explore Shinjuku Gyoen National Garden",
-        "description": "Visit the beautiful Shinjuku Gyoen National Garden, a peaceful oasis in the heart of Tokyo",
-        "location": {
-          "name": "Shinjuku Gyoen National Garden",
-          "mapsUrl": "https://maps.google.com/?q=Shinjuku+Gyoen+National+Garden"
-        },
-        "price": {
-          "amount": 500,
-          "currency": "JPY",
-          "notes": "Entry fee"
-        },
-        "note": "Best time to visit during cherry blossom season",
-        "images": "/tokyo-itinerary/public/ShinjukuGyoenNationalGarden.jpg"
       }
     ]
   },
@@ -73,7 +57,7 @@
         "note": "Try the traditional fortune-telling (omikuji) for 100 yen"
       },
       {
-        "time": "2:00 PM",
+        "time": "3:00 PM",
         "title": "Tokyo Skytree",
         "description": "Experience panoramic views of Tokyo from one of the world's tallest towers",
         "location": {
@@ -86,6 +70,22 @@
           "notes": "Tembo Deck admission"
         },
         "note": "Book tickets online for better prices"
+      },
+      {
+        "time": "2:00 PM",
+        "title": "Explore Shinjuku Gyoen National Garden",
+        "description": "Visit the beautiful Shinjuku Gyoen National Garden, a peaceful oasis in the heart of Tokyo",
+        "location": {
+          "name": "Shinjuku Gyoen National Garden",
+          "mapsUrl": "https://maps.google.com/?q=Shinjuku+Gyoen+National+Garden"
+        },
+        "price": {
+          "amount": 500,
+          "currency": "JPY",
+          "notes": "Entry fee"
+        },
+        "note": "Best time to visit during cherry blossom season",
+        "images": "ShinjukuGyoenNationalGarden.jpg"
       },
       {
         "time": "5:00 PM",
@@ -106,116 +106,118 @@
   },
   {
     "day": 3,
-    "title": "{Placeholder}",
+    "title": "Modern Tokyo & Halal Dining",
     "date": "November 20, 2025",
     "items": [
       {
         "time": "10:00 AM",
-        "title": "Senso-ji Temple",
-        "description": "Visit Tokyo's oldest and most significant Buddhist temple",
+        "title": "TeamLab Planets",
+        "description": "Immerse in a digital art museum with stunning interactive installations.",
         "location": {
-          "name": "Senso-ji Temple",
-          "mapsUrl": "https://maps.google.com/?q=Senso-ji+Temple"
+          "name": "TeamLab Planets Tokyo",
+          "mapsUrl": "https://maps.google.com/?q=teamlab+planets+tokyo"
+        },
+        "price": {
+          "amount": 3200,
+          "currency": "JPY",
+          "notes": "Adult ticket"
+        },
+        "note": "Wear pants/leggings due to water exhibits"
+      },
+      {
+        "time": "1:00 PM",
+        "title": "Halal Lunch at Gyumon",
+        "description": "Enjoy Halal Wagyu BBQ at a certified Halal restaurant",
+        "location": {
+          "name": "Gyumon Halal Yakiniku",
+          "mapsUrl": "https://maps.google.com/?q=Gyumon+Tokyo"
+        },
+        "price": {
+          "amount": 3000,
+          "currency": "JPY",
+          "notes": "Meal approx. per person"
+        },
+        "note": "Halal-certified; prayer space available"
+      },
+      {
+        "time": "3:00 PM",
+        "title": "Tokyo Camii Mosque",
+        "description": "Visit the largest mosque in Japan for prayer and cultural experience",
+        "location": {
+          "name": "Tokyo Camii & Turkish Cultural Center",
+          "mapsUrl": "https://maps.google.com/?q=Tokyo+Camii"
         },
         "price": {
           "amount": 0,
           "currency": "JPY",
           "notes": "Free entry"
         },
-        "note": "Try the traditional fortune-telling (omikuji) for 100 yen"
-      },
-      {
-        "time": "2:00 PM",
-        "title": "Tokyo Skytree",
-        "description": "Experience panoramic views of Tokyo from one of the world's tallest towers",
-        "location": {
-          "name": "Tokyo Skytree",
-          "mapsUrl": "https://maps.google.com/?q=Tokyo+Skytree"
-        },
-        "price": {
-          "amount": 2100,
-          "currency": "JPY",
-          "notes": "Tembo Deck admission"
-        },
-        "note": "Book tickets online for better prices"
-      },
-      {
-        "time": "5:00 PM",
-        "title": "Tsukiji Outer Market",
-        "description": "Explore the famous outer market with its fresh seafood and local delicacies",
-        "location": {
-          "name": "Tsukiji Outer Market",
-          "mapsUrl": "https://maps.google.com/?q=Tsukiji+Outer+Market"
-        },
-        "price": {
-          "amount": 0,
-          "currency": "JPY",
-          "notes": "Free entry, food costs vary"
-        },
-        "note": "Best to visit early morning for fresh seafood"
+        "note": "Prayer space and wudhu facilities available"
       }
     ]
   },
+  
   {
     "day": 4,
-    "title": "{Placeholder}",
-    "date": "November 20, 2025",
+    "title": "Nikko Day Trip",
+    "date": "November 21, 2025",
     "items": [
       {
+        "time": "7:00 AM",
+        "title": "Depart for Nikko",
+        "description": "Take Tobu Rail from Asakusa to Nikko (about 2 hrs)",
+        "location": {
+          "name": "Asakusa Station",
+          "mapsUrl": "https://maps.google.com/?q=Asakusa+Station"
+        },
+        "price": {
+          "amount": 2700,
+          "currency": "JPY",
+          "notes": "Round-trip train ticket"
+        },
+        "note": "Use Nikko Pass for discount"
+      },
+      {
         "time": "10:00 AM",
-        "title": "Senso-ji Temple",
-        "description": "Visit Tokyo's oldest and most significant Buddhist temple",
+        "title": "Toshogu Shrine",
+        "description": "Explore Japan's most lavishly decorated shrine",
         "location": {
-          "name": "Senso-ji Temple",
-          "mapsUrl": "https://maps.google.com/?q=Senso-ji+Temple"
+          "name": "Toshogu Shrine, Nikko",
+          "mapsUrl": "https://maps.google.com/?q=Toshogu+Shrine+Nikko"
         },
         "price": {
-          "amount": 0,
+          "amount": 1300,
           "currency": "JPY",
-          "notes": "Free entry"
+          "notes": "Entry fee"
         },
-        "note": "Try the traditional fortune-telling (omikuji) for 100 yen"
+        "note": "Respect local customs; dress modestly"
       },
       {
-        "time": "2:00 PM",
-        "title": "Tokyo Skytree",
-        "description": "Experience panoramic views of Tokyo from one of the world's tallest towers",
+        "time": "1:00 PM",
+        "title": "Lunch at Nikko Muslim Friendly Restaurant",
+        "description": "Try yuba (tofu skin) and other vegetarian or seafood options",
         "location": {
-          "name": "Tokyo Skytree",
-          "mapsUrl": "https://maps.google.com/?q=Tokyo+Skytree"
+          "name": "Nikko Muslim Friendly Cafe",
+          "mapsUrl": "https://maps.google.com/?q=nikko+halal+restaurant"
         },
         "price": {
-          "amount": 2100,
+          "amount": 2000,
           "currency": "JPY",
-          "notes": "Tembo Deck admission"
+          "notes": "Approximate"
         },
-        "note": "Book tickets online for better prices"
-      },
-      {
-        "time": "5:00 PM",
-        "title": "Tsukiji Outer Market",
-        "description": "Explore the famous outer market with its fresh seafood and local delicacies",
-        "location": {
-          "name": "Tsukiji Outer Market",
-          "mapsUrl": "https://maps.google.com/?q=Tsukiji+Outer+Market"
-        },
-        "price": {
-          "amount": 0,
-          "currency": "JPY",
-          "notes": "Free entry, food costs vary"
-        },
-        "note": "Best to visit early morning for fresh seafood"
+        "note": "Confirm menu halal/vegan options before ordering"
       }
     ]
-  },
+  }
+  ,
   {
     "day": 5,
-    "title": "{Placeholder}",
-    "date": "November 20, 2025",
+    "title": "Mount Fuji",
+    "date": "November 22, 2025",
     "items": [
       {
-        "time": "10:00 AM",
-        "title": "Senso-ji Temple",
+        "time": "05:00 AM",
+        "title": "Mount Fuji",
         "description": "Visit Tokyo's oldest and most significant Buddhist temple",
         "location": {
           "name": "Senso-ji Temple",
@@ -226,44 +228,68 @@
           "currency": "JPY",
           "notes": "Free entry"
         },
-        "note": "Try the traditional fortune-telling (omikuji) for 100 yen"
-      },
-      {
-        "time": "2:00 PM",
-        "title": "Tokyo Skytree",
-        "description": "Experience panoramic views of Tokyo from one of the world's tallest towers",
-        "location": {
-          "name": "Tokyo Skytree",
-          "mapsUrl": "https://maps.google.com/?q=Tokyo+Skytree"
-        },
-        "price": {
-          "amount": 2100,
-          "currency": "JPY",
-          "notes": "Tembo Deck admission"
-        },
-        "note": "Book tickets online for better prices"
-      },
-      {
-        "time": "5:00 PM",
-        "title": "Tsukiji Outer Market",
-        "description": "Explore the famous outer market with its fresh seafood and local delicacies",
-        "location": {
-          "name": "Tsukiji Outer Market",
-          "mapsUrl": "https://maps.google.com/?q=Tsukiji+Outer+Market"
-        },
-        "price": {
-          "amount": 0,
-          "currency": "JPY",
-          "notes": "Free entry, food costs vary"
-        },
-        "note": "Best to visit early morning for fresh seafood"
+        "note": "Try the traditional fortune-telling (omikuji) for 100 yen",
+        "images": "FujiMount.jpg"
       }
     ]
   },
   {
     "day": 6,
-    "title": "{Placeholder}",
-    "date": "November 20, 2025",
+    "title": "Kyoto Culture and Halal Cuisine",
+    "date": "November 23, 2025",
+    "items": [
+      {
+        "time": "8:00 AM",
+        "title": "Shinkansen to Kyoto",
+        "description": "Take the bullet train from Tokyo to Kyoto (approx. 2 hrs)",
+        "location": {
+          "name": "Tokyo Station",
+          "mapsUrl": "https://maps.google.com/?q=Tokyo+Station"
+        },
+        "price": {
+          "amount": 14000,
+          "currency": "JPY",
+          "notes": "One-way, non-reserved seat"
+        },
+        "note": "Use JR Pass if available"
+      },
+      {
+        "time": "11:00 AM",
+        "title": "Arashiyama Bamboo Grove",
+        "description": "Walk through the peaceful bamboo forest",
+        "location": {
+          "name": "Arashiyama Bamboo Grove",
+          "mapsUrl": "https://maps.google.com/?q=Arashiyama+Bamboo+Grove"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free"
+        },
+        "note": "Best visited early to avoid crowds"
+      },
+      {
+        "time": "1:00 PM",
+        "title": "Halal Lunch at Ganko Sushi",
+        "description": "Enjoy Halal-certified Japanese cuisine",
+        "location": {
+          "name": "Ganko Sushi Kyoto",
+          "mapsUrl": "https://maps.google.com/?q=Ganko+Sushi+Kyoto"
+        },
+        "price": {
+          "amount": 2500,
+          "currency": "JPY",
+          "notes": "Meal cost"
+        },
+        "note": "Prayer space available upon request"
+      }
+    ]
+  }
+  ,
+  {
+    "day": 7,
+    "title": "Closure",
+    "date": "November 24, 2025",
     "items": [
       {
         "time": "10:00 AM",
