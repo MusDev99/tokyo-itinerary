@@ -288,7 +288,7 @@
   ,
   {
     "day": 7,
-    "title": "Closure",
+    "title": "Closure & Flight from HND - KUL D7 553",
     "date": "November 24, 2025",
     "items": [
       {
@@ -307,34 +307,34 @@
         "note": "Try the traditional fortune-telling (omikuji) for 100 yen"
       },
       {
-        "time": "2:00 PM",
-        "title": "Tokyo Skytree",
-        "description": "Experience panoramic views of Tokyo from one of the world's tallest towers",
+        "time": "11:50 PM",
+        "title": "Depart from HND Airport",
+        "description": "Flight depart from Haneda Aiport",
         "location": {
-          "name": "Tokyo Skytree",
-          "mapsUrl": "https://maps.google.com/?q=Tokyo+Skytree"
-        },
-        "price": {
-          "amount": 2100,
-          "currency": "JPY",
-          "notes": "Tembo Deck admission"
-        },
-        "note": "Book tickets online for better prices"
-      },
-      {
-        "time": "5:00 PM",
-        "title": "Tsukiji Outer Market",
-        "description": "Explore the famous outer market with its fresh seafood and local delicacies",
-        "location": {
-          "name": "Tsukiji Outer Market",
-          "mapsUrl": "https://maps.google.com/?q=Tsukiji+Outer+Market"
+          "name": "Haneda Airport",
+          "mapsUrl": "https://www.google.com/maps/place/Haneda+Airport+(HND)/data=!4m2!3m1!19sChIJ45IxpAtkGGAR3_hG0anDMg0"
         },
         "price": {
           "amount": 0,
-          "currency": "JPY",
-          "notes": "Free entry, food costs vary"
+          "currency": "MYR",
+          "notes": "Already Booked"
         },
-        "note": "Best to visit early morning for fresh seafood"
+        "note": "Arrive 3 Hours prior to departure"
+      },
+      {
+        "time": "10:40 PM",
+        "title": "Arrive at KUL Airport",
+        "description": "Perform Immigration Check and Fresh up",
+        "location": {
+          "name": "Kuala Lumpur International Airport Terminal 2",
+          "mapsUrl": "https://www.google.com/maps/place/KLIA+2/data=!4m2!3m1!19sChIJ72GmWQC_zTERU9AoPFdVy9k"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "MYR",
+          "notes": ""
+        },
+        "note": "Early check-in available for additional fee"
       }
     ]
   }
