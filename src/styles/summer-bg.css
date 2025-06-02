@@ -1,0 +1,105 @@
+@keyframes rising {
+  0% {
+    transform: translateY(100vh) rotate(0deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(-100%) rotate(360deg);
+    opacity: 0.8;
+  }
+}
+
+@keyframes falling {
+  0% {
+    transform: translateY(-100%) rotate(0deg);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.summer-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, 
+    #87ceeb 0%, 
+    #00bfff 30%, 
+    #1e90ff 60%, 
+    #ffd700 100%
+  );
+  overflow: hidden;
+  z-index: -1;
+}
+
+.sun-ray {
+  position: absolute;
+  width: 4px;
+  height: 40px;
+  background: radial-gradient(circle, #ffff00, #ffd700);
+  opacity: 0.6;
+  border-radius: 2px;
+  animation: rising 12s linear infinite;
+}
+
+.beach-ball {
+  position: absolute;
+  width: 25px;
+  height: 25px;
+  background: radial-gradient(circle at 30% 30%, #ff0000, #ffff00, #0000ff);
+  border-radius: 50%;
+  opacity: 0.8;
+  animation: falling 15s linear infinite;
+}
+
+/* Different sizes and animation speeds */
+.sun-ray:nth-child(2n) {
+  width: 3px;
+  height: 35px;
+  animation-duration: 15s;
+}
+
+.sun-ray:nth-child(3n) {
+  width: 5px;
+  height: 45px;
+  animation-duration: 10s;
+}
+
+.beach-ball:nth-child(2n) {
+  width: 20px;
+  height: 20px;
+  animation-duration: 18s;
+}
+
+.beach-ball:nth-child(3n) {
+  width: 30px;
+  height: 30px;
+  animation-duration: 13s;
+}
+
+/* Position 10 sun rays and 10 beach balls */
+.sun-ray:nth-child(1) { left: 5%; animation-delay: 0s; }
+.sun-ray:nth-child(2) { left: 15%; animation-delay: 2s; }
+.sun-ray:nth-child(3) { left: 25%; animation-delay: 4s; }
+.sun-ray:nth-child(4) { left: 35%; animation-delay: 1s; }
+.sun-ray:nth-child(5) { left: 45%; animation-delay: 3s; }
+.sun-ray:nth-child(6) { left: 55%; animation-delay: 5s; }
+.sun-ray:nth-child(7) { left: 65%; animation-delay: 2.5s; }
+.sun-ray:nth-child(8) { left: 75%; animation-delay: 4.5s; }
+.sun-ray:nth-child(9) { left: 85%; animation-delay: 1.5s; }
+.sun-ray:nth-child(10) { left: 95%; animation-delay: 3.5s; }
+
+.beach-ball:nth-child(11) { left: 10%; animation-delay: 0s; }
+.beach-ball:nth-child(12) { left: 20%; animation-delay: 2s; }
+.beach-ball:nth-child(13) { left: 30%; animation-delay: 4s; }
+.beach-ball:nth-child(14) { left: 40%; animation-delay: 1s; }
+.beach-ball:nth-child(15) { left: 50%; animation-delay: 3s; }
+.beach-ball:nth-child(16) { left: 60%; animation-delay: 5s; }
+.beach-ball:nth-child(17) { left: 70%; animation-delay: 2.5s; }
+.beach-ball:nth-child(18) { left: 80%; animation-delay: 4.5s; }
+.beach-ball:nth-child(19) { left: 90%; animation-delay: 1.5s; }
+.beach-ball:nth-child(20) { left: 100%; animation-delay: 3.5s; }

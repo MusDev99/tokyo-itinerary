@@ -1,0 +1,329 @@
+[
+  {
+    "day": 1,
+    "title": "Day 1: Flight from KUL - HND D7 552",
+    "date": "November 18, 2025",
+    "items": [
+      {
+        "time": "02:50 PM",
+        "title": "Depart from KUL Airport",
+        "description": "Flight depart from KLIA Terminal 2",
+        "location": {
+          "name": "Kuala Lumpur International Airport Terminal 2",
+          "mapsUrl": "https://www.google.com/maps/place/KLIA+2/data=!4m2!3m1!19sChIJ72GmWQC_zTERU9AoPFdVy9k"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "MYR",
+          "notes": "Already Booked"
+        },
+        "note": "Arrive 3 Hours prior to departure"
+      },
+      {
+        "time": "10:40 PM",
+        "title": "Arrive at HND Airport",
+        "description": "Perform Immigration Check and Fresh up, Jamak Prayer",
+        "location": {
+          "name": "Haneda Airport",
+          "mapsUrl": "https://www.google.com/maps/place/Haneda+Airport+(HND)/data=!4m2!3m1!19sChIJ45IxpAtkGGAR3_hG0anDMg0"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Per night"
+        },
+        "note": "Early check-in available for additional fee"
+      },
+      {
+        "time": "10:40 PM",
+        "title": "Arrive at HND Airport",
+        "description": "Check in to your hotel and freshen up",
+        "location": {
+          "name": "Shinjuku Granbell Hotel",
+          "mapsUrl": "https://maps.google.com/?q=Shinjuku+Granbell+Hotel"
+        },
+        "price": {
+          "amount": 15000,
+          "currency": "JPY",
+          "notes": "Per night"
+        },
+        "note": "Early check-in available for additional fee"
+      },
+      {
+        "time": "2:00 PM",
+        "title": "Explore Shinjuku Gyoen National Garden",
+        "description": "Visit the beautiful Shinjuku Gyoen National Garden, a peaceful oasis in the heart of Tokyo",
+        "location": {
+          "name": "Shinjuku Gyoen National Garden",
+          "mapsUrl": "https://maps.google.com/?q=Shinjuku+Gyoen+National+Garden"
+        },
+        "price": {
+          "amount": 500,
+          "currency": "JPY",
+          "notes": "Entry fee"
+        },
+        "note": "Best time to visit during cherry blossom season"
+      }
+    ]
+  },
+  {
+    "day": 2,
+    "title": "Day 2: Traditional Tokyo",
+    "date": "November 19, 2025",
+    "items": [
+      {
+        "time": "10:00 AM",
+        "title": "Senso-ji Temple",
+        "description": "Visit Tokyo's oldest and most significant Buddhist temple",
+        "location": {
+          "name": "Senso-ji Temple",
+          "mapsUrl": "https://maps.google.com/?q=Senso-ji+Temple"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free entry"
+        },
+        "note": "Try the traditional fortune-telling (omikuji) for 100 yen"
+      },
+      {
+        "time": "2:00 PM",
+        "title": "Tokyo Skytree",
+        "description": "Experience panoramic views of Tokyo from one of the world's tallest towers",
+        "location": {
+          "name": "Tokyo Skytree",
+          "mapsUrl": "https://maps.google.com/?q=Tokyo+Skytree"
+        },
+        "price": {
+          "amount": 2100,
+          "currency": "JPY",
+          "notes": "Tembo Deck admission"
+        },
+        "note": "Book tickets online for better prices"
+      },
+      {
+        "time": "5:00 PM",
+        "title": "Tsukiji Outer Market",
+        "description": "Explore the famous outer market with its fresh seafood and local delicacies",
+        "location": {
+          "name": "Tsukiji Outer Market",
+          "mapsUrl": "https://maps.google.com/?q=Tsukiji+Outer+Market"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free entry, food costs vary"
+        },
+        "note": "Best to visit early morning for fresh seafood"
+      }
+    ]
+  },
+  {
+    "day": 3,
+    "title": "Day 3: {Placeholder}",
+    "date": "November 20, 2025",
+    "items": [
+      {
+        "time": "10:00 AM",
+        "title": "Senso-ji Temple",
+        "description": "Visit Tokyo's oldest and most significant Buddhist temple",
+        "location": {
+          "name": "Senso-ji Temple",
+          "mapsUrl": "https://maps.google.com/?q=Senso-ji+Temple"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free entry"
+        },
+        "note": "Try the traditional fortune-telling (omikuji) for 100 yen"
+      },
+      {
+        "time": "2:00 PM",
+        "title": "Tokyo Skytree",
+        "description": "Experience panoramic views of Tokyo from one of the world's tallest towers",
+        "location": {
+          "name": "Tokyo Skytree",
+          "mapsUrl": "https://maps.google.com/?q=Tokyo+Skytree"
+        },
+        "price": {
+          "amount": 2100,
+          "currency": "JPY",
+          "notes": "Tembo Deck admission"
+        },
+        "note": "Book tickets online for better prices"
+      },
+      {
+        "time": "5:00 PM",
+        "title": "Tsukiji Outer Market",
+        "description": "Explore the famous outer market with its fresh seafood and local delicacies",
+        "location": {
+          "name": "Tsukiji Outer Market",
+          "mapsUrl": "https://maps.google.com/?q=Tsukiji+Outer+Market"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free entry, food costs vary"
+        },
+        "note": "Best to visit early morning for fresh seafood"
+      }
+    ]
+  },
+  {
+    "day": 4,
+    "title": "Day 4: {Placeholder}",
+    "date": "November 20, 2025",
+    "items": [
+      {
+        "time": "10:00 AM",
+        "title": "Senso-ji Temple",
+        "description": "Visit Tokyo's oldest and most significant Buddhist temple",
+        "location": {
+          "name": "Senso-ji Temple",
+          "mapsUrl": "https://maps.google.com/?q=Senso-ji+Temple"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free entry"
+        },
+        "note": "Try the traditional fortune-telling (omikuji) for 100 yen"
+      },
+      {
+        "time": "2:00 PM",
+        "title": "Tokyo Skytree",
+        "description": "Experience panoramic views of Tokyo from one of the world's tallest towers",
+        "location": {
+          "name": "Tokyo Skytree",
+          "mapsUrl": "https://maps.google.com/?q=Tokyo+Skytree"
+        },
+        "price": {
+          "amount": 2100,
+          "currency": "JPY",
+          "notes": "Tembo Deck admission"
+        },
+        "note": "Book tickets online for better prices"
+      },
+      {
+        "time": "5:00 PM",
+        "title": "Tsukiji Outer Market",
+        "description": "Explore the famous outer market with its fresh seafood and local delicacies",
+        "location": {
+          "name": "Tsukiji Outer Market",
+          "mapsUrl": "https://maps.google.com/?q=Tsukiji+Outer+Market"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free entry, food costs vary"
+        },
+        "note": "Best to visit early morning for fresh seafood"
+      }
+    ]
+  },
+  {
+    "day": 5,
+    "title": "Day 5: {Placeholder}",
+    "date": "November 20, 2025",
+    "items": [
+      {
+        "time": "10:00 AM",
+        "title": "Senso-ji Temple",
+        "description": "Visit Tokyo's oldest and most significant Buddhist temple",
+        "location": {
+          "name": "Senso-ji Temple",
+          "mapsUrl": "https://maps.google.com/?q=Senso-ji+Temple"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free entry"
+        },
+        "note": "Try the traditional fortune-telling (omikuji) for 100 yen"
+      },
+      {
+        "time": "2:00 PM",
+        "title": "Tokyo Skytree",
+        "description": "Experience panoramic views of Tokyo from one of the world's tallest towers",
+        "location": {
+          "name": "Tokyo Skytree",
+          "mapsUrl": "https://maps.google.com/?q=Tokyo+Skytree"
+        },
+        "price": {
+          "amount": 2100,
+          "currency": "JPY",
+          "notes": "Tembo Deck admission"
+        },
+        "note": "Book tickets online for better prices"
+      },
+      {
+        "time": "5:00 PM",
+        "title": "Tsukiji Outer Market",
+        "description": "Explore the famous outer market with its fresh seafood and local delicacies",
+        "location": {
+          "name": "Tsukiji Outer Market",
+          "mapsUrl": "https://maps.google.com/?q=Tsukiji+Outer+Market"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free entry, food costs vary"
+        },
+        "note": "Best to visit early morning for fresh seafood"
+      }
+    ]
+  },
+  {
+    "day": 6,
+    "title": "Day 6: {Placeholder}",
+    "date": "November 20, 2025",
+    "items": [
+      {
+        "time": "10:00 AM",
+        "title": "Senso-ji Temple",
+        "description": "Visit Tokyo's oldest and most significant Buddhist temple",
+        "location": {
+          "name": "Senso-ji Temple",
+          "mapsUrl": "https://maps.google.com/?q=Senso-ji+Temple"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free entry"
+        },
+        "note": "Try the traditional fortune-telling (omikuji) for 100 yen"
+      },
+      {
+        "time": "2:00 PM",
+        "title": "Tokyo Skytree",
+        "description": "Experience panoramic views of Tokyo from one of the world's tallest towers",
+        "location": {
+          "name": "Tokyo Skytree",
+          "mapsUrl": "https://maps.google.com/?q=Tokyo+Skytree"
+        },
+        "price": {
+          "amount": 2100,
+          "currency": "JPY",
+          "notes": "Tembo Deck admission"
+        },
+        "note": "Book tickets online for better prices"
+      },
+      {
+        "time": "5:00 PM",
+        "title": "Tsukiji Outer Market",
+        "description": "Explore the famous outer market with its fresh seafood and local delicacies",
+        "location": {
+          "name": "Tsukiji Outer Market",
+          "mapsUrl": "https://maps.google.com/?q=Tsukiji+Outer+Market"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free entry, food costs vary"
+        },
+        "note": "Best to visit early morning for fresh seafood"
+      }
+    ]
+  }
+] 

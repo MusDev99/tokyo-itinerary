@@ -6,4 +6,44 @@
   html {
     font-family: 'Inter var', system-ui, sans-serif;
   }
+}
+
+:root {
+  --color-bg: #fef3c7;
+  --color-text: #78350f;
+  --color-primary: #fbbf24;
+  --color-secondary: #fde68a;
+  --color-accent: #d97706;
+}
+
+[data-theme="autumn"] {
+  --color-bg: #fef3c7;
+  --color-text: #78350f;
+  --color-primary: #fbbf24;
+  --color-secondary: #fde68a;
+  --color-accent: #d97706;
+}
+
+[data-theme="winter"] {
+  --color-bg: #e6f7ff;
+  --color-text: #0c4a6e;
+  --color-primary: #66c2ff;
+  --color-secondary: #b3e0ff;
+  --color-accent: #99d6ff;
+}
+
+[data-theme="spring"] {
+  --color-bg: #fdf2f8;
+  --color-text: #831843;
+  --color-primary: #ec4899;
+  --color-secondary: #fbcfe8;
+  --color-accent: #db2777;
+}
+
+[data-theme="summer"] {
+  --color-bg: #f0fdf4;
+  --color-text: #166534;
+  --color-primary: #22c55e;
+  --color-secondary: #bbf7d0;
+  --color-accent: #16a34a;
 } 

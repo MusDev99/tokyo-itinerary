@@ -4,179 +4,17 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import TabsNew from '../components/TabsNew';
+import itineraryData from '../data/itineraryData.json';
 
-const firstDay = new Date('2025-11-18');
 const today = new Date();
+const firstDateStr = itineraryData[0].date;
+const firstTimeStr = itineraryData[0].items[0].time;
+const firstDay = new Date(`${firstDateStr} ${firstTimeStr}`);
+const title = 'Tokyo 2025 Trip Itinerary'
+const description = 'One week exploration to Tokyo Japan & Fuji in Autumm Season'
 
-// Calculate time difference
-const timeDiff = firstDay.getTime() - today.getTime();
-
-// Calculate years, months, and days
-const years = Math.floor(timeDiff / (1000 * 60 * 60 * 24 * 365));
-const months = Math.floor((timeDiff % (1000 * 60 * 60 * 24 * 365)) / (1000 * 60 * 60 * 24 * 30));
-const days = Math.floor((timeDiff % (1000 * 60 * 60 * 24 * 30)) / (1000 * 60 * 60 * 24));
-
-const itineraryData = [
-  {
-    day: 1,
-    title: "Day 1: Arrival and Shinjuku Exploration",
-    date: "November 18, 2025",
-    items: [
-      {
-        time: "10:00 AM",
-        title: "Arrival at Narita Airport",
-        description: "Arrive at Narita International Airport and transfer to Shinjuku",
-        location: {
-          name: "Narita International Airport",
-          mapsUrl: "https://maps.google.com/?q=Narita+International+Airport"
-        },
-        price: {
-          amount: 0,
-          currency: "JPY",
-          notes: "Included in flight ticket"
-        },
-        note: "Take the Narita Express (N'EX) to Shinjuku Station"
-      },
-      {
-        time: "12:00 PM",
-        title: "Check-in at Hotel in Shinjuku",
-        description: "Check in to your hotel and freshen up",
-        location: {
-          name: "Shinjuku Granbell Hotel",
-          mapsUrl: "https://maps.google.com/?q=Shinjuku+Granbell+Hotel"
-        },
-        price: {
-          amount: 15000,
-          currency: "JPY",
-          notes: "Per night"
-        },
-        note: "Early check-in available for additional fee"
-      },
-      {
-        time: "2:00 PM",
-        title: "Explore Shinjuku Gyoen National Garden",
-        description: "Visit the beautiful Shinjuku Gyoen National Garden, a peaceful oasis in the heart of Tokyo",
-        location: {
-          name: "Shinjuku Gyoen National Garden",
-          mapsUrl: "https://maps.google.com/?q=Shinjuku+Gyoen+National+Garden"
-        },
-        price: {
-          amount: 500,
-          currency: "JPY",
-          notes: "Entry fee"
-        },
-        note: "Best time to visit during cherry blossom season"
-      }
-    ]
-  },
-  {
-    day: 2,
-    title: "Day 2: Traditional Tokyo",
-    date: "November 19, 2025",
-    items: [
-      {
-        time: "10:00 AM",
-        title: "Senso-ji Temple",
-        description: "Visit Tokyo's oldest and most significant Buddhist temple",
-        location: {
-          name: "Senso-ji Temple",
-          mapsUrl: "https://maps.google.com/?q=Senso-ji+Temple"
-        },
-        price: {
-          amount: 0,
-          currency: "JPY",
-          notes: "Free entry"
-        },
-        note: "Try the traditional fortune-telling (omikuji) for 100 yen"
-      },
-      {
-        time: "2:00 PM",
-        title: "Tokyo Skytree",
-        description: "Experience panoramic views of Tokyo from one of the world's tallest towers",
-        location: {
-          name: "Tokyo Skytree",
-          mapsUrl: "https://maps.google.com/?q=Tokyo+Skytree"
-        },
-        price: {
-          amount: 2100,
-          currency: "JPY",
-          notes: "Tembo Deck admission"
-        },
-        note: "Book tickets online for better prices"
-      },
-      {
-        time: "5:00 PM",
-        title: "Tsukiji Outer Market",
-        description: "Explore the famous outer market with its fresh seafood and local delicacies",
-        location: {
-          name: "Tsukiji Outer Market",
-          mapsUrl: "https://maps.google.com/?q=Tsukiji+Outer+Market"
-        },
-        price: {
-          amount: 0,
-          currency: "JPY",
-          notes: "Free entry, food costs vary"
-        },
-        note: "Best to visit early morning for fresh seafood"
-      }
-    ]
-  },
-  {
-    day: 3,
-    title: "Day 3: Fuji",
-    date: "November 20, 2025",
-    items: [
-      {
-        time: "10:00 AM",
-        title: "Senso-ji Temple",
-        description: "Visit Tokyo's oldest and most significant Buddhist temple",
-        location: {
-          name: "Senso-ji Temple",
-          mapsUrl: "https://maps.google.com/?q=Senso-ji+Temple"
-        },
-        price: {
-          amount: 0,
-          currency: "JPY",
-          notes: "Free entry"
-        },
-        note: "Try the traditional fortune-telling (omikuji) for 100 yen"
-      },
-      {
-        time: "2:00 PM",
-        title: "Tokyo Skytree",
-        description: "Experience panoramic views of Tokyo from one of the world's tallest towers",
-        location: {
-          name: "Tokyo Skytree",
-          mapsUrl: "https://maps.google.com/?q=Tokyo+Skytree"
-        },
-        price: {
-          amount: 2100,
-          currency: "JPY",
-          notes: "Tembo Deck admission"
-        },
-        note: "Book tickets online for better prices"
-      },
-      {
-        time: "5:00 PM",
-        title: "Tsukiji Outer Market",
-        description: "Explore the famous outer market with its fresh seafood and local delicacies",
-        location: {
-          name: "Tsukiji Outer Market",
-          mapsUrl: "https://maps.google.com/?q=Tsukiji+Outer+Market"
-        },
-        price: {
-          amount: 0,
-          currency: "JPY",
-          notes: "Free entry, food costs vary"
-        },
-        note: "Best to visit early morning for fresh seafood"
-      }
-    ]
-  },
-  // Add more days here following the same structure
-];
 ---
-<Header />
+<Header firstDay={firstDay} />
 <Layout title="Tokyo Trip Itinerary">
   <div class="relative flex size-full min-h-screen flex-col bg-transparent group/design-root overflow-x-hidden">
     <div class="layout-container flex h-full grow flex-col">
@@ -187,40 +25,8 @@ const itineraryData = [
           <div class="flex flex-col gap-6 p-4">
             <div class="flex flex-wrap justify-between gap-3">
               <div class="flex min-w-72 flex-col gap-3">
-                <p class="text-amber-900 tracking-light text-[32px] font-bold leading-tight">Tokyo Trip Itinerary</p>
-                <p class="text-amber-800/80 text-sm font-normal leading-normal">One week of exploration and adventure in Tokyo</p>
-              </div>
-            </div>
-
-            
-
-            <!-- Countdown Section -->
-
-
-            <div class="backdrop-blur-sm bg-white/30 rounded-2xl shadow-lg border border-amber-100/50 p-6">
-              <div class="flex flex-col items-center gap-4">
-                <h3 class="text-amber-900 font-semibold text-lg">Countdown to Tokyo Adventure</h3>
-                <div class="flex gap-4">
-                  <div class="flex flex-col items-center">
-                    <div class="px-4 py-2 bg-amber-100/50 rounded-lg border border-amber-200/50 text-amber-900 font-mono font-bold text-2xl min-w-[4rem] text-center">
-                      {years}
-                    </div>
-                    <span class="text-sm text-amber-800/60 mt-1">Years</span>
-                  </div>
-                  <div class="flex flex-col items-center">
-                    <div class="px-4 py-2 bg-amber-100/50 rounded-lg border border-amber-200/50 text-amber-900 font-mono font-bold text-2xl min-w-[4rem] text-center">
-                      {months}
-                    </div>
-                    <span class="text-sm text-amber-800/60 mt-1">Months</span>
-                  </div>
-                  <div class="flex flex-col items-center">
-                    <div class="px-4 py-2 bg-amber-100/50 rounded-lg border border-amber-200/50 text-amber-900 font-mono font-bold text-2xl min-w-[4rem] text-center">
-                      {days}
-                    </div>
-                    <span class="text-sm text-amber-800/60 mt-1">Days</span>
-                  </div>
-                </div>
-                <p class="text-amber-800/80 text-sm">Until November 18, 2025</p>
+                <p class="text-amber-900 tracking-light text-[32px] font-bold leading-tight">{title}</p>
+                <p class="text-amber-800/80 text-sm font-normal leading-normal">{description}</p>
               </div>
             </div>
 
