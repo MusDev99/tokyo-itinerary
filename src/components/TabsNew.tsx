@@ -37,17 +37,17 @@ export default function Tabs({ itinerary }: Props) {
   const [activeTab, setActiveTab] = useState(0);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="w-full px-2 sm:px-4 py-3 sm:py-6">
       {/* Tab buttons */}
-      <div className="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
+      <div className="flex space-x-1.5 overflow-x-auto pb-2 scrollbar-hide -mx-2 px-2 snap-x snap-mandatory">
         {itinerary.map((day, index) => (
           <button
             key={day.day}
             onClick={() => setActiveTab(index)}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap
+            className={`px-3 sm:px-4 py-2.5 text-sm font-medium rounded-lg transition-colors whitespace-nowrap snap-start min-w-[80px] sm:min-w-[100px] touch-manipulation
               ${activeTab === index
-                ? 'bg-primary-600 text-white shadow-sm'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-primary text-white shadow-sm'
+                : 'bg-bg/50 text-text/80 hover:bg-primary/10 hover:text-text active:bg-primary/20'
               }`}
           >
             Day {day.day}
@@ -56,7 +56,7 @@ export default function Tabs({ itinerary }: Props) {
       </div>
 
       {/* Tab content */}
-      <div className="mt-6 bg-white rounded-xl shadow-sm p-6">
+      <div className="mt-3 sm:mt-6 bg-bg/50 rounded-lg sm:rounded-xl shadow-sm p-3 sm:p-6">
         <Timeline day={itinerary[activeTab]} />
       </div>
     </div>

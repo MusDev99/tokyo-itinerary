@@ -12,20 +12,20 @@ const months = Math.floor((timeDiff % (1000 * 60 * 60 * 24 * 365)) / (1000 * 60 
 const days = Math.floor((timeDiff % (1000 * 60 * 60 * 24 * 30)) / (1000 * 60 * 60 * 24));
 ---
 
-<header class="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-amber-100/50">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between h-16">
-      <div class="flex items-center gap-3">
-        <div class="text-amber-600">
-          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6">
+<header class="sticky top-0 z-50 bg-bg/80 backdrop-blur-sm border-b border-primary/20">
+  <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+    <div class="flex flex-col sm:flex-row items-center justify-between py-3 sm:py-0 sm:h-16 gap-2 sm:gap-0">
+      <div class="flex items-center gap-2 sm:gap-3">
+        <div class="text-primary">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 sm:w-6 sm:h-6">
             <path d="M6 6H42L36 24L42 42H6L12 24L6 6Z" fill="currentColor"></path>
           </svg>
         </div>
-        <h2 class="text-xl font-bold text-amber-900 tracking-tight">My Itinerary</h2>
+        <h2 class="text-lg sm:text-xl font-bold text-text tracking-tight">My Itinerary</h2>
       </div>
 
-      <div class="flex items-center gap-4">
-        <span class="text-amber-800/80 text-sm font-medium">Trip starts in</span>
+      <div class="flex items-center gap-2 sm:gap-4">
+        <span class="text-text/80 text-xs sm:text-sm font-medium">Trip starts in</span>
         <Countdown targetDate={firstDay} client:load />
       </div>
     </div>
