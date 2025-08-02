@@ -1,28 +1,10 @@
 import { h } from 'preact';
+import type { TimelineItem as TimelineItemType } from '../types/itinerary';
 
-interface Location {
-  name: string;
-  mapsUrl: string;
-}
-
-interface Price {
-  amount: number;
-  currency: string;
-  notes: string;
-}
-
-interface TimelineItemProps {
-  time: string;
-  title: string;
-  description: string;
-  location: Location;
-  price: Price;
-  note: string;
-  images?: string;
-}
+interface TimelineItemProps extends TimelineItemType {}
 
 export default function TimelineItem({ time, title, description, location, price, note, images }: TimelineItemProps) {
-  const formatPrice = (price: Price) => {
+  const formatPrice = (price: TimelineItemType['price']) => {
     if (price.amount === 0) return 'Free';
     return new Intl.NumberFormat('ja-JP', {
       style: 'currency',

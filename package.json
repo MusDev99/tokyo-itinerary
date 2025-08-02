@@ -11,6 +11,8 @@
   "dependencies": {
     "@astrojs/preact": "^4.1.0",
     "astro": "^5.8.1",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.1",
     "preact": "^10.26.8",
     "react-icons": "^5.5.0"
   },

@@ -1,34 +1,7 @@
 import { h } from 'preact';
 import { useState } from 'preact/hooks';
 import Timeline from './Timeline';
-
-interface Location {
-  name: string;
-  mapsUrl: string;
-}
-
-interface Price {
-  amount: number;
-  currency: string;
-  notes: string;
-}
-
-interface TimelineItem {
-  time: string;
-  title: string;
-  description: string;
-  location: Location;
-  price: Price;
-  note: string;
-  images?:string;
-}
-
-interface DayItinerary {
-  day: number;
-  title: string;
-  date: string;
-  items: TimelineItem[];
-}
+import type { DayItinerary } from '../types/itinerary';
 
 interface Props {
   itinerary: DayItinerary[];
