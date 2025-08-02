@@ -29,123 +29,68 @@
         },
         "price": {
           "amount": 0,
-          "currency": "JPY",
-          "notes": "Per night"
+          "currency": "JPY"
         },
-        "note": "Early check-in available for additional fee"
+        "note": "Prayer room at Kaunter M Level 3"
+      },
+      {
+        "time": "11:30 PM",
+        "title": "Refreshment & Rest",
+        "description": "Rest at airport lounge or lobby",
+        "location": {
+          "name": "Haneda Airport",
+          "mapsUrl": "https://www.google.com/maps/place/Haneda+Airport+(HND)/data=!4m2!3m1!19sChIJ45IxpAtkGGAR3_hG0anDMg0"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY"
+        },
+        "note": "Rest at Level 5"
       }
     ]
   },
   {
     "day": 2,
-    "title": "Traditional Tokyo",
+    "title": "Itabashi City Exploration",
     "date": "November 19, 2025",
     "items": [
       {
-        "time": "10:00 AM",
-        "title": "Senso-ji Temple",
-        "description": "Visit Tokyo's oldest and most significant Buddhist temple",
+        "time": "4:30 AM",
+        "title": "Exit from HND Airport",
+        "description": "Depart from Haneda Airport to Itabashi City",
         "location": {
-          "name": "Senso-ji Temple",
-          "mapsUrl": "https://maps.google.com/?q=Senso-ji+Temple"
+          "name": "Haneda Airport",
+          "mapsUrl": "https://www.google.com/maps/place/Haneda+Airport+(HND)/data=!4m2!3m1!19sChIJ45IxpAtkGGAR3_hG0anDMg0"
         },
         "price": {
           "amount": 0,
           "currency": "JPY",
           "notes": "Free entry"
         },
-        "note": "Try the traditional fortune-telling (omikuji) for 100 yen"
+        "note": "Take Keikyu Line to Shinagawa, then JR Yamanote to Itabashi"
       },
       {
-        "time": "3:00 PM",
-        "title": "Tokyo Skytree",
-        "description": "Experience panoramic views of Tokyo from one of the world's tallest towers",
+        "time": "6:00 AM",
+        "title": "Arrive at Itabashi Station",
+        "description": "Arrive at Itabashi Station and store luggage at coin lockers",
         "location": {
-          "name": "Tokyo Skytree",
-          "mapsUrl": "https://maps.google.com/?q=Tokyo+Skytree"
+          "name": "Itabashi Station",
+          "mapsUrl": "https://maps.google.com/?q=Itabashi+Station"
         },
         "price": {
-          "amount": 2100,
+          "amount": 400,
           "currency": "JPY",
-          "notes": "Tembo Deck admission"
+          "notes": "Coin locker fee"
         },
-        "note": "Book tickets online for better prices"
+        "note": "Store luggage until Airbnb check-in time"
       },
       {
-        "time": "2:00 PM",
-        "title": "Explore Shinjuku Gyoen National Garden",
-        "description": "Visit the beautiful Shinjuku Gyoen National Garden, a peaceful oasis in the heart of Tokyo",
+        "time": "6:30 AM",
+        "title": "Morning Prayer at Itabashi Mosque",
+        "description": "Visit the local mosque for Fajr prayer",
         "location": {
-          "name": "Shinjuku Gyoen National Garden",
-          "mapsUrl": "https://maps.google.com/?q=Shinjuku+Gyoen+National+Garden"
-        },
-        "price": {
-          "amount": 500,
-          "currency": "JPY",
-          "notes": "Entry fee"
-        },
-        "note": "Best time to visit during cherry blossom season",
-        "images": "ShinjukuGyoenNationalGarden.jpg"
-      },
-      {
-        "time": "5:00 PM",
-        "title": "Tsukiji Outer Market",
-        "description": "Explore the famous outer market with its fresh seafood and local delicacies",
-        "location": {
-          "name": "Tsukiji Outer Market",
-          "mapsUrl": "https://maps.google.com/?q=Tsukiji+Outer+Market"
-        },
-        "price": {
-          "amount": 0,
-          "currency": "JPY",
-          "notes": "Free entry, food costs vary"
-        },
-        "note": "Best to visit early morning for fresh seafood"
-      }
-    ]
-  },
-  {
-    "day": 3,
-    "title": "Modern Tokyo & Halal Dining",
-    "date": "November 20, 2025",
-    "items": [
-      {
-        "time": "10:00 AM",
-        "title": "TeamLab Planets",
-        "description": "Immerse in a digital art museum with stunning interactive installations.",
-        "location": {
-          "name": "TeamLab Planets Tokyo",
-          "mapsUrl": "https://maps.google.com/?q=teamlab+planets+tokyo"
-        },
-        "price": {
-          "amount": 3200,
-          "currency": "JPY",
-          "notes": "Adult ticket"
-        },
-        "note": "Wear pants/leggings due to water exhibits"
-      },
-      {
-        "time": "1:00 PM",
-        "title": "Halal Lunch at Gyumon",
-        "description": "Enjoy Halal Wagyu BBQ at a certified Halal restaurant",
-        "location": {
-          "name": "Gyumon Halal Yakiniku",
-          "mapsUrl": "https://maps.google.com/?q=Gyumon+Tokyo"
-        },
-        "price": {
-          "amount": 3000,
-          "currency": "JPY",
-          "notes": "Meal approx. per person"
-        },
-        "note": "Halal-certified; prayer space available"
-      },
-      {
-        "time": "3:00 PM",
-        "title": "Tokyo Camii Mosque",
-        "description": "Visit the largest mosque in Japan for prayer and cultural experience",
-        "location": {
-          "name": "Tokyo Camii & Turkish Cultural Center",
-          "mapsUrl": "https://maps.google.com/?q=Tokyo+Camii"
+          "name": "Itabashi Mosque",
+          "mapsUrl": "https://maps.google.com/?q=Itabashi+Mosque"
         },
         "price": {
           "amount": 0,
@@ -153,63 +98,444 @@
           "notes": "Free entry"
         },
         "note": "Prayer space and wudhu facilities available"
+      },
+      {
+        "time": "7:30 AM",
+        "title": "Breakfast at Halal Cafe Itabashi",
+        "description": "Enjoy halal breakfast at a local cafe",
+        "location": {
+          "name": "Halal Cafe Itabashi",
+          "mapsUrl": "https://maps.google.com/?q=Halal+Cafe+Itabashi"
+        },
+        "price": {
+          "amount": 800,
+          "currency": "JPY",
+          "notes": "Breakfast cost"
+        },
+        "note": "Halal-certified cafe with prayer space"
+      },
+      {
+        "time": "9:00 AM",
+        "title": "Itabashi Ward Office Observatory",
+        "description": "Visit the free observatory for panoramic views of Tokyo",
+        "location": {
+          "name": "Itabashi Ward Office",
+          "mapsUrl": "https://maps.google.com/?q=Itabashi+Ward+Office"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free entry"
+        },
+        "note": "Best views on clear days"
+      },
+      {
+        "time": "10:30 AM",
+        "title": "Explore Itabashi Park",
+        "description": "Visit the beautiful local park with seasonal flowers",
+        "location": {
+          "name": "Itabashi Park",
+          "mapsUrl": "https://maps.google.com/?q=Itabashi+Park"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free entry"
+        },
+        "note": "Cherry blossoms in spring, autumn colors in fall"
+      },
+      {
+        "time": "12:00 PM",
+        "title": "Lunch at Halal Restaurant Itabashi",
+        "description": "Enjoy halal Japanese cuisine at a local restaurant",
+        "location": {
+          "name": "Halal Restaurant Itabashi",
+          "mapsUrl": "https://maps.google.com/?q=Halal+Restaurant+Itabashi"
+        },
+        "price": {
+          "amount": 1200,
+          "currency": "JPY",
+          "notes": "Lunch cost"
+        },
+        "note": "Prayer space available"
+      },
+      {
+        "time": "1:30 PM",
+        "title": "Itabashi Art Museum",
+        "description": "Visit the local art museum showcasing Japanese and international art",
+        "location": {
+          "name": "Itabashi Art Museum",
+          "mapsUrl": "https://maps.google.com/?q=Itabashi+Art+Museum"
+        },
+        "price": {
+          "amount": 200,
+          "currency": "JPY",
+          "notes": "Entry fee"
+        },
+        "note": "Closed on Mondays"
+      },
+      {
+        "time": "3:00 PM",
+        "title": "Shopping at Itabashi Shopping District",
+        "description": "Explore local shops and department stores",
+        "location": {
+          "name": "Itabashi Shopping District",
+          "mapsUrl": "https://maps.google.com/?q=Itabashi+Shopping+District"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free entry"
+        },
+        "note": "Local souvenirs and daily necessities"
+      },
+      {
+        "time": "4:30 PM",
+        "title": "Retrieve Luggage",
+        "description": "Collect luggage from coin lockers at Itabashi Station",
+        "location": {
+          "name": "Itabashi Station",
+          "mapsUrl": "https://maps.google.com/?q=Itabashi+Station"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free"
+        },
+        "note": "Prepare for Airbnb check-in"
+      },
+      {
+        "time": "5:00 PM",
+        "title": "Airbnb Check-in",
+        "description": "Check into Airbnb accommodation in Itabashi City",
+        "location": {
+          "name": "Airbnb Itabashi",
+          "mapsUrl": "https://maps.google.com/?q=Itabashi+City"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Already booked"
+        },
+        "note": "Rest and freshen up after check-in"
+      },
+      {
+        "time": "7:00 PM",
+        "title": "Dinner at Halal Restaurant Near Airbnb",
+        "description": "Enjoy dinner at a nearby halal restaurant",
+        "location": {
+          "name": "Local Halal Restaurant",
+          "mapsUrl": "https://maps.google.com/?q=Halal+Restaurant+Itabashi"
+        },
+        "price": {
+          "amount": 1500,
+          "currency": "JPY",
+          "notes": "Dinner cost"
+        },
+        "note": "Convenient location near accommodation"
+      }
+    ]
+  },
+  {
+    "day": 3,
+    "title": "Modern Tokyo (Akihabara)",
+    "date": "November 20, 2025",
+    "items": [
+      {
+        "time": "9:00 AM",
+        "title": "Akihabara Station Arrival",
+        "description": "Arrive at Akihabara Station and start exploring the electronics district",
+        "location": {
+          "name": "Akihabara Station",
+          "mapsUrl": "https://maps.google.com/?q=Akihabara+Station"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free entry"
+        },
+        "note": "Exit from Electric Town exit for best access"
+      },
+      {
+        "time": "9:30 AM",
+        "title": "Explore Yodobashi Camera",
+        "description": "Browse the massive electronics store for cameras, gadgets, and souvenirs",
+        "location": {
+          "name": "Yodobashi Camera Akihabara",
+          "mapsUrl": "https://maps.google.com/?q=Yodobashi+Camera+Akihabara"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free entry, purchases vary"
+        },
+        "note": "Tax-free shopping available for tourists"
+      },
+      {
+        "time": "11:00 AM",
+        "title": "Visit Mandarake Complex",
+        "description": "Explore anime, manga, and collectibles at this famous otaku paradise",
+        "location": {
+          "name": "Mandarake Complex",
+          "mapsUrl": "https://maps.google.com/?q=Mandarake+Akihabara"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free entry"
+        },
+        "note": "Multiple floors of anime and manga merchandise"
+      },
+      {
+        "time": "12:30 PM",
+        "title": "Halal Lunch at Wagyu Yakiniku Panga",
+        "description": "Enjoy premium Halal Wagyu BBQ at this certified Halal restaurant",
+        "location": {
+          "name": "Wagyu Yakiniku Panga",
+          "mapsUrl": "https://maps.google.com/?q=Wagyu+Yakiniku+Panga+Tokyo"
+        },
+        "price": {
+          "amount": 4000,
+          "currency": "JPY",
+          "notes": "Premium Wagyu meal per person"
+        },
+        "note": "Halal-certified; prayer space available"
+      },
+      {
+        "time": "2:00 PM",
+        "title": "Explore Radio Kaikan",
+        "description": "Visit the iconic building with multiple floors of electronics and hobby shops",
+        "location": {
+          "name": "Radio Kaikan",
+          "mapsUrl": "https://maps.google.com/?q=Radio+Kaikan+Akihabara"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free entry"
+        },
+        "note": "Famous for electronics and hobby shops"
+      },
+      {
+        "time": "3:30 PM",
+        "title": "Visit Super Potato",
+        "description": "Browse retro video games and vintage gaming consoles",
+        "location": {
+          "name": "Super Potato Akihabara",
+          "mapsUrl": "https://maps.google.com/?q=Super+Potato+Akihabara"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free entry"
+        },
+        "note": "Retro gaming paradise"
+      },
+      {
+        "time": "5:00 PM",
+        "title": "Halal Dinner at Gyu-Kaku Akihabara",
+        "description": "Alternative Halal option for Japanese BBQ and grilled meats",
+        "location": {
+          "name": "Gyu-Kaku Akihabara",
+          "mapsUrl": "https://maps.google.com/?q=Gyu-Kaku+Akihabara"
+        },
+        "price": {
+          "amount": 2500,
+          "currency": "JPY",
+          "notes": "Meal approx. per person"
+        },
+        "note": "Halal options available; confirm with staff"
+      },
+      {
+        "time": "6:30 PM",
+        "title": "Evening Akihabara Lights",
+        "description": "Experience Akihabara's famous neon lights and evening atmosphere",
+        "location": {
+          "name": "Akihabara Electric Town",
+          "mapsUrl": "https://maps.google.com/?q=Akihabara+Electric+Town"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free"
+        },
+        "note": "Best photo opportunities during blue hour"
       }
     ]
   },
   
   {
     "day": 4,
-    "title": "Nikko Day Trip",
+    "title": "Shibuya & Ginza Exploration",
     "date": "November 21, 2025",
     "items": [
       {
-        "time": "7:00 AM",
-        "title": "Depart for Nikko",
-        "description": "Take Tobu Rail from Asakusa to Nikko (about 2 hrs)",
+        "time": "9:00 AM",
+        "title": "Depart from Itabashi to Shibuya",
+        "description": "Take JR Yamanote Line from Itabashi to Shibuya Station",
         "location": {
-          "name": "Asakusa Station",
-          "mapsUrl": "https://maps.google.com/?q=Asakusa+Station"
+          "name": "Itabashi Station",
+          "mapsUrl": "https://maps.google.com/?q=Itabashi+Station"
         },
         "price": {
-          "amount": 2700,
+          "amount": 280,
           "currency": "JPY",
-          "notes": "Round-trip train ticket"
+          "notes": "One-way train fare"
         },
-        "note": "Use Nikko Pass for discount"
+        "note": "Direct train to Shibuya Station"
+      },
+      {
+        "time": "9:30 AM",
+        "title": "Shibuya Crossing",
+        "description": "Visit the famous Shibuya Crossing, one of the busiest pedestrian crossings in the world",
+        "location": {
+          "name": "Shibuya Crossing",
+          "mapsUrl": "https://maps.google.com/?q=Shibuya+Crossing"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free"
+        },
+        "note": "Best time to visit is early morning for fewer crowds"
       },
       {
         "time": "10:00 AM",
-        "title": "Toshogu Shrine",
-        "description": "Explore Japan's most lavishly decorated shrine",
+        "title": "Hachiko Statue",
+        "description": "Visit the famous Hachiko statue, a symbol of loyalty and friendship",
         "location": {
-          "name": "Toshogu Shrine, Nikko",
-          "mapsUrl": "https://maps.google.com/?q=Toshogu+Shrine+Nikko"
+          "name": "Hachiko Statue",
+          "mapsUrl": "https://maps.google.com/?q=Hachiko+Statue+Shibuya"
         },
         "price": {
-          "amount": 1300,
+          "amount": 0,
           "currency": "JPY",
-          "notes": "Entry fee"
+          "notes": "Free"
         },
-        "note": "Respect local customs; dress modestly"
+        "note": "Popular photo spot and meeting point"
       },
       {
-        "time": "1:00 PM",
-        "title": "Lunch at Nikko Muslim Friendly Restaurant",
-        "description": "Try yuba (tofu skin) and other vegetarian or seafood options",
+        "time": "10:30 AM",
+        "title": "Shibuya Sky",
+        "description": "Visit the observation deck for panoramic views of Tokyo from 229 meters high",
         "location": {
-          "name": "Nikko Muslim Friendly Cafe",
-          "mapsUrl": "https://maps.google.com/?q=nikko+halal+restaurant"
+          "name": "Shibuya Sky",
+          "mapsUrl": "https://maps.google.com/?q=Shibuya+Sky"
+        },
+        "price": {
+          "amount": 2200,
+          "currency": "JPY",
+          "notes": "Adult admission"
+        },
+        "note": "Book tickets online for better prices and shorter queues"
+      },
+      {
+        "time": "12:00 PM",
+        "title": "Halal Lunch at Shibuya",
+        "description": "Enjoy halal lunch at a restaurant in Shibuya",
+        "location": {
+          "name": "Halal Restaurant Shibuya",
+          "mapsUrl": "https://maps.google.com/?q=Halal+Restaurant+Shibuya"
         },
         "price": {
           "amount": 2000,
           "currency": "JPY",
-          "notes": "Approximate"
+          "notes": "Lunch cost"
         },
-        "note": "Confirm menu halal/vegan options before ordering"
+        "note": "Prayer space available upon request"
+      },
+      {
+        "time": "1:30 PM",
+        "title": "Travel to Ginza",
+        "description": "Take Tokyo Metro from Shibuya to Ginza Station",
+        "location": {
+          "name": "Ginza Station",
+          "mapsUrl": "https://maps.google.com/?q=Ginza+Station"
+        },
+        "price": {
+          "amount": 280,
+          "currency": "JPY",
+          "notes": "One-way metro fare"
+        },
+        "note": "Direct metro line to Ginza"
+      },
+      {
+        "time": "2:00 PM",
+        "title": "Ginza Shopping District",
+        "description": "Explore the upscale Ginza district with luxury boutiques and department stores",
+        "location": {
+          "name": "Ginza Shopping District",
+          "mapsUrl": "https://maps.google.com/?q=Ginza+Shopping+District"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free entry"
+        },
+        "note": "Visit Mitsukoshi, Wako, and other luxury department stores"
+      },
+      {
+        "time": "3:30 PM",
+        "title": "Ginza Six",
+        "description": "Visit the modern shopping complex with luxury brands and rooftop garden",
+        "location": {
+          "name": "Ginza Six",
+          "mapsUrl": "https://maps.google.com/?q=Ginza+Six"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free entry"
+        },
+        "note": "Rooftop garden offers great views of Ginza"
+      },
+      {
+        "time": "5:00 PM",
+        "title": "Ginza Art Aquarium",
+        "description": "Visit the unique art aquarium featuring illuminated fish tanks",
+        "location": {
+          "name": "Ginza Art Aquarium",
+          "mapsUrl": "https://maps.google.com/?q=Ginza+Art+Aquarium"
+        },
+        "price": {
+          "amount": 1500,
+          "currency": "JPY",
+          "notes": "Adult admission"
+        },
+        "note": "Beautiful illuminated fish displays"
+      },
+      {
+        "time": "6:30 PM",
+        "title": "Halal Dinner at Tendon Ginza",
+        "description": "Enjoy halal tempura rice bowl at this certified halal restaurant",
+        "location": {
+          "name": "Tendon Ginza",
+          "mapsUrl": "https://maps.google.com/?q=Tendon+Ginza+Halal"
+        },
+        "price": {
+          "amount": 2500,
+          "currency": "JPY",
+          "notes": "Dinner cost"
+        },
+        "note": "Halal-certified tempura and rice bowls"
+      },
+      {
+        "time": "8:00 PM",
+        "title": "Return to Itabashi Airbnb",
+        "description": "Take metro and JR train back to Itabashi Station",
+        "location": {
+          "name": "Itabashi Station",
+          "mapsUrl": "https://maps.google.com/?q=Itabashi+Station"
+        },
+        "price": {
+          "amount": 280,
+          "currency": "JPY",
+          "notes": "One-way train fare"
+        },
+        "note": "Direct route back to accommodation"
       }
     ]
-  }
-  ,
+  },
   {
     "day": 5,
     "title": "Mount Fuji",
@@ -235,13 +561,13 @@
   },
   {
     "day": 6,
-    "title": "Kyoto Culture and Halal Cuisine",
+    "title": "Fuji Q",
     "date": "November 23, 2025",
     "items": [
       {
-        "time": "8:00 AM",
-        "title": "Shinkansen to Kyoto",
-        "description": "Take the bullet train from Tokyo to Kyoto (approx. 2 hrs)",
+        "time": "9:00 AM",
+        "title": "Bus to Fuji Q",
+        "description": "Take the bus from Tokyo to Fuji Q (approx. 30 minutes)",
         "location": {
           "name": "Tokyo Station",
           "mapsUrl": "https://maps.google.com/?q=Tokyo+Station"
@@ -254,19 +580,20 @@
         "note": "Use JR Pass if available"
       },
       {
-        "time": "11:00 AM",
-        "title": "Arashiyama Bamboo Grove",
-        "description": "Walk through the peaceful bamboo forest",
+        "time": "10:00 AM",
+        "title": "Fuji Q",
+        "description": "Spend the day at Fuji Q",
         "location": {
-          "name": "Arashiyama Bamboo Grove",
-          "mapsUrl": "https://maps.google.com/?q=Arashiyama+Bamboo+Grove"
+          "name": "Fuji Q", 
+          "mapsUrl": "https://maps.app.goo.gl/ykeSa3fuPLmhaCUL7"
         },
         "price": {
           "amount": 0,
           "currency": "JPY",
           "notes": "Free"
         },
-        "note": "Best visited early to avoid crowds"
+        "note": "Best visited early to avoid crowds",
+        "images": "FujiQ.jpg"
       },
       {
         "time": "1:00 PM",
