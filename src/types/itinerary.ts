@@ -17,6 +17,7 @@ export interface TimelineItem {
   price: Price;
   note: string;
   images?: string;
+  youtubeUrl?: string;
 }
 
 export interface DayItinerary {

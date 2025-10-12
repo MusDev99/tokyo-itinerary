@@ -4,7 +4,7 @@ import type { TimelineItem as TimelineItemType } from '../types/itinerary';
 
 interface TimelineItemProps extends TimelineItemType {}
 
-export default function TimelineItem({ time, title, description, location, price, note, images }: TimelineItemProps) {
+export default function TimelineItem({ time, title, description, location, price, note, images, youtubeUrl }: TimelineItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
 
@@ -118,6 +118,21 @@ export default function TimelineItem({ time, title, description, location, price
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <p className="text-sm text-text/80 leading-relaxed">{note}</p>
+                </div>
+              )}
+
+              {youtubeUrl && (
+                <div className="mt-4">
+                  <iframe
+                    width="100%"
+                    height="315"
+                    src={youtubeUrl}
+                    title="YouTube video player"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    className="rounded-lg"
+                  ></iframe>
                 </div>
               )}
             </div>
