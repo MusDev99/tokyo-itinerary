@@ -44,12 +44,18 @@ export default function Countdown({ targetDate }: Props) {
     <div className="flex items-center gap-1 sm:gap-2">
       {timeUnits.map((unit, index) => (
         <div key={index} className="flex items-center">
-          <div className="flex flex-col items-center">
-            <span className="text-base sm:text-lg font-extrabold text-black drop-shadow-md">{unit.value}</span>
-            <span className="text-[11px] sm:text-xs text-neutral-700 font-semibold drop-shadow">{unit.label}</span>
+          <div className="flex flex-col items-center bg-gradient-to-br from-white/90 to-white/70 rounded-lg px-2 py-1 shadow-sm border border-white/50">
+            <span className="text-base sm:text-lg font-extrabold text-text drop-shadow-sm transition-all duration-300 hover:scale-110">
+              {unit.value}
+            </span>
+            <span className="text-[10px] sm:text-xs text-text/70 font-semibold drop-shadow-sm">
+              {unit.label}
+            </span>
           </div>
           {index < timeUnits.length - 1 && (
-            <span className="text-black/70 mx-0.5 sm:mx-1 font-bold drop-shadow">:</span>
+            <span className="text-text/50 mx-0.5 sm:mx-1 font-bold drop-shadow-sm animate-pulse">
+              :
+            </span>
           )}
         </div>
       ))}

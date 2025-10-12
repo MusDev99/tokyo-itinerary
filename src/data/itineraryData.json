@@ -295,7 +295,7 @@
           "mapsUrl": "https://maps.google.com/?q=Wagyu+Yakiniku+Panga+Tokyo"
         },
         "price": {
-          "amount": 4000,
+          "amount": 10000,
           "currency": "JPY",
           "notes": "Premium Wagyu meal per person"
         },
@@ -333,7 +333,7 @@
       },
       {
         "time": "5:00 PM",
-        "title": "Halal Dinner at Gyu-Kaku Akihabara",
+        "title": "Halal Dinner at Niko-Niko Mazeman",
         "description": "Alternative Halal option for Japanese BBQ and grilled meats",
         "location": {
           "name": "Gyu-Kaku Akihabara",

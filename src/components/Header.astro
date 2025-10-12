@@ -12,20 +12,27 @@ const months = Math.floor((timeDiff % (1000 * 60 * 60 * 24 * 365)) / (1000 * 60 
 const days = Math.floor((timeDiff % (1000 * 60 * 60 * 24 * 30)) / (1000 * 60 * 60 * 24));
 ---
 
-<header class="sticky top-0 z-50 bg-bg/80 backdrop-blur-sm border-b border-primary/20">
+<header class="sticky top-0 z-50 glass-effect border-b border-primary/20 shadow-lg">
   <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
     <div class="flex flex-col sm:flex-row items-center justify-between py-3 sm:py-0 sm:h-16 gap-2 sm:gap-0">
-      <div class="flex items-center gap-2 sm:gap-3">
-        <div class="text-primary">
-          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 sm:w-6 sm:h-6">
+      <div class="flex items-center gap-2 sm:gap-3 group">
+        <div class="text-primary group-hover:scale-110 transition-transform duration-300">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 sm:w-6 sm:h-6 drop-shadow-sm">
             <path d="M6 6H42L36 24L42 42H6L12 24L6 6Z" fill="currentColor"></path>
           </svg>
         </div>
-        <h2 class="text-lg sm:text-xl font-bold text-text tracking-tight">My Itinerary</h2>
+        <h2 class="text-lg sm:text-xl font-bold text-text tracking-tight group-hover:gradient-text transition-all duration-300">
+          My Itinerary
+        </h2>
       </div>
 
-      <div class="flex items-center gap-2 sm:gap-4">
-        <span class="text-text/80 text-xs sm:text-sm font-medium">Trip starts in</span>
+      <div class="flex items-center gap-2 sm:gap-4 bg-gradient-to-r from-secondary/20 to-bg/20 px-3 py-2 rounded-lg border border-primary/20">
+        <span class="text-text/80 text-xs sm:text-sm font-medium flex items-center gap-1">
+          <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+          </svg>
+          Trip starts in
+        </span>
         <Countdown targetDate={firstDay} client:load />
       </div>
     </div>

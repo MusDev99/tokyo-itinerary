@@ -29,18 +29,35 @@ const ThemeSwitcher = () => {
   };
 
   return (
-    <div className="theme-switcher flex gap-2 p-2 bg-white/80 rounded-full shadow-lg">
+    <div className="theme-switcher flex gap-1 p-1 glass-effect rounded-full shadow-lg border border-primary/20">
       {themes.map(t => (
         <button
           key={t.id}
-          className={`p-2 rounded-full transition-all ${
-            theme === t.id ? 'bg-gray-200 scale-110' : 'hover:bg-gray-100'
+          className={`relative p-2 rounded-full transition-all duration-300 group ${
+            theme === t.id 
+              ? 'bg-gradient-to-r from-primary to-accent scale-110 shadow-md' 
+              : 'hover:bg-primary/10 hover:scale-105'
           }`}
           onClick={() => switchTheme(t.id)}
           title={t.label}
           aria-label={t.label}
         >
-          <span className="text-xl">{t.icon}</span>
+          {/* Active indicator */}
+          {theme === t.id && (
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary to-accent opacity-20 animate-pulse" />
+          )}
+          
+          <span className={`relative z-10 text-xl transition-all duration-300 ${
+            theme === t.id ? 'drop-shadow-sm' : 'group-hover:scale-110'
+          }`}>
+            {t.icon}
+          </span>
+          
+          {/* Tooltip */}
+          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-text text-bg text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+            {t.label}
+            <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-t-2 border-transparent border-t-text" />
+          </div>
         </button>
       ))}
     </div>
