@@ -492,8 +492,53 @@
     "date": "November 22, 2025",
     "items": [
       {
-        "time": "05:00 AM",
-        "title": "Mount Fuji",
+        "time": "09:00 AM",
+        "title": "Check Out from Itabashi AirBnb",
+        "description": "Take train Narimasu Station - Ikebukuro Station",
+        "location": {
+          "name": "Narimasu Station",
+          "mapsUrl": "https://maps.app.goo.gl/c1RAwdbBv9WHcaFcA"
+        },
+        "price": {
+          "amount": 261,
+          "currency": "JPY",
+          "notes": "Free entry"
+        },
+        "note": "Tobu Tojo Line Platform 3/4"
+      },
+      {
+        "time": "10:30 AM",
+        "title": "Arrive at Sunshine City Prince Hotel",
+        "description": "Standby at Bus Stop",
+        "location": {
+          "name": "Sunshine City Prince Hotel",
+          "mapsUrl": "https://maps.app.goo.gl/QoXYZfbUnPBKrb5S9"
+        },
+        "price": {
+          "amount": 60.22,
+          "currency": "MYR",
+          "notes": "Already Booked"
+        },
+        "note": "Arrive 20 minutes prior to departure"
+      },
+      {
+        "time": "11:10 AM",
+        "title": "Bus to Fuji",
+        "description": "Take bus kawaguchiko Line",
+        "location": {
+          "name": "Sunshine City Prince Hotel",
+          "mapsUrl": "https://maps.google.com/?q=Senso-ji+Temple"
+        },
+        "price": {
+          "amount": 60.22,
+          "currency": "MYR",
+          "notes": "Free entry"
+        },
+        "note": "Journey hour by 2 hours and half"
+      },
+      {
+        "time": "2:30 PM",
+        "title": "Arrive at Lake Kawaguchi",
         "description": "Visit Tokyo's oldest and most significant Buddhist temple",
         "location": {
           "name": "Senso-ji Temple",
@@ -501,10 +546,25 @@
         },
         "price": {
           "amount": 0,
-          "currency": "JPY",
-          "notes": "Free entry"
+          "currency": "MYR",
+          "notes": ""
         },
-        "note": "Try the traditional fortune-telling (omikuji) for 100 yen"
+        "note": ""
+      },
+      {
+        "time": "5:00 PM",
+        "title": "Checkin at Hostel 1889",
+        "description": "Self checkin at reservation",
+        "location": {
+          "name": "Hostel 1889",
+          "mapsUrl": "https://maps.app.goo.gl/qWJBF9GFw8nveukg8"
+        },
+        "price": {
+          "amount": 310.00,
+          "currency": "MYR",
+          "notes": "Already booked per person"
+        },
+        "note": "https://www.airbnb.co.uk/rooms/561789379215305242?viralityEntryPoint=1&s=76&source_impression_id=p3_1754119394_P3HsMccoSdf5QVJs"
       }
     ]
   },
