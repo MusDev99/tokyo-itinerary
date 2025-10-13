@@ -553,8 +553,8 @@
       },
       {
         "time": "5:00 PM",
-        "title": "Checkin at Hostel 1889",
-        "description": "Self checkin at reservation",
+        "title": "Checkin at Airbnb",
+        "description": "Self checkin at reservatioat Hostel 1889",
         "location": {
           "name": "Hostel 1889",
           "mapsUrl": "https://maps.app.goo.gl/qWJBF9GFw8nveukg8"
@@ -591,25 +591,25 @@
         "note": "Use JR Pass if available"
       },
       {
-        "time": "10:00 AM",
+        "time": "9:00 AM",
         "title": "Fuji Q Highland",
-        "description": "Team A",
+        "description": "Team A - Sharif, Helmi, Mustaqeem",
         "location": {
           "name": "5 Chome-6-1 Shinnishihara, Fujiyoshida, Yamanashi 403-0017, Japan ", 
           "mapsUrl": "https://maps.app.goo.gl/ykeSa3fuPLmhaCUL7"
         },
         "price": {
-          "amount": 0,
-          "currency": "JPY",
-          "notes": "Free"
+          "amount": 126.99,
+          "currency": "MYR",
+          "notes": "Paid 1 Day Pass"
         },
-        "note": "Best visited early to avoid crowds",
+        "note": "",
         "youtubeUrl":"https://www.youtube.com/embed/vmNAFPfMK7A"
       },
       {
         "time": "10:00 AM",
         "title": "Lake Kawaguchi",
-        "description": "Team B",
+        "description": "Team B -  Ros, Azam, Mirul",
         "location": {
           "name": "Lake Kawaguchi", 
           "mapsUrl": "https://maps.app.goo.gl/dzg3r1pmM8gVFdKR9"
@@ -619,7 +619,7 @@
           "currency": "JPY",
           "notes": "Free"
         },
-        "note": "Best visited early to avoid crowds"
+        "note": "Tak tahu nak pergi mana"
       }
     ]
   },
