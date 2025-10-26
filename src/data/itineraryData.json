@@ -1,7 +1,7 @@
 [
   {
     "day": 1,
-    "title": "KUL - HND",
+    "title": "Opening & KUL - HND",
     "date": "November 18, 2025",
     "items": [
       {
@@ -77,10 +77,10 @@
         "description": "Depart from Haneda Airport to Minato City",
         "location": {
           "name": "Haneda Airport",
-          "mapsUrl": "https://www.google.com/maps/place/Haneda+Airport+(HND)/data=!4m2!3m1!19sChIJ45IxpAtkGGAR3_hG0anDMg0"
+          "mapsUrl": "https://www.google.com/maps/dir/Haneda+Airport,+Hanedakuko,+Ota+City,+Tokyo,+Japan/Tokyo+Tower,+4+Chome-2-8+Shibakoen,+Minato+City,+Tokyo+105-0011,+Japan/@35.6013273,139.7097109,13z/am=t/data=!4m18!4m17!1m5!1m1!1s0x6018640ba43192e3:0xd32c3a9d146f8df!2m2!1d139.7779951!2d35.5482964!1m5!1m1!1s0x60188bbd9009ec09:0x481a93f0d2a409dd!2m2!1d139.7454329!2d35.6585805!2m3!6e0!7e2!8j1763533800!3e3?entry=ttu&g_ep=EgoyMDI1MTAwOC4wIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
-          "amount": 0,
+          "amount": 510,
           "currency": "JPY",
           "notes": "Free entry"
         },
@@ -95,9 +95,9 @@
           "mapsUrl": "https://maps.google.com/?q=Tokyo+Tower"
         },
         "price": {
-          "amount": 1200,
+          "amount": 0,
           "currency": "JPY",
-          "notes": "Main Observatory admission"
+          "notes": "Free entry"
         },
         "note": "Store Luggage at Daimon Station"
       },
@@ -106,15 +106,15 @@
         "title": "Go to Itabashi City",
         "description": "Retrieve Luggage from coin lockers and go to Itabashi City",
         "location": {
-          "name": "Itabashi Station & Airbnb Itabashi",
-          "mapsUrl": "https://maps.google.com/?q=Itabashi+Station"
+          "name": "Itabashi Station",
+          "mapsUrl": "https://www.google.com/maps/dir/Tokyo+Tower,+4+Chome-2-8+Shibakoen,+Minato+City,+Tokyo,+Japan/Japan,+%E3%80%92175-0092+Tokyo,+Itabashi+City,+Akatsuka,+3-ch%C5%8Dme%E2%88%9219%E2%88%922+%E3%83%8D%E3%82%AA%E3%83%BB%E3%82%B9%E3%83%86%E3%83%BC%E3%82%B8%E6%88%90%E5%A2%97/@35.6598548,139.7452825,17z/am=t/data=!4m18!4m17!1m5!1m1!1s0x60188bbd9009ec09:0x481a93f0d2a409dd!2m2!1d139.7454329!2d35.6585805!1m5!1m1!1s0x6018ec76d6b78e07:0xd0e358c73acbff61!2m2!1d139.6372143!2d35.7767553!2m3!6e0!7e2!8j1763553600!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTAwOC4wIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
-          "amount": 0,
+          "amount": 480,
           "currency": "JPY",
           "notes": "One-way metro fare"
         },
-        "note": "Rest and freshen up after check-in"
+        "note": "Hibiya Line > SubwayMarunouchi Line > TrainTobu-Tojo Line"
 
       },
       {
@@ -137,10 +137,10 @@
         "description": "Take a peaceful stroll through the garden, featuring ponds, bonsai collections, and seasonal blooms",
         "location": {
           "name": "Akatsuka Botanical Garden",
-          "mapsUrl": "https://maps.google.com/?q=Akatsuka+Botanical+Garden"
+          "mapsUrl": "https://www.google.com/maps/dir/Japan,+%E3%80%92175-0092+Tokyo,+Itabashi+City,+Akatsuka,+3-ch%C5%8Dme%E2%88%9219%E2%88%922+%E3%83%8D%E3%82%AA%E3%83%BB%E3%82%B9%E3%83%86%E3%83%BC%E3%82%B8%E6%88%90%E5%A2%97/Akatsuka+Botanical+Garden,+5+Chome-17-14+Akatsuka,+Itabashi+City,+Tokyo,+Japan/@35.7784053,139.6357631,16z/am=t/data=!3m1!4b1!4m18!4m17!1m5!1m1!1s0x6018ec76d6b78e07:0xd0e358c73acbff61!2m2!1d139.6372143!2d35.7767553!1m5!1m1!1s0x6018ec793ae9057d:0x8faee548dbc34bc5!2m2!1d139.6442119!2d35.7805778!2m3!6e0!7e2!8j1763553600!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTAwOC4wIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
-          "amount": 0,
+          "amount": 240,
           "currency": "JPY",
           "notes": "Free entry"
         },
@@ -212,97 +212,11 @@
 
   {
     "day": 3,
-    "title": "Ueno, Akihabara and Asakusa City Exploration",
+    "title": "Asakusa, Akihabara and Ueno City Exploration",
     "date": "November 20, 2025",
     "items": [
       {
-        "time": "7:00 AM",
-        "title": "Ueno Park",
-        "description": "Explore the Ueno Park",
-        "location": {
-          "name": "Ueno Park",
-          "mapsUrl": "https://maps.google.com/?q=Ueno+Park"
-        },
-        "price": {
-          "amount": 0,
-          "currency": "JPY",
-          "notes": "Free entry"
-        },
-        "note": "Popular city park featuring ample walking paths, a lake with boat rentals, a zoo & several museums."
-      },
-      {
-        "time": "10:30 AM",
-        "title": "Arrive in Akihabara",
-        "description": "Begin exploration of Akihabara Electric Town, Tokyo’s tech and anime hub",
-        "location": {
-          "name": "Akihabara Station (Electric Town Exit)",
-          "mapsUrl": "https://maps.google.com/?q=Akihabara+Station"
-        },
-        "price": {
-          "amount": 0,
-          "currency": "JPY"
-        },
-        "note": "Start from Electric Town Exit for best access"
-      },
-      {
-        "time": "10:45 AM",
-        "title": "Yodobashi Camera Akihabara",
-        "description": "Explore 9 floors of electronics, gadgets, games and cameras",
-        "location": {
-          "name": "Yodobashi Camera Multimedia Akiba",
-          "mapsUrl": "https://maps.google.com/?q=Yodobashi+Camera+Multimedia+Akiba"
-        },
-        "price": {
-          "amount": 0,
-          "currency": "JPY",
-          "notes": "Free entry, shopping optional"
-        },
-        "note": "Try hands-on tech demos and gaming floors"
-      },
-      {
-        "time": "1:30 PM",
-        "title": "Akihabara Radio Kaikan",
-        "description": "Visit the iconic 10-floor complex for anime figures, trading cards, and model kits",
-        "location": {
-          "name": "Akihabara Radio Kaikan",
-          "mapsUrl": "https://maps.google.com/?q=Akihabara+Radio+Kaikan"
-        },
-        "price": {
-          "amount": 0,
-          "currency": "JPY"
-        },
-        "note": "Don’t miss Kaiyodo and Volks collectible floors"
-      },
-      {
-        "time": "2:30 PM",
-        "title": "Super Potato Retro Game Store",
-        "description": "Discover nostalgic video game consoles and retro cartridges from the 80s–90s era",
-        "location": {
-          "name": "Super Potato Akihabara",
-          "mapsUrl": "https://maps.google.com/?q=Super+Potato+Akihabara"
-        },
-        "price": {
-          "amount": 0,
-          "currency": "JPY"
-        },
-        "note": "Great place for rare Famicom and Game Boy finds"
-      },
-      {
-        "time": "3:30 PM",
-        "title": "Don Quijote Akihabara",
-        "description": "Shop souvenirs, snacks, toys and quirky Japanese gifts in this massive discount store",
-        "location": {
-          "name": "Don Quijote Akihabara",
-          "mapsUrl": "https://maps.google.com/?q=Don+Quijote+Akihabara"
-        },
-        "price": {
-          "amount": 0,
-          "currency": "JPY"
-        },
-        "note": "Perfect stop for souvenirs; AKB48 Café nearby"
-      },
-      {
-        "time": "5:30 PM",
+        "time": "7:30 AM",
         "title": "Travel to Asakusa",
         "description": "Take train from Akihabara to Asakusa area",
         "location": {
@@ -317,19 +231,49 @@
         "note": "Direct train via Tsukuba Express to Asakusa"
       },
       {
-        "time": "6:00 PM",
-        "title": "Halal Dinner at Wagyu Yakiniku Panga",
-        "description": "Enjoy premium Halal Wagyu BBQ at this certified Halal restaurant in Asakusa area",
+        "time": "8:30 AM",
+        "title": "Sensō-ji Temple",
+        "description": "Walk from Asakusa Station to Sensō-ji",
         "location": {
-          "name": "Wagyu Yakiniku Panga Asakusa",
-          "mapsUrl": "https://maps.google.com/?q=Wagyu+Yakiniku+Panga+Asakusa"
+          "name": "Sensō-ji",
+          "mapsUrl": "https://maps.app.goo.gl/UiLoQJrLgEyKfVpk8"
         },
         "price": {
-          "amount": 7000,
+          "amount": 0,
           "currency": "JPY",
-          "notes": "Premium Wagyu meal per person"
+          "notes": "Free entry, rent optional"
+        },
+        "note": ""
+      },
+      {
+        "time": "12:00 PM",
+        "title": "Halal Lunch at Wagyu Yakiniku Panga",
+        "description": "Enjoy premium Halal Wagyu BBQ at this certified Halal restaurant in Okachimachi area",
+        "location": {
+          "name": "Wagyu Yakiniku Panga Okamachi",
+          "mapsUrl": "https://www.google.com/maps/place/Halal+Wagyu+Yakiniku+Panga/data=!4m2!3m1!19sChIJ9bFAjKSOGGARqsl1Ru2ZQs0"
+        },
+        "price": {
+          "amount": 2000,
+          "currency": "JPY",
+          "notes": "Cheapest"
         },
         "note": "Must book (1 month in advance)"
+      },
+      {
+        "time": "5:00 PM",
+        "title": "Ueno Park",
+        "description": "Explore the Ueno Park",
+        "location": {
+          "name": "Ueno Park",
+          "mapsUrl": "https://maps.google.com/?q=Ueno+Park"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free entry"
+        },
+        "note": "Popular city park featuring ample walking paths, a lake with boat rentals, a zoo & several museums."
       }
     ]
   },  
@@ -653,7 +597,106 @@
         "note": ""
       },
       {
-        "time": "7:00 PM",
+        "time": "11:00 AM",
+        "title": "Go to Akihabara",
+        "description": "Take Keihin-Tōhoku Line",
+        "location": {
+          "name": "Tokyo Sta. Nihonbashi Entrance",
+          "mapsUrl": "http://google.com/maps/dir/Tokyo+Sta.+Nihonbashi+Entrance,+1+Chome-7+Marunouchi,+Chiyoda+City,+Tokyo,+Japan/Akihabara/@35.6844293,139.7649548,16.5z/am=t/data=!4m18!4m17!1m5!1m1!1s0x60188bfebe17f329:0xea94f8e4576e6401!2m2!1d139.769!2d35.68349!1m5!1m1!1s0x60188c1d829dd5cd:0x772f5995da208987!2m2!1d139.7713703!2d35.6996473!2m3!6e0!7e2!8j1763978400!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTAyMC4wIKXMDSoASAFQAw%3D%3D"
+        },
+        "price": {
+          "amount": 150,
+          "currency": "JPY"
+        },
+        "note": "Keihin-Tōhoku Line"
+      },
+      {
+        "time": "11:30 AM",
+        "title": "Arrive in Akihabara",
+        "description": "Begin exploration of Akihabara Electric Town, Tokyo’s tech and anime hub",
+        "location": {
+          "name": "Akihabara Station (Electric Town Exit)",
+          "mapsUrl": "https://maps.google.com/?q=Akihabara+Station"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY"
+        },
+        "note": "Start from Electric Town Exit for best access"
+      },
+      {
+        "time": "11:45 AM",
+        "title": "Yodobashi Camera Akihabara",
+        "description": "Explore 9 floors of electronics, gadgets, games and cameras",
+        "location": {
+          "name": "Yodobashi Camera Multimedia Akiba",
+          "mapsUrl": "https://maps.google.com/?q=Yodobashi+Camera+Multimedia+Akiba"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free entry, shopping optional"
+        },
+        "note": "Try hands-on tech demos and gaming floors"
+      },
+      {
+        "time": "1:30 PM",
+        "title": "Akihabara Radio Kaikan",
+        "description": "Visit the iconic 10-floor complex for anime figures, trading cards, and model kits",
+        "location": {
+          "name": "Akihabara Radio Kaikan",
+          "mapsUrl": "https://maps.google.com/?q=Akihabara+Radio+Kaikan"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY"
+        },
+        "note": "Don’t miss Kaiyodo and Volks collectible floors"
+      },
+      {
+        "time": "2:30 PM",
+        "title": "Super Potato Retro Game Store",
+        "description": "Discover nostalgic video game consoles and retro cartridges from the 80s–90s era",
+        "location": {
+          "name": "Super Potato Akihabara",
+          "mapsUrl": "https://maps.google.com/?q=Super+Potato+Akihabara"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY"
+        },
+        "note": "Great place for rare Famicom and Game Boy finds"
+      },
+      {
+        "time": "4:00 PM",
+        "title": "Don Quijote Akihabara",
+        "description": "Shop souvenirs, snacks, toys and quirky Japanese gifts in this massive discount store",
+        "location": {
+          "name": "Don Quijote Akihabara",
+          "mapsUrl": "https://maps.google.com/?q=Don+Quijote+Akihabara"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY"
+        },
+        "note": "Perfect stop for souvenirs; AKB48 Café nearby"
+      },
+      {
+        "time": "6:30 PM",
+        "title": "Go to HND Airport",
+        "description": "Take train from Akihabara Station",
+       "location": {
+          "name": "Akihabara Station",
+          "mapsUrl": "https://www.google.com/maps/dir/Akihabara+Electric+Town,+Tokyo,+Japan/Haneda+Airport+(HND),+Haneda+Airport,+Ota+City,+Tokyo,+Japan/@35.6217825,139.5860942,11z/am=t/data=!3m1!4b1!4m18!4m17!1m5!1m1!1s0x60188c1d829dd5cd:0x772f5995da208987!2m2!1d139.7713703!2d35.6996473!1m5!1m1!1s0x6018640ba43192e3:0xd32c3a9d146f8df!2m2!1d139.7779951!2d35.5482964!2m3!6e1!7e2!8j1764012600!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTAwOC4wIKXMDSoASAFQAw%3D%3D"
+        },
+        "price": {
+          "amount": 690,
+          "currency": "JPY"
+        },
+        "note": "Take Keihin-Tōhoku Line and Tokyo Monorail"
+      },
+      {
+        "time": "7:30 PM",
         "title": "Arrive at HND Airport",
         "description": "Flight depart from Haneda Aiport",
         "location": {
