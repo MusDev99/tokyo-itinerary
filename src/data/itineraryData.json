@@ -46,8 +46,7 @@
           "amount": 1000,
           "currency": "JPY"
         },
-        "note": "Vending machine in the Terminal 3 arrivals area",
-        "youtubeUrl":"https://www.youtube.com/embed/TBfg7bRRmSM"
+        "note": "Vending machine in the Terminal 3 arrivals area"
       },
       {
         "time": "12:30 AM",
@@ -100,8 +99,7 @@
           "currency": "JPY",
           "notes": "Main Observatory admission"
         },
-        "note": "Store Luggage at Daimon Station",
-        "youtubeUrl": "https://www.youtube.com/embed/uvjPLYudH04"
+        "note": "Store Luggage at Daimon Station"
       },
       {
         "time": "10.30 AM",
@@ -116,8 +114,7 @@
           "currency": "JPY",
           "notes": "One-way metro fare"
         },
-        "note": "Rest and freshen up after check-in",
-        "youtubeUrl":"https://www.youtube.com/embed/Tt4rsH-eDzc?"
+        "note": "Rest and freshen up after check-in"
 
       },
       {
@@ -245,8 +242,7 @@
           "amount": 0,
           "currency": "JPY"
         },
-        "note": "Start from Electric Town Exit for best access",
-        "youtubeUrl":"https://www.youtube.com/embed/_fZRHpVD2r8"
+        "note": "Start from Electric Town Exit for best access"
       },
       {
         "time": "10:45 AM",
@@ -333,8 +329,7 @@
           "currency": "JPY",
           "notes": "Premium Wagyu meal per person"
         },
-        "note": "Must book (1 month in advance)",
-        "youtubeUrl": "https://www.youtube.com/embed/kDeHbBOuHhc"
+        "note": "Must book (1 month in advance)"
       }
     ]
   },  
@@ -372,8 +367,7 @@
           "currency": "JPY",
           "notes": "Free entry"
         },
-        "note": "Rooftop garden offers great views of Ginza",
-        "youtubeUrl": "https://www.youtube.com/embed/moPNte3QUy0"
+        "note": "Rooftop garden offers great views of Ginza"
       },
       {
         "time": "11:00 PM",
@@ -448,8 +442,7 @@
           "currency": "JPY",
           "notes": "Adult"
         },
-        "note": "¥2,700 for adults to enter before 3:00 PM and ¥3,400 after 3:00 PM when purchased online",
-        "youtubeUrl": "https://www.youtube.com/embed/vTlSGCP7NLg"
+        "note": "¥2,700 for adults to enter before 3:00 PM and ¥3,400 after 3:00 PM when purchased online"
       },
       {
         "time": "7:00 PM",
@@ -515,8 +508,8 @@
           "mapsUrl": "https://maps.app.goo.gl/QoXYZfbUnPBKrb5S9"
         },
         "price": {
-          "amount": 60.22,
-          "currency": "MYR",
+          "amount": 2168,
+          "currency": "JPY",
           "notes": "Already Booked"
         },
         "note": "Arrive 20 minutes prior to departure"
@@ -541,8 +534,8 @@
         "title": "Arrive at Lake Kawaguchi",
         "description": "Visit Tokyo's oldest and most significant Buddhist temple",
         "location": {
-          "name": "Senso-ji Temple",
-          "mapsUrl": "https://maps.google.com/?q=Senso-ji+Temple"
+          "name": "Laku Kawaguchi",
+          "mapsUrl": "https://www.google.com/maps/place/Lake+Kawaguchi/data=!4m2!3m1!19sChIJTz8EpbRfGWARR30zHkuyyyk"
         },
         "price": {
           "amount": 0,
@@ -577,21 +570,6 @@
     "items": [
       {
         "time": "9:00 AM",
-        "title": "Bus to Fuji Q",
-        "description": "Take the bus from Tokyo to Fuji Q (approx. 30 minutes)",
-        "location": {
-          "name": "Tokyo Station",
-          "mapsUrl": "https://maps.google.com/?q=Tokyo+Station"
-        },
-        "price": {
-          "amount": 75,
-          "currency": "MYR",
-          "notes": "One-way, non-reserved seat"
-        },
-        "note": "Use JR Pass if available"
-      },
-      {
-        "time": "9:00 AM",
         "title": "Fuji Q Highland",
         "description": "Team A - Sharif, Helmi, Mustaqeem",
         "location": {
@@ -603,8 +581,7 @@
           "currency": "MYR",
           "notes": "Paid 1 Day Pass"
         },
-        "note": "",
-        "youtubeUrl":"https://www.youtube.com/embed/vmNAFPfMK7A"
+        "note": ""
       },
       {
         "time": "10:00 AM",
@@ -620,6 +597,21 @@
           "notes": "Free"
         },
         "note": "Tak tahu nak pergi mana"
+      },
+      {
+        "time": "4:00 PM",
+        "title": "Arakurayama Sengen Park",
+        "description": "Fuji Photo Spot from Temple",
+        "location": {
+          "name": "Arakurayama Sengen Park", 
+          "mapsUrl": "https://www.google.com/maps/place/Arakurayama+Sengen+Park/data=!4m2!3m1!19sChIJu6hYHU1nGWARfaBH0X127o8"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "MYR",
+          "notes": "Free"
+        },
+        "note": ""
       }
     ]
   },
@@ -630,6 +622,36 @@
     "title": "Closure & HND - KUL ",
     "date": "November 24, 2025",
     "items": [
+      {
+        "time": "7:40 AM",
+        "title": "Fujisan Station to Tokyo Station",
+        "description": "Fujikyuko Co., Ltd./JR BUS KANTO",
+        "location": {
+          "name": "Fujisan Station",
+          "mapsUrl": "https://www.google.com/maps/place/Fujisan+Station/data=!4m2!3m1!19sChIJi-BhlM1gGWARVKbEXVbZSlk"
+        },
+        "price": {
+          "amount": 2200,
+          "currency": "JPY",
+          "notes": "Already Booked"
+        },
+        "note": "Arrive 30 minutes in advance"
+      },
+      {
+        "time": "9:35 AM",
+        "title": "Arrive at Tokyo Sta. Nihonbashi Entrance",
+        "description": "Fujikyuko Co., Ltd./JR BUS KANTO",
+        "location": {
+          "name": "Tokyo Station",
+          "mapsUrl": "https://www.google.com/maps/place/Tokyo+Sta.+Nihonbashi+Entrance/data=!4m2!3m1!19sChIJKfMXvv6LGGARAWRuV-T4lOo"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Already Booked"
+        },
+        "note": ""
+      },
       {
         "time": "7:00 PM",
         "title": "Arrive at HND Airport",
@@ -659,21 +681,6 @@
           "notes": "Already Booked"
         },
         "note": "Arrive 4 Hours prior to departure"
-      },
-      {
-        "time": "10:40 PM",
-        "title": "Arrive at KUL Airport",
-        "description": "Perform Immigration Check and Fresh up",
-        "location": {
-          "name": "Kuala Lumpur International Airport Terminal 2",
-          "mapsUrl": "https://www.google.com/maps/place/KLIA+2/data=!4m2!3m1!19sChIJ72GmWQC_zTERU9AoPFdVy9k"
-        },
-        "price": {
-          "amount": 0,
-          "currency": "MYR",
-          "notes": ""
-        },
-        "note": "Early check-in available for additional fee"
       }
     ]
   }

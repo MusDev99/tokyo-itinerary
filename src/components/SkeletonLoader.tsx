@@ -1,5 +1,3 @@
-import { h } from 'preact';
-
 interface SkeletonProps {
   className?: string;
   height?: string;
