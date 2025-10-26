@@ -232,10 +232,10 @@
       },
       {
         "time": "8:30 AM",
-        "title": "Sensō-ji Temple",
-        "description": "Walk from Asakusa Station to Sensō-ji",
+        "title": "Senso-ji Temple",
+        "description": "Walk from Asakusa Station to Senso-ji",
         "location": {
-          "name": "Sensō-ji",
+          "name": "Senso-ji",
           "mapsUrl": "https://maps.app.goo.gl/UiLoQJrLgEyKfVpk8"
         },
         "price": {
