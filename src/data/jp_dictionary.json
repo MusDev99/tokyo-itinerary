@@ -1,0 +1,25 @@
+{
+  "categories": [
+    {
+      "name": "Greetings",
+      "phrases": [
+        { "jp": "Konnichiwa (こんにちは) ", "en": "Hello" },
+        { "jp": "Ohayou gozaimasu (おはようございます) ", "en": "Good morning" },
+        { "jp": "Konbanwa (こんばんは)", "en": "Good evening" },
+        { "jp": "Moshi moshi (もしもし)", "en": "Hello" },
+        { "jp": "Ogenki desu ka? (お元気ですか)", "en": "How are you ?" },
+        { "jp": "Ohisashiburi desu ne (お久しぶりですね) ", "en": " Long time no see" },
+        { "jp": "Sayonara", "en": "Goodbye" }
+      ]
+    },
+    {
+      "name": "Basic Phrases",
+      "phrases": [
+        { "jp": "Arigatou gozaimasu", "en": "Thank you very much" },
+        { "jp": "Sumimasen", "en": "Excuse me / Sorry" },
+        { "jp": "Hai", "en": "Yes" },
+        { "jp": "Iie", "en": "No" }
+      ]
+    }
+  ]
+}

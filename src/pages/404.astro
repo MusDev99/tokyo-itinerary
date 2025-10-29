@@ -1,0 +1,30 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Header />
+<Layout title="404: Not Found">
+  <div class="relative flex size-full min-h-screen flex-col items-center justify-center bg-transparent group/design-root overflow-x-hidden smooth-scroll">
+    <div class="layout-container flex h-full grow flex-col">
+      <div class="flex flex-1 items-center justify-center text-center">
+        <div class="flex flex-col gap-4 p-8">
+          <h1 class="text-9xl font-bold text-primary drop-shadow-lg animate-pulse">
+            404
+          </h1>
+          <p class="text-2xl font-semibold text-text md:text-3xl">Oops! Page Not Found.</p>
+          <p class="text-text/80 max-w-md">
+            The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
+          </p>
+          <div class="mt-6">
+            <a href="/" class="inline-block bg-primary text-bg px-6 py-3 rounded-lg shadow-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition-all duration-300 transform hover:scale-105">
+              Go to Homepage
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <Footer />
+</Layout>

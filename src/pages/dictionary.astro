@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import dictionaryData from '../data/jp_dictionary.json';
 
 const title = "Common Japanese Phrases";
 const description = "A collection of common Japanese phrases for travelers.";
@@ -26,21 +27,16 @@ const description = "A collection of common Japanese phrases for travelers.";
             </div>
             
             <div class="glass-effect rounded-lg sm:rounded-2xl shadow-xl border border-primary/20 overflow-hidden p-4 sm:p-6">
-              <h2 class="text-lg font-bold mb-4">Greetings</h2>
-              <ul>
-                <li class="mb-2"><strong>Konnichiwa</strong> - Hello</li>
-                <li class="mb-2"><strong>Ohayou gozaimasu</strong> - Good morning</li>
-                <li class="mb-2"><strong>Konbanwa</strong> - Good evening</li>
-                <li class="mb-2"><strong>Sayonara</strong> - Goodbye</li>
-              </ul>
-
-              <h2 class="text-lg font-bold mt-6 mb-4">Basic Phrases</h2>
-              <ul>
-                <li class="mb-2"><strong>Arigatou gozaimasu</strong> - Thank you very much</li>
-                <li class="mb-2"><strong>Sumimasen</strong> - Excuse me / Sorry</li>
-                <li class="mb-2"><strong>Hai</strong> - Yes</li>
-                <li class="mb-2"><strong>Iie</strong> - No</li>
-              </ul>
+              {dictionaryData.categories.map((category, index) => (
+                <div class={index > 0 ? 'mt-6' : ''}>
+                  <h2 class="text-lg font-bold mb-4">{category.name}</h2>
+                  <ul>
+                    {category.phrases.map(phrase => (
+                      <li class="mb-2 jp-text"><strong>{phrase.jp}</strong> - {phrase.en}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
             </div>
 
           </div>

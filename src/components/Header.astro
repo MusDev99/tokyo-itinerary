@@ -1,12 +1,16 @@
 ---
-import Countdown from './Countdown.tsx';
-const { firstDay } = Astro.props;
+const navLinks = [
+    // { href: '/', text: 'Home' },
+    { href: '/japan', text: 'Japan Itinerary' },
+    { href: '/dictionary', text: 'Dictionary' },
+]
+const currentPath = Astro.url.pathname; 
 ---
 
 <header class="sticky top-0 z-50 glass-effect border-b border-primary/20 shadow-lg">
   <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-    <div class="flex flex-col sm:flex-row items-center justify-between py-3 sm:py-0 sm:h-16 gap-2 sm:gap-0">
-      <div class="flex items-center gap-2 sm:gap-3 group">
+    <div class="flex items-center justify-between h-16">
+      <div class="flex items-center">
         <a href="/" class="flex items-center gap-2 sm:gap-3 group">
           <div class="text-primary group-hover:scale-110 transition-transform duration-300">
             <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 sm:w-6 sm:h-6 drop-shadow-sm">
@@ -19,22 +23,79 @@ const { firstDay } = Astro.props;
         </a>
       </div>
 
-      <nav class="flex items-center gap-4">
-        <a href="/" class="text-text/80 hover:text-primary transition-colors duration-300">Itinerary</a>
-        <a href="/dictionary" class="text-text/80 hover:text-primary transition-colors duration-300">Dictionary</a>
-      </nav>
+      <!-- Desktop Nav -->
+      <div class="hidden sm:flex sm:items-center sm:ml-6">
+        <nav class="flex items-center space-x-4">
+          {navLinks.map(link => (
+            <a 
+              href={link.href} 
+              class:list={[
+                "px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300",
+                currentPath === link.href 
+                  ? 'bg-primary/10 text-primary' 
+                  : 'text-text/80 hover:bg-primary/10 hover:text-primary'
+              ]}
+              aria-current={currentPath === link.href ? 'page' : false}
+            >
+              {link.text}
+            </a>
+          ))}
+        </nav>
+      </div>
 
-      {firstDay && (
-        <div class="flex items-center gap-2 sm:gap-4 bg-gradient-to-r from-secondary/20 to-bg/20 px-3 py-2 rounded-lg border border-primary/20">
-          <span class="text-text/80 text-xs sm:text-sm font-medium flex items-center gap-1">
-            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-            </svg>
-            Trip starts in
-          </span>
-          <Countdown targetDate={firstDay} client:load />
-        </div>
-      )}
+      
+
+      <!-- Mobile menu button -->
+      <div class="-mr-2 flex items-center sm:hidden">
+        <button type="button" id="menu-toggle" class="inline-flex items-center justify-center p-2 rounded-md text-text/80 hover:text-primary hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary" aria-controls="mobile-menu" aria-expanded="false">
+          <span class="sr-only">Open main menu</span>
+          <svg id="menu-open-icon" class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+          <svg id="menu-close-icon" class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div class="sm:hidden hidden" id="mobile-menu">
+    <div class="px-2 pt-2 pb-3 space-y-1">
+      {navLinks.map(link => (
+        <a
+          href={link.href}
+          class:list={[
+            "block px-3 py-2 rounded-md text-base font-medium",
+            currentPath === link.href
+              ? 'bg-primary/10 text-primary'
+              : 'text-text/80 hover:bg-primary/10 hover:text-primary'
+          ]}
+          aria-current={currentPath === link.href ? 'page' : false}
+        >
+          {link.text}
+        </a>
+      ))}
     </div>
   </div>
 </header>
+
+<script>
+  const menuToggle = document.getElementById('menu-toggle');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const openIcon = document.getElementById('menu-open-icon');
+  const closeIcon = document.getElementById('menu-close-icon');
+
+  if (menuToggle && mobileMenu && openIcon && closeIcon) {
+    menuToggle.addEventListener('click', () => {
+      const isExpanded = menuToggle.getAttribute('aria-expanded') === 'true';
+      menuToggle.setAttribute('aria-expanded', String(!isExpanded));
+      mobileMenu.classList.toggle('hidden');
+      openIcon.classList.toggle('block');
+      openIcon.classList.toggle('hidden');
+      closeIcon.classList.toggle('hidden');
+      closeIcon.classList.toggle('block');
+    });
+  }
+</script>
