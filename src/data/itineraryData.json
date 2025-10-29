@@ -405,6 +405,21 @@
         "note": "Best time to visit is evening when neon lights illuminate the area"
       },
       {
+        "time": "8:00 PM",
+        "title": "Flipper's Shibuya",
+        "description": "Pancake Restaurant",
+        "location": {
+          "name": "Flipper's Shibuya",
+          "mapsUrl": "https://maps.app.goo.gl/kgRVsTLyPR6na7hW9"
+        },
+        "price": {
+          "amount": 1600,
+          "currency": "JPY",
+          "notes": "Dinner Dining"
+        },
+        "note": "Best time to visit is evening when neon lights illuminate the area"
+      },
+      {
         "time": "10:00 PM",
         "title": "Return to Itabashi Airbnb",
         "description": "Take metro and JR train back to Itabashi Station",
@@ -528,6 +543,21 @@
     "date": "November 23, 2025",
     "items": [
       {
+        "time": "7:00 AM",
+        "title": "Arakurayama Sengen Park",
+        "description": "Fuji Photo Spot from Temple",
+        "location": {
+          "name": "Arakurayama Sengen Park", 
+          "mapsUrl": "https://www.google.com/maps/place/Arakurayama+Sengen+Park/data=!4m2!3m1!19sChIJu6hYHU1nGWARfaBH0X127o8"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "MYR",
+          "notes": "Free"
+        },
+        "note": ""
+      },
+      {
         "time": "9:00 AM",
         "title": "Fuji Q Highland",
         "description": "Theme Park",
@@ -556,21 +586,6 @@
           "notes": "Free"
         },
         "note": "Team B -  Ros, Azam, Mirul"
-      },
-      {
-        "time": "4:00 PM",
-        "title": "Arakurayama Sengen Park",
-        "description": "Fuji Photo Spot from Temple",
-        "location": {
-          "name": "Arakurayama Sengen Park", 
-          "mapsUrl": "https://www.google.com/maps/place/Arakurayama+Sengen+Park/data=!4m2!3m1!19sChIJu6hYHU1nGWARfaBH0X127o8"
-        },
-        "price": {
-          "amount": 0,
-          "currency": "MYR",
-          "notes": "Free"
-        },
-        "note": ""
       }
     ]
   },
@@ -742,12 +757,5 @@
         "note": "Arrive 4 Hours prior to departure"
       }
     ]
-  },
-
-  {
-    "day": 8,
-    "title": "Hidden Day",
-    "date": "November 25, 2025",
-    "items": []
   }
 ] 
