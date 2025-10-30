@@ -79,6 +79,20 @@ const CurrencyExchangeGraph = () => {
 
         console.log('Processed data points:', processedData.length);
 
+        const pointColors = processedData.map((data, index) => {
+          if (index === 0) {
+            return 'rgb(59, 130, 246)'; // Neutral blue for the first point
+          }
+          const previousValue = processedData[index - 1].value;
+          if (data.value < previousValue) {
+            return 'rgb(34, 197, 94)'; // Green for decrease (good to buy JPY)
+          } else if (data.value > previousValue) {
+            return 'rgb(239, 68, 68)'; // Red for increase (bad to buy JPY)
+          } else {
+            return 'rgb(156, 163, 175)'; // Gray for no change
+          }
+        });
+
         setChartData({
           labels: processedData.map(data => data.date),
           datasets: [
@@ -89,10 +103,11 @@ const CurrencyExchangeGraph = () => {
               backgroundColor: 'rgba(75, 192, 192, 0.5)',
               tension: 0.4, // Smoother line
               fill: false,
-              pointRadius: 3,
-              pointHoverRadius: 5,
-              pointBackgroundColor: 'rgb(75, 192, 192)',
+              pointRadius: 5, // Slightly larger points for better visibility of color
+              pointHoverRadius: 7,
+              pointBackgroundColor: pointColors, // Dynamic colors
               pointBorderColor: '#fff',
+              pointBorderWidth: 2,
             },
           ],
         });
@@ -136,7 +151,7 @@ const CurrencyExchangeGraph = () => {
       },
       title: {
         display: true,
-        text: 'JPY/MYR Exchange Rate (Last 7 Days)',
+        text: 'JPY/MYR Exchange Rate (Last 15 Days)',
         color: 'rgb(209, 213, 219)', // text-gray-300
         font: {
           size: 16,

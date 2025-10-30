@@ -4,7 +4,7 @@ export const GET: APIRoute = async ({ request }) => {
   const today = new Date();
   const endDate = today.toISOString().split('T')[0];
   const thirtyDaysAgo = new Date(today);
-  thirtyDaysAgo.setDate(today.getDate() - 30); // 🔄 Fixed to 30 days for reliability
+  thirtyDaysAgo.setDate(today.getDate() - 15); // 🔄 Fixed to 30 days for reliability
   const startDate = thirtyDaysAgo.toISOString().split('T')[0];
 
   const url = `https://api.investing.com/api/financialdata/historical/1902?start-date=${startDate}&end-date=${endDate}&time-frame=Daily&add-missing-rows=false`;
