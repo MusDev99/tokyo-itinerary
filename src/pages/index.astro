@@ -7,6 +7,7 @@ import TabsNew from '../components/TabsNew.tsx';
 import PDFDownload from '../components/PDFDownload.tsx';
 import AnalyticsDashboard from '../components/AnalyticsDashboard.tsx';
 import Banner from '../components/Banner.tsx';
+import CurrencyExchangeGraph from '../components/CurrencyExchangeGraph.tsx'; // New Import
 import itineraryData from '../data/itineraryData.json';
 
 const itineraryDays  = itineraryData;
@@ -66,6 +67,13 @@ const description = 'One week exploration to Tokyo Japan & Fuji in Autumm Season
             <div class="glass-effect rounded-lg sm:rounded-2xl shadow-xl border border-primary/20 overflow-hidden mb-6">
               <div class="p-4 sm:p-6">
                 <AnalyticsDashboard itinerary={itineraryDays} client:load />
+              </div>
+            </div>
+
+            {/* New Currency Exchange Graph Section */}
+            <div class="glass-effect rounded-lg sm:rounded-2xl shadow-xl border border-primary/20 overflow-hidden mb-6">
+              <div class="p-4 sm:p-6">
+                <CurrencyExchangeGraph client:load />
               </div>
             </div>
 
