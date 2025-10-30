@@ -5,28 +5,30 @@ import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
   Title,
   Tooltip,
   Legend,
+  PointElement, // Re-add for Line chart
+  LineElement,  // Re-add for Line chart
 } from 'chart.js';
+// import { CandlestickController, OhlcElement } from 'chartjs-chart-financial'; // Removed
 
 import type { CurrencyExchangeData, HistoricalCurrencyResponse } from '../types/currency';
 
+// Register Chart.js components
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  PointElement, // Re-add for Line chart
+  LineElement   // Re-add for Line chart
 );
 
 interface CurrencyDataPoint {
   date: string;
-  value: number;
+  value: number; // The exchange rate
 }
 
 const CurrencyExchangeGraph = () => {
@@ -35,12 +37,12 @@ const CurrencyExchangeGraph = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log('🚀 Component mounted, fetching data...');
+    console.log('Component mounted, fetching data...');
     
     const fetchCurrencyData = async () => {
       try {
         setLoading(true);
-        console.log('📡 Making request to /api/currency-exchange');
+        console.log('Making request to /api/currency-exchange');
         
         const response = await fetch('/api/currency-exchange', {
           method: 'GET',
@@ -49,16 +51,16 @@ const CurrencyExchangeGraph = () => {
           },
         });
 
-        console.log('📥 Response received:', response.status, response.statusText);
+        console.log('Response received:', response.status, response.statusText);
 
         if (!response.ok) {
           const errorData = await response.text();
-          console.error('❌ Error response:', errorData);
+          console.error('Error response:', errorData);
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const apiResponse: HistoricalCurrencyResponse = await response.json();
-        console.log('✅ API Response:', apiResponse);
+        console.log('API Response:', apiResponse);
 
         if (!apiResponse || !apiResponse.data || !Array.isArray(apiResponse.data)) {
           throw new Error('Invalid API response structure');
@@ -75,7 +77,7 @@ const CurrencyExchangeGraph = () => {
 
         processedData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-        console.log('📊 Processed data points:', processedData.length);
+        console.log('Processed data points:', processedData.length);
 
         setChartData({
           labels: processedData.map(data => data.date),
@@ -85,13 +87,17 @@ const CurrencyExchangeGraph = () => {
               data: processedData.map(data => data.value),
               borderColor: 'rgb(75, 192, 192)',
               backgroundColor: 'rgba(75, 192, 192, 0.5)',
-              tension: 0.1,
+              tension: 0.4, // Smoother line
               fill: false,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              pointBackgroundColor: 'rgb(75, 192, 192)',
+              pointBorderColor: '#fff',
             },
           ],
         });
       } catch (e: any) {
-        console.error("💥 Failed to fetch currency data:", e);
+        console.error("Failed to fetch currency data:", e);
         setError(e.message);
       } finally {
         setLoading(false);
@@ -99,23 +105,23 @@ const CurrencyExchangeGraph = () => {
     };
 
     fetchCurrencyData();
-  }, []); // Empty dependency array
+  }, []);
 
   if (loading) {
-    return <div className="text-center py-4">⏳ Loading currency data...</div>;
+    return <div className="text-center py-4">Loading currency data...</div>;
   }
 
   if (error) {
     return (
       <div className="text-center py-4 text-red-500">
-        <p>❌ Error: {error}</p>
+        <p>Error: {error}</p>
         <p className="text-sm mt-2">Check browser console for details</p>
       </div>
     );
   }
 
   if (!chartData) {
-    return <div className="text-center py-4">📊 No data available.</div>;
+    return <div className="text-center py-4">No data available.</div>;
   }
 
   const options = {
@@ -124,10 +130,17 @@ const CurrencyExchangeGraph = () => {
     plugins: {
       legend: {
         position: 'top' as const,
+        labels: {
+          color: 'rgb(156, 163, 175)', // text-gray-400
+        },
       },
       title: {
         display: true,
-        text: 'JPY/MYR Exchange Rate (Last 30 Days)',
+        text: 'JPY/MYR Exchange Rate (Last 7 Days)',
+        color: 'rgb(209, 213, 219)', // text-gray-300
+        font: {
+          size: 16,
+        },
       },
     },
     scales: {
@@ -135,21 +148,36 @@ const CurrencyExchangeGraph = () => {
         title: {
           display: true,
           text: 'Date',
+          color: 'rgb(156, 163, 175)', // text-gray-400
+        },
+        ticks: {
+          color: 'rgb(156, 163, 175)', // text-gray-400
+        },
+        grid: {
+          color: 'rgba(156, 163, 175, 0.2)', // Lighter grid lines
         },
       },
       y: {
         title: {
           display: true,
           text: 'Exchange Rate (MYR)',
+          color: 'rgb(156, 163, 175)', // text-gray-400
+        },
+        ticks: {
+          color: 'rgb(156, 163, 175)', // text-gray-400
+        },
+        grid: {
+          color: 'rgba(156, 163, 175, 0.2)', // Lighter grid lines
         },
       },
     },
+    backgroundColor: 'rgba(0, 0, 0, 0.1)', // Slightly transparent dark background
   };
 
   return (
     <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md max-w-3xl mx-auto my-8">
       <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-        📈 Currency Exchange Graph
+        Currency Exchange Graph
       </h2>
       <Line data={chartData} options={options} />
     </div>

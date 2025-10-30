@@ -4,7 +4,7 @@ export const GET: APIRoute = async ({ request }) => {
   const today = new Date();
   const endDate = today.toISOString().split('T')[0];
   const thirtyDaysAgo = new Date(today);
-  thirtyDaysAgo.setDate(today.getDate() - 30);
+  thirtyDaysAgo.setDate(today.getDate() - 30); // 🔄 Fixed to 30 days for reliability
   const startDate = thirtyDaysAgo.toISOString().split('T')[0];
 
   const url = `https://api.investing.com/api/financialdata/historical/1902?start-date=${startDate}&end-date=${endDate}&time-frame=Daily&add-missing-rows=false`;
@@ -31,7 +31,7 @@ export const GET: APIRoute = async ({ request }) => {
         status: response.status,
         headers: {
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*', // 🔧 CORS fix
+          'Access-Control-Allow-Origin': '*',
         },
       });
     }
@@ -43,8 +43,8 @@ export const GET: APIRoute = async ({ request }) => {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*', // 🔧 CORS fix
-        'Cache-Control': 'public, max-age=300', // Cache 5 mins
+        'Access-Control-Allow-Origin': '*',
+        'Cache-Control': 'public, max-age=300', // 🕒 Cache 5 mins
       },
     });
   } catch (error) {
@@ -56,7 +56,7 @@ export const GET: APIRoute = async ({ request }) => {
       status: 500,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*', // 🔧 CORS fix
+        'Access-Control-Allow-Origin': '*',
       },
     });
   }
