@@ -3,22 +3,68 @@
     {
       "name": "Greetings",
       "phrases": [
-        { "jp": "Konnichiwa (こんにちは) ", "en": "Hello" },
-        { "jp": "Ohayou gozaimasu (おはようございます) ", "en": "Good morning" },
+        { "jp": "Konnichiwa (こんにちは)", "en": "Hello" },
+        { "jp": "Ohayou gozaimasu (おはようございます)", "en": "Good morning" },
         { "jp": "Konbanwa (こんばんは)", "en": "Good evening" },
-        { "jp": "Moshi moshi (もしもし)", "en": "Hello" },
-        { "jp": "Ogenki desu ka? (お元気ですか)", "en": "How are you ?" },
-        { "jp": "Ohisashiburi desu ne (お久しぶりですね) ", "en": " Long time no see" },
-        { "jp": "Sayonara", "en": "Goodbye" }
+        { "jp": "Moshi moshi (もしもし)", "en": "Hello (on the phone)" },
+        { "jp": "Ogenki desu ka? (お元気ですか)", "en": "How are you?" },
+        { "jp": "Genki desu (元気です)", "en": "I’m good / I’ve been doing well" },
+        { "jp": "Ohisashiburi desu ne (お久しぶりですね)", "en": "Long time no see" },
+        { "jp": "_______-san mo? (______-さんも？)", "en": "And you?" }
       ]
     },
     {
-      "name": "Basic Phrases",
+      "name": "Getting to Know Someone",
       "phrases": [
-        { "jp": "Arigatou gozaimasu", "en": "Thank you very much" },
-        { "jp": "Sumimasen", "en": "Excuse me / Sorry" },
-        { "jp": "Hai", "en": "Yes" },
-        { "jp": "Iie", "en": "No" }
+        { "jp": "Namae wa nan desu ka? (名前は何ですか)", "en": "What’s your name?" },
+        { "jp": "Watashi no namae wa _____ desu (私は＿＿＿です)", "en": "My name is ____." },
+        { "jp": "Doko kara kimashita ka? (どこから来ましたか)", "en": "Where are you from?" },
+        { "jp": "Watashi wa _____ kara kimashita (私は＿＿から来ました)", "en": "I’m from _____." },
+        { "jp": "Sou desu ka? (そうですか)", "en": "Is that so?/I see." }
+      ]
+    },
+    {
+      "name": "Politeness & Good Manners",
+      "phrases": [
+        { "jp": "Arigatou gozaimasu (ありがとうございます)", "en": "Thank you very much" },
+        { "jp": "Douitashimashite (どういたしまして)", "en": "You’re welcome" },
+        { "jp": "Sumimasen (すみません)", "en": "Excuse me / Sorry" },
+        { "jp": "Gomen nasai (ごめんなさい)", "en": "I’m truly sorry" },
+        { "jp": "Yoroshiku onegaishimasu (よろしくおねがいします)", "en": "Please take care of me / I’m in your debt" },
+        { "jp": "Itadakimasu (いただきます)", "en": "Let’s dig in (before a meal)" },
+        { "jp": "Gochisousama deshita (ごちそうさまでした)", "en": "That was delicious / Thank you for the meal" }
+      ]
+    },
+    {
+      "name": "Clarification & Questions",
+      "phrases": [
+        { "jp": "Eigo to iu no wa… (英語ていうのは…)", "en": "And in English, that’s…?" },
+        { "jp": "Wakarimasen (わかりません)", "en": "I don’t understand" },
+        { "jp": "Shirimasen (知りません)", "en": "I don’t know" },
+        { "jp": "Wasuremashita (忘れました)", "en": "I forgot" },
+        { "jp": "Motto yukkuri kudasai (もっとゆっくり下さい)", "en": "Please speak more slowly" },
+        { "jp": "Mou ichido kudasai (もう一度下さい)", "en": "Could you say that one more time?" },
+        { "jp": "Nihongo de perapera de wa nai desu (日本語でペラペラではないです)", "en": "I’m not very fluent in Japanese" },
+        { "jp": "___ te iu no imi wa nan desu ka? (＿＿ていうの意味は何ですか)", "en": "What does ___ mean?" },
+        { "jp": "Tetsudatte kuremasen ka? (手伝ってくれませんか)", "en": "Can you help me?" }
+      ]
+    },
+    {
+      "name": "Questions for Time / Location / Details",
+      "phrases": [
+        { "jp": "Doko desu ka? (どこですか)", "en": "Where is it?" },
+        { "jp": "Itsu desu ka? (いつですか)", "en": "When is it?" },
+        { "jp": "Doushite? (どうして)", "en": "Why?" },
+        { "jp": "Dochira desu ka? (どちらですか)", "en": "Which one is it?" },
+        { "jp": "Nan desu ka? (何ですか)", "en": "What is it?" },
+        { "jp": "Dare desu ka? (だれですか)", "en": "Who is it?" },
+        { "jp": "Ima nanji desu ka? (今何時ですか)", "en": "What time is it right now?" },
+        { "jp": "Ima (今)", "en": "Now" },
+        { "jp": "Ato de (後で)", "en": "Later" },
+        { "jp": "Kyou (今日)", "en": "Today" },
+        { "jp": "Kinou (昨日)", "en": "Yesterday" },
+        { "jp": "Ashita (明日)", "en": "Tomorrow" },
+        { "jp": "Mainichi (毎日)", "en": "Every day" }
       ]
     }
   ]
