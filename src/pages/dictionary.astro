@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import JapaneseDictionary from '../components/JapaneseDictionary.tsx'; // New Import
 import dictionaryData from '../data/jp_dictionary.json';
 
 const title = "Common Japanese Phrases";
@@ -26,17 +27,8 @@ const description = "A collection of common Japanese phrases for travelers.";
               </div>
             </div>
             
-            <div class="glass-effect rounded-lg sm:rounded-2xl shadow-xl border border-primary/20 overflow-hidden p-4 sm:p-6">
-              {dictionaryData.categories.map((category, index) => (
-                <div class={index > 0 ? 'mt-6' : ''}>
-                  <h2 class="text-lg font-bold mb-4">{category.name}</h2>
-                  <ul>
-                    {category.phrases.map(phrase => (
-                      <li class="mb-2 jp-text"><strong>{phrase.jp}</strong> - {phrase.en}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+            <div class="glass-effect rounded-lg sm:rounded-2xl shadow-xl border border-primary/20 overflow-hidden">
+              <JapaneseDictionary dictionaryData={dictionaryData} client:load />
             </div>
 
           </div>
