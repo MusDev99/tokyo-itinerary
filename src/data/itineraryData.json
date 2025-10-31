@@ -93,7 +93,7 @@
         "description": "Visit the iconic Tokyo Tower from Shiba Park",
         "location": {
           "name": "Tokyo Tower",
-          "mapsUrl": "https://maps.google.com/?q=Tokyo+Tower"
+          "mapsUrl": "https://www.google.com/maps/place/Shiba+Park/data=!4m2!3m1!19sChIJ_8MpkL6LGGARP200oln5XGs"
         },
         "price": {
           "amount": 0,
@@ -103,8 +103,8 @@
         "note": "Store Luggage at Daimon Station"
       },
       {
-        "time": "10.30 AM",
-        "title": "Go to Itabashi City",
+        "time": "11.00 AM",
+        "title": "Team A - Go to Itabashi City",
         "description": "Retrieve Luggage from coin lockers and go to Itabashi City",
         "location": {
           "name": "Itabashi Station",
@@ -119,22 +119,8 @@
 
       },
       {
-        "time": "12:00 PM",
-        "title": "Drop Luggage at Airbnb",
-        "description": "Drop Luggage at Airbnb",
-        "location": {
-          "name": "Itabashi Station & Airbnb Itabashi",
-          "mapsUrl": "https://maps.google.com/?q=Itabashi+Station"
-        },
-        "price": {
-          "amount": 0,
-          "currency": "JPY"
-        },
-        "note": "Drop Luggage before check-in"
-      },
-      {
         "time": "1:30 PM",
-        "title": "Go to Akatsuka Botanical Garden",
+        "title": "Team A - Go to Akatsuka Botanical Garden",
         "description": "Take a peaceful stroll through the garden, featuring ponds, bonsai collections, and seasonal blooms",
         "location": {
           "name": "Akatsuka Botanical Garden",
@@ -146,6 +132,50 @@
           "notes": "One-way train fare"
         },
         "note": "Ideal for photos and quiet reflection"
+      },
+      {
+        "time": "11:00 PM",
+        "title": "Team B - Go to Team Labs",
+        "description": "Drop Luggage at Airbnb",
+        "location": {
+          "name": "Borderless Team Labs",
+          "mapsUrl": "https://www.google.com/maps/place/teamLab+Borderless:+MORI+Building+DIGITAL+ART+MUSEUM/data=!4m2!3m1!19sChIJQ5Sa1PqJGGARUSaNKKOrMVg"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY"
+        },
+        "note": "will be updated"
+      },
+      {
+        "time": "11:00 PM",
+        "title": "Team B - Go to Team Labs",
+        "description": "Drop Luggage at Airbnb",
+        "location": {
+          "name": "Borderless Team Labs",
+          "mapsUrl": "https://www.google.com/maps/place/teamLab+Borderless:+MORI+Building+DIGITAL+ART+MUSEUM/data=!4m2!3m1!19sChIJQ5Sa1PqJGGARUSaNKKOrMVg"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY"
+        },
+        "note": "will be updated"
+      },
+      {
+        "time": "2.00 PM",
+        "title": "Team B - Go to Itabashi City",
+        "description": "Retrieve Luggage from coin lockers and go to Itabashi City",
+        "location": {
+          "name": "Itabashi Station",
+          "mapsUrl": "https://www.google.com/maps/dir/Tokyo+Tower,+4+Chome-2-8+Shibakoen,+Minato+City,+Tokyo,+Japan/Japan,+%E3%80%92175-0092+Tokyo,+Itabashi+City,+Akatsuka,+3-ch%C5%8Dme%E2%88%9219%E2%88%922+%E3%83%8D%E3%82%AA%E3%83%BB%E3%82%B9%E3%83%86%E3%83%BC%E3%82%B8%E6%88%90%E5%A2%97/@35.6598548,139.7452825,17z/am=t/data=!4m18!4m17!1m5!1m1!1s0x60188bbd9009ec09:0x481a93f0d2a409dd!2m2!1d139.7454329!2d35.6585805!1m5!1m1!1s0x6018ec76d6b78e07:0xd0e358c73acbff61!2m2!1d139.6372143!2d35.7767553!2m3!6e0!7e2!8j1763553600!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTAwOC4wIKXMDSoASAFQAw%3D%3D"
+        },
+        "price": {
+          "amount": 480,
+          "currency": "JPY",
+          "notes": "One-way metro fare"
+        },
+        "note": "Hibiya Line > SubwayMarunouchi Line > TrainTobu-Tojo Line"
+
       },
       {
         "time": "4:00 PM",
