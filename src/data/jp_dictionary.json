@@ -53,6 +53,7 @@
       "name": "Questions for Time / Location / Details",
       "phrases": [
         { "jp": "Doko desu ka? (どこですか)", "en": "Where is it?" },
+        { "jp": "_____ Doko desu ka? (どこですか)", "en": "Where is the _____?" },
         { "jp": "Itsu desu ka? (いつですか)", "en": "When is it?" },
         { "jp": "Doushite? (どうして)", "en": "Why?" },
         { "jp": "Dochira desu ka? (どちらですか)", "en": "Which one is it?" },
