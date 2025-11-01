@@ -230,37 +230,37 @@
     "date": "November 21, 2025",
     "items": [
       {
-        "time": "9:30 AM",
-        "title": "Travel to Ginza",
-        "description": "Take Tokyo Metro from Shibuya to Ginza Station",
+        "time": "8:15 AM",
+        "title": "Travel to Ginza Six",
+        "description": "Take from Chikatetsu-Narimasu Station to Ginza Station",
         "location": {
           "name": "Ginza Station",
-          "mapsUrl": "https://maps.google.com/?q=Ginza+Station"
+          "mapsUrl": "https://www.google.com/maps/dir/Japan,+%E3%80%92175-0092+Tokyo,+Itabashi+City,+Akatsuka3+Chome%E2%88%92%EF%BC%91%EF%BC%99%E2%88%922+%E3%83%8D%E3%82%AA%E3%83%BB%E3%82%B9%E3%83%86%E3%83%BC%E3%82%B8%E6%88%90%E5%A2%97/Japan,+Tokyo,+Chuo+City,+Ginza,+6+Chome%E2%88%9210%E2%88%921+GINZA+SIX/@35.7237426,139.6584188,13z/am=t/data=!4m19!4m18!1m5!1m1!1s0x6018ec76d6b78e07:0xd0e358c73acbff61!2m2!1d139.6372143!2d35.7767553!1m5!1m1!1s0x60188bef472c0001:0xcfcb0363f18109fc!2m2!1d139.7641762!2d35.6697688!2m3!6e0!7e2!8j1763625600!3e3!5i5?authuser=0&entry=ttu&g_ep=EgoyMDI1MTAyOS4yIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
-          "amount": 280,
+          "amount": 260,
           "currency": "JPY",
           "notes": "One-way metro fare"
         },
-        "note": "Direct metro line to Ginza"
+        "note": "Fukutoshin Line > Marunouchi Line"
       },
       {
-        "time": "10:00 AM",
-        "title": "Ginza Six",
-        "description": "Visit the modern shopping complex with luxury brands and rooftop garden",
+        "time": "9:30 AM",
+        "title": "Onitsuka Tiger Ginza",
+        "description": "Check out the Onitsuka Tiger flagship store for premium running shoes and exclusive Japan collections",
         "location": {
-          "name": "Ginza Six",
-          "mapsUrl": "https://maps.google.com/?q=Ginza+Six"
+          "name": "Onitsuka Tiger Ginza",
+          "mapsUrl": "https://maps.app.goo.gl/MGkUqh7wMNoSKrydA"
         },
         "price": {
           "amount": 0,
           "currency": "JPY",
-          "notes": "Free entry"
+          "notes": "Shopping optional"
         },
-        "note": "Rooftop garden offers great views of Ginza"
+        "note": "Shopping optional"
       },
       {
-        "time": "11:00 PM",
+        "time": "10:30 AM",
         "title": "ASICS Store Ginza",
         "description": "Check out the ASICS flagship store for premium running shoes and exclusive Japan collections",
         "location": {
@@ -272,10 +272,10 @@
           "currency": "JPY",
           "notes": "Shopping optional"
         },
-        "note": "Try the 3D foot scanning experience for personalized fitting"
+        "note": "Shopping optional"
       },
       {
-        "time": "12:00 PM",
+        "time": "11:00 AM",
         "title": "YONEX Tokyo Flagship Store Ginza",
         "description": "Visit the YONEX flagship store for latest sports gear and Japan-exclusive badminton apparel",
         "location": {
@@ -290,27 +290,27 @@
         "note": "Limited-edition rackets and clothing often available only in Japan"
       },
       {
-        "time": "1:30 PM",
+        "time": "12:00 PM",
         "title": "Halal Lunch at Tendon Ginza",
         "description": "Enjoy halal tempura rice bowl at this certified halal restaurant",
         "location": {
           "name": "Tendon Ginza",
-          "mapsUrl": "https://maps.google.com/?q=Tendon+Ginza+Halal"
+          "mapsUrl": "https://maps.app.goo.gl/kDfKw5iFqQF1R5fP7"
         },
         "price": {
-          "amount": 2500,
+          "amount": 2000,
           "currency": "JPY",
           "notes": "Lunch"
         },
         "note": "Halal-certified tempura and rice bowls"
       },
       {
-        "time": "3:00 PM",
-        "title": "Go to Shibuya",
-        "description": "Take Ginza Station to Shibuya Station",
+        "time": "2:00 PM",
+        "title": "Go to Shibuya Sky",
+        "description": "Take Ginza Station to Shibuya Sky",
         "location": {
-          "name": "Tendon Ginza",
-          "mapsUrl": "https://maps.google.com/?q=Tendon+Ginza+Halal"
+          "name": "Shibuya Station",
+          "mapsUrl": "https://www.google.com/maps/dir/Tendon+Ginza+Itsuki+(Toky%C5%AB+Plaza),+%E6%9D%B1%E6%80%A5%E3%83%97%E3%83%A9%E3%82%B6+%E5%9C%B0%E4%B8%8B+%EF%BC%92F+5+Chome-2-1+Ginza,+Chuo+City,+Tokyo+104-0061,+Japan/Japan,+Tokyo,+Shibuya,+2+Chome%E2%88%9224%E2%88%9212+SHIBUYA+SKY/@35.6477739,139.6919159,13z/am=t/data=!3m1!5s0x60188b7b9c819b61:0x92144cdf397130f5!4m18!4m17!1m5!1m1!1s0x60188b00662d6e7b:0x5b649ce493be2f71!2m2!1d139.7622919!2d35.6721418!1m5!1m1!1s0x60188b6825f61ae1:0x6ff47ee61e522473!2m2!1d139.7019848!2d35.6586719!2m3!6e1!7e2!8j1763649000!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTAyOS4yIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
           "amount": 210,
