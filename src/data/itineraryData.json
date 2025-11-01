@@ -225,78 +225,8 @@
       }
     ]
   },  
-
-
   {
     "day": 3,
-    "title": "Asakusa, Akihabara and Ueno City Exploration",
-    "date": "November 20, 2025",
-    "items": [
-      {
-        "time": "7:30 AM",
-        "title": "Travel to Asakusa",
-        "description": "Take train from Akihabara to Asakusa area",
-        "location": {
-          "name": "Asakusa Station",
-          "mapsUrl": "https://maps.google.com/?q=Asakusa+Station"
-        },
-        "price": {
-          "amount": 280,
-          "currency": "JPY",
-          "notes": "One-way train fare"
-        },
-        "note": "Direct train via Tsukuba Express to Asakusa"
-      },
-      {
-        "time": "8:30 AM",
-        "title": "Senso-ji Temple",
-        "description": "Walk from Asakusa Station to Senso-ji",
-        "location": {
-          "name": "Senso-ji",
-          "mapsUrl": "https://maps.app.goo.gl/UiLoQJrLgEyKfVpk8"
-        },
-        "price": {
-          "amount": 0,
-          "currency": "JPY",
-          "notes": "Free entry, rent optional"
-        },
-        "note": ""
-      },
-      {
-        "time": "11:00 PM",
-        "title": "Halal Lunch at Wagyu Yakiniku Panga",
-        "description": "Enjoy premium Halal Wagyu BBQ at this certified Halal restaurant in Okachimachi area",
-        "location": {
-          "name": "Wagyu Yakiniku Panga Okamachi",
-          "mapsUrl": "https://www.google.com/maps/place/Halal+Wagyu+Yakiniku+Panga/data=!4m2!3m1!19sChIJ9bFAjKSOGGARqsl1Ru2ZQs0"
-        },
-        "price": {
-          "amount": 16000,
-          "currency": "JPY",
-          "notes": "Most expensive lunch set"
-        },
-        "note": "Spend 2 hours"
-      },
-      {
-        "time": "5:00 PM",
-        "title": "Ueno Park",
-        "description": "Explore the Ueno Park",
-        "location": {
-          "name": "Ueno Park",
-          "mapsUrl": "https://maps.google.com/?q=Ueno+Park"
-        },
-        "price": {
-          "amount": 0,
-          "currency": "JPY",
-          "notes": "Free entry"
-        },
-        "note": "Popular city park featuring ample walking paths, a lake with boat rentals, a zoo & several museums."
-      }
-    ]
-  },  
-  
-  {
-    "day": 4,
     "title": "Ginza & Shibuya Exploration",
     "date": "November 21, 2025",
     "items": [
@@ -451,8 +381,90 @@
         "note": "Direct route back to accommodation"
       }
     ]
-  }
-  ,
+  },
+  {
+    "day": 4,
+    "title": "Asakusa, Akihabara and Ueno City Exploration",
+    "date": "November 20, 2025",
+    "items": [
+      {
+        "time": "7:30 AM",
+        "title": "Travel to Asakusa",
+        "description": "Take train from Akihabara to Asakusa area",
+        "location": {
+          "name": "Asakusa Station",
+          "mapsUrl": "https://maps.google.com/?q=Asakusa+Station"
+        },
+        "price": {
+          "amount": 280,
+          "currency": "JPY",
+          "notes": "One-way train fare"
+        },
+        "note": "Direct train via Tsukuba Express to Asakusa"
+      },
+      {
+        "time": "8:30 AM",
+        "title": "Senso-ji Temple",
+        "description": "Walk from Asakusa Station to Senso-ji",
+        "location": {
+          "name": "Senso-ji",
+          "mapsUrl": "https://maps.app.goo.gl/UiLoQJrLgEyKfVpk8"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free entry, rent optional"
+        },
+        "note": ""
+      },
+      {
+        "time": "10:00 AM",
+        "title": "Sumida River",
+        "description": "Walk from Sensoji to Sumida River",
+        "location": {
+          "name": "Sumida River",
+          "mapsUrl": "https://www.google.com/maps/place/Sumida+River/data=!4m2!3m1!19sChIJmVcx1dCLGGARpjQjq3LDEk8"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY"
+        },
+        "note": "Spend 1 hours"
+      },
+      {
+        "time": "12:00 PM",
+        "title": "Halal Lunch at Wagyu Yakiniku Panga",
+        "description": "Enjoy premium Halal Wagyu BBQ at this certified Halal restaurant in Okachimachi area",
+        "location": {
+          "name": "Wagyu Yakiniku Panga Okamachi",
+          "mapsUrl": "https://www.google.com/maps/place/Halal+Wagyu+Yakiniku+Panga/data=!4m2!3m1!19sChIJ9bFAjKSOGGARqsl1Ru2ZQs0"
+        },
+        "price": {
+          "amount": 16000,
+          "currency": "JPY",
+          "notes": "Most expensive lunch set"
+        },
+        "note": "Spend 2 hours"
+      },
+      {
+        "time": "5:00 PM",
+        "title": "Ueno Park",
+        "description": "Explore the Ueno Park",
+        "location": {
+          "name": "Ueno Park",
+          "mapsUrl": "https://maps.google.com/?q=Ueno+Park"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free entry"
+        },
+        "note": "Popular city park featuring ample walking paths, a lake with boat rentals, a zoo & several museums."
+      }
+    ]
+  },  
+  
+ 
 
 
   {
@@ -559,7 +571,22 @@
     "date": "November 23, 2025",
     "items": [
       {
-        "time": "7:00 AM",
+        "time": "5:30 AM",
+        "title": "Go to Shimoyoshida",
+        "description": "Fuji Photo Spot from Temple",
+        "location": {
+          "name": "Arakurayama Sengen Park", 
+          "mapsUrl": "https://www.google.com/maps/place/Arakurayama+Sengen+Park/data=!4m2!3m1!19sChIJu6hYHU1nGWARfaBH0X127o8"
+        },
+        "price": {
+          "amount": 230,
+          "currency": "JPY",
+          "notes": "One-way train fare"
+        },
+        "note": ""
+      },
+      {
+        "time": "6:00 AM",
         "title": "Arakurayama Sengen Park",
         "description": "Fuji Photo Spot from Temple",
         "location": {
