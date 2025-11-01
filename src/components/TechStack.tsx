@@ -1,4 +1,3 @@
-import React from 'react';
 import { SiAstro, SiTypescript, SiTailwindcss, SiPreact } from 'react-icons/si';
 
 const TechStack = () => {

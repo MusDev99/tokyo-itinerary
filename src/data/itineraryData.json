@@ -78,7 +78,7 @@
         "description": "Depart from Haneda Airport to Tokyo Tower, Minato City",
         "location": {
           "name": "Haneda Airport",
-          "mapsUrl": "https://www.google.com/maps/dir/Haneda+Airport,+Hanedakuko,+Ota+City,+Tokyo,+Japan/Tokyo+Tower,+4+Chome-2-8+Shibakoen,+Minato+City,+Tokyo+105-0011,+Japan/@35.6036328,139.6685098,12z/am=t/data=!4m18!4m17!1m5!1m1!1s0x6018640ba43192e3:0xd32c3a9d146f8df!2m2!1d139.7779951!2d35.5482964!1m5!1m1!1s0x60188bbd9009ec09:0x481a93f0d2a409dd!2m2!1d139.7454329!2d35.6585805!2m3!6e0!7e2!8j1763532000!3e3?entry=ttu&g_ep=EgoyMDI1MTAyNy4wIKXMDSoASAFQAw%3D%3D"
+          "mapsUrl": "https://www.google.com/maps/dir/Haneda+Airport,+Hanedakuko,+Ota+City,+Tokyo,+Japan/Shiba+Park,+Minato+City,+Tokyo,+Japan/@35.6007059,139.6685093,12z/am=t/data=!3m1!4b1!4m18!4m17!1m5!1m1!1s0x6018640ba43192e3:0xd32c3a9d146f8df!2m2!1d139.7779951!2d35.5482964!1m5!1m1!1s0x60188bbe9029c3ff:0x6b5cf959a2346d3f!2m2!1d139.7485979!2d35.6571637!2m3!6e0!7e2!8j1763532000!3e3?entry=ttu&g_ep=EgoyMDI1MTAyOS4yIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
           "amount": 510,
@@ -105,18 +105,18 @@
       },
       {
         "time": "11.00 AM",
-        "title": "Team A - Go to Itabashi City",
+        "title": "Team A - Go to Itabashi Home",
         "description": "Retrieve Luggage from coin lockers and go to Itabashi City",
         "location": {
-          "name": "Itabashi Station",
-          "mapsUrl": "https://www.google.com/maps/dir/Tokyo+Tower,+4+Chome-2-8+Shibakoen,+Minato+City,+Tokyo,+Japan/Japan,+%E3%80%92175-0092+Tokyo,+Itabashi+City,+Akatsuka,+3-ch%C5%8Dme%E2%88%9219%E2%88%922+%E3%83%8D%E3%82%AA%E3%83%BB%E3%82%B9%E3%83%86%E3%83%BC%E3%82%B8%E6%88%90%E5%A2%97/@35.6598548,139.7452825,17z/am=t/data=!4m18!4m17!1m5!1m1!1s0x60188bbd9009ec09:0x481a93f0d2a409dd!2m2!1d139.7454329!2d35.6585805!1m5!1m1!1s0x6018ec76d6b78e07:0xd0e358c73acbff61!2m2!1d139.6372143!2d35.7767553!2m3!6e0!7e2!8j1763553600!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTAwOC4wIKXMDSoASAFQAw%3D%3D"
+          "name": "Chikatetsu-Narimasu Station",
+          "mapsUrl": "https://www.google.com/maps/dir/Shiba+Park,+Minato+City,+Tokyo,+Japan/Japan,+%E3%80%92175-0092+Tokyo,+Itabashi+City,+Akatsuka,+3-ch%C5%8Dme%E2%88%9219%E2%88%922+%E3%83%8D%E3%82%AA%E3%83%BB%E3%82%B9%E3%83%86%E3%83%BC%E3%82%B8%E6%88%90%E5%A2%97/@35.7236057,139.620068,12z/am=t/data=!4m18!4m17!1m5!1m1!1s0x60188bbe9029c3ff:0x6b5cf959a2346d3f!2m2!1d139.7485979!2d35.6571637!1m5!1m1!1s0x6018ec76d6b78e07:0xd0e358c73acbff61!2m2!1d139.6372143!2d35.7767553!2m3!6e0!7e2!8j1763550000!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTAyOS4xIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
           "amount": 480,
           "currency": "JPY",
           "notes": "One-way metro fare"
         },
-        "note": "Hibiya Line > SubwayMarunouchi Line > TrainTobu-Tojo Line"
+        "note": "Mita Line > Yurakucho Line"
 
       },
       {
@@ -125,14 +125,13 @@
         "description": "Take a peaceful stroll through the garden, featuring ponds, bonsai collections, and seasonal blooms",
         "location": {
           "name": "Akatsuka Botanical Garden",
-          "mapsUrl": "https://www.google.com/maps/dir/Japan,+%E3%80%92175-0092+Tokyo,+Itabashi+City,+Akatsuka,+3-ch%C5%8Dme%E2%88%9219%E2%88%922+%E3%83%8D%E3%82%AA%E3%83%BB%E3%82%B9%E3%83%86%E3%83%BC%E3%82%B8%E6%88%90%E5%A2%97/Akatsuka+Botanical+Garden,+5+Chome-17-14+Akatsuka,+Itabashi+City,+Tokyo,+Japan/@35.7784053,139.6357631,16z/am=t/data=!3m1!4b1!4m18!4m17!1m5!1m1!1s0x6018ec76d6b78e07:0xd0e358c73acbff61!2m2!1d139.6372143!2d35.7767553!1m5!1m1!1s0x6018ec793ae9057d:0x8faee548dbc34bc5!2m2!1d139.6442119!2d35.7805778!2m3!6e0!7e2!8j1763553600!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTAwOC4wIKXMDSoASAFQAw%3D%3D"
+          "mapsUrl": "https://www.google.com/maps/place/Akatsuka+Botanical+Garden/data=!4m2!3m1!19sChIJfQXpOnnsGGARxUvD20jlro8"
         },
         "price": {
-          "amount": 240,
-          "currency": "JPY",
-          "notes": "One-way train fare"
+          "amount": 0,
+          "currency": "JPY"
         },
-        "note": "Ideal for photos and quiet reflection"
+        "note": "Walk for 11 minutes from Itabashi Home"
       },
       {
         "time": "11:00 PM",
@@ -150,79 +149,78 @@
       },
       {
         "time": "2.00 PM",
-        "title": "Team B - Go to Itabashi City",
+        "title": "Team B - Go to Itabashi Home",
         "description": "Retrieve Luggage from coin lockers and go to Itabashi City",
         "location": {
-          "name": "Itabashi Station",
-          "mapsUrl": "https://www.google.com/maps/dir/Tokyo+Tower,+4+Chome-2-8+Shibakoen,+Minato+City,+Tokyo,+Japan/Japan,+%E3%80%92175-0092+Tokyo,+Itabashi+City,+Akatsuka,+3-ch%C5%8Dme%E2%88%9219%E2%88%922+%E3%83%8D%E3%82%AA%E3%83%BB%E3%82%B9%E3%83%86%E3%83%BC%E3%82%B8%E6%88%90%E5%A2%97/@35.6598548,139.7452825,17z/am=t/data=!4m18!4m17!1m5!1m1!1s0x60188bbd9009ec09:0x481a93f0d2a409dd!2m2!1d139.7454329!2d35.6585805!1m5!1m1!1s0x6018ec76d6b78e07:0xd0e358c73acbff61!2m2!1d139.6372143!2d35.7767553!2m3!6e0!7e2!8j1763553600!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTAwOC4wIKXMDSoASAFQAw%3D%3D"
+          "name": "Chikatetsu-Narimasu Station",
+          "mapsUrl": "https://www.google.com/maps/dir/teamLab+Borderless:+MORI+Building+DIGITAL+ART+MUSEUM,+Azabudai+Hills+Garden+Plaza+B,+B1+5+Chome-9+Toranomon,+Minato+City,+Tokyo,+Japan/Japan,+%E3%80%92175-0092+Tokyo,+Itabashi+City,+Akatsuka,+3-ch%C5%8Dme%E2%88%9219%E2%88%922+%E3%83%8D%E3%82%AA%E3%83%BB%E3%82%B9%E3%83%86%E3%83%BC%E3%82%B8%E6%88%90%E5%A2%97/@35.7112814,139.6170582,12z/am=t/data=!4m19!4m18!1m5!1m1!1s0x601889fad49a9443:0x5831aba3288d2651!2m2!1d139.7432671!2d35.6620689!1m5!1m1!1s0x6018ec76d6b78e07:0xd0e358c73acbff61!2m2!1d139.6372143!2d35.7767553!2m3!6e1!7e2!8j1763566200!3e3!5i3?entry=ttu&g_ep=EgoyMDI1MTAyOS4yIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
-          "amount": 480,
+          "amount": 300,
           "currency": "JPY",
           "notes": "One-way metro fare"
         },
-        "note": "Hibiya Line > SubwayMarunouchi Line > TrainTobu-Tojo Line"
-
+        "note": "Hibiya Line > Yurakucho Line"
       },
       {
         "time": "4:00 PM",
-        "title": "Airbnb Check-in (Home in Itabashi City)",
-        "description": "Check into Airbnb accommodation in Itabashi City",
+        "title": "AIRBNB Check-in (Home in Itabashi City)",
+        "description": "Walk from Akatsuka Botanical Garden, Itabashi City",
         "location": {
           "name": "3-chome-19-2 Akatsuka, Itabashi City, Tokyo 175-0092, Japan",
-          "mapsUrl": "https://maps.app.goo.gl/fTEsT6dta9X24H5RA"
+          "mapsUrl": "https://www.google.com/maps/place/%E3%83%8D%E3%82%AA%E3%83%BB%E3%82%B9%E3%83%86%E3%83%BC%E3%82%B8%E6%88%90%E5%A2%97/data=!4m2!3m1!19sChIJB4631nbsGGARYf_LOsdY49A"
         },
         "price": {
           "amount": 331,
           "currency": "MYR",
-          "notes": "3 days per person"
+          "notes": "4D3N per person (Already Booked)"
         },
-        "note": "Rest and freshen up after check-in"
+        "note": "Arrive 10 minutes prior to check-in"
       },
       {
         "time": "7:00 PM",
         "title": "Go to Shinjuku",
-        "description": "Take JR Yamanote Line from Itabashi to Shinjuku Station",
+        "description": "Take JR Fukutoshin Line > Marunouchi Line from Itabashi to Shinjuku Station",
         "location": {
-          "name": "Shinjuku Station",
+          "name": "Shinjuku-gyoemmae Station",
           "mapsUrl": "https://www.google.com/maps/dir/Japan,+%E3%80%92175-0092+Tokyo,+Itabashi+City,+Akatsuka3+Chome%E2%88%92%EF%BC%91%EF%BC%99%E2%88%922+%E3%83%8D%E3%82%AA%E3%83%BB%E3%82%B9%E3%83%86%E3%83%BC%E3%82%B8%E6%88%90%E5%A2%97/Honolu+Shinjukugyoenmae+Halal+Ramen,+%E3%83%80%E3%82%A4%E3%82%A2%E3%83%91%E3%83%AC%E3%82%B9%E6%96%B0%E5%AE%BF%EF%BC%91%E4%B8%81%E7%9B%AE+B1F+1+Chome-31-3+Shinjuku,+Shinjuku+City,+Tokyo+160-0022,+Japan/@35.7330794,139.6332161,13z/am=t/data=!3m1!5s0x60188ce8250fa1fd:0x76ae0547f3a4a5dd!4m18!4m17!1m5!1m1!1s0x6018ec76d6b78e07:0xd0e358c73acbff61!2m2!1d139.6372143!2d35.7767553!1m5!1m1!1s0x60188d6eb08a4dc3:0xd25539f8a72a6a56!2m2!1d139.7120801!2d35.6902395!2m3!6e0!7e2!8j1763578800!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTAwOC4wIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
-          "amount": 280,
+          "amount": 260,
           "currency": "JPY",
           "notes": "One-way train fare"
         },
-        "note": "Direct train to Shinjuku Station"
+        "note": "Fukutoshin Line > Marunouchi Line"
       },
       {
         "time": "8:00 PM",
         "title": "Dinner at Halal Honolu Shinjukugyoenmae",
-        "description": "Enjoy authentic halal ramen at this popular halal restaurant near Shinjuku Gyoen",
+        "description": "Spicy Chicken Ramen, Ramen Wagyu, Curry",
         "location": {
           "name": "Halal Honolu Shinjukugyoenmae",
           "mapsUrl": "https://maps.google.com/?q=Halal+Honolu+Shinjukugyoenmae"
         },
         "price": {
-          "amount": 2000,
+          "amount": 1500,
           "currency": "JPY",
-          "notes": "Dinner"
+          "notes": "Dinner "
         },
-        "note": "Halal-certified ramen with prayer space available"
+        "note": "1100 - 1600 for Ramen Bowl"
       },
       {
         "time": "10:00 PM",
-        "title": "Return to Itabashi Airbnb",
-        "description": "Take JR train back to Itabashi Station",
+        "title": "Return to Itabashi Home",
+        "description": "Take JR Fukutoshin Line to Itabashi Home",
         "location": {
-          "name": "Itabashi Station",
-          "mapsUrl": "https://maps.google.com/?q=Itabashi+Station"
+          "name": "Chikatetsu-Narimasu Station",
+          "mapsUrl": "https://www.google.com/maps/dir/Honolu+Shinjukugyoenmae+Halal+Ramen,+%E3%83%80%E3%82%A4%E3%82%A2%E3%83%91%E3%83%AC%E3%82%B9%E6%96%B0%E5%AE%BF%EF%BC%91%E4%B8%81%E7%9B%AE+B1F+1+Chome-31-3+Shinjuku,+Shinjuku+City,+Tokyo+160-0022,+Japan/Japan,+%E3%80%92175-0092+Tokyo,+Itabashi+City,+Akatsuka3+Chome%E2%88%92%EF%BC%91%EF%BC%99%E2%88%922+%E3%83%8D%E3%82%AA%E3%83%BB%E3%82%B9%E3%83%86%E3%83%BC%E3%82%B8%E6%88%90%E5%A2%97/@35.7312606,139.6467802,13z/am=t/data=!4m18!4m17!1m5!1m1!1s0x60188d6eb08a4dc3:0xd25539f8a72a6a56!2m2!1d139.7120801!2d35.6902395!1m5!1m1!1s0x6018ec76d6b78e07:0xd0e358c73acbff61!2m2!1d139.6372143!2d35.7767553!2m3!6e0!7e2!8j1763589600!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTAwOC4wIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
-          "amount": 280,
+          "amount": 260,
           "currency": "JPY",
           "notes": "One-way train fare"
         },
-        "note": "Direct route back to accommodation"
+        "note": "Fukutoshin Line (6 stops)"
       }
     ]
   },  
