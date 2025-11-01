@@ -74,11 +74,11 @@
     "items": [
       {
         "time": "6:30 AM",
-        "title": "Exit from HND Airport",
-        "description": "Depart from Haneda Airport to Minato City",
+        "title": "Go to Tokyo Tower",
+        "description": "Depart from Haneda Airport to Tokyo Tower, Minato City",
         "location": {
           "name": "Haneda Airport",
-          "mapsUrl": "https://www.google.com/maps/dir/Haneda+Airport,+Hanedakuko,+Ota+City,+Tokyo,+Japan/Tokyo+Tower,+4+Chome-2-8+Shibakoen,+Minato+City,+Tokyo+105-0011,+Japan/@35.6013273,139.7097109,13z/am=t/data=!4m18!4m17!1m5!1m1!1s0x6018640ba43192e3:0xd32c3a9d146f8df!2m2!1d139.7779951!2d35.5482964!1m5!1m1!1s0x60188bbd9009ec09:0x481a93f0d2a409dd!2m2!1d139.7454329!2d35.6585805!2m3!6e0!7e2!8j1763533800!3e3?entry=ttu&g_ep=EgoyMDI1MTAwOC4wIKXMDSoASAFQAw%3D%3D"
+          "mapsUrl": "https://www.google.com/maps/dir/Haneda+Airport,+Hanedakuko,+Ota+City,+Tokyo,+Japan/Tokyo+Tower,+4+Chome-2-8+Shibakoen,+Minato+City,+Tokyo+105-0011,+Japan/@35.6036328,139.6685098,12z/am=t/data=!4m18!4m17!1m5!1m1!1s0x6018640ba43192e3:0xd32c3a9d146f8df!2m2!1d139.7779951!2d35.5482964!1m5!1m1!1s0x60188bbd9009ec09:0x481a93f0d2a409dd!2m2!1d139.7454329!2d35.6585805!2m3!6e0!7e2!8j1763532000!3e3?entry=ttu&g_ep=EgoyMDI1MTAyNy4wIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
           "amount": 510,
@@ -89,11 +89,12 @@
       },
       {
         "time": "8:00 AM",
-        "title": "Go to Tokyo Tower",
+        "title": "{Placeholder Breakfast}",
         "description": "Visit the iconic Tokyo Tower from Shiba Park",
         "location": {
           "name": "Tokyo Tower",
-          "mapsUrl": "https://www.google.com/maps/place/Shiba+Park/data=!4m2!3m1!19sChIJ_8MpkL6LGGARP200oln5XGs"
+          "mapsUrl": "https://www.google.com/maps/place/Shiba+Park/data=!4m2!3m1!19sChIJ_8MpkL6LGGARP200oln5XGs",
+          "iframeUrl": "https://www.google.com/maps/dir/Haneda+Airport,+Hanedakuko,+Ota+City,+Tokyo,+Japan/Tokyo+Tower,+4+Chome-2-8+Shibakoen,+Minato+City,+Tokyo+105-0011,+Japan/@35.6034932,139.6685093,12z/data=!3m1!4b1!4m18!4m17!1m5!1m1!1s0x6018640ba43192e3:0xd32c3a9d146f8df!2m2!1d139.7779951!2d35.5482964!1m5!1m1!1s0x60188bbd9009ec09:0x481a93f0d2a409dd!2m2!1d139.7454329!2d35.6585805!2m3!6e0!7e2!8j1763532000!3e3?entry=ttu&g_ep=EgoyMDI1MTAyOS4yIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
           "amount": 0,
