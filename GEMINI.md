@@ -5,6 +5,7 @@ This project is a modern, interactive itinerary planner for a Tokyo trip, built 
 ## Core Features
 
 *   **Interactive Timeline**: Displays daily activities with location, price, notes, and optional images/YouTube links.
+*   **Prayer Time Dashboard**: An interactive, theme-aware clock displaying prayer times for different cities and dates in Japan.
 *   **Responsive Design**: Ensures usability across various devices.
 *   **Modern UI**: Clean interface with smooth animations.
 *   **Component-Based Architecture**: Utilizes reusable components for maintainability.
@@ -23,6 +24,7 @@ These are the main routes/pages of the application.
 *   `dictionary.astro`: Displays a Japanese dictionary, likely utilizing `jp_dictionary.json`.
 *   `index.astro`: The homepage, serving as the main entry point for the itinerary display.
 *   `japan.astro`: A page potentially offering general information about Japan or another view related to the trip.
+*   `prayer.astro`: Displays the interactive prayer time dashboard.
 
 ### `src/components/`
 Contains reusable UI components built with Preact (`.tsx`) or Astro (`.astro`).
@@ -32,6 +34,7 @@ Contains reusable UI components built with Preact (`.tsx`) or Astro (`.astro`).
 *   `Footer.astro`: The site-wide footer, containing navigation links, company info, and social links.
 *   `Header.astro`: The site-wide header, including navigation, theme switcher, and potentially user profile/notifications.
 *   `PDFDownload.tsx`: Component responsible for initiating the PDF download of the itinerary.
+*   `PrayerDashboard.tsx`: An interactive, theme-aware prayer time clock built with the Canvas API.
 *   `SearchFilter.tsx`: Provides search and filtering capabilities for itinerary items.
 *   `SkeletonLoader.tsx`: A placeholder component displayed while content is loading.
 *   `TabsNew.tsx`: A tabbed interface component for organizing content (e.g., by day).
@@ -48,6 +51,7 @@ Defines the overall structure and common elements for pages.
 Stores static data used throughout the application.
 *   `itineraryData.json`: The core data file containing the Tokyo trip itinerary, structured according to the `DayItinerary` and `TimelineItem` types defined in `itinerary.ts`.
 *   `jp_dictionary.json`: A JSON file containing Japanese dictionary entries, used by the `dictionary.astro` page.
+*   `jp_prayer.json`: A JSON file containing prayer times for various cities in Japan.
 
 ### `src/styles/`
 Contains global and theme-specific CSS files.
@@ -68,6 +72,7 @@ Defines TypeScript interfaces for data structures.
 *   **Preact**: A fast, lightweight alternative to React, used for interactive UI components.
 *   **TypeScript**: For type-safe code and improved developer experience.
 *   **Tailwind CSS**: A utility-first CSS framework for rapid UI development.
+*   **Canvas API**: Used for drawing the interactive prayer time clock.
 *   **html2canvas & jspdf**: Libraries used for generating PDF documents from HTML content.
 *   **react-icons**: A library providing popular icon sets.
 

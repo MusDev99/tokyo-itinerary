@@ -1,0 +1,29 @@
+{
+  "location_data": [
+    {
+      "city": "Tokyo",
+      "schedule": [
+        { "date": "2025-11-18", "day": "Tuesday", "Fajr": "4:51 AM", "Sunrise": "6:29 AM", "Dhuhr": "11:38 AM", "Asr": "2:36 PM", "Maghrib": "4:48 PM", "Isha": "6:18 PM" },
+        { "date": "2025-11-19", "day": "Wednesday", "Fajr": "4:52 AM", "Sunrise": "6:30 AM", "Dhuhr": "11:38 AM", "Asr": "2:35 PM", "Maghrib": "4:47 PM", "Isha": "6:17 PM" },
+        { "date": "2025-11-20", "day": "Thursday", "Fajr": "4:53 AM", "Sunrise": "6:31 AM", "Dhuhr": "11:39 AM", "Asr": "2:35 PM", "Maghrib": "4:47 PM", "Isha": "6:17 PM" },
+        { "date": "2025-11-21", "day": "Friday", "Fajr": "4:54 AM", "Sunrise": "6:32 AM", "Dhuhr": "11:39 AM", "Asr": "2:34 PM", "Maghrib": "4:46 PM", "Isha": "6:16 PM" },
+        { "date": "2025-11-22", "day": "Saturday", "Fajr": "4:55 AM", "Sunrise": "6:33 AM", "Dhuhr": "11:39 AM", "Asr": "2:34 PM", "Maghrib": "4:46 PM", "Isha": "6:16 PM" },
+        { "date": "2025-11-23", "day": "Sunday", "Fajr": "4:56 AM", "Sunrise": "6:34 AM", "Dhuhr": "11:40 AM", "Asr": "2:34 PM", "Maghrib": "4:45 PM", "Isha": "6:15 PM" },
+        { "date": "2025-11-24", "day": "Monday", "Fajr": "4:57 AM", "Sunrise": "6:35 AM", "Dhuhr": "11:40 AM", "Asr": "2:33 PM", "Maghrib": "4:45 PM", "Isha": "6:15 PM" }
+      ]
+    },
+    {
+      "city": "Fuji",
+      "schedule": [
+        { "date": "2025-11-18", "day": "Tuesday", "Fajr": "5:00 AM", "Sunrise": "6:37 AM", "Dhuhr": "11:45 AM", "Asr": "2:39 PM", "Maghrib": "4:54 PM", "Isha": "6:24 PM" },
+        { "date": "2025-11-19", "day": "Wednesday", "Fajr": "5:01 AM", "Sunrise": "6:38 AM", "Dhuhr": "11:45 AM", "Asr": "2:38 PM", "Maghrib": "4:53 PM", "Isha": "6:23 PM" },
+        { "date": "2025-11-20", "day": "Thursday", "Fajr": "5:02 AM", "Sunrise": "6:39 AM", "Dhuhr": "11:46 AM", "Asr": "2:38 PM", "Maghrib": "4:53 PM", "Isha": "6:23 PM" },
+        { "date": "2025-11-21", "day": "Friday", "Fajr": "5:03 AM", "Sunrise": "6:40 AM", "Dhuhr": "11:46 AM", "Asr": "2:37 PM", "Maghrib": "4:52 PM", "Isha": "6:22 PM" },
+        { "date": "2025-11-22", "day": "Saturday", "Fajr": "5:04 AM", "Sunrise": "6:41 AM", "Dhuhr": "11:47 AM", "Asr": "2:37 PM", "Maghrib": "4:52 PM", "Isha": "6:22 PM" },
+        { "date": "2025-11-23", "day": "Sunday", "Fajr": "5:05 AM", "Sunrise": "6:42 AM", "Dhuhr": "11:47 AM", "Asr": "2:37 PM", "Maghrib": "4:51 PM", "Isha": "6:21 PM" },
+        { "date": "2025-11-24", "day": "Monday", "Fajr": "5:06 AM", "Sunrise": "6:43 AM", "Dhuhr": "11:48 AM", "Asr": "2:36 PM", "Maghrib": "4:51 PM", "Isha": "6:21 PM" }
+      ]
+    }
+  ]
+}
+
