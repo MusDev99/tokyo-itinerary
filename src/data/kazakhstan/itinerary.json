@@ -1,0 +1,221 @@
+[
+  {
+    "day": 1,
+    "title": "Arrival in Almaty & City Exploration",
+    "date": "June 1, 2026",
+    "items": [
+      {
+        "time": "03:00 PM",
+        "title": "Arrive at Almaty International Airport (ALA)",
+        "description": "Immigration, baggage claim, and currency exchange.",
+        "location": {
+          "name": "Almaty International Airport",
+          "mapsUrl": "https://www.google.com/maps/place/Almaty+International+Airport"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "KZT"
+        },
+        "note": "Arrange for a taxi or a ride-sharing service to the hotel."
+      },
+      {
+        "time": "05:00 PM",
+        "title": "Check-in to Hotel",
+        "description": "Check-in and freshen up.",
+        "location": {
+          "name": "Hotel in Almaty (Placeholder)",
+          "mapsUrl": "https://www.google.com/maps/search/hotels+in+almaty"
+        },
+        "price": {
+          "amount": 25000,
+          "currency": "KZT",
+          "notes": "Per night"
+        },
+        "note": ""
+      },
+      {
+        "time": "07:00 PM",
+        "title": "Dinner at a Local Restaurant",
+        "description": "Enjoy traditional Kazakh cuisine.",
+        "location": {
+          "name": "Navat Teahouse",
+          "mapsUrl": "https://www.google.com/maps/search/Navat+Teahouse+Almaty"
+        },
+        "price": {
+          "amount": 8000,
+          "currency": "KZT"
+        },
+        "note": "Try Beshbarmak, the national dish."
+      }
+    ]
+  },
+  {
+    "day": 2,
+    "title": "Medeu and Shymbulak",
+    "date": "June 2, 2026",
+    "items": [
+      {
+        "time": "09:00 AM",
+        "title": "Visit Medeu Skating Rink",
+        "description": "Visit the highest outdoor skating rink in the world.",
+        "location": {
+          "name": "Medeu",
+          "mapsUrl": "https://www.google.com/maps/place/Medeu"
+        },
+        "price": {
+          "amount": 2000,
+          "currency": "KZT"
+        },
+        "note": "Enjoy the beautiful mountain scenery."
+      },
+      {
+        "time": "12:00 PM",
+        "title": "Cable Car to Shymbulak Ski Resort",
+        "description": "Take a cable car up to Shymbulak for stunning views.",
+        "location": {
+          "name": "Shymbulak Ski Resort",
+          "mapsUrl": "https://www.google.com/maps/place/Shymbulak+Ski+Resort"
+        },
+        "price": {
+          "amount": 5000,
+          "currency": "KZT"
+        },
+        "note": "Even in summer, the views are breathtaking."
+      },
+      {
+        "time": "06:00 PM",
+        "title": "Return to Almaty",
+        "description": "Head back to the city for dinner.",
+        "location": {
+          "name": "Almaty",
+          "mapsUrl": "https://www.google.com/maps/place/Almaty"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "KZT"
+        },
+        "note": ""
+      }
+    ]
+  },
+  {
+    "day": 3,
+    "title": "Charyn Canyon Day Trip",
+    "date": "June 3, 2026",
+    "items": [
+      {
+        "time": "08:00 AM",
+        "title": "Depart for Charyn Canyon",
+        "description": "Join a day tour or hire a private driver for the trip to Charyn Canyon.",
+        "location": {
+          "name": "Charyn Canyon",
+          "mapsUrl": "https://www.google.com/maps/place/Charyn+Canyon"
+        },
+        "price": {
+          "amount": 20000,
+          "currency": "KZT",
+          "notes": "For a group tour"
+        },
+        "note": "The journey takes about 3-4 hours."
+      },
+      {
+        "time": "12:00 PM",
+        "title": "Explore the Valley of Castles",
+        "description": "Hike through the stunning rock formations of the Valley of Castles.",
+        "location": {
+          "name": "Valley of Castles, Charyn Canyon",
+          "mapsUrl": "https://www.google.com/maps/place/Charyn+Canyon"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "KZT"
+        },
+        "note": "Wear comfortable shoes and bring plenty of water."
+      },
+      {
+        "time": "06:00 PM",
+        "title": "Return to Almaty",
+        "description": "Arrive back in Almaty in the evening.",
+        "location": {
+          "name": "Almaty",
+          "mapsUrl": "https://www.google.com/maps/place/Almaty"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "KZT"
+        },
+        "note": ""
+      }
+    ]
+  },
+  {
+    "day": 4,
+    "title": "Kok-Tobe Hill and Green Bazaar",
+    "date": "June 4, 2026",
+    "items": [
+      {
+        "time": "10:00 AM",
+        "title": "Visit the Green Bazaar",
+        "description": "Explore the vibrant Green Bazaar for local produce, snacks, and souvenirs.",
+        "location": {
+          "name": "Green Bazaar",
+          "mapsUrl": "https://www.google.com/maps/place/Green+Bazaar"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "KZT"
+        },
+        "note": "A great place to experience local life."
+      },
+      {
+        "time": "02:00 PM",
+        "title": "Ascend Kok-Tobe Hill",
+        "description": "Take the cable car to Kok-Tobe for panoramic views of Almaty.",
+        "location": {
+          "name": "Kok-Tobe Hill",
+          "mapsUrl": "https://www.google.com/maps/place/Kok+Tobe+Hill"
+        },
+        "price": {
+          "amount": 3000,
+          "currency": "KZT"
+        },
+        "note": "There are also restaurants and a small amusement park at the top."
+      }
+    ]
+  },
+  {
+    "day": 5,
+    "title": "Departure",
+    "date": "June 5, 2026",
+    "items": [
+      {
+        "time": "11:00 AM",
+        "title": "Check-out from Hotel",
+        "description": "Enjoy a final Kazakh breakfast before checking out.",
+        "location": {
+          "name": "Hotel in Almaty (Placeholder)",
+          "mapsUrl": "https://www.google.com/maps/search/hotels+in+almaty"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "KZT"
+        },
+        "note": ""
+      },
+      {
+        "time": "12:00 PM",
+        "title": "Depart from Almaty International Airport (ALA)",
+        "description": "Head to the airport for your flight back home.",
+        "location": {
+          "name": "Almaty International Airport",
+          "mapsUrl": "https://www.google.com/maps/place/Almaty+International+Airport"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "KZT"
+        },
+        "note": "Arrive at the airport at least 3 hours before your flight."
+      }
+    ]
+  }
+]

@@ -1,0 +1,14 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PrayerDashboard from '../../components/PrayerDashboard.tsx';
+import prayerData from '../../data/kazakhstan/prayer.json';
+import Header from '../../components/Header.astro';
+---
+
+<Layout title="Prayer Times in Kazakhstan">
+  <Header />
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-4xl font-bold text-center mb-8">Prayer Times in Kazakhstan</h1>
+    <PrayerDashboard prayerData={prayerData} client:load />
+  </div>
+</Layout>

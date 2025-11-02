@@ -1,11 +1,37 @@
 ---
 const navLinks = [
-    // { href: '/', text: 'Home' },
-    { href: '/japan', text: 'Japan Itinerary' },
-    { href: '/dictionary', text: 'Dictionary' },
-    { href: '/prayer', text: 'Prayer' },
-]
-const currentPath = Astro.url.pathname; 
+    {
+        text: 'Japan',
+        href: '/japan',
+        sublinks: [
+            { href: '/japan/itinerary', text: 'Itinerary' },
+            { href: '/japan/dictionary', text: 'Dictionary' },
+            { href: '/japan/prayer', text: 'Prayer' },
+        ]
+    },
+    // {
+    //     text: 'China',
+    //     href: '/china',
+    // },
+    // {
+    //     text: 'Turkey',
+    //     href: '/turkey',
+    // },
+    // {
+    //     text: 'Australia',
+    //     href: '/australia',
+    // },
+    {
+        text: 'Kazakhstan',
+        href: '/kazakhstan',
+        sublinks: [
+            { href: '/kazakhstan/itinerary', text: 'Itinerary' },
+            { href: '/kazakhstan/dictionary', text: 'Dictionary' },
+            { href: '/kazakhstan/prayer', text: 'Prayer' },
+        ]
+    }
+];
+const currentPath = Astro.url.pathname;
 ---
 
 <header class="sticky top-0 z-50 glass-effect border-b border-primary/20 shadow-lg">
@@ -28,23 +54,45 @@ const currentPath = Astro.url.pathname;
       <div class="hidden sm:flex sm:items-center sm:ml-6">
         <nav class="flex items-center space-x-4">
           {navLinks.map(link => (
-            <a 
-              href={link.href} 
-              class:list={[
-                "px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300",
-                currentPath === link.href 
-                  ? 'bg-primary/10 text-primary' 
-                  : 'text-text/80 hover:bg-primary/10 hover:text-primary'
-              ]}
-              aria-current={currentPath === link.href ? 'page' : false}
-            >
-              {link.text}
-            </a>
+            <div class="relative group">
+              <a
+                href={link.href}
+                class:list={[
+                  "px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300 flex items-center",
+                  currentPath.startsWith(link.href)
+                    ? 'bg-primary/10 text-primary'
+                    : 'text-text/80 hover:bg-primary/10 hover:text-primary'
+                ]}
+                aria-current={currentPath.startsWith(link.href) ? 'page' : false}
+              >
+                {link.text}
+                {link.sublinks && (
+                  <svg class="w-4 h-4 ml-1 transition-transform duration-300 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                )}
+              </a>
+              {link.sublinks && (
+                <div class="absolute top-full left-0 mt-2 w-48 bg-white/80 backdrop-blur-md rounded-md shadow-lg border border-primary/10 opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-300">
+                  <div class="py-1">
+                    {link.sublinks.map(sublink => (
+                      <a
+                        href={sublink.href}
+                        class:list={[
+                          "block px-4 py-2 text-sm",
+                          currentPath === sublink.href
+                            ? 'text-primary'
+                            : 'text-text/80 hover:bg-primary/10 hover:text-primary'
+                        ]}
+                      >
+                        {sublink.text}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           ))}
         </nav>
       </div>
-
-      
 
       <!-- Mobile menu button -->
       <div class="-mr-2 flex items-center sm:hidden">
@@ -65,18 +113,38 @@ const currentPath = Astro.url.pathname;
   <div class="sm:hidden hidden" id="mobile-menu">
     <div class="px-2 pt-2 pb-3 space-y-1">
       {navLinks.map(link => (
-        <a
-          href={link.href}
-          class:list={[
-            "block px-3 py-2 rounded-md text-base font-medium",
-            currentPath === link.href
-              ? 'bg-primary/10 text-primary'
-              : 'text-text/80 hover:bg-primary/10 hover:text-primary'
-          ]}
-          aria-current={currentPath === link.href ? 'page' : false}
-        >
-          {link.text}
-        </a>
+        <div>
+          <a
+            href={link.href}
+            class:list={[
+              "block px-3 py-2 rounded-md text-base font-medium",
+              currentPath.startsWith(link.href)
+                ? 'bg-primary/10 text-primary'
+                : 'text-text/80 hover:bg-primary/10 hover:text-primary'
+            ]}
+            aria-current={currentPath.startsWith(link.href) ? 'page' : false}
+          >
+            {link.text}
+          </a>
+          {link.sublinks && (
+            <div class="pl-4 mt-1 space-y-1">
+              {link.sublinks.map(sublink => (
+                <a
+                  href={sublink.href}
+                  class:list={[
+                    "block px-3 py-2 rounded-md text-base font-medium",
+                    currentPath === sublink.href
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-text/80 hover:bg-primary/10 hover:text-primary'
+                  ]}
+                  aria-current={currentPath === sublink.href ? 'page' : false}
+                >
+                  {sublink.text}
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
       ))}
     </div>
   </div>

@@ -1,0 +1,56 @@
+{
+  "location_data": [
+    {
+      "city": "Almaty, Kazakhstan",
+      "dates": "June 1 - 5, 2026",
+      "calculation_method": "Muslim World League (MWL)",
+      "schedule": [
+        {
+          "date": "2026-06-01",
+          "day": "Monday",
+          "Fajr": "03:30 AM",
+          "Dhuhr": "01:15 PM",
+          "Asr": "05:15 PM",
+          "Maghrib": "08:45 PM",
+          "Isha": "10:30 PM"
+        },
+        {
+          "date": "2026-06-02",
+          "day": "Tuesday",
+          "Fajr": "03:30 AM",
+          "Dhuhr": "01:15 PM",
+          "Asr": "05:15 PM",
+          "Maghrib": "08:46 PM",
+          "Isha": "10:31 PM"
+        },
+        {
+          "date": "2026-06-03",
+          "day": "Wednesday",
+          "Fajr": "03:29 AM",
+          "Dhuhr": "01:15 PM",
+          "Asr": "05:16 PM",
+          "Maghrib": "08:47 PM",
+          "Isha": "10:32 PM"
+        },
+        {
+          "date": "2026-06-04",
+          "day": "Thursday",
+          "Fajr": "03:29 AM",
+          "Dhuhr": "01:16 PM",
+          "Asr": "05:16 PM",
+          "Maghrib": "08:48 PM",
+          "Isha": "10:33 PM"
+        },
+        {
+          "date": "2026-06-05",
+          "day": "Friday",
+          "Fajr": "03:28 AM",
+          "Dhuhr": "01:16 PM",
+          "Asr": "05:16 PM",
+          "Maghrib": "08:49 PM",
+          "Isha": "10:34 PM"
+        }
+      ]
+    }
+  ]
+}

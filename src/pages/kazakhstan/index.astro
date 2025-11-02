@@ -1,0 +1,26 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+
+const kazakhstanPages = [
+  { name: 'Itinerary', href: '/kazakhstan/itinerary', description: 'View the day-by-day trip plan.' },
+  { name: 'Dictionary', href: '/kazakhstan/dictionary', description: 'Common Kazakh phrases for travelers.' },
+  { name: 'Prayer Times', href: '/kazakhstan/prayer', description: 'Check prayer times across Kazakhstan.' },
+]
+---
+<Layout title="Kazakhstan Dashboard">
+  <Header />
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-4xl font-bold text-center mb-8">🇰🇿 Kazakhstan Dashboard</h1>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {kazakhstanPages.map(page => (
+        <a href={page.href} class="block p-6 rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-300 glass-effect border border-primary/20">
+          <h2 class="text-2xl font-bold mb-2 text-primary">{page.name}</h2>
+          <p class="text-text/80">{page.description}</p>
+        </a>
+      ))}
+    </div>
+  </div>
+  <Footer />
+</Layout>

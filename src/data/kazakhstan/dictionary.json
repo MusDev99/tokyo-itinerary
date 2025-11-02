@@ -1,0 +1,40 @@
+{
+  "categories": [
+    {
+      "name": "Greetings (Kazakh)",
+      "phrases": [
+        { "kz": "Sälemetsiz be (Сәлеметсіз бе)", "en": "Hello (formal)" },
+        { "kz": "Sälem (Сәлем)", "en": "Hi (informal)" },
+        { "kz": "Qalyñyz qalai? (Қалыңыз қалай?)", "en": "How are you?" },
+        { "kz": "Jaqsy, raqmet (Жақсы, рақмет)", "en": "I'm fine, thank you" }
+      ]
+    },
+    {
+      "name": "Greetings (Russian)",
+      "phrases": [
+        { "ru": "Здравствуйте (Zdravstvuyte)", "en": "Hello (formal)" },
+        { "ru": "Привет (Privet)", "en": "Hi (informal)" },
+        { "ru": "Как дела? (Kak dela?)", "en": "How are you?" },
+        { "ru": "Хорошо, спасибо (Khorosho, spasibo)", "en": "I'm fine, thank you" }
+      ]
+    },
+    {
+      "name": "Politeness",
+      "phrases": [
+        { "kz": "Raqmet (Рақмет)", "en": "Thank you (Kazakh)" },
+        { "ru": "Спасибо (Spasibo)", "en": "Thank you (Russian)" },
+        { "kz": "Keshiriñiz (Кешіріңіз)", "en": "Excuse me / Sorry (Kazakh)" },
+        { "ru": "Извините (Izvinite)", "en": "Excuse me / Sorry (Russian)" }
+      ]
+    },
+    {
+      "name": "Basic Questions",
+      "phrases": [
+        { "kz": "Būl qanşa twradı? (Бұл қанша тұрады?)", "en": "How much is this? (Kazakh)" },
+        { "ru": "Сколько это стоит? (Skol'ko eto stoit?)", "en": "How much is this? (Russian)" },
+        { "kz": "Äjethana qayda? (Әжетхана қайда?)", "en": "Where is the toilet? (Kazakh)" },
+        { "ru": "Где туалет? (Gde tualet?)", "en": "Where is the toilet? (Russian)" }
+      ]
+    }
+  ]
+}
