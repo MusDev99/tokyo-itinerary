@@ -227,7 +227,7 @@
   {
     "day": 3,
     "title": "Ginza & Shibuya Exploration",
-    "date": "November 21, 2025",
+    "date": "November 20, 2025",
     "items": [
       {
         "time": "8:15 AM",
@@ -384,7 +384,7 @@
   {
     "day": 4,
     "title": "Asakusa, Akihabara and Ueno City Exploration",
-    "date": "November 20, 2025",
+    "date": "November 21, 2025",
     "items": [
       {
         "time": "7:30 AM",
@@ -548,7 +548,7 @@
       {
         "time": "5:00 PM",
         "title": "Airbnb Check-in (Hostel 1889)",
-        "description": "Self checkin at reservatioat Hostel 1889",
+        "description": "Self checkin at reservation at Hostel 1889",
         "location": {
           "name": "Hostel 1889",
           "mapsUrl": "https://maps.app.goo.gl/qWJBF9GFw8nveukg8"

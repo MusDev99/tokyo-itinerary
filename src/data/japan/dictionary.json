@@ -67,6 +67,32 @@
         { "jp": "Ashita (明日)", "en": "Tomorrow" },
         { "jp": "Mainichi (毎日)", "en": "Every day" }
       ]
+    },
+    {
+      "name": "At a Restaurant 🍱",
+      "phrases": [
+        { "jp": "Sumimasen, chuumon onegaishimasu (すみません、注文お願いします)", "en": "Excuse me, I’d like to order please" },
+        { "jp": "Kono menyuu o kudasai (このメニューをください)", "en": "I’ll have this one, please" },
+        { "jp": "Osusume wa nan desu ka? (おすすめは何ですか)", "en": "What do you recommend?" },
+        { "jp": "Mizu o kudasai (水をください)", "en": "Water, please" },
+        { "jp": "Okaikei onegaishimasu (お会計お願いします)", "en": "Check, please" },
+        { "jp": "Kurejitto kaado wa tsukaemasu ka? (クレジットカードは使えますか)", "en": "Can I use a credit card?" },
+        { "jp": "Amai mono wa arimasu ka? (甘いものはありますか)", "en": "Do you have any desserts?" },
+        { "jp": "Onaka ga ippai desu (お腹がいっぱいです)", "en": "I’m full" }
+      ]
+    },
+    {
+      "name": "At a Convenience Store 🏪",
+      "phrases": [
+        { "jp": "Kore wa ikura desu ka? (これはいくらですか)", "en": "How much is this?" },
+        { "jp": "Kore o kudasai (これをください)", "en": "I’ll take this, please" },
+        { "jp": "Reshīto o kudasai (レシートをください)", "en": "Can I have a receipt, please?" },
+        { "jp": "Fukuro wa irimasen (袋はいりません)", "en": "I don’t need a bag" },
+        { "jp": "Kurejitto kaado de haraemasu ka? (クレジットカードで払えますか)", "en": "Can I pay by credit card?" },
+        { "jp": "ATM wa doko desu ka? (ATMはどこですか)", "en": "Where is the ATM?" },
+        { "jp": "Toire wa doko desu ka? (トイレはどこですか)", "en": "Where is the restroom?" },
+        { "jp": "Kounbini bento arimasu ka? (コンビニ弁当ありますか)", "en": "Do you have convenience store lunch boxes?" }
+      ]
     }
   ]
 }
