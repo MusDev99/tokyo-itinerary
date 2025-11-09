@@ -1,6 +1,51 @@
 {
   "categories": [
     {
+      "name": "At a Restaurant 🍱",
+      "phrases": [
+        { "jp": "Sumimasen, chuumon onegaishimasu (すみません、注文お願いします)", "en": "Excuse me, I’d like to order please" },
+        { "jp": "Kono menyuu o kudasai (このメニューをください)", "en": "I’ll have this one, please" },
+        { "jp": "Osusume wa nan desu ka? (おすすめは何ですか)", "en": "What do you recommend?" },
+        { "jp": "Watashi wa ____ to ____ o chūmon shitai desu. (私は____と____を注文したいです。)", "en": "I want to order ____ and ____." },
+        { "jp": "_____ o kudasai (____ください)", "en": "_____, please" },
+        { "jp": "Okaikei onegaishimasu (お会計お願いします)", "en": "Check, please" },
+        { "jp": "Kurejitto kaado wa tsukaemasu ka? (クレジットカードは使えますか)", "en": "Can I use a credit card?" },
+        { "jp": "Amai mono wa arimasu ka? (甘いものはありますか)", "en": "Do you have any desserts?" },
+        { "jp": "Onaka ga ippai desu (お腹がいっぱいです)", "en": "I’m full" },
+        {"jp": "itadakimasu (いただきます)", "en": "An expression of gratitude before eating"},
+        {"jp": "gochisosama deshita  (ごちそうさまでした)", "en": "An expression of gratitude after eating"},
+        { "jp": "Tori niku (鶏肉)", "en": "Chicken" },
+        { "jp": "Gohan (ご飯)", "en": "Rice" },
+        { "jp": "Pan (パン)", "en": "Bread" },
+        { "jp": "Miruku (ミルク)", "en": "Milk" },
+        { "jp": "Aisukurīmu (アイスクリーム)", "en": "Ice cream" }
+      ]
+    },
+    {
+      "name": "Questions for Time / Location / Details",
+      "phrases": [
+        { "jp": "Doko desu ka? (どこですか)", "en": "Where is it?" },
+        { "jp": "_____ Doko desu ka? (どこですか)", "en": "Where is the _____?" },
+        { "jp": "Itsu desu ka? (いつですか)", "en": "When is it?" },
+        { "jp": "Watashi wa _____ ni ikitai desu. (私は_____に行きたいです。)", "en": "I want to go _____." },
+        { "jp": "Doushite? (どうして)", "en": "Why?" },
+        { "jp": "Dochira desu ka? (どちらですか)", "en": "Which one is it?" },
+        { "jp": "Nan desu ka? (何ですか)", "en": "What is it?" },
+        { "jp": "Dare desu ka? (だれですか)", "en": "Who is it?" },
+        { "jp": "Ima nanji desu ka? (今何時ですか)", "en": "What time is it right now?" },
+        { "jp": "Ima (今)", "en": "Now" },
+        { "jp": "Ato de (後で)", "en": "Later" },
+        { "jp": "Kyou (今日)", "en": "Today" },
+        { "jp": "Kinou (昨日)", "en": "Yesterday" },
+        { "jp": "Ashita (明日)", "en": "Tomorrow" },
+        { "jp": "Mainichi (毎日)", "en": "Every day" },
+        { "jp": "Basutei (バス停)", "en": "Bus stop" },
+        { "jp": "Kūkō (空港)", "en": "Airport" },
+        { "jp": "Toire (トイレ)", "en": "Toilet" },
+        { "jp": "Resutoran (レストラン)", "en": "Restaurant" }
+      ]
+    },
+    {
       "name": "Greetings",
       "phrases": [
         { "jp": "Konnichiwa (こんにちは)", "en": "Hello" },
@@ -50,38 +95,6 @@
       ]
     },
     {
-      "name": "Questions for Time / Location / Details",
-      "phrases": [
-        { "jp": "Doko desu ka? (どこですか)", "en": "Where is it?" },
-        { "jp": "_____ Doko desu ka? (どこですか)", "en": "Where is the _____?" },
-        { "jp": "Itsu desu ka? (いつですか)", "en": "When is it?" },
-        { "jp": "Doushite? (どうして)", "en": "Why?" },
-        { "jp": "Dochira desu ka? (どちらですか)", "en": "Which one is it?" },
-        { "jp": "Nan desu ka? (何ですか)", "en": "What is it?" },
-        { "jp": "Dare desu ka? (だれですか)", "en": "Who is it?" },
-        { "jp": "Ima nanji desu ka? (今何時ですか)", "en": "What time is it right now?" },
-        { "jp": "Ima (今)", "en": "Now" },
-        { "jp": "Ato de (後で)", "en": "Later" },
-        { "jp": "Kyou (今日)", "en": "Today" },
-        { "jp": "Kinou (昨日)", "en": "Yesterday" },
-        { "jp": "Ashita (明日)", "en": "Tomorrow" },
-        { "jp": "Mainichi (毎日)", "en": "Every day" }
-      ]
-    },
-    {
-      "name": "At a Restaurant 🍱",
-      "phrases": [
-        { "jp": "Sumimasen, chuumon onegaishimasu (すみません、注文お願いします)", "en": "Excuse me, I’d like to order please" },
-        { "jp": "Kono menyuu o kudasai (このメニューをください)", "en": "I’ll have this one, please" },
-        { "jp": "Osusume wa nan desu ka? (おすすめは何ですか)", "en": "What do you recommend?" },
-        { "jp": "Mizu o kudasai (水をください)", "en": "Water, please" },
-        { "jp": "Okaikei onegaishimasu (お会計お願いします)", "en": "Check, please" },
-        { "jp": "Kurejitto kaado wa tsukaemasu ka? (クレジットカードは使えますか)", "en": "Can I use a credit card?" },
-        { "jp": "Amai mono wa arimasu ka? (甘いものはありますか)", "en": "Do you have any desserts?" },
-        { "jp": "Onaka ga ippai desu (お腹がいっぱいです)", "en": "I’m full" }
-      ]
-    },
-    {
       "name": "At a Convenience Store 🏪",
       "phrases": [
         { "jp": "Kore wa ikura desu ka? (これはいくらですか)", "en": "How much is this?" },
@@ -92,6 +105,12 @@
         { "jp": "ATM wa doko desu ka? (ATMはどこですか)", "en": "Where is the ATM?" },
         { "jp": "Toire wa doko desu ka? (トイレはどこですか)", "en": "Where is the restroom?" },
         { "jp": "Kounbini bento arimasu ka? (コンビニ弁当ありますか)", "en": "Do you have convenience store lunch boxes?" }
+      ]
+    },
+    {
+      "name": "Noun",
+      "phrases": [
+        { "jp": "Jitensha (自転車)", "en": "Bicycle" }
       ]
     }
   ]

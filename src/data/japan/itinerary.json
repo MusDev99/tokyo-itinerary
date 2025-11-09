@@ -32,25 +32,10 @@
           "currency": "JPY",
           "notes": "Already Booked"
         },
-        "note": "Prayer room at Kaunter M Level 3"
+        "note": "Prayer room at Kaunter M Level 3, Buy Suica at Vending machine in the Terminal 3 arrivals area"
       },
       {
-        "time": "11:30 PM",
-        "title": "Buy Suica Card",
-        "description": "Welcome Suica Card",
-        "location": {
-          "name": "Haneda Airport",
-          "mapsUrl": "https://www.google.com/maps/place/Haneda+Airport+(HND)/data=!4m2!3m1!19sChIJ45IxpAtkGGAR3_hG0anDMg0"
-        },
-        "price": {
-          "amount": 1000,
-          "currency": "JPY",
-          "notes": "Per card"
-        },
-        "note": "Vending machine in the Terminal 3 arrivals area"
-      },
-      {
-        "time": "12:30 AM",
+        "time": "11:30 AM",
         "title": "Refreshment & Rest",
         "description": "Rest at airport lounge or lobby",
         "location": {
@@ -65,15 +50,13 @@
       }
     ]
   },
-
-
   {
     "day": 2,
     "title": "Minato, Itabashi and Shinjuku City Exploration",
     "date": "November 19, 2025",
     "items": [
       {
-        "time": "6:30 AM",
+        "time": "6:00 AM",
         "title": "Go to Tokyo Tower",
         "description": "Depart from Haneda Airport to Tokyo Tower, Minato City",
         "location": {
@@ -136,7 +119,7 @@
       {
         "time": "11:00 PM",
         "title": "Team B - Go to Team Labs",
-        "description": "Drop Luggage at Airbnb",
+        "description": "Helmi Solo",
         "location": {
           "name": "Borderless Team Labs",
           "mapsUrl": "https://www.google.com/maps/place/teamLab+Borderless:+MORI+Building+DIGITAL+ART+MUSEUM/data=!4m2!3m1!19sChIJQ5Sa1PqJGGARUSaNKKOrMVg"
@@ -305,7 +288,7 @@
         "note": "Halal-certified tempura and rice bowls"
       },
       {
-        "time": "2:00 PM",
+        "time": "2:30 PM",
         "title": "Go to Shibuya Sky",
         "description": "Take Ginza Station to Shibuya Sky",
         "location": {
@@ -328,14 +311,14 @@
           "mapsUrl": "https://maps.google.com/?q=Shibuya+Sky"
         },
         "price": {
-          "amount": 3000,
+          "amount": 3400,
           "currency": "JPY",
-          "notes": "Adult Price"
+          "notes": "Night View Price(Booked)"
         },
-        "note": "¥2,700 for adults to enter before 3:00 PM and ¥3,400 after 3:00 PM when purchased online"
+        "note": "Arrive 20 minutes earlier for queue"
       },
       {
-        "time": "7:00 PM",
+        "time": "6:30 PM",
         "title": "Shibuya Crossing",
         "description": "Visit the famous Shibuya Crossing, one of the busiest pedestrian crossings in the world",
         "location": {
@@ -344,8 +327,21 @@
         },
         "price": {
           "amount": 0,
-          "currency": "JPY",
-          "notes": "Free"
+          "currency": "JPY"
+        },
+        "note": "Best time to visit is evening when neon lights illuminate the area"
+      },
+      {
+        "time": "7:00 PM",
+        "title": "Hachiko Statue",
+        "description": "Visit the famous dog statue located outside Shibuya Station. ",
+        "location": {
+          "name": "Hachiko Statue",
+          "mapsUrl": "https://maps.google.com/?q=Hachiko+Statue"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY"
         },
         "note": "Best time to visit is evening when neon lights illuminate the area"
       },
