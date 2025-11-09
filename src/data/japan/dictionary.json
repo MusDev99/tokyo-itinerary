@@ -12,8 +12,8 @@
         { "jp": "Kurejitto kaado wa tsukaemasu ka? (クレジットカードは使えますか)", "en": "Can I use a credit card?" },
         { "jp": "Amai mono wa arimasu ka? (甘いものはありますか)", "en": "Do you have any desserts?" },
         { "jp": "Onaka ga ippai desu (お腹がいっぱいです)", "en": "I’m full" },
-        {"jp": "itadakimasu (いただきます)", "en": "An expression of gratitude before eating"},
-        {"jp": "gochisosama deshita  (ごちそうさまでした)", "en": "An expression of gratitude after eating"},
+        { "jp": "Itadakimasu (いただきます)", "en": "Let’s dig in (before a meal)" },
+        { "jp": "Gochisousama deshita (ごちそうさまでした)", "en": "That was delicious / Thank you for the meal" },
         { "jp": "Tori niku (鶏肉)", "en": "Chicken" },
         { "jp": "Gohan (ご飯)", "en": "Rice" },
         { "jp": "Pan (パン)", "en": "Bread" },
@@ -33,6 +33,7 @@
         { "jp": "Nan desu ka? (何ですか)", "en": "What is it?" },
         { "jp": "Dare desu ka? (だれですか)", "en": "Who is it?" },
         { "jp": "Ima nanji desu ka? (今何時ですか)", "en": "What time is it right now?" },
+        { "jp": "_____ de tomarimasu ka? (_____で止まりますか)", "en": "Will we stop at ______?" },
         { "jp": "Ima (今)", "en": "Now" },
         { "jp": "Ato de (後で)", "en": "Later" },
         { "jp": "Kyou (今日)", "en": "Today" },
@@ -42,7 +43,9 @@
         { "jp": "Basutei (バス停)", "en": "Bus stop" },
         { "jp": "Kūkō (空港)", "en": "Airport" },
         { "jp": "Toire (トイレ)", "en": "Toilet" },
-        { "jp": "Resutoran (レストラン)", "en": "Restaurant" }
+        { "jp": "Resutoran (レストラン)", "en": "Restaurant" },
+        { "jp": "Eki (駅)", "en": "Train station" },
+        { "jp": "Kouen (公園)", "en": "Park" }
       ]
     },
     {
@@ -73,11 +76,9 @@
       "phrases": [
         { "jp": "Arigatou gozaimasu (ありがとうございます)", "en": "Thank you very much" },
         { "jp": "Douitashimashite (どういたしまして)", "en": "You’re welcome" },
-        { "jp": "Sumimasen (すみません)", "en": "Excuse me / Sorry" },
+        { "jp": "Sumimasen (すみません)", "en": "Excuse me" },
         { "jp": "Gomen nasai (ごめんなさい)", "en": "I’m truly sorry" },
-        { "jp": "Yoroshiku onegaishimasu (よろしくおねがいします)", "en": "Please take care of me / I’m in your debt" },
-        { "jp": "Itadakimasu (いただきます)", "en": "Let’s dig in (before a meal)" },
-        { "jp": "Gochisousama deshita (ごちそうさまでした)", "en": "That was delicious / Thank you for the meal" }
+        { "jp": "Yoroshiku onegaishimasu (よろしくおねがいします)", "en": "Please take care of me / I’m in your debt" }
       ]
     },
     {
@@ -102,15 +103,15 @@
         { "jp": "Reshīto o kudasai (レシートをください)", "en": "Can I have a receipt, please?" },
         { "jp": "Fukuro wa irimasen (袋はいりません)", "en": "I don’t need a bag" },
         { "jp": "Kurejitto kaado de haraemasu ka? (クレジットカードで払えますか)", "en": "Can I pay by credit card?" },
-        { "jp": "ATM wa doko desu ka? (ATMはどこですか)", "en": "Where is the ATM?" },
-        { "jp": "Toire wa doko desu ka? (トイレはどこですか)", "en": "Where is the restroom?" },
-        { "jp": "Kounbini bento arimasu ka? (コンビニ弁当ありますか)", "en": "Do you have convenience store lunch boxes?" }
+        { "jp": "______ arimasu ka? (___ありますか)", "en": "Do you have ______?" },
+        { "jp": "Kore wa harārudesu ka? (これはハラールですか?)", "en": "Is it halal?" }
       ]
     },
     {
       "name": "Noun",
       "phrases": [
-        { "jp": "Jitensha (自転車)", "en": "Bicycle" }
+        { "jp": "Jitensha (自転車)", "en": "Bicycle" },
+        { "jp": "Kuruma (車)", "en": "Car" }
       ]
     }
   ]
