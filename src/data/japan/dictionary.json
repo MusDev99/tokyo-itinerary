@@ -3,115 +3,377 @@
     {
       "name": "At a Restaurant 🍱",
       "phrases": [
-        { "jp": "Sumimasen, chuumon onegaishimasu (すみません、注文お願いします)", "en": "Excuse me, I’d like to order please" },
-        { "jp": "Kono menyuu o kudasai (このメニューをください)", "en": "I’ll have this one, please" },
-        { "jp": "Osusume wa nan desu ka? (おすすめは何ですか)", "en": "What do you recommend?" },
-        { "jp": "Watashi wa ____ to ____ o chūmon shitai desu. (私は____と____を注文したいです。)", "en": "I want to order ____ and ____." },
-        { "jp": "_____ o kudasai (____ください)", "en": "_____, please" },
-        { "jp": "Okaikei onegaishimasu (お会計お願いします)", "en": "Check, please" },
-        { "jp": "Kurejitto kaado wa tsukaemasu ka? (クレジットカードは使えますか)", "en": "Can I use a credit card?" },
-        { "jp": "Amai mono wa arimasu ka? (甘いものはありますか)", "en": "Do you have any desserts?" },
-        { "jp": "Onaka ga ippai desu (お腹がいっぱいです)", "en": "I’m full" },
-        { "jp": "Itadakimasu (いただきます)", "en": "Let’s dig in (before a meal)" },
-        { "jp": "Gochisousama deshita (ごちそうさまでした)", "en": "That was delicious / Thank you for the meal" },
-        { "jp": "Tori niku (鶏肉)", "en": "Chicken" },
-        { "jp": "Gohan (ご飯)", "en": "Rice" },
-        { "jp": "Pan (パン)", "en": "Bread" },
-        { "jp": "Miruku (ミルク)", "en": "Milk" },
-        { "jp": "Aisukurīmu (アイスクリーム)", "en": "Ice cream" }
+        {
+          "jp": "Sumimasen, chuumon onegaishimasu (すみません、注文お願いします)",
+          "en": "Excuse me, I’d like to order please"
+        },
+        {
+          "jp": "Kono menyuu o kudasai (このメニューをください)",
+          "en": "I’ll have this one, please"
+        },
+        {
+          "jp": "Osusume wa nan desu ka? (おすすめは何ですか)",
+          "en": "What do you recommend?"
+        },
+        {
+          "jp": "Watashi wa ____ to ____ o chūmon shitai desu. (私は____と____を注文したいです。)",
+          "en": "I want to order ____ and ____."
+        },
+        {
+          "jp": "_____ o kudasai (____ください)",
+          "en": "_____, please"
+        },
+        {
+          "jp": "Okaikei onegaishimasu (お会計お願いします)",
+          "en": "Check, please"
+        },
+        {
+          "jp": "Kurejitto kaado wa tsukaemasu ka? (クレジットカードは使えますか)",
+          "en": "Can I use a credit card?"
+        },
+        {
+          "jp": "Amai mono wa arimasu ka? (甘いものはありますか)",
+          "en": "Do you have any desserts?"
+        },
+        {
+          "jp": "Onaka ga ippai desu (お腹がいっぱいです)",
+          "en": "I’m full"
+        },
+        {
+          "jp": "Itadakimasu (いただきます)",
+          "en": "Let’s dig in (before a meal)"
+        },
+        {
+          "jp": "Gochisousama deshita (ごちそうさまでした)",
+          "en": "That was delicious / Thank you for the meal"
+        },
+        {
+          "jp": "Tori niku (鶏肉)",
+          "en": "Chicken"
+        },
+        {
+          "jp": "Gohan (ご飯)",
+          "en": "Rice"
+        },
+        {
+          "jp": "Pan (パン)",
+          "en": "Bread"
+        },
+        {
+          "jp": "Miruku (ミルク)",
+          "en": "Milk"
+        },
+        {
+          "jp": "Aisukurīmu (アイスクリーム)",
+          "en": "Ice cream"
+        }
       ]
     },
     {
       "name": "Questions for Time / Location / Details",
       "phrases": [
-        { "jp": "Doko desu ka? (どこですか)", "en": "Where is it?" },
-        { "jp": "_____ Doko desu ka? (どこですか)", "en": "Where is the _____?" },
-        { "jp": "Itsu desu ka? (いつですか)", "en": "When is it?" },
-        { "jp": "Watashi wa _____ ni ikitai desu. (私は_____に行きたいです。)", "en": "I want to go _____." },
-        { "jp": "Doushite? (どうして)", "en": "Why?" },
-        { "jp": "Dochira desu ka? (どちらですか)", "en": "Which one is it?" },
-        { "jp": "Nan desu ka? (何ですか)", "en": "What is it?" },
-        { "jp": "Dare desu ka? (だれですか)", "en": "Who is it?" },
-        { "jp": "Ima nanji desu ka? (今何時ですか)", "en": "What time is it right now?" },
-        { "jp": "_____ de tomarimasu ka? (_____で止まりますか)", "en": "Will we stop at ______?" },
-        { "jp": "Ima (今)", "en": "Now" },
-        { "jp": "Ato de (後で)", "en": "Later" },
-        { "jp": "Kyou (今日)", "en": "Today" },
-        { "jp": "Kinou (昨日)", "en": "Yesterday" },
-        { "jp": "Ashita (明日)", "en": "Tomorrow" },
-        { "jp": "Mainichi (毎日)", "en": "Every day" },
-        { "jp": "Basutei (バス停)", "en": "Bus stop" },
-        { "jp": "Kūkō (空港)", "en": "Airport" },
-        { "jp": "Toire (トイレ)", "en": "Toilet" },
-        { "jp": "Resutoran (レストラン)", "en": "Restaurant" },
-        { "jp": "Eki (駅)", "en": "Train station" },
-        { "jp": "Kouen (公園)", "en": "Park" }
+        {
+          "jp": "Doko desu ka? (どこですか)",
+          "en": "Where is it?"
+        },
+        {
+          "jp": "_____ Doko desu ka? (どこですか)",
+          "en": "Where is the _____?"
+        },
+        {
+          "jp": "Itsu desu ka? (いつですか)",
+          "en": "When is it?"
+        },
+        {
+          "jp": "Watashi wa _____ ni ikitai desu. (私は_____に行きたいです。)",
+          "en": "I want to go _____."
+        },
+        {
+          "jp": "Doushite? (どうして)",
+          "en": "Why?"
+        },
+        {
+          "jp": "Dochira desu ka? (どちらですか)",
+          "en": "Which one is it?"
+        },
+        {
+          "jp": "Nan desu ka? (何ですか)",
+          "en": "What is it?"
+        },
+        {
+          "jp": "Dare desu ka? (だれですか)",
+          "en": "Who is it?"
+        },
+        {
+          "jp": "Ima nanji desu ka? (今何時ですか)",
+          "en": "What time is it right now?"
+        },
+        {
+          "jp": "_____ de tomarimasu ka? (_____で止まりますか)",
+          "en": "Will we stop at ______?"
+        },
+        {
+          "jp": "Ima (今)",
+          "en": "Now"
+        },
+        {
+          "jp": "Ato de (後で)",
+          "en": "Later"
+        },
+        {
+          "jp": "Kyou (今日)",
+          "en": "Today"
+        },
+        {
+          "jp": "Kinou (昨日)",
+          "en": "Yesterday"
+        },
+        {
+          "jp": "Ashita (明日)",
+          "en": "Tomorrow"
+        },
+        {
+          "jp": "Mainichi (毎日)",
+          "en": "Every day"
+        },
+        {
+          "jp": "Basutei (バス停)",
+          "en": "Bus stop"
+        },
+        {
+          "jp": "Kūkō (空港)",
+          "en": "Airport"
+        },
+        {
+          "jp": "Toire (トイレ)",
+          "en": "Toilet"
+        },
+        {
+          "jp": "Resutoran (レストラン)",
+          "en": "Restaurant"
+        },
+        {
+          "jp": "Eki (駅)",
+          "en": "Train station"
+        },
+        {
+          "jp": "Kouen (公園)",
+          "en": "Park"
+        },
+        {
+          "jp": "Jitensha (自転車)",
+          "en": "Bicycle"
+        },
+        {
+          "jp": "Kuruma (車)",
+          "en": "Car"
+        }
       ]
     },
     {
       "name": "Greetings",
       "phrases": [
-        { "jp": "Konnichiwa (こんにちは)", "en": "Hello" },
-        { "jp": "Ohayou gozaimasu (おはようございます)", "en": "Good morning" },
-        { "jp": "Konbanwa (こんばんは)", "en": "Good evening" },
-        { "jp": "Moshi moshi (もしもし)", "en": "Hello (on the phone)" },
-        { "jp": "Ogenki desu ka? (お元気ですか)", "en": "How are you?" },
-        { "jp": "Genki desu (元気です)", "en": "I’m good / I’ve been doing well" },
-        { "jp": "Ohisashiburi desu ne (お久しぶりですね)", "en": "Long time no see" },
-        { "jp": "_______-san mo? (______-さんも？)", "en": "And you?" }
+        {
+          "jp": "Konnichiwa (こんにちは)",
+          "en": "Hello"
+        },
+        {
+          "jp": "Ohayou gozaimasu (おはようございます)",
+          "en": "Good morning"
+        },
+        {
+          "jp": "Konbanwa (こんばんは)",
+          "en": "Good evening"
+        },
+        {
+          "jp": "Moshi moshi (もしもし)",
+          "en": "Hello (on the phone)"
+        },
+        {
+          "jp": "Ogenki desu ka? (お元気ですか)",
+          "en": "How are you?"
+        },
+        {
+          "jp": "Genki desu (元気です)",
+          "en": "I’m good / I’ve been doing well"
+        },
+        {
+          "jp": "Ohisashiburi desu ne (お久しぶりですね)",
+          "en": "Long time no see"
+        },
+        {
+          "jp": "_______-san mo? (______-さんも？)",
+          "en": "And you?"
+        }
       ]
     },
     {
       "name": "Getting to Know Someone",
       "phrases": [
-        { "jp": "Namae wa nan desu ka? (名前は何ですか)", "en": "What’s your name?" },
-        { "jp": "Watashi no namae wa _____ desu (私は＿＿＿です)", "en": "My name is ____." },
-        { "jp": "Doko kara kimashita ka? (どこから来ましたか)", "en": "Where are you from?" },
-        { "jp": "Watashi wa _____ kara kimashita (私は＿＿から来ました)", "en": "I’m from _____." },
-        { "jp": "Sou desu ka? (そうですか)", "en": "Is that so?/I see." }
+        {
+          "jp": "Namae wa nan desu ka? (名前は何ですか)",
+          "en": "What’s your name?"
+        },
+        {
+          "jp": "Watashi no namae wa _____ desu (私は＿＿＿です)",
+          "en": "My name is ____."
+        },
+        {
+          "jp": "Doko kara kimashita ka? (どこから来ましたか)",
+          "en": "Where are you from?"
+        },
+        {
+          "jp": "Watashi wa _____ kara kimashita (私は＿＿から来ました)",
+          "en": "I’m from _____."
+        },
+        {
+          "jp": "Sou desu ka? (そうですか)",
+          "en": "Is that so?/I see."
+        }
       ]
     },
     {
       "name": "Politeness & Good Manners",
       "phrases": [
-        { "jp": "Arigatou gozaimasu (ありがとうございます)", "en": "Thank you very much" },
-        { "jp": "Douitashimashite (どういたしまして)", "en": "You’re welcome" },
-        { "jp": "Sumimasen (すみません)", "en": "Excuse me" },
-        { "jp": "Gomen nasai (ごめんなさい)", "en": "I’m truly sorry" },
-        { "jp": "Yoroshiku onegaishimasu (よろしくおねがいします)", "en": "Please take care of me / I’m in your debt" }
+        {
+          "jp": "Arigatou gozaimasu (ありがとうございます)",
+          "en": "Thank you very much"
+        },
+        {
+          "jp": "Douitashimashite (どういたしまして)",
+          "en": "You’re welcome"
+        },
+        {
+          "jp": "Sumimasen (すみません)",
+          "en": "Excuse me"
+        },
+        {
+          "jp": "Gomen nasai (ごめんなさい)",
+          "en": "I’m truly sorry"
+        },
+        {
+          "jp": "Yoroshiku onegaishimasu (よろしくおねがいします)",
+          "en": "Please take care of me / I’m in your debt"
+        }
       ]
     },
     {
       "name": "Clarification & Questions",
       "phrases": [
-        { "jp": "Eigo to iu no wa… (英語ていうのは…)", "en": "And in English, that’s…?" },
-        { "jp": "Wakarimasen (わかりません)", "en": "I don’t understand" },
-        { "jp": "Shirimasen (知りません)", "en": "I don’t know" },
-        { "jp": "Wasuremashita (忘れました)", "en": "I forgot" },
-        { "jp": "Motto yukkuri kudasai (もっとゆっくり下さい)", "en": "Please speak more slowly" },
-        { "jp": "Mou ichido kudasai (もう一度下さい)", "en": "Could you say that one more time?" },
-        { "jp": "Nihongo de perapera de wa nai desu (日本語でペラペラではないです)", "en": "I’m not very fluent in Japanese" },
-        { "jp": "___ te iu no imi wa nan desu ka? (＿＿ていうの意味は何ですか)", "en": "What does ___ mean?" },
-        { "jp": "Tetsudatte kuremasen ka? (手伝ってくれませんか)", "en": "Can you help me?" }
+        {
+          "jp": "Eigo to iu no wa… (英語ていうのは…)",
+          "en": "And in English, that’s…?"
+        },
+        {
+          "jp": "Wakarimasen (わかりません)",
+          "en": "I don’t understand"
+        },
+        {
+          "jp": "Shirimasen (知りません)",
+          "en": "I don’t know"
+        },
+        {
+          "jp": "Wasuremashita (忘れました)",
+          "en": "I forgot"
+        },
+        {
+          "jp": "Motto yukkuri kudasai (もっとゆっくり下さい)",
+          "en": "Please speak more slowly"
+        },
+        {
+          "jp": "Mou ichido kudasai (もう一度下さい)",
+          "en": "Could you say that one more time?"
+        },
+        {
+          "jp": "Nihongo de perapera de wa nai desu (日本語でペラペラではないです)",
+          "en": "I’m not very fluent in Japanese"
+        },
+        {
+          "jp": "___ te iu no imi wa nan desu ka? (＿＿ていうの意味は何ですか)",
+          "en": "What does ___ mean?"
+        },
+        {
+          "jp": "Tetsudatte kuremasen ka? (手伝ってくれませんか)",
+          "en": "Can you help me?"
+        }
       ]
     },
     {
       "name": "At a Convenience Store 🏪",
       "phrases": [
-        { "jp": "Kore wa ikura desu ka? (これはいくらですか)", "en": "How much is this?" },
-        { "jp": "Kore o kudasai (これをください)", "en": "I’ll take this, please" },
-        { "jp": "Reshīto o kudasai (レシートをください)", "en": "Can I have a receipt, please?" },
-        { "jp": "Fukuro wa irimasen (袋はいりません)", "en": "I don’t need a bag" },
-        { "jp": "Kurejitto kaado de haraemasu ka? (クレジットカードで払えますか)", "en": "Can I pay by credit card?" },
-        { "jp": "______ arimasu ka? (___ありますか)", "en": "Do you have ______?" },
-        { "jp": "Kore wa harārudesu ka? (これはハラールですか?)", "en": "Is it halal?" }
+        {
+          "jp": "Kore wa ikura desu ka? (これはいくらですか)",
+          "en": "How much is this?"
+        },
+        {
+          "jp": "Kore o kudasai (これをください)",
+          "en": "I’ll take this, please"
+        },
+        {
+          "jp": "Reshīto o kudasai (レシートをください)",
+          "en": "Can I have a receipt, please?"
+        },
+        {
+          "jp": "Fukuro wa irimasen (袋はいりません)",
+          "en": "I don’t need a bag"
+        },
+        {
+          "jp": "Kurejitto kaado de haraemasu ka? (クレジットカードで払えますか)",
+          "en": "Can I pay by credit card?"
+        },
+        {
+          "jp": "______ arimasu ka? (___ありますか)",
+          "en": "Do you have ______?"
+        },
+        {
+          "jp": "Kore wa harārudesu ka? (これはハラールですか?)",
+          "en": "Is it halal?"
+        }
       ]
     },
     {
-      "name": "Noun",
+      "name": "Number",
       "phrases": [
-        { "jp": "Jitensha (自転車)", "en": "Bicycle" },
-        { "jp": "Kuruma (車)", "en": "Car" }
+        {
+          "jp": "Ichi (一)",
+          "en": "one"
+        },
+        {
+          "jp": "Ni (二)",
+          "en": "two"
+        },
+        {
+          "jp": "San (三)",
+          "en": "three"
+        },
+        {
+          "jp": "Shi / Yon (四)",
+          "en": "four"
+        },
+        {
+          "jp": "Go (五)",
+          "en": "five"
+        },
+        {
+          "jp": "Roku (六)",
+          "en": "six"
+        },
+        {
+          "jp": "Shichi / Nana (七)",
+          "en": "seven"
+        },
+        {
+          "jp": "Hachi (八)",
+          "en": "eight"
+        },
+        {
+          "jp": "Kyuu / Ku (九)",
+          "en": "nine"
+        },
+        {
+          "jp": "Juu (十)",
+          "en": "ten"
+        }
       ]
     }
   ]
