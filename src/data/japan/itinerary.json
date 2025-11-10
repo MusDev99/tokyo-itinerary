@@ -288,12 +288,12 @@
         "note": "Halal-certified tempura and rice bowls"
       },
       {
-        "time": "2:30 PM",
+        "time": "3:00 PM",
         "title": "Go to Shibuya Sky",
         "description": "Take Ginza Station to Shibuya Sky",
         "location": {
           "name": "Shibuya Station",
-          "mapsUrl": "https://www.google.com/maps/dir/Tendon+Ginza+Itsuki+(Toky%C5%AB+Plaza),+%E6%9D%B1%E6%80%A5%E3%83%97%E3%83%A9%E3%82%B6+%E5%9C%B0%E4%B8%8B+%EF%BC%92F+5+Chome-2-1+Ginza,+Chuo+City,+Tokyo+104-0061,+Japan/Japan,+Tokyo,+Shibuya,+2+Chome%E2%88%9224%E2%88%9212+SHIBUYA+SKY/@35.6477739,139.6919159,13z/am=t/data=!3m1!5s0x60188b7b9c819b61:0x92144cdf397130f5!4m18!4m17!1m5!1m1!1s0x60188b00662d6e7b:0x5b649ce493be2f71!2m2!1d139.7622919!2d35.6721418!1m5!1m1!1s0x60188b6825f61ae1:0x6ff47ee61e522473!2m2!1d139.7019848!2d35.6586719!2m3!6e1!7e2!8j1763649000!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTAyOS4yIKXMDSoASAFQAw%3D%3D"
+          "mapsUrl": "https://www.google.com/maps/dir/Tendon+Ginza+Itsuki+(Toky%C5%AB+Plaza),+%E6%9D%B1%E6%80%A5%E3%83%97%E3%83%A9%E3%82%B6+%E5%9C%B0%E4%B8%8B+%EF%BC%92F+5+Chome-2-1+Ginza,+Chuo+City,+Tokyo+104-0061,+Japan/Japan,+Tokyo,+Shibuya,+2+Chome%E2%88%9224%E2%88%9212+SHIBUYA+SKY/@35.6473749,139.691916,13z/am=t/data=!3m1!5s0x60188b7b9c819b61:0x92144cdf397130f5!4m18!4m17!1m5!1m1!1s0x60188b00662d6e7b:0x5b649ce493be2f71!2m2!1d139.7622919!2d35.6721418!1m5!1m1!1s0x60188b6825f61ae1:0x6ff47ee61e522473!2m2!1d139.7019848!2d35.6586719!2m3!6e1!7e2!8j1763653500!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTEwMi4wIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
           "amount": 210,
