@@ -346,30 +346,29 @@
         "note": "Best time to visit is evening when neon lights illuminate the area"
       },
       {
-        "time": "8:00 PM",
-        "title": "Flipper's Shibuya",
-        "description": "Pancake Restaurant",
+        "time": "7:30 PM",
+        "title": "Halal Wagyu Stall",
+        "description": "Wagyu Burger and Fries (Follow on Tiktok to get Discount Price)",
         "location": {
-          "name": "Flipper's Shibuya",
-          "mapsUrl": "https://maps.app.goo.gl/kgRVsTLyPR6na7hW9"
+          "name": "Halal Wagyu Stall",
+          "mapsUrl": "https://www.google.com/maps/place/HALAL+WAGYU+STALL/data=!4m2!3m1!19sChIJKQbQIk6NGGAR2oBiDUlJONw"
         },
         "price": {
-          "amount": 1600,
-          "currency": "JPY",
-          "notes": "Dinner Dining"
+          "amount": 2000,
+          "currency": "JPY"
         },
-        "note": "Best time to visit is evening when neon lights illuminate the area"
+        "note": "4 minutes walk from Shibuya Crossing"
       },
       {
-        "time": "10:00 PM",
+        "time": "9:00 PM",
         "title": "Return to Itabashi Airbnb",
         "description": "Take metro and JR train back to Itabashi Station",
         "location": {
           "name": "Itabashi Station",
-          "mapsUrl": "https://maps.google.com/?q=Itabashi+Station"
+          "mapsUrl": "https://www.google.com/maps/dir/HALAL+WAGYU+STALL,+Japan,+%E3%80%92150-0042+Tokyo,+Shibuya,+Udagawacho,+29%E2%88%923+%E5%8C%97%E7%94%B0%E3%83%93%E3%83%AB/Japan,+%E3%80%92175-0092+Tokyo,+Itabashi+City,+Akatsuka3+Chome%E2%88%92%EF%BC%91%EF%BC%99%E2%88%922+%E3%83%8D%E3%82%AA%E3%83%BB%E3%82%B9%E3%83%86%E3%83%BC%E3%82%B8%E6%88%90%E5%A2%97/@35.6572721,139.7022558,16.07z/am=t/data=!3m1!5s0x60188b7b9c819b61:0x92144cdf397130f5!4m18!4m17!1m5!1m1!1s0x60188d4e22d00629:0xdc3849490d6280da!2m2!1d139.6984929!2d35.660511!1m5!1m1!1s0x6018ec76d6b78e07:0xd0e358c73acbff61!2m2!1d139.6372143!2d35.7767553!2m3!6e0!7e2!8j1763672400!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTEwNS4wIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
-          "amount": 280,
+          "amount": 260,
           "currency": "JPY",
           "notes": "One-way train fare"
         },
@@ -442,12 +441,42 @@
         "note": "Spend 2 hours"
       },
       {
-        "time": "5:00 PM",
+        "time": "2:00 PM",
+        "title": "Akihabara",
+        "description": "Explore the Akihabara",
+        "location": {
+          "name": "Ueno Park",
+          "mapsUrl": "https://maps.google.com/?q=Ueno+Park"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free entry"
+        },
+        "note": "Popular city park featuring ample walking paths, a lake with boat rentals, a zoo & several museums."
+      },
+      {
+        "time": "6:00 PM",
         "title": "Ueno Park",
         "description": "Explore the Ueno Park",
         "location": {
           "name": "Ueno Park",
           "mapsUrl": "https://maps.google.com/?q=Ueno+Park"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free entry"
+        },
+        "note": "Popular city park featuring ample walking paths, a lake with boat rentals, a zoo & several museums."
+      },
+      {
+        "time": "7:00 PM",
+        "title": "Ameyoko Shopping Street",
+        "description": "Explore the Ueno Park",
+        "location": {
+          "name": "Ueno Park",
+          "mapsUrl": "https://maps.google.com/?q=Ameyoko Shopping Street"
         },
         "price": {
           "amount": 0,
