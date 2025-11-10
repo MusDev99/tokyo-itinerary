@@ -373,7 +373,7 @@
       },
       {
         "time": "9:00 PM",
-        "title": "Return to Itabashi Airbnb",
+        "title": "Return to Itabashi Airbnb from Shibuya",
         "description": "Take metro and JR train back to Itabashi Station",
         "location": {
           "name": "Itabashi Station",
@@ -399,14 +399,14 @@
         "description": "Take train from Akihabara to Asakusa area",
         "location": {
           "name": "Asakusa Station",
-          "mapsUrl": "https://maps.google.com/?q=Asakusa+Station"
+          "mapsUrl": "https://www.google.com/maps/dir/Japan,+%E3%80%92175-0092+Tokyo,+Itabashi+City,+Akatsuka3+Chome%E2%88%92%EF%BC%91%EF%BC%99%E2%88%922+%E3%83%8D%E3%82%AA%E3%83%BB%E3%82%B9%E3%83%86%E3%83%BC%E3%82%B8%E6%88%90%E5%A2%97/Japan,+Tokyo,+Taito+City,+Asakusa,+2+Chome%E2%88%923%E2%88%921+Senso-Ji+Tempel/@35.7261979,139.6334433,12z/am=t/data=!4m18!4m17!1m5!1m1!1s0x6018ec76d6b78e07:0xd0e358c73acbff61!2m2!1d139.6372143!2d35.7767553!1m5!1m1!1s0x60188ec1a4463df1:0x6c0d289a8292810d!2m2!1d139.7966553!2d35.7147651!2m3!6e0!7e2!8j1763708400!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTAyOS4yIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
-          "amount": 280,
+          "amount": 630,
           "currency": "JPY",
           "notes": "One-way train fare"
         },
-        "note": "Direct train via Tsukuba Express to Asakusa"
+        "note": "Tobu-Tojo Line > Yamanote Line > Ginza Line"
       },
       {
         "time": "8:30 AM",
@@ -457,8 +457,8 @@
         "title": "Akihabara",
         "description": "Explore the Akihabara",
         "location": {
-          "name": "Ueno Park",
-          "mapsUrl": "https://maps.google.com/?q=Ueno+Park"
+          "name": "Akihabara",
+          "mapsUrl": "https://www.google.com/maps/dir/Halal+Wagyu+Yakiniku+Panga,+3+Chome-27-9+Taito,+Taito+City,+Tokyo,+Japan/Akihabara/@35.7026197,139.7718943,16z/am=t/data=!3m1!4b1!4m18!4m17!1m5!1m1!1s0x60188ea48c40b1f5:0xcd4299ed4675c9aa!2m2!1d139.7810181!2d35.7048534!1m5!1m1!1s0x60188c1d829dd5cd:0x772f5995da208987!2m2!1d139.7713703!2d35.6996473!2m3!6e0!7e2!8j1763733600!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTAyOS4yIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
           "amount": 0,
@@ -485,10 +485,10 @@
       {
         "time": "7:00 PM",
         "title": "Ameyoko Shopping Street",
-        "description": "Explore the Ueno Park",
+        "description": "Street food with variety of snacks, like fresh sashimi, roasted chestnuts, and other street food gems.",
         "location": {
-          "name": "Ueno Park",
-          "mapsUrl": "https://maps.google.com/?q=Ameyoko Shopping Street"
+          "name": "Ameyoko Shopping Street",
+          "mapsUrl": "https://maps.app.goo.gl/6oxjpNb4E29b8LBU9"
         },
         "price": {
           "amount": 0,
@@ -496,6 +496,21 @@
           "notes": "Free entry"
         },
         "note": "Popular city park featuring ample walking paths, a lake with boat rentals, a zoo & several museums."
+      },
+      {
+        "time": "9:00 PM",
+        "title": "Return to Itabashi Airbnb from Ueno",
+        "description": "Take metro and JR train back to Itabashi Station",
+        "location": {
+          "name": "Itabashi Station",
+          "mapsUrl": "https://www.google.com/maps/dir/HALAL+WAGYU+STALL,+Japan,+%E3%80%92150-0042+Tokyo,+Shibuya,+Udagawacho,+29%E2%88%923+%E5%8C%97%E7%94%B0%E3%83%93%E3%83%AB/Japan,+%E3%80%92175-0092+Tokyo,+Itabashi+City,+Akatsuka3+Chome%E2%88%92%EF%BC%91%EF%BC%99%E2%88%922+%E3%83%8D%E3%82%AA%E3%83%BB%E3%82%B9%E3%83%86%E3%83%BC%E3%82%B8%E6%88%90%E5%A2%97/@35.6572721,139.7022558,16.07z/am=t/data=!3m1!5s0x60188b7b9c819b61:0x92144cdf397130f5!4m18!4m17!1m5!1m1!1s0x60188d4e22d00629:0xdc3849490d6280da!2m2!1d139.6984929!2d35.660511!1m5!1m1!1s0x6018ec76d6b78e07:0xd0e358c73acbff61!2m2!1d139.6372143!2d35.7767553!2m3!6e0!7e2!8j1763672400!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTEwNS4wIKXMDSoASAFQAw%3D%3D"
+        },
+        "price": {
+          "amount": 260,
+          "currency": "JPY",
+          "notes": "One-way train fare"
+        },
+        "note": "Direct route back to accommodation"
       }
     ]
   },  
