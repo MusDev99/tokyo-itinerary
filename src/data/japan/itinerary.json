@@ -104,7 +104,7 @@
         "description": "Retrieve Luggage from coin lockers and go to Itabashi City",
         "location": {
           "name": "Chikatetsu-Narimasu Station",
-          "mapsUrl": "https://www.google.com/maps/dir/Shiba+Park,+Minato+City,+Tokyo,+Japan/Japan,+%E3%80%92175-0092+Tokyo,+Itabashi+City,+Akatsuka,+3-ch%C5%8Dme%E2%88%9219%E2%88%922+%E3%83%8D%E3%82%AA%E3%83%BB%E3%82%B9%E3%83%86%E3%83%BC%E3%82%B8%E6%88%90%E5%A2%97/@35.7236057,139.620068,12z/am=t/data=!4m18!4m17!1m5!1m1!1s0x60188bbe9029c3ff:0x6b5cf959a2346d3f!2m2!1d139.7485979!2d35.6571637!1m5!1m1!1s0x6018ec76d6b78e07:0xd0e358c73acbff61!2m2!1d139.6372143!2d35.7767553!2m3!6e0!7e2!8j1763550000!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTAyOS4xIKXMDSoASAFQAw%3D%3D"
+          "mapsUrl": "https://www.google.com/maps/dir/Momiji-dani(Maple+valley),+4+Chome-3-3+Shibakoen,+Minato+City,+Tokyo,+Japan/Japan,+%E3%80%92175-0092+Tokyo,+Itabashi+City,+Akatsuka,+3-ch%C5%8Dme%E2%88%9219%E2%88%922+%E3%83%8D%E3%82%AA%E3%83%BB%E3%82%B9%E3%83%86%E3%83%BC%E3%82%B8%E6%88%90%E5%A2%97/@35.718023,139.6170564,12z/am=t/data=!4m18!4m17!1m5!1m1!1s0x60188bbdc8f5a8c1:0xef1d279ce0716d9e!2m2!1d139.7462026!2d35.6577816!1m5!1m1!1s0x6018ec76d6b78e07:0xd0e358c73acbff61!2m2!1d139.6372143!2d35.7767553!2m3!6e0!7e2!8j1763550000!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTEwNS4wIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
           "amount": 480,
