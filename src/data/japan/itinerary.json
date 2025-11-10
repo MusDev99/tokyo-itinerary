@@ -421,7 +421,7 @@
           "currency": "JPY",
           "notes": "Free entry, rent optional"
         },
-        "note": ""
+        "note": "Walking"
       },
       {
         "time": "10:00 AM",
@@ -429,13 +429,13 @@
         "description": "Walk from Sensoji to Sumida River",
         "location": {
           "name": "Sumida River",
-          "mapsUrl": "https://www.google.com/maps/place/Sumida+River/data=!4m2!3m1!19sChIJmVcx1dCLGGARpjQjq3LDEk8"
+          "mapsUrl": "https://www.google.com/maps/dir/Sens%C5%8D-ji,+2+Chome-3-1+Asakusa,+Taito+City,+Tokyo,+Japan/Sumida+River,+Tokyo,+Japan/@35.7116008,139.7938442,17z/data=!3m1!4b1!4m14!4m13!1m5!1m1!1s0x60188ec1a4463df1:0x6c0d289a8292810d!2m2!1d139.7966553!2d35.7147651!1m5!1m1!1s0x60188bd0d5315799:0x4f12c372ab2334a6!2m2!1d139.7967265!2d35.7084279!3e3?entry=ttu&g_ep=EgoyMDI1MTEwNC4xIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
           "amount": 0,
           "currency": "JPY"
         },
-        "note": "Spend 1 hours"
+        "note": "Spend 1 hours, 6 min walk from Sensoji Temple"
       },
       {
         "time": "12:00 PM",
@@ -443,14 +443,14 @@
         "description": "Enjoy premium Halal Wagyu BBQ at this certified Halal restaurant in Okachimachi area",
         "location": {
           "name": "Wagyu Yakiniku Panga Okamachi",
-          "mapsUrl": "https://www.google.com/maps/place/Halal+Wagyu+Yakiniku+Panga/data=!4m2!3m1!19sChIJ9bFAjKSOGGARqsl1Ru2ZQs0"
+          "mapsUrl": "https://www.google.com/maps/dir/Sumida+River,+Tokyo,+Japan/Halal+Wagyu+Yakiniku+Panga,+3+Chome-27-9+Taito,+Taito+City,+Tokyo,+Japan/@35.7122636,139.7795035,21z/am=t/data=!4m19!4m18!1m5!1m1!1s0x60188bd0d5315799:0x4f12c372ab2334a6!2m2!1d139.7967265!2d35.7084279!1m5!1m1!1s0x60188ea48c40b1f5:0xcd4299ed4675c9aa!2m2!1d139.7810181!2d35.7048534!2m3!6e1!7e2!8j1763726400!3e3!5i1?authuser=0&entry=ttu&g_ep=EgoyMDI1MTEwNC4xIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
           "amount": 16000,
           "currency": "JPY",
           "notes": "Most expensive lunch set"
         },
-        "note": "Spend 2 hours"
+        "note": "Spend 2 hours, Hibiya Line"
       },
       {
         "time": "2:00 PM",
