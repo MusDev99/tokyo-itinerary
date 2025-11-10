@@ -60,7 +60,7 @@
         "title": "Go to Tokyo Tower",
         "description": "Depart from Haneda Airport to Tokyo Tower, Minato City",
         "location": {
-          "name": "Haneda Airport",
+          "name": "Shibakoen",
           "mapsUrl": "https://www.google.com/maps/dir/Haneda+Airport,+Hanedakuko,+Ota+City,+Tokyo,+Japan/Shiba+Park,+Minato+City,+Tokyo,+Japan/@35.6007059,139.6685093,12z/am=t/data=!3m1!4b1!4m18!4m17!1m5!1m1!1s0x6018640ba43192e3:0xd32c3a9d146f8df!2m2!1d139.7779951!2d35.5482964!1m5!1m1!1s0x60188bbe9029c3ff:0x6b5cf959a2346d3f!2m2!1d139.7485979!2d35.6571637!2m3!6e0!7e2!8j1763532000!3e3?entry=ttu&g_ep=EgoyMDI1MTAyOS4yIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
@@ -71,20 +71,32 @@
         "note": "Take Keikyu Airport Line to Keikyu Main Line, then Asakusa Line to Daimon City"
       },
       {
-        "time": "8:00 AM",
-        "title": "{Placeholder Breakfast}",
-        "description": "Visit the iconic Tokyo Tower from Shiba Park",
+        "time": "7:00 AM",
+        "title": "Buy breakafast at 7 Eleven",
+        "description": "View Tokyo Tower from Shiba Park",
         "location": {
-          "name": "Tokyo Tower",
-          "mapsUrl": "https://www.google.com/maps/place/Shiba+Park/data=!4m2!3m1!19sChIJ_8MpkL6LGGARP200oln5XGs",
-          "iframeUrl": "https://www.google.com/maps/dir/Haneda+Airport,+Hanedakuko,+Ota+City,+Tokyo,+Japan/Tokyo+Tower,+4+Chome-2-8+Shibakoen,+Minato+City,+Tokyo+105-0011,+Japan/@35.6034932,139.6685093,12z/data=!3m1!4b1!4m18!4m17!1m5!1m1!1s0x6018640ba43192e3:0xd32c3a9d146f8df!2m2!1d139.7779951!2d35.5482964!1m5!1m1!1s0x60188bbd9009ec09:0x481a93f0d2a409dd!2m2!1d139.7454329!2d35.6585805!2m3!6e0!7e2!8j1763532000!3e3?entry=ttu&g_ep=EgoyMDI1MTAyOS4yIKXMDSoASAFQAw%3D%3D"
+          "name": "7 eleven",
+          "mapsUrl": "https://www.google.com/maps/dir/Shiba+Park,+Minato+City,+Tokyo,+Japan/Japan,+%E3%80%92105-0014+Tokyo,+Minato+City,+Shiba,+3+Chome%E2%88%9215%E2%88%929+%E3%82%B5%E3%83%B3%E3%83%86%E3%83%A9%E3%82%B9%E8%8A%9D%E5%85%AC%E5%9C%92/@35.6555882,139.7451161,17z/data=!3m1!4b1!4m13!4m12!1m5!1m1!1s0x60188bbe9029c3ff:0x6b5cf959a2346d3f!2m2!1d139.7485979!2d35.6571637!1m5!1m1!1s0x60188bbba532d199:0x88640a266a56c674!2m2!1d139.745301!2d35.6530748?entry=ttu&g_ep=EgoyMDI1MTEwNC4xIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
           "amount": 0,
-          "currency": "JPY",
-          "notes": ""
+          "currency": "JPY"
         },
-        "note": "Store Luggage at Daimon Station"
+        "note": "12 min walk from Shiba Park"
+      },
+      {
+        "time": "9:00 AM",
+        "title": "Momiji-dani(Maple valley)",
+        "description": "Woodland pathway by a stream, with vivid foliage in fall & dramatic views of the Tokyo Tower.",
+        "location": {
+          "name": "Momiji-dani(Maple valley)",
+          "mapsUrl": "https://www.google.com/maps/place/Momiji-dani(Maple+valley)/@35.65776,139.7462798,18z/data=!4m22!1m15!4m14!1m6!1m2!1s0x60188bbe9029c3ff:0x6b5cf959a2346d3f!2sShiba+Park,+Minato+City,+Tokyo,+Japan!2m2!1d139.7485979!2d35.6571637!1m6!1m2!1s0x60188bbdc8f5a8c1:0xef1d279ce0716d9e!2sMomiji-dani(Maple+valley),+4+Chome-3+Shibakoen,+Minato+City,+Tokyo,+Japan!2m2!1d139.7462026!2d35.6577816!3m5!1s0x60188bbdc8f5a8c1:0xef1d279ce0716d9e!8m2!3d35.6577816!4d139.7462026!16s%2Fg%2F11bzt2pw5q?entry=ttu&g_ep=EgoyMDI1MTEwNC4xIKXMDSoASAFQAw%3D%3D"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY"
+        },
+        "note": "6 min walk from Shiba Park"
       },
       {
         "time": "11.00 AM",
