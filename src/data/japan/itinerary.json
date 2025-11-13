@@ -35,7 +35,7 @@
         "note": "Prayer room at Kaunter M Level 3, Buy Suica at Vending machine in the Terminal 3 arrivals area"
       },
       {
-        "time": "11:30 AM",
+        "time": "11:30 PM",
         "title": "Refreshment & Rest",
         "description": "Rest at airport lounge or lobby",
         "location": {
@@ -454,7 +454,7 @@
       },
       {
         "time": "2:00 PM",
-        "title": "Akihabara",
+        "title": "Akihabara Electric Town",
         "description": "Explore the Akihabara",
         "location": {
           "name": "Akihabara",
@@ -464,8 +464,35 @@
           "amount": 0,
           "currency": "JPY",
           "notes": "Free entry"
+        }
+      },
+      {
+        "time": "3:30 PM",
+        "title": "Animate Akihabara",
+        "description": "Explore the Akihabara",
+        "location": {
+          "name": "Animate Akihabara",
+          "mapsUrl": "https://maps.app.goo.gl/i1Bh2wzoYVWtyyas6"
         },
-        "note": "Popular city park featuring ample walking paths, a lake with boat rentals, a zoo & several museums."
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Free entry"
+        }
+      },
+      {
+        "time": "4:30 PM",
+        "title": "Super Potato Retro Game Store",
+        "description": "Discover nostalgic video game consoles and retro cartridges from the 80s-90s era",
+        "location": {
+          "name": "Super Potato Akihabara",
+          "mapsUrl": "https://maps.google.com/?q=Super+Potato+Akihabara"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY"
+        },
+        "note": "Great place for rare Famicom and Game Boy finds"
       },
       {
         "time": "6:00 PM",
@@ -759,6 +786,8 @@
         },
         "note": "Try hands-on tech demos and gaming floors"
       },
+
+
       {
         "time": "1:30 PM",
         "title": "Akihabara Radio Kaikan",
@@ -773,22 +802,26 @@
         },
         "note": "Don’t miss Kaiyodo and Volks collectible floors"
       },
+
       {
-        "time": "2:30 PM",
-        "title": "Super Potato Retro Game Store",
-        "description": "Discover nostalgic video game consoles and retro cartridges from the 80s-90s era",
+        "time": "1:30 PM",
+        "title": "Nikoniko mazemen",
+        "description": "Visit the iconic 10-floor complex for anime figures, trading cards, and model kits",
         "location": {
-          "name": "Super Potato Akihabara",
-          "mapsUrl": "https://maps.google.com/?q=Super+Potato+Akihabara"
+          "name": "Nikoniko mazemen",
+          "mapsUrl": "https://maps.app.goo.gl/gXC86NMboe6GRJ9G9"
         },
         "price": {
-          "amount": 0,
-          "currency": "JPY"
+          "amount": 2000,
+          "currency": "JPY",
+           "note": "Lunch"
         },
-        "note": "Great place for rare Famicom and Game Boy finds"
+        "note": "1000 - 2000 "
       },
+
+
       {
-        "time": "4:00 PM",
+        "time": "2:00 PM",
         "title": "Don Quijote Akihabara",
         "description": "Shop souvenirs, snacks, toys and quirky Japanese gifts in this massive discount store",
         "location": {
