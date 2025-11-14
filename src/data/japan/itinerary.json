@@ -78,7 +78,8 @@
         },
         "price": {
           "amount": 0,
-          "currency": "JPY"
+          "currency": "JPY",
+          "notes": "Shopping optional"
         },
         "note": "12 min walk from Shiba Park"
       },
@@ -135,7 +136,8 @@
         },
         "price": {
           "amount": 0,
-          "currency": "JPY"
+          "currency": "JPY",
+          "notes": "Shopping optional"
         },
         "note": "Walk for 17 minutes from  Akatsuka Garden, 7 minutes from "
       },
@@ -217,16 +219,16 @@
         "price": {
           "amount": 260,
           "currency": "JPY",
-          "notes": "One-way metro fare"
+          "notes": "Transport Train"
         },
-        "note": "Fukutoshin Line > Marunouchi Line"
+        "note": "Fukutoshin Line Platform 1 > Marunouchi Line Platform 2"
       },
       {
         "time": "9:30 AM",
         "title": "Onitsuka Tiger Ginza",
         "description": "Check out the Onitsuka Tiger flagship store for premium running shoes and exclusive Japan collections",
         "location": {
-          "name": "Onitsuka Tiger Ginza",
+          "name": "Onitsuka Tiger Ginza Store",
           "mapsUrl": "https://maps.app.goo.gl/MGkUqh7wMNoSKrydA"
         },
         "price": {
@@ -253,11 +255,11 @@
       },
       {
         "time": "11:00 AM",
-        "title": "YONEX Tokyo Flagship Store Ginza",
-        "description": "Visit the YONEX flagship store for latest sports gear and Japan-exclusive badminton apparel",
+        "title": "Uniqlo Ginza Flagship Store",
+        "description": "Clothing retailer producing a collection of casualwear & accessories for men & women.",
         "location": {
-          "name": "YONEX Tokyo Flagship Store Ginza",
-          "mapsUrl": "https://maps.google.com/?q=YONEX+Tokyo+Flagship+Store+Ginza"
+          "name": "Uniqlo Ginza Flagship Store",
+          "mapsUrl": "https://maps.app.goo.gl/qga3f63UtE8PKtQC6"
         },
         "price": {
           "amount": 0,
@@ -275,7 +277,7 @@
           "mapsUrl": "https://maps.app.goo.gl/kDfKw5iFqQF1R5fP7"
         },
         "price": {
-          "amount": 2000,
+          "amount": 5000,
           "currency": "JPY",
           "notes": "Lunch"
         },
@@ -292,9 +294,9 @@
         "price": {
           "amount": 210,
           "currency": "JPY",
-          "notes": "One-way train fare"
+          "notes": "Transport Train"
         },
-        "note": "Ginza Line (Platform 1)"
+        "note": "Ginza Line Platform 1 (8 stops)"
       },
       {
         "time": "4:00 PM",
@@ -358,15 +360,15 @@
         "title": "Return to Itabashi Airbnb from Shibuya",
         "description": "Take metro and JR train back to Itabashi Station",
         "location": {
-          "name": "Itabashi Station",
+          "name": "Chikatetsu-Narimasu Station",
           "mapsUrl": "https://www.google.com/maps/dir/HALAL+WAGYU+STALL,+Japan,+%E3%80%92150-0042+Tokyo,+Shibuya,+Udagawacho,+29%E2%88%923+%E5%8C%97%E7%94%B0%E3%83%93%E3%83%AB/Japan,+%E3%80%92175-0092+Tokyo,+Itabashi+City,+Akatsuka3+Chome%E2%88%92%EF%BC%91%EF%BC%99%E2%88%922+%E3%83%8D%E3%82%AA%E3%83%BB%E3%82%B9%E3%83%86%E3%83%BC%E3%82%B8%E6%88%90%E5%A2%97/@35.6572721,139.7022558,16.07z/am=t/data=!3m1!5s0x60188b7b9c819b61:0x92144cdf397130f5!4m18!4m17!1m5!1m1!1s0x60188d4e22d00629:0xdc3849490d6280da!2m2!1d139.6984929!2d35.660511!1m5!1m1!1s0x6018ec76d6b78e07:0xd0e358c73acbff61!2m2!1d139.6372143!2d35.7767553!2m3!6e0!7e2!8j1763672400!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTEwNS4wIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
           "amount": 260,
           "currency": "JPY",
-          "notes": "One-way train fare"
+          "notes": "Transport Train"
         },
-        "note": "Direct route back to accommodation"
+        "note": "Fukutoshin Line Platform 5/6 (8 stops)"
       }
     ]
   },
@@ -386,9 +388,9 @@
         "price": {
           "amount": 630,
           "currency": "JPY",
-          "notes": "One-way train fare"
+          "notes": "Transport Train"
         },
-        "note": "Tobu-Tojo Line > Yamanote Line > Ginza Line"
+        "note": "Tobu-Tojo Line Platform 3/4 > Yamanote Line Platform 7 > Ginza Line Platform 2"
       },
       {
         "time": "8:30 AM",
@@ -420,33 +422,63 @@
         "note": "Spend 1 hours, 6 min walk from Sensoji Temple"
       },
       {
+        "time": "11:30 AM",
+        "title": "Go to Okachimachi",
+        "description": "Enjoy Lunch in Okachimachi area",
+        "location": {
+          "name": "Inaricho Station",
+          "mapsUrl": "https://www.google.com/maps/dir/Sumida+River,+Tokyo,+Japan/Halal+Wagyu+Yakiniku+Panga,+3+Chome-27-9+Taito,+Taito+City,+Tokyo,+Japan/@35.7122636,139.7795035,21z/am=t/data=!4m19!4m18!1m5!1m1!1s0x60188bd0d5315799:0x4f12c372ab2334a6!2m2!1d139.7967265!2d35.7084279!1m5!1m1!1s0x60188ea48c40b1f5:0xcd4299ed4675c9aa!2m2!1d139.7810181!2d35.7048534!2m3!6e1!7e2!8j1763726400!3e3!5i1?authuser=0&entry=ttu&g_ep=EgoyMDI1MTEwNC4xIKXMDSoASAFQAw%3D%3D"
+        },
+        "price": {
+          "amount": 180,
+          "currency": "JPY",
+          "notes": "Transport Train"
+        },
+        "note": "Ginza Line"
+      },
+      {
         "time": "12:00 PM",
         "title": "Halal Lunch at Wagyu Yakiniku Panga",
         "description": "Enjoy premium Halal Wagyu BBQ at this certified Halal restaurant in Okachimachi area",
         "location": {
           "name": "Wagyu Yakiniku Panga Okamachi",
-          "mapsUrl": "https://www.google.com/maps/dir/Sumida+River,+Tokyo,+Japan/Halal+Wagyu+Yakiniku+Panga,+3+Chome-27-9+Taito,+Taito+City,+Tokyo,+Japan/@35.7122636,139.7795035,21z/am=t/data=!4m19!4m18!1m5!1m1!1s0x60188bd0d5315799:0x4f12c372ab2334a6!2m2!1d139.7967265!2d35.7084279!1m5!1m1!1s0x60188ea48c40b1f5:0xcd4299ed4675c9aa!2m2!1d139.7810181!2d35.7048534!2m3!6e1!7e2!8j1763726400!3e3!5i1?authuser=0&entry=ttu&g_ep=EgoyMDI1MTEwNC4xIKXMDSoASAFQAw%3D%3D"
+          "mapsUrl": "https://maps.app.goo.gl/15QU3kYWQ4yoZCDX8"
         },
         "price": {
           "amount": 16000,
           "currency": "JPY",
           "notes": "Most expensive lunch set"
         },
-        "note": "Spend 2 hours, Hibiya Line"
+        "note": "Spend 2 hours"
       },
       {
         "time": "2:00 PM",
-        "title": "Akihabara Electric Town",
-        "description": "Explore the Akihabara",
+        "title": "As-Salaam Masjid Okachimachi",
+        "description": "As-Salaam Masjid, Okachimachi",
         "location": {
-          "name": "Akihabara",
-          "mapsUrl": "https://www.google.com/maps/dir/Halal+Wagyu+Yakiniku+Panga,+3+Chome-27-9+Taito,+Taito+City,+Tokyo,+Japan/Akihabara/@35.7026197,139.7718943,16z/am=t/data=!3m1!4b1!4m18!4m17!1m5!1m1!1s0x60188ea48c40b1f5:0xcd4299ed4675c9aa!2m2!1d139.7810181!2d35.7048534!1m5!1m1!1s0x60188c1d829dd5cd:0x772f5995da208987!2m2!1d139.7713703!2d35.6996473!2m3!6e0!7e2!8j1763733600!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTAyOS4yIKXMDSoASAFQAw%3D%3D"
+          "name": "As-Salaam Masjid",
+          "mapsUrl": "https://maps.app.goo.gl/QfX6XgRQGPD6JSxM8"
         },
         "price": {
           "amount": 0,
           "currency": "JPY",
-          "notes": "Free entry"
+          "notes": "Shopping optional"
         }
+      },
+      {
+        "time": "2:30 PM",
+        "title": "Akihabara Electric Town",
+        "description": "Explore the Akihabara",
+        "location": {
+          "name": "Akihabara Station",
+          "mapsUrl": "https://www.google.com/maps/dir/As-Salaam+Masjid,+Okachimachi,+%E3%82%A2%E3%83%83%E3%82%B5%E3%83%A9%E3%83%BC%E3%83%A0%E3%83%93%E3%83%AB+4+Chome-6+Taito,+Taito+City,+Tokyo,+Japan/Akihabara/@35.7023896,139.7694887,16z/am=t/data=!4m18!4m17!1m5!1m1!1s0x60188ea16252c12b:0x50f5a31362045386!2m2!1d139.777895!2d35.7059899!1m5!1m1!1s0x60188c1d829dd5cd:0x772f5995da208987!2m2!1d139.7713703!2d35.6996473!2m3!6e0!7e2!8j1763735400!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTExMS4wIKXMDSoASAFQAw%3D%3D"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY",
+          "notes": "Shopping optional"
+        },
+         "note": "Hibiya Line Platform 1"
       },
       {
         "time": "3:30 PM",
@@ -459,8 +491,9 @@
         "price": {
           "amount": 0,
           "currency": "JPY",
-          "notes": "Free entry"
-        }
+          "notes": "Shopping optional"
+        },
+         "note": "Great place for rare Famicom and Game Boy finds"
       },
       {
         "time": "4:30 PM",
@@ -472,37 +505,37 @@
         },
         "price": {
           "amount": 0,
-          "currency": "JPY"
+          "currency": "JPY",
+           "notes": "Shopping optional"
         },
         "note": "Great place for rare Famicom and Game Boy finds"
       },
       {
         "time": "6:00 PM",
+        "title": "Ueno Ameyoko Shopping Street",
+        "description": "Street food with variety of snacks, like fresh sashimi, roasted chestnuts, and other street food gems.",
+        "location": {
+          "name": "Okachimachi Station",
+          "mapsUrl": "https://www.google.com/maps/dir/Akihabara/Ameyoko+Shopping+District,+4+Chome-7-10+Ueno,+Taito+City,+Tokyo,+Japan/@35.6993741,139.7711624,19.24z/am=t/data=!3m1!5s0x60188e9e494fbd75:0xfba147099d109125!4m18!4m17!1m5!1m1!1s0x60188c1d829dd5cd:0x772f5995da208987!2m2!1d139.7713703!2d35.6996473!1m5!1m1!1s0x60188f00af83b787:0x654b0a29a45fcf0a!2m2!1d139.7745474!2d35.7100581!2m3!6e0!7e2!8j1763748000!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTExMS4wIKXMDSoASAFQAw%3D%3D"
+        },
+        "price": {
+          "amount": 150,
+          "currency": "JPY",
+          "notes": "Transport Train"
+        },
+        "note": "Yamanote Line Platform 2"
+      },
+      {
+        "time": "7:00 PM",
         "title": "Ueno Park",
         "description": "Explore the Ueno Park",
         "location": {
           "name": "Ueno Park",
-          "mapsUrl": "https://maps.google.com/?q=Ueno+Park"
+          "mapsUrl": "https://maps.app.goo.gl/t1Wm8pEJDPPpZoq58"
         },
         "price": {
           "amount": 0,
-          "currency": "JPY",
-          "notes": "Free entry"
-        },
-        "note": "Popular city park featuring ample walking paths, a lake with boat rentals, a zoo & several museums."
-      },
-      {
-        "time": "7:00 PM",
-        "title": "Ameyoko Shopping Street",
-        "description": "Street food with variety of snacks, like fresh sashimi, roasted chestnuts, and other street food gems.",
-        "location": {
-          "name": "Ameyoko Shopping Street",
-          "mapsUrl": "https://maps.app.goo.gl/6oxjpNb4E29b8LBU9"
-        },
-        "price": {
-          "amount": 0,
-          "currency": "JPY",
-          "notes": "Free entry"
+          "currency": "JPY"
         },
         "note": "Popular city park featuring ample walking paths, a lake with boat rentals, a zoo & several museums."
       },
@@ -511,15 +544,15 @@
         "title": "Return to Itabashi Airbnb from Ueno",
         "description": "Take metro and JR train back to Itabashi Station",
         "location": {
-          "name": "Itabashi Station",
+          "name": "Narimasu Station",
           "mapsUrl": "https://www.google.com/maps/dir/Ameyoko+Shopping+District,+4+Chome-7-10+Ueno,+Taito+City,+Tokyo,+Japan/Japan,+%E3%80%92175-0092+Tokyo,+Itabashi+City,+Akatsuka3+Chome%E2%88%92%EF%BC%91%EF%BC%99%E2%88%922+%E3%83%8D%E3%82%AA%E3%83%BB%E3%82%B9%E3%83%86%E3%83%BC%E3%82%B8%E6%88%90%E5%A2%97/@35.739495,139.6231688,12z/am=t/data=!4m18!4m17!1m5!1m1!1s0x60188f00af83b787:0x654b0a29a45fcf0a!2m2!1d139.7745474!2d35.7100581!1m5!1m1!1s0x6018ec76d6b78e07:0xd0e358c73acbff61!2m2!1d139.6372143!2d35.7767553!2m3!6e0!7e2!8j1763758800!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTEwNS4wIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
           "amount": 450,
           "currency": "JPY",
-          "notes": "One-way train fare"
+          "notes": "Transport Train"
         },
-        "note": "Yamanote Line > Tobu-Tojo Line"
+        "note": "Yamanote Line Platform 2 > Tobu-Tojo Line Platform 2"
       }
     ]
   },
