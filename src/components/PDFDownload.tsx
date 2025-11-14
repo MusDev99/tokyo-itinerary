@@ -14,6 +14,31 @@ export default function PDFDownload({ itinerary }: Props) {
     
     try {
       const pdf = new jsPDF('p', 'mm', 'a4');
+      
+      // Load custom fonts
+      try {
+        const regularFontUrl = 'https://cdn.jsdelivr.net/gh/google/fonts/ofl/notosansjp/NotoSansJP-Regular.ttf';
+        const boldFontUrl = 'https://cdn.jsdelivr.net/gh/google/fonts/ofl/notosansjp/NotoSansJP-Bold.ttf';
+
+        const [regularResponse, boldResponse] = await Promise.all([
+          fetch(regularFontUrl),
+          fetch(boldFontUrl)
+        ]);
+
+        if (!regularResponse.ok || !boldResponse.ok) {
+          throw new Error('Failed to fetch one or more fonts');
+        }
+
+        const [regularFont, boldFont] = await Promise.all([
+          regularResponse.arrayBuffer(),
+          boldResponse.arrayBuffer()
+        ]);
+
+        pdf.setFont('NotoSansJP');
+      } catch (fontError) {
+        console.error('Error loading custom font, falling back to default:', fontError);
+      }
+
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
       const margin = 15;
@@ -24,7 +49,6 @@ export default function PDFDownload({ itinerary }: Props) {
       const accentColor = '#2a69ac';
       const textColor = '#4a5568';
       const lightTextColor = '#718096';
-      const backgroundColor = '#f7fafc';
 
       let yPosition = 0;
       let pageNumber = 1;
@@ -34,12 +58,12 @@ export default function PDFDownload({ itinerary }: Props) {
         pdf.rect(0, 0, pageWidth, 30, 'F');
         
         pdf.setFontSize(22);
-        pdf.setFont('helvetica', 'bold');
+        pdf.setFont('NotoSansJP', 'bold');
         pdf.setTextColor('#ffffff');
         pdf.text('Tokyo 2025 Trip Itinerary', margin, 18);
         
         pdf.setFontSize(12);
-        pdf.setFont('helvetica', 'normal');
+        pdf.setFont('NotoSansJP', 'normal');
         pdf.text('One week exploration in Autumn', pageWidth - margin, 18, { align: 'right' });
         
         yPosition = 40;
@@ -64,7 +88,7 @@ export default function PDFDownload({ itinerary }: Props) {
 
       // Summary
       pdf.setFontSize(14);
-      pdf.setFont('helvetica', 'bold');
+      pdf.setFont('NotoSansJP', 'bold');
       pdf.setTextColor(primaryColor);
       pdf.text('Trip Summary', margin, yPosition);
       yPosition += 8;
@@ -73,7 +97,7 @@ export default function PDFDownload({ itinerary }: Props) {
       pdf.rect(margin, yPosition, contentWidth, 22, 'F');
       
       pdf.setFontSize(10);
-      pdf.setFont('helvetica', 'normal');
+      pdf.setFont('NotoSansJP', 'normal');
       pdf.setTextColor(textColor);
       pdf.text(`Total Days: ${itinerary.length}`, margin + 5, yPosition + 8);
       pdf.text(`Start Date: ${itinerary[0].date}`, margin + 70, yPosition + 8);
@@ -86,7 +110,7 @@ export default function PDFDownload({ itinerary }: Props) {
         
         // Day Header
         pdf.setFontSize(16);
-        pdf.setFont('helvetica', 'bold');
+        pdf.setFont('NotoSansJP', 'bold');
         pdf.setTextColor(accentColor);
         pdf.text(`Day ${day.day}: ${day.title}`, margin, yPosition);
         yPosition += 6;
@@ -99,13 +123,13 @@ export default function PDFDownload({ itinerary }: Props) {
           if (yPosition > pageHeight - 40) newPage();
 
           pdf.setFontSize(11);
-          pdf.setFont('helvetica', 'bold');
+          pdf.setFont('NotoSansJP', 'bold');
           pdf.setTextColor(primaryColor);
           pdf.text(`${item.time} - ${item.title}`, margin, yPosition);
           yPosition += 6;
 
           pdf.setFontSize(9);
-          pdf.setFont('helvetica', 'normal');
+          pdf.setFont('NotoSansJP', 'normal');
           pdf.setTextColor(textColor);
           const descriptionLines = pdf.splitTextToSize(item.description, contentWidth);
           pdf.text(descriptionLines, margin, yPosition);
@@ -113,27 +137,27 @@ export default function PDFDownload({ itinerary }: Props) {
 
           // Location
           pdf.setFontSize(9);
-          pdf.setFont('helvetica', 'italic');
+          pdf.setFont('NotoSansJP', 'italic');
           pdf.setTextColor(lightTextColor);
-          pdf.text(`📍 ${item.location.name}`, margin, yPosition);
+          pdf.text(`${item.location.name}`, margin, yPosition);
           yPosition += 6;
 
           // Price
           if (item.price.amount > 0) {
             pdf.setFontSize(9);
-            pdf.setFont('helvetica', 'normal');
+            pdf.setFont('NotoSansJP', 'normal');
             pdf.setTextColor(textColor);
             const priceNote = item.price.notes || '';
-            pdf.text(`💰 ${item.price.amount} ${item.price.currency}${priceNote ? ` (${priceNote})` : ''}`, margin, yPosition);
+            pdf.text(`${item.price.amount} ${item.price.currency}${priceNote ? ` (${priceNote})` : ''}`, margin, yPosition);
             yPosition += 6;
           }
 
           // Note
           if (item.note) {
             pdf.setFontSize(8);
-            pdf.setFont('helvetica', 'italic');
+            pdf.setFont('NotoSansJP', 'italic');
             pdf.setTextColor(lightTextColor);
-            const noteLines = pdf.splitTextToSize(`📝 ${item.note}`, contentWidth);
+            const noteLines = pdf.splitTextToSize(`${item.note}`, contentWidth);
             pdf.text(noteLines, margin, yPosition);
             yPosition += (noteLines.length * 3.5) + 2;
           }
@@ -153,12 +177,12 @@ export default function PDFDownload({ itinerary }: Props) {
       pdf.rect(margin, yPosition, contentWidth, 20, 'F');
       
       pdf.setFontSize(14);
-      pdf.setFont('helvetica', 'bold');
+      pdf.setFont('NotoSansJP', 'bold');
       pdf.setTextColor(primaryColor);
       pdf.text('Total Estimated Cost:', margin + 5, yPosition + 12);
       
       pdf.setFontSize(14);
-      pdf.setFont('helvetica', 'bold');
+      pdf.setFont('NotoSansJP', 'bold');
       pdf.setTextColor(accentColor);
       pdf.text(`JPY ${totalCost.toLocaleString()}`, pageWidth - margin - 5, yPosition + 12, { align: 'right' });
 
@@ -181,7 +205,7 @@ export default function PDFDownload({ itinerary }: Props) {
         className={`relative px-8 py-3 text-base font-semibold rounded-full transition-all duration-300 overflow-hidden group touch-target focus-ring
           ${isGenerating 
             ? 'bg-gray-400 text-white cursor-not-allowed' 
-            : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 active:scale-95 shadow-lg hover:shadow-2xl transform hover:-translate-y-1'
+            : 'bg-gradient-to-r from-primary to-accent text-white hover:from-accent hover:to-primary active:scale-95 shadow-lg hover:shadow-2xl transform hover:-translate-y-1'
           }`}
       >
         {isGenerating && (
@@ -200,4 +224,5 @@ export default function PDFDownload({ itinerary }: Props) {
     </div>
   );
 }
+
  
