@@ -64,7 +64,7 @@
         "price": {
           "amount": 510,
           "currency": "JPY",
-          "notes": "Transport (Train)"
+          "notes": "Transport Train"
         },
         "note": "Keikyu Airport Line Platform 2 > Keikyu Main Line > Asakusa Line"
       },
@@ -98,7 +98,7 @@
       },
       {
         "time": "11.00 AM",
-        "title": "Team A - Go to Itabashi Home",
+        "title": "Go to Itabashi Home",
         "description": "Retrieve Luggage from coin lockers and go to Itabashi City",
         "location": {
           "name": "Daimon Station",
@@ -196,9 +196,9 @@
         "price": {
           "amount": 260,
           "currency": "JPY",
-          "notes": "One-way train fare"
+          "notes": "Transport Train"
         },
-        "note": "Fukutoshin Line (6 stops)"
+        "note": "Fukutoshin Line Platform 4 (6 stops)"
       }
     ]
   },  
