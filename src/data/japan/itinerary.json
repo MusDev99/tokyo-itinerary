@@ -14,23 +14,21 @@
         },
         "price": {
           "amount": 0,
-          "currency": "MYR",
-          "notes": "Already Booked"
+          "currency": "MYR"
         },
         "note": "Arrive 3 Hours prior to departure"
       },
       {
         "time": "10:40 PM",
         "title": "Arrive at HND Airport",
-        "description": "Perform Immigration Check and Fresh up, Jamak Prayer",
+        "description": "Perform Immigration Check and Fresh up",
         "location": {
           "name": "Haneda Airport",
           "mapsUrl": "https://www.google.com/maps/place/Haneda+Airport+(HND)/data=!4m2!3m1!19sChIJ45IxpAtkGGAR3_hG0anDMg0"
         },
         "price": {
           "amount": 0,
-          "currency": "JPY",
-          "notes": "Already Booked"
+          "currency": "JPY"
         },
         "note": "Prayer room at Kaunter M Level 3, Buy Suica at Vending machine in the Terminal 3 arrivals area"
       },
@@ -66,9 +64,9 @@
         "price": {
           "amount": 510,
           "currency": "JPY",
-          "notes": "One-way train fare"
+          "notes": "Transport (Train)"
         },
-        "note": "Take Keikyu Airport Line to Keikyu Main Line, then Asakusa Line to Daimon City"
+        "note": "Keikyu Airport Line Platform 2 > Keikyu Main Line > Asakusa Line"
       },
       {
         "time": "7:00 AM",
@@ -103,24 +101,24 @@
         "title": "Team A - Go to Itabashi Home",
         "description": "Retrieve Luggage from coin lockers and go to Itabashi City",
         "location": {
-          "name": "Chikatetsu-Narimasu Station",
-          "mapsUrl": "https://www.google.com/maps/dir/Momiji-dani(Maple+valley),+4+Chome-3-3+Shibakoen,+Minato+City,+Tokyo,+Japan/Japan,+%E3%80%92175-0092+Tokyo,+Itabashi+City,+Akatsuka,+3-ch%C5%8Dme%E2%88%9219%E2%88%922+%E3%83%8D%E3%82%AA%E3%83%BB%E3%82%B9%E3%83%86%E3%83%BC%E3%82%B8%E6%88%90%E5%A2%97/@35.718023,139.6170564,12z/am=t/data=!4m18!4m17!1m5!1m1!1s0x60188bbdc8f5a8c1:0xef1d279ce0716d9e!2m2!1d139.7462026!2d35.6577816!1m5!1m1!1s0x6018ec76d6b78e07:0xd0e358c73acbff61!2m2!1d139.6372143!2d35.7767553!2m3!6e0!7e2!8j1763550000!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTEwNS4wIKXMDSoASAFQAw%3D%3D"
+          "name": "Daimon Station",
+          "mapsUrl": "https://www.google.com/maps/dir/Daimon+Sta.,+1+Chome-27+Hamamatsucho,+Minato+City,+Tokyo,+Japan/Japan,+%E3%80%92175-0092+Tokyo,+Itabashi+City,+Akatsuka,+3-ch%C5%8Dme%E2%88%9219%E2%88%922+%E3%83%8D%E3%82%AA%E3%83%BB%E3%82%B9%E3%83%86%E3%83%BC%E3%82%B8%E6%88%90%E5%A2%97/@35.7161578,139.620068,12z/am=t/data=!4m18!4m17!1m5!1m1!1s0x60188bc71b5f0e11:0x71a52fd39a58dfe0!2m2!1d139.7555724!2d35.6567191!1m5!1m1!1s0x6018ec76d6b78e07:0xd0e358c73acbff61!2m2!1d139.6372143!2d35.7767553!2m3!6e0!7e2!8j1763550000!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTExMS4wIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
-          "amount": 480,
+          "amount": 550,
           "currency": "JPY",
-          "notes": "One-way metro fare"
+          "notes": "Transport Train"
         },
-        "note": "Mita Line > Yurakucho Line"
+        "note": "Yamanote Line Platform 2 > Tobu-Tojo Line Platform 1"
 
       },
       {
         "time": "1:30 PM",
-        "title": "Team A - Go to Akatsuka Botanical Garden",
+        "title": "Go to Akatsuka Botanical Garden",
         "description": "Take a peaceful stroll through the garden, featuring ponds, bonsai collections, and seasonal blooms",
         "location": {
           "name": "Akatsuka Botanical Garden",
-          "mapsUrl": "https://www.google.com/maps/place/Akatsuka+Botanical+Garden/data=!4m2!3m1!19sChIJfQXpOnnsGGARxUvD20jlro8"
+          "mapsUrl": "https://www.google.com/maps/dir/%E3%80%92175-0092+Tokyo,+Itabashi+City,+Akatsuka,+3-ch%C5%8Dme%E2%88%9219%E2%88%922+%E3%83%8D%E3%82%AA%E3%83%BB%E3%82%B9%E3%83%86%E3%83%BC%E3%82%B8%E6%88%90%E5%A2%97,+Japan/Akatsuka+Botanical+Garden,+5+Chome-17-14+Akatsuka,+Itabashi+City,+Tokyo+175-0092,+Japan/@35.7785583,139.6381382,17z/data=!3m1!4b1!4m14!4m13!1m5!1m1!1s0x6018ec76d6b78e07:0xd0e358c73acbff61!2m2!1d139.6372143!2d35.7767553!1m5!1m1!1s0x6018ec793ae9057d:0x8faee548dbc34bc5!2m2!1d139.6442119!2d35.7805778!3e2?authuser=0&entry=ttu&g_ep=EgoyMDI1MTExMS4wIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
           "amount": 0,
@@ -129,33 +127,18 @@
         "note": "Walk for 11 minutes from Itabashi Home"
       },
       {
-        "time": "11:00 PM",
-        "title": "Team B - Go to Team Labs",
-        "description": "Helmi Solo",
+        "time": "3:00 PM",
+        "title": "Grocery at Al Boraq Halal Mart",
+        "description": "Take a peaceful stroll through the garden, featuring ponds, bonsai collections, and seasonal blooms",
         "location": {
-          "name": "Borderless Team Labs",
-          "mapsUrl": "https://www.google.com/maps/place/teamLab+Borderless:+MORI+Building+DIGITAL+ART+MUSEUM/data=!4m2!3m1!19sChIJQ5Sa1PqJGGARUSaNKKOrMVg"
+          "name": "Al Boraq Halal Mart",
+          "mapsUrl": "https://www.google.com/maps/dir/Akatsuka+Botanical+Garden,+5+Chome-17+Akatsuka,+Itabashi+City,+Tokyo,+Japan/Japan,+Tokyo,+Itabashi+City,+Akatsuka,+3+Chome%E2%88%9219+%E3%83%8D%E3%82%AA%E3%83%BB%E3%82%B9%E3%83%86%E3%83%BC%E3%82%B8%E6%88%90%E5%A2%97/1+Chome-1-11+Narimasu,+Itabashi+City,+Tokyo+175-0094,+Japan/@35.7778214,139.6339265,16z/data=!3m2!4b1!5s0x6018ec73f5ca08ab:0x3b755182ad82d887!4m20!4m19!1m5!1m1!1s0x6018ec793ae9057d:0x8faee548dbc34bc5!2m2!1d139.6442119!2d35.7805778!1m5!1m1!1s0x6018ec76d6b78e07:0xd0e358c73acbff61!2m2!1d139.6372143!2d35.7767553!1m5!1m1!1s0x6018ed005fd41275:0x6e94f280c3008781!2m2!1d139.6341376!2d35.7750478!3e2?entry=ttu&g_ep=EgoyMDI1MTExMS4wIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
           "amount": 0,
           "currency": "JPY"
         },
-        "note": "will be updated"
-      },
-      {
-        "time": "2.00 PM",
-        "title": "Team B - Go to Itabashi Home",
-        "description": "Retrieve Luggage from coin lockers and go to Itabashi City",
-        "location": {
-          "name": "Chikatetsu-Narimasu Station",
-          "mapsUrl": "https://www.google.com/maps/dir/teamLab+Borderless:+MORI+Building+DIGITAL+ART+MUSEUM,+Azabudai+Hills+Garden+Plaza+B,+B1+5+Chome-9+Toranomon,+Minato+City,+Tokyo,+Japan/Japan,+%E3%80%92175-0092+Tokyo,+Itabashi+City,+Akatsuka,+3-ch%C5%8Dme%E2%88%9219%E2%88%922+%E3%83%8D%E3%82%AA%E3%83%BB%E3%82%B9%E3%83%86%E3%83%BC%E3%82%B8%E6%88%90%E5%A2%97/@35.7112814,139.6170582,12z/am=t/data=!4m19!4m18!1m5!1m1!1s0x601889fad49a9443:0x5831aba3288d2651!2m2!1d139.7432671!2d35.6620689!1m5!1m1!1s0x6018ec76d6b78e07:0xd0e358c73acbff61!2m2!1d139.6372143!2d35.7767553!2m3!6e1!7e2!8j1763566200!3e3!5i3?entry=ttu&g_ep=EgoyMDI1MTAyOS4yIKXMDSoASAFQAw%3D%3D"
-        },
-        "price": {
-          "amount": 300,
-          "currency": "JPY",
-          "notes": "One-way metro fare"
-        },
-        "note": "Hibiya Line > Yurakucho Line"
+        "note": "Walk for 17 minutes from  Akatsuka Garden, 7 minutes from "
       },
       {
         "time": "4:00 PM",
@@ -163,12 +146,12 @@
         "description": "Walk from Akatsuka Botanical Garden, Itabashi City",
         "location": {
           "name": "3-chome-19-2 Akatsuka, Itabashi City, Tokyo 175-0092, Japan",
-          "mapsUrl": "https://www.google.com/maps/place/%E3%83%8D%E3%82%AA%E3%83%BB%E3%82%B9%E3%83%86%E3%83%BC%E3%82%B8%E6%88%90%E5%A2%97/data=!4m2!3m1!19sChIJB4631nbsGGARYf_LOsdY49A"
+          "mapsUrl": "https://www.google.com/maps/dir/Akatsuka+Botanical+Garden,+5+Chome-17+Akatsuka,+Itabashi+City,+Tokyo,+Japan/''/@35.7787802,139.6381382,17z/data=!3m1!4b1!4m14!4m13!1m5!1m1!1s0x6018ec793ae9057d:0x8faee548dbc34bc5!2m2!1d139.6442119!2d35.7805778!1m5!1m1!1s0x6018ec76d6b78e07:0xd0e358c73acbff61!2m2!1d139.6372143!2d35.7767553!3e2?entry=ttu&g_ep=EgoyMDI1MTExMS4wIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
           "amount": 331,
           "currency": "MYR",
-          "notes": "4D3N per person (Already Booked)"
+          "notes": "Booked 4D3N per person"
         },
         "note": "Arrive 10 minutes prior to check-in"
       },
@@ -185,7 +168,7 @@
           "currency": "JPY",
           "notes": "One-way train fare"
         },
-        "note": "Fukutoshin Line > Marunouchi Line"
+        "note": "Fukutoshin Line Platform 1 > Marunouchi Line Platform 2"
       },
       {
         "time": "8:00 PM",
@@ -196,9 +179,9 @@
           "mapsUrl": "https://maps.google.com/?q=Halal+Honolu+Shinjukugyoenmae"
         },
         "price": {
-          "amount": 1500,
+          "amount": 3000,
           "currency": "JPY",
-          "notes": "Dinner "
+          "notes": "Dinner"
         },
         "note": "1100 - 1600 for Ramen Bowl"
       },
@@ -610,7 +593,7 @@
         "title": "Visit Lawson Kawaguchiko Station",
         "description": "Picture Spot",
         "location": {
-          "name": "Laku Kawaguchi",
+          "name": "Lawson Kawaguchiko Station",
           "mapsUrl": "https://maps.app.goo.gl/qPuyKAGWFHiwXMue8"
         },
         "price": {
