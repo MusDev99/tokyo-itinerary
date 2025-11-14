@@ -110,7 +110,6 @@
           "notes": "Transport Train"
         },
         "note": "Yamanote Line Platform 2 > Tobu-Tojo Line Platform 1"
-
       },
       {
         "time": "1:30 PM",
@@ -201,7 +200,7 @@
         "note": "Fukutoshin Line Platform 4 (6 stops)"
       }
     ]
-  },  
+  },
   {
     "day": 3,
     "title": "Ginza & Shibuya Exploration",
@@ -523,7 +522,7 @@
         "note": "Yamanote Line > Tobu-Tojo Line"
       }
     ]
-  },  
+  },
   {
     "day": 5,
     "title": "Tokyo to Fuji",
@@ -612,7 +611,7 @@
           "mapsUrl": "https://maps.app.goo.gl/qWJBF9GFw8nveukg8"
         },
         "price": {
-          "amount": 310.00,
+          "amount": 310.0,
           "currency": "MYR",
           "notes": "2 days per person"
         },
@@ -620,8 +619,6 @@
       }
     ]
   },
-
-
   {
     "day": 6,
     "title": "Fuji Exploration",
@@ -632,7 +629,7 @@
         "title": "Go to Shimoyoshida",
         "description": "Fuji Photo Spot from Temple",
         "location": {
-          "name": "Arakurayama Sengen Park", 
+          "name": "Arakurayama Sengen Park",
           "mapsUrl": "https://www.google.com/maps/place/Arakurayama+Sengen+Park/data=!4m2!3m1!19sChIJu6hYHU1nGWARfaBH0X127o8"
         },
         "price": {
@@ -647,7 +644,7 @@
         "title": "Arakurayama Sengen Park",
         "description": "Fuji Photo Spot from Temple",
         "location": {
-          "name": "Arakurayama Sengen Park", 
+          "name": "Arakurayama Sengen Park",
           "mapsUrl": "https://www.google.com/maps/place/Arakurayama+Sengen+Park/data=!4m2!3m1!19sChIJu6hYHU1nGWARfaBH0X127o8"
         },
         "price": {
@@ -662,7 +659,7 @@
         "title": "Fuji Q Highland",
         "description": "Theme Park",
         "location": {
-          "name": "5 Chome-6-1 Shinnishihara, Fujiyoshida, Yamanashi 403-0017, Japan ", 
+          "name": "5 Chome-6-1 Shinnishihara, Fujiyoshida, Yamanashi 403-0017, Japan ",
           "mapsUrl": "https://maps.app.goo.gl/ykeSa3fuPLmhaCUL7"
         },
         "price": {
@@ -677,7 +674,7 @@
         "title": "Explore Lake Kawaguchi",
         "description": "Cycling surround lake aorund 20km",
         "location": {
-          "name": "Lake Kawaguchi", 
+          "name": "Lake Kawaguchi",
           "mapsUrl": "https://maps.app.goo.gl/dzg3r1pmM8gVFdKR9"
         },
         "price": {
@@ -689,8 +686,6 @@
       }
     ]
   },
-
-
   {
     "day": 7,
     "title": "Closure & HND - KUL ",
@@ -769,8 +764,6 @@
         },
         "note": "Try hands-on tech demos and gaming floors"
       },
-
-
       {
         "time": "1:30 PM",
         "title": "Akihabara Radio Kaikan",
@@ -785,7 +778,6 @@
         },
         "note": "Don’t miss Kaiyodo and Volks collectible floors"
       },
-
       {
         "time": "1:30 PM",
         "title": "Nikoniko mazemen",
@@ -797,12 +789,10 @@
         "price": {
           "amount": 2000,
           "currency": "JPY",
-           "note": "Lunch"
+          "note": "Lunch"
         },
         "note": "1000 - 2000 "
       },
-
-
       {
         "time": "2:00 PM",
         "title": "Don Quijote Akihabara",
@@ -821,7 +811,7 @@
         "time": "6:30 PM",
         "title": "Go to HND Airport",
         "description": "Take train from Akihabara Station",
-       "location": {
+        "location": {
           "name": "Akihabara Station",
           "mapsUrl": "https://www.google.com/maps/dir/Akihabara+Electric+Town,+Tokyo,+Japan/Haneda+Airport+(HND),+Haneda+Airport,+Ota+City,+Tokyo,+Japan/@35.6217825,139.5860942,11z/am=t/data=!3m1!4b1!4m18!4m17!1m5!1m1!1s0x60188c1d829dd5cd:0x772f5995da208987!2m2!1d139.7713703!2d35.6996473!1m5!1m1!1s0x6018640ba43192e3:0xd32c3a9d146f8df!2m2!1d139.7779951!2d35.5482964!2m3!6e1!7e2!8j1764012600!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTAwOC4wIKXMDSoASAFQAw%3D%3D"
         },
@@ -864,4 +854,4 @@
       }
     ]
   }
-] 
+]
