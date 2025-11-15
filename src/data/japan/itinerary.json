@@ -637,7 +637,7 @@
       },
       {
         "time": "5:30 PM",
-        "title": "Airbnb Check-in (Hostel 1889)",
+        "title": "AIRBNB Check-in (Hostel 1889)",
         "description": "Self checkin at reservation at Hostel 1889",
         "location": {
           "name": "Hostel 1889",
@@ -662,15 +662,15 @@
         "title": "Go to Shimoyoshida",
         "description": "Fuji Photo Spot from Temple",
         "location": {
-          "name": "Arakurayama Sengen Park",
-          "mapsUrl": "https://www.google.com/maps/place/Arakurayama+Sengen+Park/data=!4m2!3m1!19sChIJu6hYHU1nGWARfaBH0X127o8"
+          "name": "Shimoyoshida Station",
+          "mapsUrl": "https://www.google.com/maps/dir/Japan,+Yamanashi,+Fujiyoshida,+Kamiyoshida,+2+Chome%E2%88%926%E2%88%923+Hostel+1889/Arakurayama+Sengen+Park,+%EF%BC%92%E4%B8%81%E7%9B%AE-4-1+Asama,+Fujiyoshida,+Yamanashi,+Japan/@35.4920243,138.7866602,15z/am=t/data=!4m18!4m17!1m5!1m1!1s0x601960d2f4b33b09:0x19044f6acf787701!2m2!1d138.7972587!2d35.4824366!1m5!1m1!1s0x6019674d1d58a8bb:0x8fee767dd147a07d!2m2!1d138.8016313!2d35.5013908!2m3!6e0!7e2!8j1763874000!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTAyNy4wIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
           "amount": 230,
           "currency": "JPY",
-          "notes": "One-way train fare"
+          "notes": "Transport Train"
         },
-        "note": ""
+        "note": "Fujikyuko Line (2 stops)"
       },
       {
         "time": "6:00 AM",
@@ -685,37 +685,51 @@
           "currency": "MYR",
           "notes": "Free"
         },
-        "note": ""
+        "note": "Walking 21 min from Shimoyoshida Station"
       },
       {
-        "time": "9:00 AM",
-        "title": "Fuji Q Highland",
-        "description": "Theme Park",
+        "time": "8:30 AM",
+        "title": "Go to Fuji Q Highland (Team A)",
+        "description": "Amusement park with huge roller coasters, haunted-theme rides & a kids' area, plus shops & cafes.",
         "location": {
-          "name": "5 Chome-6-1 Shinnishihara, Fujiyoshida, Yamanashi 403-0017, Japan ",
-          "mapsUrl": "https://maps.app.goo.gl/ykeSa3fuPLmhaCUL7"
+          "name": "Fuji Q Higland",
+          "mapsUrl": "https://www.google.com/maps/dir/Arakurayama+Sengen+Park,+%EF%BC%92%E4%B8%81%E7%9B%AE-4-1+Asama,+Fujiyoshida,+Yamanashi,+Japan/Fuji-Q+Highland,+5+Chome-6-1+Shinnishihara,+Fujiyoshida,+Yamanashi,+Japan/@35.4925678,138.7799596,15z/am=t/data=!3m1!5s0x601960952e284a65:0x25168aa58940bc30!4m18!4m17!1m5!1m1!1s0x6019674d1d58a8bb:0x8fee767dd147a07d!2m2!1d138.8016313!2d35.5013908!1m5!1m1!1s0x601960eacac8b82f:0x47ca3021adc03730!2m2!1d138.7805511!2d35.4869467!2m3!6e0!7e2!8j1763885700!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTExMS4wIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
           "amount": 126.99,
           "currency": "MYR",
           "notes": "Paid 1-Day Pass"
         },
-        "note": "Team A - Sharif, Helmi, Mustaqeem"
+        "note": "Fujikyuko Line (3 stops)"
       },
       {
-        "time": "10:00 AM",
-        "title": "Explore Lake Kawaguchi",
-        "description": "Cycling surround lake aorund 20km",
+        "time": "8:30 AM",
+        "title": "Go to Kawaguchiko Station (Team B)",
+        "description": "For Lake exploration",
+        "location": {
+          "name": "Kawaguchiko Station",
+          "mapsUrl": "https://www.google.com/maps/dir/Arakurayama+Sengen+Park,+%EF%BC%92%E4%B8%81%E7%9B%AE-4-1+Asama,+Fujiyoshida,+Yamanashi,+Japan/Kawaguchiko+Station,+Funatsu,+Fujikawaguchiko,+Yamanashi,+Japan/@35.4925678,138.7758528,15z/am=t/data=!3m1!4b1!4m18!4m17!1m5!1m1!1s0x6019674d1d58a8bb:0x8fee767dd147a07d!2m2!1d138.8016313!2d35.5013908!1m5!1m1!1s0x60196082ba487757:0x4d9403afbe34b4ed!2m2!1d138.7688409!2d35.4982362!2m3!6e0!7e2!8j1763885700!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTAyNy4wIKXMDSoASAFQAw%3D%3D"
+        },
+        "price": {
+          "amount": 310,
+          "currency": "JPY",
+          "notes": "Transport Train"
+        },
+        "note": "Fujikyo Line (4 stops)"
+      },
+      {
+        "time": "9:00 AM",
+        "title": "Le Tour de Lake Kawaguchi",
+        "description": "Cycling surround lake around 24km",
         "location": {
           "name": "Lake Kawaguchi",
-          "mapsUrl": "https://maps.app.goo.gl/dzg3r1pmM8gVFdKR9"
+          "mapsUrl": "https://www.google.com/maps/dir/Kawaguchiko+Station/LAWSON+Kawaguchiko+Station/Ubuyagasaki/Kawaguchiko-ohashi+Bridge/Oishi+Park/Fujikawaguchiko+Masjid+%EF%BC%88+%E5%AF%8C%E5%A3%AB%E6%B2%B3%E5%8F%A3%E6%B9%96%E3%83%9E%E3%82%B9%E3%82%B8%E3%83%89+%EF%BC%89/Nagasaki+Park,+Oishi,+Fujikawaguchiko,+Yamanashi,+Japan/Lawson+Fujikawaguchiko+Town+hall/Kawaguchiko+Station/@35.505846,138.756696,14z/data=!4m56!4m55!1m5!1m1!1s0x60196082ba487757:0x4d9403afbe34b4ed!2m2!1d138.7688409!2d35.4982362!1m5!1m1!1s0x60195e28296a89bf:0x611c18cefec8cb56!2m2!1d138.767168!2d35.4986141!1m5!1m1!1s0x60195e2340fe2951:0xa0a8c458c2beeeb8!2m2!1d138.7659103!2d35.5126604!1m5!1m1!1s0x60195fb53702b659:0xfa8784d9fd502f34!2m2!1d138.7643838!2d35.5115335!1m5!1m1!1s0x60195fa68c0b2b95:0xa22e530b3a652904!2m2!1d138.7457522!2d35.522904!1m5!1m1!1s0x60195f2a9782108b:0xd949a8c92d041516!2m2!1d138.7615801!2d35.5077183!1m5!1m1!1s0x60195f692ee10103:0x9a321460899ae0a8!2m2!1d138.7573478!2d35.5215516!1m5!1m1!1s0x60195fd47880d94f:0x149fb49a1e12905f!2m2!1d138.7563694!2d35.4985286!1m5!1m1!1s0x60196082ba487757:0x4d9403afbe34b4ed!2m2!1d138.7688409!2d35.4982362!3e0?authuser=0&entry=ttu&g_ep=EgoyMDI1MTExMS4wIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
           "amount": 0,
-          "currency": "JPY",
-          "notes": "Free"
+          "currency": "JPY"
         },
-        "note": "Team B -  Ros, Azam, Mirul"
+        "note": "Cycling"
       }
     ]
   },
