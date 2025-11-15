@@ -768,36 +768,22 @@
         "note": ""
       },
       {
-        "time": "11:00 AM",
+        "time": "10:00 AM",
         "title": "Go to Akihabara",
-        "description": "Take Keihin-Tohoku Line",
+        "description": "Depart from Tokyo Sta. Nihonbashi Entrance",
         "location": {
-          "name": "Tokyo Sta. Nihonbashi Entrance",
+          "name": "Akihabara Station",
           "mapsUrl": "http://google.com/maps/dir/Tokyo+Sta.+Nihonbashi+Entrance,+1+Chome-7+Marunouchi,+Chiyoda+City,+Tokyo,+Japan/Akihabara/@35.6844293,139.7649548,16.5z/am=t/data=!4m18!4m17!1m5!1m1!1s0x60188bfebe17f329:0xea94f8e4576e6401!2m2!1d139.769!2d35.68349!1m5!1m1!1s0x60188c1d829dd5cd:0x772f5995da208987!2m2!1d139.7713703!2d35.6996473!2m3!6e0!7e2!8j1763978400!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTAyMC4wIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
           "amount": 150,
           "currency": "JPY",
-          "notes": "One-way train fare"
+          "notes": "Transport Train"
         },
-        "note": "Keihin-Tōhoku Line"
+        "note": "Keihin-Tohoku Line Platform 3 (2 stops)"
       },
       {
-        "time": "11:30 AM",
-        "title": "Arrive in Akihabara",
-        "description": "Begin exploration of Akihabara Electric Town, Tokyo's tech and anime hub",
-        "location": {
-          "name": "Akihabara Station (Electric Town Exit)",
-          "mapsUrl": "https://maps.google.com/?q=Akihabara+Station"
-        },
-        "price": {
-          "amount": 0,
-          "currency": "JPY"
-        },
-        "note": "Start from Electric Town Exit for best access"
-      },
-      {
-        "time": "11:45 AM",
+        "time": "10:45 AM",
         "title": "Yodobashi Camera Akihabara",
         "description": "Explore 9 floors of electronics, gadgets, games and cameras",
         "location": {
@@ -807,12 +793,12 @@
         "price": {
           "amount": 0,
           "currency": "JPY",
-          "notes": "Free entry, shopping optional"
+          "notes": "Shopping optional"
         },
         "note": "Try hands-on tech demos and gaming floors"
       },
       {
-        "time": "1:30 PM",
+        "time": "11:30 PM",
         "title": "Akihabara Radio Kaikan",
         "description": "Visit the iconic 10-floor complex for anime figures, trading cards, and model kits",
         "location": {
@@ -821,12 +807,13 @@
         },
         "price": {
           "amount": 0,
-          "currency": "JPY"
+          "currency": "JPY",
+           "notes": "Shopping optional"
         },
         "note": "Don’t miss Kaiyodo and Volks collectible floors"
       },
       {
-        "time": "1:30 PM",
+        "time": "12:30 PM",
         "title": "Nikoniko mazemen",
         "description": "Visit the iconic 10-floor complex for anime figures, trading cards, and model kits",
         "location": {
@@ -855,34 +842,62 @@
         "note": "Perfect stop for souvenirs; AKB48 Café nearby"
       },
       {
-        "time": "6:30 PM",
-        "title": "Go to HND Airport",
-        "description": "Take train from Akihabara Station",
+        "time": "3:00 PM",
+        "title": "Go to Odaiba",
+        "description": "Artificial Island",
         "location": {
-          "name": "Akihabara Station",
-          "mapsUrl": "https://www.google.com/maps/dir/Akihabara+Electric+Town,+Tokyo,+Japan/Haneda+Airport+(HND),+Haneda+Airport,+Ota+City,+Tokyo,+Japan/@35.6217825,139.5860942,11z/am=t/data=!3m1!4b1!4m18!4m17!1m5!1m1!1s0x60188c1d829dd5cd:0x772f5995da208987!2m2!1d139.7713703!2d35.6996473!1m5!1m1!1s0x6018640ba43192e3:0xd32c3a9d146f8df!2m2!1d139.7779951!2d35.5482964!2m3!6e1!7e2!8j1764012600!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTAwOC4wIKXMDSoASAFQAw%3D%3D"
+          "name": "Odaiba Beach",
+          "mapsUrl": "https://www.google.com/maps/dir/Akihabara+Electric+Town,+Tokyo,+Japan/Odaiba+Beach,+1+Chome-4+Daiba,+Minato+City,+Tokyo,+Japan/@35.6662969,139.7229208,13z/am=t/data=!4m18!4m17!1m5!1m1!1s0x60188c1d829dd5cd:0x772f5995da208987!2m2!1d139.7713703!2d35.6996473!1m5!1m1!1s0x601889f42f85a84b:0x3e860ae7a181b465!2m2!1d139.7774175!2d35.631756!2m3!6e1!7e2!8j1764000000!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTExMS4wIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
-          "amount": 690,
+          "amount": 500,
           "currency": "JPY",
-          "notes": "One-way train fare"
+          "notes":"Transport Train"
         },
-        "note": "Take Keihin-Tōhoku Line and Tokyo Monorail"
+        "note": "Yamanote Line Platform 3 > Yurikamome Platform 1/2"
       },
       {
-        "time": "7:30 PM",
-        "title": "Arrive at HND Airport",
-        "description": "Flight depart from Haneda Aiport",
+        "time": "4:30 PM",
+        "title": "Unicorn Gundam",
+        "description": "Giant white statue of a cult sci-fi novel & anime character, with nighttime music & lights.",
         "location": {
-          "name": "Haneda Airport",
-          "mapsUrl": "https://www.google.com/maps/place/Haneda+Airport+(HND)/data=!4m2!3m1!19sChIJ45IxpAtkGGAR3_hG0anDMg0"
+          "name": "Unicorn Gundam",
+          "mapsUrl": "https://maps.app.goo.gl/4SvukTnoBDGiCvhYA"
         },
         "price": {
           "amount": 0,
-          "currency": "MYR",
-          "notes": "Already Booked"
+          "currency": "JPY"
         },
-        "note": "Arrive for earlier prepare"
+        "note": "Photo spot"
+      },
+      {
+        "time": "4:30 PM",
+        "title": "Statue of Liberty - Odaiba",
+        "description": "Tourist Attraction near Odaiba Beach",
+        "location": {
+          "name": "Statue of Liberty",
+          "mapsUrl": "https://maps.app.goo.gl/CHKcaerEL9acxPGn7"
+        },
+        "price": {
+          "amount": 0,
+          "currency": "JPY"
+        },
+          "note": "Photo spot for sunset"
+      },
+      {
+        "time": "7:00 PM",
+        "title": "Go to HND Airport",
+        "description": "Take train from Odaiba-kaihinkoen Statiodai",
+        "location": {
+          "name": "Odaiba-kaihinkoen Statiodai",
+          "mapsUrl": "https://www.google.com/maps/dir/Odaiba+Beach,+1+Chome-4+Daiba,+Minato+City,+Tokyo,+Japan/Haneda+Airport+(HND),+Haneda+Airport,+Ota+City,+Tokyo,+Japan/@35.6048566,139.6697121,12z/am=t/data=!4m19!4m18!1m5!1m1!1s0x601889f42f85a84b:0x3e860ae7a181b465!2m2!1d139.7774175!2d35.631756!1m5!1m1!1s0x6018640ba43192e3:0xd32c3a9d146f8df!2m2!1d139.7779951!2d35.5482964!2m3!6e1!7e2!8j1764014400!3e3!5i3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTExMS4wIKXMDSoASAFQAw%3D%3D"
+        },
+        "price": {
+          "amount": 840,
+          "currency": "JPY",
+          "notes": "Transport Train"
+        },
+        "note": "Take Keihin-Tōhoku Line and Tokyo Monorail"
       },
       {
         "time": "11:50 PM",
