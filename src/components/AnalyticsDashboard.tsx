@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import type { DayItinerary, Price } from '../types/itinerary';
+import type { DayItinerary } from '../types/itinerary';
 
 interface AnalyticsDashboardProps {
-  itinerary: DayItinerary[];
+  dataSources: { [country: string]: DayItinerary[] };
 }
 
 interface CostSummary {
@@ -18,73 +18,121 @@ interface CostSummary {
   }>;
 }
 
-const AnalyticsDashboard = ({ itinerary }: AnalyticsDashboardProps) => {
+const AnalyticsDashboard = ({ dataSources }: AnalyticsDashboardProps) => {
   const [costSummary, setCostSummary] = useState<CostSummary[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [exchangeRates, setExchangeRates] = useState<{ [key: string]: number } | null>(null);
+  const [totalCostInMYR, setTotalCostInMYR] = useState<number | null>(null);
+  const [exchangeRateStatus, setExchangeRateStatus] = useState<'loading' | 'success' | 'error'>('loading');
 
   useEffect(() => {
-    calculateCosts();
-  }, [itinerary]);
+    const fetchExchangeRates = async () => {
+      try {
+        const response = await fetch('https://open.er-api.com/v6/latest/MYR');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        if (data.result === 'success') {
+          setExchangeRates(data.rates);
+          setExchangeRateStatus('success');
+        } else {
+          throw new Error(data['error-type'] || 'Failed to fetch exchange rates');
+        }
+      } catch (error) {
+        console.error("Error fetching exchange rates:", error);
+        setExchangeRateStatus('error');
+      }
+    };
 
-  const calculateCosts = () => {
-    const currencyMap = new Map<string, CostSummary>();
+    fetchExchangeRates();
+  }, []);
 
-    itinerary.forEach((day) => {
-      day.items.forEach((item) => {
-        const { amount, currency, notes } = item.price;
-        
-        if (amount > 0) { // Only include items with actual costs
-          if (!currencyMap.has(currency)) {
-            currencyMap.set(currency, {
-              currency,
-              total: 0,
-              itemCount: 0,
-              averagePerItem: 0,
-              items: []
-            });
-          }
+  useEffect(() => {
+    const calculateCosts = () => {
+      const currencyMap = new Map<string, CostSummary>();
 
-          const summary = currencyMap.get(currency)!;
-          summary.total += amount;
-          summary.itemCount += 1;
-          summary.items.push({
-            day: day.day,
-            title: item.title,
-            amount,
-            notes
+      Object.values(dataSources).forEach(itinerary => {
+        if (!itinerary) return;
+        itinerary.forEach((day) => {
+          day.items.forEach((item) => {
+            const { amount, currency, notes } = item.price;
+            
+            if (amount > 0) {
+              if (!currencyMap.has(currency)) {
+                currencyMap.set(currency, {
+                  currency,
+                  total: 0,
+                  itemCount: 0,
+                  averagePerItem: 0,
+                  items: []
+                });
+              }
+
+              const summary = currencyMap.get(currency)!;
+              summary.total += amount;
+              summary.itemCount += 1;
+              summary.items.push({
+                day: day.day,
+                title: item.title,
+                amount,
+                notes
+              });
+            }
           });
+        });
+      });
+
+      const summaries = Array.from(currencyMap.values()).map(summary => ({
+        ...summary,
+        averagePerItem: summary.total / summary.itemCount
+      })).sort((a, b) => b.total - a.total);
+
+      setCostSummary(summaries);
+    };
+
+    calculateCosts();
+  }, [dataSources]);
+
+  useEffect(() => {
+    if (costSummary.length > 0 && exchangeRates) {
+      let totalInMYR = 0;
+      costSummary.forEach(summary => {
+        if (summary.currency === 'MYR') {
+          totalInMYR += summary.total;
+        } else if (exchangeRates[summary.currency]) {
+          totalInMYR += summary.total / exchangeRates[summary.currency];
         }
       });
-    });
-
-    // Calculate averages and sort by total amount
-    const summaries = Array.from(currencyMap.values()).map(summary => ({
-      ...summary,
-      averagePerItem: summary.total / summary.itemCount
-    })).sort((a, b) => b.total - a.total);
-
-    setCostSummary(summaries);
-  };
+      setTotalCostInMYR(totalInMYR);
+    }
+  }, [costSummary, exchangeRates]);
 
   const formatCurrency = (amount: number, currency: string) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: currency === 'MYR' ? 'MYR' : 'JPY',
+      currency,
       minimumFractionDigits: currency === 'JPY' ? 0 : 2,
       maximumFractionDigits: currency === 'JPY' ? 0 : 2,
     }).format(amount);
   };
 
   const getCurrencySymbol = (currency: string) => {
-    return currency === 'MYR' ? 'RM' : '¥';
+    if (currency === 'MYR') return 'RM';
+    if (currency === 'JPY') return '¥';
+    if (currency === 'KZT') return '₸';
+    return currency;
   };
 
-  const getCurrencyColor = (currency: string) => {
-    return currency === 'MYR' ? 'text-green-600' : 'text-blue-600';
+  const currencyStyles: { [key: string]: { color: string; bgColor: string; symbolColor: string } } = {
+    MYR: { color: 'text-green-600', bgColor: 'bg-green-50 border-green-200', symbolColor: 'bg-green-500' },
+    JPY: { color: 'text-blue-600', bgColor: 'bg-blue-50 border-blue-200', symbolColor: 'bg-blue-500' },
+    KZT: { color: 'text-purple-600', bgColor: 'bg-purple-50 border-purple-200', symbolColor: 'bg-purple-500' },
+    default: { color: 'text-gray-600', bgColor: 'bg-gray-50 border-gray-200', symbolColor: 'bg-gray-500' },
   };
 
-  const getCurrencyBgColor = (currency: string) => {
-    return currency === 'MYR' ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200';
+  const getCurrencyStyle = (currency: string, style: 'color' | 'bgColor' | 'symbolColor') => {
+    return currencyStyles[currency]?.[style] || currencyStyles.default[style];
   };
 
   return (
@@ -119,14 +167,14 @@ const AnalyticsDashboard = ({ itinerary }: AnalyticsDashboardProps) => {
         {costSummary.map((summary) => (
           <div 
             key={summary.currency}
-            className={`p-4 rounded-lg border ${getCurrencyBgColor(summary.currency)}`}
+            className={`p-4 rounded-lg border ${getCurrencyStyle(summary.currency, 'bgColor')}`}
           >
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <div className={`w-3 h-3 rounded-full ${summary.currency === 'MYR' ? 'bg-green-500' : 'bg-blue-500'}`}></div>
+                <div className={`w-3 h-3 rounded-full ${getCurrencyStyle(summary.currency, 'symbolColor')}`}></div>
                 <span className="font-medium text-text">{summary.currency}</span>
               </div>
-              <span className={`text-2xl font-bold ${getCurrencyColor(summary.currency)}`}>
+              <span className={`text-2xl font-bold ${getCurrencyStyle(summary.currency, 'color')}`}>
                 {getCurrencySymbol(summary.currency)}{summary.total.toLocaleString()}
               </span>
             </div>
@@ -144,10 +192,10 @@ const AnalyticsDashboard = ({ itinerary }: AnalyticsDashboardProps) => {
             <div key={summary.currency} className="bg-bg/30 rounded-lg p-4 border border-primary/10">
               <div className="flex items-center justify-between mb-3">
                 <h4 className="font-semibold text-text flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full ${summary.currency === 'MYR' ? 'bg-green-500' : 'bg-blue-500'}`}></div>
+                  <div className={`w-2 h-2 rounded-full ${getCurrencyStyle(summary.currency, 'symbolColor')}`}></div>
                   {summary.currency} Breakdown
                 </h4>
-                <span className={`text-lg font-bold ${getCurrencyColor(summary.currency)}`}>
+                <span className={`text-lg font-bold ${getCurrencyStyle(summary.currency, 'color')}`}>
                   {getCurrencySymbol(summary.currency)}{summary.total.toLocaleString()}
                 </span>
               </div>
@@ -162,7 +210,7 @@ const AnalyticsDashboard = ({ itinerary }: AnalyticsDashboardProps) => {
                         <div className="text-xs text-text/50 italic">{item.notes}</div>
                       )}
                     </div>
-                    <div className={`font-semibold ${getCurrencyColor(summary.currency)}`}>
+                    <div className={`font-semibold ${getCurrencyStyle(summary.currency, 'color')}`}>
                       {getCurrencySymbol(summary.currency)}{item.amount.toLocaleString()}
                     </div>
                   </div>
@@ -174,23 +222,30 @@ const AnalyticsDashboard = ({ itinerary }: AnalyticsDashboardProps) => {
       )}
 
       {/* Total Summary */}
-      {costSummary.length > 0 && (
-        <div className="mt-4 p-4 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-lg border border-primary/20">
-          <div className="flex items-center justify-between">
-            <span className="font-semibold text-text">Total Trip Cost</span>
-            <div className="text-right">
+      <div className="mt-4 p-4 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-lg border border-primary/20">
+        <div className="flex items-center justify-between">
+          <span className="font-semibold text-text">Total Trip Cost</span>
+          <div className="text-right">
+            {exchangeRateStatus === 'loading' && <div className="text-sm text-text/70">Loading conversion...</div>}
+            {exchangeRateStatus === 'error' && <div className="text-sm text-red-500">Could not fetch rates</div>}
+            {exchangeRateStatus === 'success' && totalCostInMYR !== null && (
+              <div className="text-lg font-bold text-green-600">
+                {formatCurrency(totalCostInMYR, 'MYR')}
+              </div>
+            )}
+            <div className="text-xs text-text/60">
               {costSummary.map((summary, index) => (
-                <div key={summary.currency} className="text-sm">
-                  <span className={getCurrencyColor(summary.currency)}>
-                    {getCurrencySymbol(summary.currency)}{summary.total.toLocaleString()} {summary.currency}
+                <span key={summary.currency}>
+                  <span className={getCurrencyStyle(summary.currency, 'color')}>
+                    {summary.total.toLocaleString()} {summary.currency}
                   </span>
-                  {index < costSummary.length - 1 && <span className="text-text/50 mx-2">+</span>}
-                </div>
+                  {index < costSummary.length - 1 && <span className="text-text/50 mx-1">+</span>}
+                </span>
               ))}
             </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };

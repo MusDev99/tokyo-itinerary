@@ -36,7 +36,7 @@ const description = '5-day exploration of Almaty and its surroundings.'
             </div>
             <div class="glass-effect rounded-lg sm:rounded-2xl shadow-xl border border-primary/20 overflow-hidden mb-6">
               <div class="p-4 sm:p-6">
-                <AnalyticsDashboard itinerary={itineraryDays} client:load />
+                <AnalyticsDashboard dataSources={{ kazakhstan: itineraryDays }} client:load />
               </div>
             </div>
             <div class="glass-effect rounded-lg sm:rounded-2xl shadow-xl border border-primary/20 overflow-hidden">

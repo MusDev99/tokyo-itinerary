@@ -62,7 +62,7 @@ const description = 'One week exploration to Tokyo Japan & Fuji in Autumn Season
           {/* Analytics Dashboard */}
           <div class="glass-effect rounded-lg sm:rounded-2xl shadow-xl border border-primary/20 overflow-hidden">
             <div class="p-4 sm:p-6">
-              <AnalyticsDashboard itinerary={itineraryDays} client:load />
+              <AnalyticsDashboard dataSources={{ japan: itineraryDays }} client:load />
             </div>
           </div>
 

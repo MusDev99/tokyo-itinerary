@@ -2,19 +2,34 @@
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import AnalyticsDashboard from '../components/AnalyticsDashboard.tsx';
+import japanItinerary from '../data/japan/itinerary.json';
+import kazakhstanItinerary from '../data/kazakhstan/itinerary.json';
 
 const countries = [
-  { name: 'Japan', href: '/japan', description: 'Explore itineraries, culture, and more.', flag: '🇯🇵' },
+  { name: 'Japan', href: '/japan/itinerary', description: 'Explore itineraries, culture, and more.', flag: '🇯🇵' },
   { name: 'China', href: '/china', description: 'Discover the vast landscapes and rich history of China.', flag: '🇨🇳' },
   { name: 'Turkey', href: '/turkey', description: 'A crossroads of empires, offering stunning landscapes and vibrant culture.', flag: '🇹🇷' },
   { name: 'Australia', href: '/australia', description: 'From the outback to the ocean, a land of unique wildlife and natural wonders.', flag: '🇦🇺' },
-  { name: 'Kazakhstan', href: '/kazakhstan', description: 'A vast country of steppes, mountains, and modern cities.', flag: '🇰🇿' },
+  { name: 'Kazakhstan', href: '/kazakhstan/itinerary', description: 'A vast country of steppes, mountains, and modern cities.', flag: '🇰🇿' },
 ]
+
+const allItineraries = {
+    japan: japanItinerary,
+    kazakhstan: kazakhstanItinerary,
+};
 ---
 <Layout title="My Travel Itineraries">
   <Header />
   <div class="container mx-auto px-4 py-8">
     <h1 class="text-4xl font-bold text-center mb-8">Global Itinerary Dashboard</h1>
+
+    <div class="glass-effect rounded-lg sm:rounded-2xl shadow-xl border border-primary/20 overflow-hidden mb-8">
+        <div class="p-4 sm:p-6">
+            <AnalyticsDashboard dataSources={allItineraries} client:load />
+        </div>
+    </div>
+
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {countries.map(country => (
         <a href={country.href} class="block p-6 rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-300 glass-effect border border-primary/20">
