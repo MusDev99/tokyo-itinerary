@@ -14,7 +14,7 @@
         },
         "price": {
           "amount": 0,
-          "currency": "MYR"
+          "currency": "JPY"
         },
         "note": "Arrive 3 Hours prior to departure"
       },
@@ -150,8 +150,8 @@
           "mapsUrl": "https://www.google.com/maps/dir/Akatsuka+Botanical+Garden,+5+Chome-17+Akatsuka,+Itabashi+City,+Tokyo,+Japan/''/@35.7787802,139.6381382,17z/data=!3m1!4b1!4m14!4m13!1m5!1m1!1s0x6018ec793ae9057d:0x8faee548dbc34bc5!2m2!1d139.6442119!2d35.7805778!1m5!1m1!1s0x6018ec76d6b78e07:0xd0e358c73acbff61!2m2!1d139.6372143!2d35.7767553!3e2?entry=ttu&g_ep=EgoyMDI1MTExMS4wIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
-          "amount": 331,
-          "currency": "MYR",
+          "amount": 12380,
+          "currency": "JPY",
           "notes": "Booked 4D3N per person"
         },
         "note": "Arrive 10 minutes prior to check-in"
@@ -167,7 +167,7 @@
         "price": {
           "amount": 260,
           "currency": "JPY",
-          "notes": "One-way train fare"
+          "notes": "Transport Train"
         },
         "note": "Fukutoshin Line Platform 1 > Marunouchi Line Platform 2"
       },
@@ -351,7 +351,8 @@
         },
         "price": {
           "amount": 2000,
-          "currency": "JPY"
+          "currency": "JPY",
+          "notes": "Dinner"
         },
         "note": "4 minutes walk from Shibuya Crossing"
       },
@@ -601,7 +602,7 @@
         },
         "price": {
           "amount": 0,
-          "currency": "MYR"
+          "currency": "JPY"
         },
         "note": "Picture Spot"
       },
@@ -644,8 +645,8 @@
           "mapsUrl": "https://maps.app.goo.gl/qWJBF9GFw8nveukg8"
         },
         "price": {
-          "amount": 310.0,
-          "currency": "MYR",
+          "amount": 11563,
+          "currency": "JPY",
           "notes": "Booked 3D2N per person"
         },
         "note": "https://www.airbnb.co.uk/rooms/561789379215305242?viralityEntryPoint=1&s=76&source_impression_id=p3_1754119394_P3HsMccoSdf5QVJs"
@@ -682,8 +683,7 @@
         },
         "price": {
           "amount": 0,
-          "currency": "MYR",
-          "notes": "Free"
+          "currency": "JPY"
         },
         "note": "Walking 21 min from Shimoyoshida Station"
       },
@@ -696,8 +696,8 @@
           "mapsUrl": "https://www.google.com/maps/dir/Arakurayama+Sengen+Park,+%EF%BC%92%E4%B8%81%E7%9B%AE-4-1+Asama,+Fujiyoshida,+Yamanashi,+Japan/Fuji-Q+Highland,+5+Chome-6-1+Shinnishihara,+Fujiyoshida,+Yamanashi,+Japan/@35.4925678,138.7799596,15z/am=t/data=!3m1!5s0x601960952e284a65:0x25168aa58940bc30!4m18!4m17!1m5!1m1!1s0x6019674d1d58a8bb:0x8fee767dd147a07d!2m2!1d138.8016313!2d35.5013908!1m5!1m1!1s0x601960eacac8b82f:0x47ca3021adc03730!2m2!1d138.7805511!2d35.4869467!2m3!6e0!7e2!8j1763885700!3e3?authuser=0&entry=ttu&g_ep=EgoyMDI1MTExMS4wIKXMDSoASAFQAw%3D%3D"
         },
         "price": {
-          "amount": 126.99,
-          "currency": "MYR",
+          "amount": 4750,
+          "currency": "JPY",
           "notes": "Paid 1-Day Pass"
         },
         "note": "Fujikyuko Line (3 stops)"
@@ -909,8 +909,7 @@
         },
         "price": {
           "amount": 0,
-          "currency": "MYR",
-          "notes": "Already Booked"
+          "currency": "JPY"
         },
         "note": "Arrive 4 Hours prior to departure"
       }
