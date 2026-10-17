@@ -3,12 +3,12 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
-import { getAllCountries, getActiveItinerariesMap } from '../utils/countries';
+import { getAllCountriesWithSheets, getActiveItinerariesMap } from '../utils/countries';
 
-const countries = getAllCountries();
+const { countries, syncResult } = await getAllCountriesWithSheets();
 const activeCountries = countries.filter((c) => c.stats.hasItinerary);
 const upcomingCountries = countries.filter((c) => !c.stats.hasItinerary);
-const allItineraries = getActiveItinerariesMap();
+const allItineraries = getActiveItinerariesMap(countries);
 
 const totalGlobalDays = activeCountries.reduce((acc, c) => acc + c.stats.totalDays, 0);
 const totalGlobalActivities = activeCountries.reduce((acc, c) => acc + c.stats.totalActivities, 0);
@@ -16,7 +16,7 @@ const totalGlobalActivities = activeCountries.reduce((acc, c) => acc + c.stats.t
 
 <Layout title="Global Travel Planner & Analytics">
   <Header />
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-8">
     <!-- Hero Banner (Aesthetic-Usability Effect & Miller's Law: 3 scannable global stats) -->
     <section class="glass-effect rounded-3xl p-6 sm:p-8 border border-primary/20 shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-6">
       <div class="max-w-2xl space-y-2">
@@ -27,9 +27,6 @@ const totalGlobalActivities = activeCountries.reduce((acc, c) => acc + c.stats.t
         <h1 class="text-3xl sm:text-4xl font-extrabold text-text tracking-tight">
           Global Itinerary & Expense Intelligence
         </h1>
-        <p class="text-sm sm:text-base text-text/75 leading-relaxed">
-          Compare trip budgets across currencies in real time, explore day-by-day timelines, or add a new destination simply by dropping a <code class="px-1.5 py-0.5 rounded bg-primary/10 text-primary font-mono text-xs">src/data/&#123;country&#125;.json</code> file.
-        </p>
       </div>
 
       <!-- Summary Stat Pills (Miller's Law: Chunked into 3 key metrics) -->
@@ -57,11 +54,13 @@ const totalGlobalActivities = activeCountries.reduce((acc, c) => acc + c.stats.t
             Active Destination Itineraries
           </h2>
           <p class="text-xs sm:text-sm text-text/70">
-            Select a destination to open its day-by-day timeline, phrasebook, or prayer clock
+            Select a destination to open its day-by-day timeline and budget analytics
           </p>
         </div>
         <span class="text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full self-start sm:self-auto">
-          Auto-discovered from src/data/*.json
+          {syncResult.source === 'google-sheets'
+            ? `Live from Google Sheets (${syncResult.countriesSynced.length} country tabs)`
+            : 'Configure GOOGLE_SHEET_ID to load country tabs'}
         </span>
       </div>
 
@@ -118,35 +117,15 @@ const totalGlobalActivities = activeCountries.reduce((acc, c) => acc + c.stats.t
               </div>
             </div>
 
-            <!-- Action Bar (Fitts's Law: High-contrast primary CTA + secondary tool pills) -->
+            <!-- Action Bar (Fitts's Law: High-contrast primary CTA + secondary overview pill) -->
             <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-primary/15">
-              <div class="flex flex-wrap items-center gap-1.5">
-                <a
-                  href={`/${country.slug}`}
-                  class="touch-target inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-white/80 text-text/80 hover:text-primary border border-primary/15 transition-colors"
-                >
-                  <span>🧭</span>
-                  <span>Overview</span>
-                </a>
-                {country.stats.hasDictionary && (
-                  <a
-                    href={`/${country.slug}/dictionary`}
-                    class="touch-target inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-white/80 text-text/80 hover:text-primary border border-primary/15 transition-colors"
-                  >
-                    <span>📖</span>
-                    <span>Phrasebook</span>
-                  </a>
-                )}
-                {country.stats.hasPrayer && (
-                  <a
-                    href={`/${country.slug}/prayer`}
-                    class="touch-target inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-white/80 text-text/80 hover:text-primary border border-primary/15 transition-colors"
-                  >
-                    <span>🕌</span>
-                    <span>Prayer</span>
-                  </a>
-                )}
-              </div>
+              <a
+                href={`/${country.slug}`}
+                class="touch-target inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-white/80 text-text/80 hover:text-primary border border-primary/15 transition-colors"
+              >
+                <span>🧭</span>
+                <span>Country Overview</span>
+              </a>
 
               <a
                 href={`/${country.slug}/itinerary`}
@@ -190,7 +169,7 @@ const totalGlobalActivities = activeCountries.reduce((acc, c) => acc + c.stats.t
               Upcoming & Wishlist Destinations
             </h2>
             <p class="text-xs sm:text-sm text-text/70">
-              Registered in <code class="px-1 py-0.5 rounded bg-primary/10 text-primary">src/data/*.json</code> — populate with day items to activate
+              Discovered from Google Sheets tabs — add activity rows to the country tab to activate
             </p>
           </div>
         </div>

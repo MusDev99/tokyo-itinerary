@@ -1,20 +1,12 @@
 ---
-import { getAllCountries } from '../utils/countries';
+import { getAllCountriesWithSheets } from '../utils/countries';
 
-const countries = getAllCountries();
+const { countries } = await getAllCountriesWithSheets();
 
 const navLinks = countries.map((country) => {
   const sublinks: Array<{ href: string; text: string; icon: string }> = [
-    { href: `/${country.slug}/itinerary`, text: 'Itinerary', icon: '🗓️' },
+    { href: `/${country.slug}/itinerary`, text: 'Interactive Timeline', icon: '🗓️' },
   ];
-
-  if (country.stats.hasDictionary) {
-    sublinks.push({ href: `/${country.slug}/dictionary`, text: 'Phrasebook', icon: '📖' });
-  }
-
-  if (country.stats.hasPrayer) {
-    sublinks.push({ href: `/${country.slug}/prayer`, text: 'Prayer Times', icon: '🕌' });
-  }
 
   return {
     slug: country.slug,

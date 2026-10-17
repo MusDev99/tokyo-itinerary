@@ -1,80 +1,80 @@
-# Project Overview: Tokyo Trip Itinerary
+# Project Overview: Multi-Country Travel Itinerary & Analytics
 
-This project is a modern, interactive itinerary planner for a Tokyo trip, built with Astro and Preact. It features a responsive and visually appealing UI powered by Tailwind CSS and is developed with TypeScript for type safety. The application allows users to view daily activities in a timeline format, search/filter items, and potentially download a PDF of the itinerary.
+This project is a modern, interactive **multi-country travel itinerary planner and budget analytics web application** built with **Astro** and **Preact**. It features a responsive UI designed around the **[Laws of UX](https://lawsofux.com/)**, powered by **Tailwind CSS** and **TypeScript**, using **Google Sheets as the Single Source of Truth** via a Service Account and live **multi-currency exchange rate conversion**.
 
 ## Core Features
 
-*   **Interactive Timeline**: Displays daily activities with location, price, notes, and optional images/YouTube links.
-*   **Prayer Time Dashboard**: An interactive, theme-aware clock displaying prayer times for different cities and dates in Japan.
-*   **Responsive Design**: Ensures usability across various devices.
-*   **Modern UI**: Clean interface with smooth animations.
-*   **Component-Based Architecture**: Utilizes reusable components for maintainability.
-*   **TypeScript Support**: Enhances development experience with type safety.
-*   **PDF Download**: Functionality to download the itinerary as a PDF.
-*   **Search & Filter**: Components for searching and filtering itinerary items.
-*   **Theme Switching**: Allows users to change the application's theme.
-*   **Seasonal Backgrounds**: Dynamic backgrounds based on seasons.
-*   **Japanese Dictionary**: A dedicated page for a Japanese dictionary.
+*   **Google Sheets Single Source of Truth**: All itinerary data is fetched directly from Google Sheets using a zero-dependency OAuth 2.0 Service Account (`RS256` JWT via `node:crypto`) client (`src/utils/googleSheets.ts`). There are no local `src/data/*.json` files.
+*   **1 Tab = 1 Country Routing**: Automatically discovers countries from Google Sheets worksheet tabs (`src/utils/countries.ts`), where each worksheet tab represents one country and the **tab name defines the country name**, generating per-country overview (`/[country]`) and daily timeline (`/[country]/itinerary`) routes alongside a global portfolio homepage (`/`).
+*   **Comprehensive Trip Analytics**: Multi-country and single-country financial breakdowns (`AnalyticsDashboard.tsx`, `src/utils/analytics.ts`), including 6-category activity classification (`Transport`, `Food`, `Lodging`, `Attraction`, `Shopping`, `Other`), daily burn rates, peak spend alerts, and paid vs. free activity ratios.
+*   **Live & Historical Currency Exchange**: Real-time currency conversion and 30-day historical trend visualization (`CurrencyExchangeGraph.tsx`, `/api/currency-exchange.ts`) using public currency APIs (Frankfurter & Open ER-API).
+*   **Laws of UX Interface Design**: Built applying Hick's Law (progressive disclosure on timeline items), Miller's Law (chunked KPI cards & category filters), Fitts's Law ($\ge 44\text{px}$ touch targets & sticky navigation), Jakob's Law, Von Restorff Effect, and Doherty Threshold.
+*   **Interactive Timeline & Search/Filter**: Displays daily activities with expandable details, locations, Google Maps links, converted prices, notes, images, and YouTube embeds, with instant search and category filtering.
+*   **PDF Export**: Generates downloadable PDF itineraries directly in the browser (`PDFDownload.tsx`).
+*   **Theme Switching & Seasonal Backgrounds**: Supports dark/light modes and seasonal background themes (`spring`, `summer`, `autumn`, `winter`).
 
 ## File Structure
 
 ### `src/pages/`
-These are the main routes/pages of the application.
-*   `404.astro`: The custom 404 "Not Found" error page.
-*   `dictionary.astro`: Displays a Japanese dictionary, likely utilizing `jp_dictionary.json`.
-*   `index.astro`: The homepage, serving as the main entry point for the itinerary display.
-*   `japan.astro`: A page potentially offering general information about Japan or another view related to the trip.
-*   `prayer.astro`: Displays the interactive prayer time dashboard.
+Main routes and API endpoints of the application:
+*   `index.astro`: Global travel portfolio dashboard comparing budgets, daily burn rates, and category spending across all countries discovered from Google Sheets.
+*   `404.astro`: Custom 404 "Not Found" error page.
+*   `[country]/index.astro`: Dynamic country overview page featuring daily schedule summary, country analytics dashboard, and live currency exchange graph.
+*   `[country]/itinerary.astro`: Dynamic country day-by-day interactive timeline page with search, category filters, collapsible analytics, and PDF download.
+*   `api/currency-exchange.ts`: API endpoint providing live exchange rates and 30-day historical time-series data with fallback support.
+*   `api/sheets-sync.ts`: Server endpoint for checking Google Sheets connection status and triggering live cache refreshes from Google Sheets.
 
 ### `src/components/`
-Contains reusable UI components built with Preact (`.tsx`) or Astro (`.astro`).
-*   `AnalyticsDashboard.tsx`: Likely displays analytics or summary data related to the itinerary.
-*   `Banner.tsx`: A prominent display area, possibly for announcements or featured content.
-*   `Countdown.tsx`: A countdown timer component.
-*   `Footer.astro`: The site-wide footer, containing navigation links, company info, and social links.
-*   `Header.astro`: The site-wide header, including navigation, theme switcher, and potentially user profile/notifications.
-*   `PDFDownload.tsx`: Component responsible for initiating the PDF download of the itinerary.
-*   `PrayerDashboard.tsx`: An interactive, theme-aware prayer time clock built with the Canvas API.
-*   `SearchFilter.tsx`: Provides search and filtering capabilities for itinerary items.
-*   `SkeletonLoader.tsx`: A placeholder component displayed while content is loading.
-*   `TabsNew.tsx`: A tabbed interface component for organizing content (e.g., by day).
-*   `TechStack.tsx`: Displays the technologies used in the project.
-*   `ThemeSwitcher.tsx`: Allows users to toggle between different themes (e.g., light/dark, seasonal).
-*   `Timeline.tsx`: The main container for displaying the daily itinerary items.
-*   `TimelineItem.tsx`: Represents a single event or activity within the `Timeline`.
+Reusable UI components built with Preact (`.tsx`) or Astro (`.astro`):
+*   `AnalyticsDashboard.tsx`: Interactive financial analytics dashboard supporting both single-country and multi-country comparison modes with live currency conversion.
+*   `Banner.tsx`: Prominent trip status banner.
+*   `Countdown.tsx`: Trip countdown timer widget.
+*   `CountrySubNav.astro`: Sticky sub-navigation bar for switching between a country's Overview and Itinerary Timeline views.
+*   `CurrencyExchangeGraph.tsx`: Interactive SVG historical exchange rate chart and quick currency calculator.
+*   `Footer.astro`: Site-wide footer.
+*   `GoogleSheetsSyncBanner.tsx`: Interactive UI panel to inspect Google Sheets connection status and trigger live refreshes.
+*   `Header.astro`: Site-wide sticky header featuring dynamic country navigation pills discovered from Google Sheets tabs.
+*   `PDFDownload.tsx`: Client-side PDF generator for country itineraries.
+*   `SearchFilter.tsx`: Search and category filtering component for itinerary items.
+*   `SkeletonLoader.tsx`: Placeholder component displayed while async content loads.
+*   `TabsNew.tsx`: Day-by-day navigation and container component coordinating filters, currency selection, and timeline rendering.
+*   `TechStack.tsx`: Displays the technologies and architecture used in the project.
+*   `ThemeSwitcher.tsx`: Toggles light/dark mode and seasonal themes.
+*   `Timeline.tsx`: Container rendering a day's sequence of activities.
+*   `TimelineItem.tsx`: Individual activity card implementing progressive disclosure for notes, locations, and media.
+
+### `src/utils/`
+Core business logic, data loaders, and API clients:
+*   `countries.ts`: Discovers and loads country itineraries (`CountryMetadata`, `getAllCountriesWithSheets()`, `getActiveItinerariesMap()`) directly from Google Sheets worksheet tabs with in-memory deduplication and last-known-good caching.
+*   `googleSheets.ts`: Zero-dependency Google Sheets API v4 client using Service Account JWT authentication (`credentials/keys.json` or `GOOGLE_SERVICE_ACCOUNT_JSON` / `GOOGLE_CLIENT_EMAIL` + `GOOGLE_PRIVATE_KEY`). Handles reading the 15-column itinerary schema (`A1:O1`), batch fetching all country tabs, rate-limit retries, and CLI verification.
+*   `analytics.ts`: Computes trip analytics (`computeCountryAnalytics()`, `computeGlobalAnalytics()`) and classifies activities into 6 standard categories (`classifyItem()`).
+*   `currency.ts`: Currency metadata, symbols, formatting, and rate conversion utilities.
+*   `url.ts`: Path helpers for resolving base URLs.
 
 ### `src/layouts/`
-Defines the overall structure and common elements for pages.
-*   `Layout.astro`: The primary layout component that wraps most pages, typically including the `Header`, `Footer`, and handling global styling.
-
-### `src/data/`
-Stores static data used throughout the application.
-*   `itineraryData.json`: The core data file containing the Tokyo trip itinerary, structured according to the `DayItinerary` and `TimelineItem` types defined in `itinerary.ts`.
-*   `jp_dictionary.json`: A JSON file containing Japanese dictionary entries, used by the `dictionary.astro` page.
-*   `jp_prayer.json`: A JSON file containing prayer times for various cities in Japan.
+*   `Layout.astro`: Primary page layout wrapping pages with `Header`, `Footer`, meta tags, and theme initialization scripts.
 
 ### `src/styles/`
-Contains global and theme-specific CSS files.
-*   `autumn-bg.css`, `spring-bg.css`, `summer-bg.css`, `winter-bg.css`: These files suggest dynamic background styling that changes based on the season or selected theme.
-*   `global.css`: Contains global CSS rules and Tailwind CSS imports.
+*   `autumn-bg.css`, `spring-bg.css`, `summer-bg.css`, `winter-bg.css`: Seasonal background animations and styles.
+*   `global.css`: Global CSS rules, typography, and Tailwind CSS imports.
 
 ### `src/types/`
-Defines TypeScript interfaces for data structures.
-*   `itinerary.ts`: Defines the interfaces for the itinerary data:
-    *   `Location`: `{ name: string; mapsUrl: string; }`
-    *   `Price`: `{ amount: number; currency: string; notes?: string; }`
-    *   `TimelineItem`: `{ time: string; title: string; description: string; location: Location; price: Price; note: string; images?: string; youtubeUrl?: string; }`
-    *   `DayItinerary`: `{ day: number; title: string; date: string; items: TimelineItem[]; }`
+TypeScript interfaces in `src/types/itinerary.ts`:
+*   `ActivityCategory`: `'Transport' | 'Food' | 'Lodging' | 'Attraction' | 'Shopping' | 'Other'`
+*   `Location`: `{ name: string; mapsUrl?: string | null; }`
+*   `Price`: `{ amount: number; currency: string; notes?: string; }`
+*   `TimelineItem`: `{ time: string; title: string; description: string; location?: Location | null; price?: Price; note?: string; images?: string | string[] | null; youtubeUrl?: string | null; category?: ActivityCategory; }`
+*   `DayItinerary`: `{ day: number; title: string; date: string; items: TimelineItem[]; }`
 
 ## Key Technologies
 
-*   **Astro**: The web framework for content-driven websites.
-*   **Preact**: A fast, lightweight alternative to React, used for interactive UI components.
-*   **TypeScript**: For type-safe code and improved developer experience.
-*   **Tailwind CSS**: A utility-first CSS framework for rapid UI development.
-*   **Canvas API**: Used for drawing the interactive prayer time clock.
-*   **html2canvas & jspdf**: Libraries used for generating PDF documents from HTML content.
-*   **react-icons**: A library providing popular icon sets.
+*   **Astro**: Web framework for fast, content-driven pages and API routes.
+*   **Preact**: Lightweight reactive UI library for interactive islands.
+*   **TypeScript**: End-to-end type safety across components, utilities, and API routes.
+*   **Tailwind CSS**: Utility-first styling implementing Laws of UX visual hierarchy.
+*   **Google Sheets API v4**: Cloud spreadsheet single source of truth authenticated via Node `crypto` RS256 Service Account JWTs.
+*   **Frankfurter & Open ER-API**: Public exchange rate APIs for live and historical currency conversion.
+*   **html2canvas & jspdf**: Client-side PDF itinerary generation.
 
 ## Development Commands
 
@@ -82,4 +82,4 @@ Defines TypeScript interfaces for data structures.
 *   `npm run dev`: Starts the local development server.
 *   `npm run build`: Builds the production-ready site.
 *   `npm run preview`: Previews the built production site locally.
-*   `npm run astro ...`: Runs Astro CLI commands.
+*   `npm run sheets:pull`: Verifies Google Sheets connectivity and lists all country tabs and activity counts.

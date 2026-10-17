@@ -3,7 +3,7 @@ import type { CountryMetadata } from '../utils/countries';
 
 interface Props {
   country: CountryMetadata;
-  activeTab: 'overview' | 'itinerary' | 'dictionary' | 'prayer';
+  activeTab: 'overview' | 'itinerary';
 }
 
 const { country, activeTab } = Astro.props;
@@ -24,20 +24,6 @@ const tabs = [
     badge: country.stats.totalDays > 0 ? `${country.stats.totalDays}d` : undefined,
     available: country.stats.hasItinerary,
   },
-  {
-    key: 'dictionary',
-    label: 'Phrasebook',
-    icon: '📖',
-    href: `/${country.slug}/dictionary`,
-    available: country.stats.hasDictionary,
-  },
-  {
-    key: 'prayer',
-    label: 'Prayer Times',
-    icon: '🕌',
-    href: `/${country.slug}/prayer`,
-    available: country.stats.hasPrayer,
-  },
 ].filter((t) => t.available);
 ---
 
@@ -56,7 +42,7 @@ const tabs = [
     {activeTab !== 'overview' && (
       <>
         <span aria-hidden="true">/</span>
-        <span class="text-primary font-bold capitalize">{activeTab === 'dictionary' ? 'Phrasebook' : activeTab}</span>
+        <span class="text-primary font-bold capitalize">{activeTab}</span>
       </>
     )}
   </nav>

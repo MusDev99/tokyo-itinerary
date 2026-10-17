@@ -6,10 +6,10 @@ import CountrySubNav from '../../components/CountrySubNav.astro';
 import Tabs from '../../components/TabsNew';
 import PDFDownload from '../../components/PDFDownload';
 import AnalyticsDashboard from '../../components/AnalyticsDashboard';
-import { getAllCountries, type CountryMetadata } from '../../utils/countries';
+import { getAllCountriesWithSheets, type CountryMetadata } from '../../utils/countries';
 
-export function getStaticPaths() {
-  const countries = getAllCountries();
+export async function getStaticPaths() {
+  const { countries } = await getAllCountriesWithSheets();
   return countries.map((country) => ({
     params: { country: country.slug },
     props: { country },
@@ -20,7 +20,9 @@ interface Props {
   country: CountryMetadata;
 }
 
-const { country } = Astro.props;
+const { countries } = await getAllCountriesWithSheets();
+const country =
+  countries.find((c) => c.slug === Astro.params.country?.toLowerCase()) || Astro.props.country;
 const countryDataSource = country.stats.hasItinerary
   ? { [country.slug]: country.itinerary }
   : {};
@@ -79,7 +81,7 @@ const countryDataSource = country.stats.hasItinerary
       <div class="glass-effect rounded-2xl p-8 text-center border border-primary/20">
         <p class="text-lg font-bold text-text">No itinerary entries found for {country.name} yet.</p>
         <p class="text-sm text-text/70 mt-1">
-          Add day entries to <code class="px-1.5 py-0.5 rounded bg-primary/10 text-primary">src/data/{country.slug}.json</code> to view the timeline.
+          Add day rows to the <code class="px-1.5 py-0.5 rounded bg-primary/10 text-primary">{country.tabName}</code> tab in Google Sheets to view the timeline.
         </p>
       </div>
     )}
