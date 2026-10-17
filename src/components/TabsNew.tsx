@@ -47,9 +47,9 @@ export default function Tabs({ itinerary }: Props) {
   const currentDay = filteredItinerary[activeTab];
 
   return (
-    <div className="w-full p-4 sm:p-6">
+    <div className="w-full p-3.5 sm:p-6">
       {/* Top Toolbar: Day Selector Header + Search Toggle (Hick's Law: Progressive disclosure for filters) */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div>
           <h3 className="text-lg sm:text-xl font-extrabold text-text">
             Daily Itinerary Schedule
@@ -63,13 +63,13 @@ export default function Tabs({ itinerary }: Props) {
           type="button"
           onClick={() => setShowSearch(!showSearch)}
           aria-expanded={showSearch}
-          className={`touch-target inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold border transition-all duration-150 ${
+          className={`touch-target inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold border transition-all duration-150 w-full sm:w-auto ${
             showSearch
               ? 'bg-primary text-white border-primary shadow-sm'
               : 'bg-white/75 text-text/80 border-primary/20 hover:border-primary/40 hover:text-primary'
           }`}
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -91,7 +91,7 @@ export default function Tabs({ itinerary }: Props) {
       )}
 
       {/* Day Tabs Strip (Fitts's Law & Miller's Law: Large touch targets with Day + Short Date) */}
-      <div className="relative mb-6">
+      <div className="relative mb-5 sm:mb-6">
         <div
           role="tablist"
           aria-label="Trip Days"
@@ -150,42 +150,42 @@ export default function Tabs({ itinerary }: Props) {
       </div>
 
       {/* Active Day Timeline Content */}
-      <div className="rounded-2xl bg-white/55 border border-primary/15 p-4 sm:p-6">
+      <div className="rounded-2xl bg-white/55 border border-primary/15 p-3 sm:p-6">
         {currentDay ? (
           <div>
             <Timeline day={currentDay} />
 
             {/* Bottom Day Stepper (Fitts's Law: Easy sequential progression at the end of reading a day) */}
             {filteredItinerary.length > 1 && (
-              <div className="mt-8 pt-4 border-t border-primary/15 flex items-center justify-between gap-3">
+              <div className="mt-6 sm:mt-8 pt-4 border-t border-primary/15 flex items-center justify-between gap-2 sm:gap-3">
                 <button
                   type="button"
                   disabled={activeTab === 0}
                   onClick={() => handleTabChange(activeTab - 1)}
-                  className="touch-target inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white/80 border border-primary/20 text-text disabled:opacity-40 disabled:pointer-events-none hover:bg-primary/10 transition-colors"
+                  className="touch-target inline-flex items-center gap-1 sm:gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white/80 border border-primary/20 text-text disabled:opacity-40 disabled:pointer-events-none hover:bg-primary/10 transition-colors"
                 >
                   <span>←</span>
                   <span>
                     {activeTab > 0
                       ? `Day ${filteredItinerary[activeTab - 1].day}`
-                      : 'Previous'}
+                      : 'Prev'}
                   </span>
                 </button>
 
-                <span className="text-xs font-bold text-text/60">
-                  Day {activeTab + 1} of {filteredItinerary.length}
+                <span className="text-[11px] sm:text-xs font-bold text-text/60 text-center">
+                  Day {activeTab + 1} / {filteredItinerary.length}
                 </span>
 
                 <button
                   type="button"
                   disabled={activeTab === filteredItinerary.length - 1}
                   onClick={() => handleTabChange(activeTab + 1)}
-                  className="touch-target inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-primary text-white disabled:opacity-40 disabled:pointer-events-none hover:opacity-95 transition-opacity shadow-sm"
+                  className="touch-target inline-flex items-center gap-1 sm:gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-primary text-white disabled:opacity-40 disabled:pointer-events-none hover:opacity-95 transition-opacity shadow-sm"
                 >
                   <span>
                     {activeTab < filteredItinerary.length - 1
-                      ? `Next: Day ${filteredItinerary[activeTab + 1].day}`
-                      : 'Completed'}
+                      ? `Day ${filteredItinerary[activeTab + 1].day}`
+                      : 'Done'}
                   </span>
                   <span>→</span>
                 </button>

@@ -18,32 +18,32 @@ const totalGlobalActivities = activeCountries.reduce((acc, c) => acc + c.stats.t
 
 <Layout title="Global Travel Planner & Analytics">
   <Header />
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-8">
+  <div class="w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-10 space-y-6 sm:space-y-8">
     <!-- Hero Banner (Aesthetic-Usability Effect & Miller's Law: 3 scannable global stats) -->
-    <section class="glass-effect rounded-3xl p-6 sm:p-8 border border-primary/20 shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+    <section class="glass-effect rounded-2xl sm:rounded-3xl p-4 sm:p-8 border border-primary/20 shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6">
       <div class="max-w-2xl space-y-2">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/15 text-primary text-xs font-extrabold uppercase tracking-wider">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/15 text-primary text-[11px] sm:text-xs font-extrabold uppercase tracking-wider">
           <span>✈️</span>
           <span>Dynamic Multi-Country Travel Hub</span>
         </div>
-        <h1 class="text-3xl sm:text-4xl font-extrabold text-text tracking-tight">
+        <h1 class="text-2xl sm:text-4xl font-extrabold text-text tracking-tight leading-tight">
           Global Itinerary & Expense Intelligence
         </h1>
       </div>
 
       <!-- Summary Stat Pills (Miller's Law: Chunked into 3 key metrics) -->
-      <div class="grid grid-cols-3 gap-3 sm:gap-4 shrink-0">
-        <div class="p-3.5 sm:p-4 rounded-2xl bg-white/75 border border-primary/20 text-center shadow-xs">
-          <p class="text-2xl sm:text-3xl font-extrabold text-primary">{activeCountries.length}</p>
-          <p class="text-[11px] sm:text-xs font-bold text-text/70 uppercase tracking-wider mt-0.5">Active Trips</p>
+      <div class="grid grid-cols-3 gap-2 sm:gap-4 shrink-0">
+        <div class="p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white/75 border border-primary/20 text-center shadow-xs min-w-0">
+          <p class="text-xl sm:text-3xl font-extrabold text-primary">{activeCountries.length}</p>
+          <p class="text-[10px] sm:text-xs font-bold text-text/70 uppercase tracking-wider mt-0.5 truncate">Active Trips</p>
         </div>
-        <div class="p-3.5 sm:p-4 rounded-2xl bg-white/75 border border-primary/20 text-center shadow-xs">
-          <p class="text-2xl sm:text-3xl font-extrabold text-primary">{totalGlobalDays}</p>
-          <p class="text-[11px] sm:text-xs font-bold text-text/70 uppercase tracking-wider mt-0.5">Total Days</p>
+        <div class="p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white/75 border border-primary/20 text-center shadow-xs min-w-0">
+          <p class="text-xl sm:text-3xl font-extrabold text-primary">{totalGlobalDays}</p>
+          <p class="text-[10px] sm:text-xs font-bold text-text/70 uppercase tracking-wider mt-0.5 truncate">Total Days</p>
         </div>
-        <div class="p-3.5 sm:p-4 rounded-2xl bg-white/75 border border-primary/20 text-center shadow-xs">
-          <p class="text-2xl sm:text-3xl font-extrabold text-primary">{totalGlobalActivities}</p>
-          <p class="text-[11px] sm:text-xs font-bold text-text/70 uppercase tracking-wider mt-0.5">Activities</p>
+        <div class="p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white/75 border border-primary/20 text-center shadow-xs min-w-0">
+          <p class="text-xl sm:text-3xl font-extrabold text-primary">{totalGlobalActivities}</p>
+          <p class="text-[10px] sm:text-xs font-bold text-text/70 uppercase tracking-wider mt-0.5 truncate">Activities</p>
         </div>
       </div>
     </section>
@@ -52,67 +52,67 @@ const totalGlobalActivities = activeCountries.reduce((acc, c) => acc + c.stats.t
     <section aria-labelledby="active-destinations-heading" class="space-y-4">
       <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
         <div>
-          <h2 id="active-destinations-heading" class="text-2xl font-extrabold text-text tracking-tight">
+          <h2 id="active-destinations-heading" class="text-xl sm:text-2xl font-extrabold text-text tracking-tight">
             Active Destination Itineraries
           </h2>
           <p class="text-xs sm:text-sm text-text/70">
             Select a destination to open its day-by-day timeline and budget analytics
           </p>
         </div>
-        <span class="text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full self-start sm:self-auto">
+        <span class="text-[11px] sm:text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full self-start sm:self-auto">
           {syncResult.source === 'google-sheets'
             ? `Live from Google Sheets (${syncResult.countriesSynced.length} country tabs)`
             : 'Configure GOOGLE_SHEET_ID to load country tabs'}
         </span>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         {activeCountries.map((country) => (
-          <article class="group glass-effect rounded-2xl p-6 border-2 border-primary/25 hover:border-primary/50 shadow-md hover:shadow-xl transition-all duration-150 flex flex-col justify-between">
+          <article class="group glass-effect rounded-2xl p-4 sm:p-6 border-2 border-primary/25 hover:border-primary/50 shadow-md hover:shadow-xl transition-all duration-150 flex flex-col justify-between">
             <div>
               <!-- Card Header: Flag, Title, Currency & Ready Badge -->
-              <div class="flex items-start justify-between gap-4 mb-4">
-                <a href={`/${country.slug}/itinerary`} class="flex items-center gap-3.5 group/title">
-                  <div class="w-14 h-14 rounded-2xl bg-primary/15 border border-primary/25 flex items-center justify-center text-3xl shadow-inner shrink-0 group-hover/title:scale-105 transition-transform">
+              <div class="flex items-start justify-between gap-2.5 sm:gap-4 mb-3.5 sm:mb-4">
+                <a href={`/${country.slug}/itinerary`} class="flex items-center gap-3 sm:gap-3.5 group/title min-w-0">
+                  <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/15 border border-primary/25 flex items-center justify-center text-2xl sm:text-3xl shadow-inner shrink-0 group-hover/title:scale-105 transition-transform">
                     {country.flag}
                   </div>
-                  <div>
-                    <div class="flex items-center gap-2">
-                      <h3 class="text-xl sm:text-2xl font-extrabold text-text group-hover/title:text-primary transition-colors">
+                  <div class="min-w-0">
+                    <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                      <h3 class="text-lg sm:text-2xl font-extrabold text-text group-hover/title:text-primary transition-colors truncate">
                         {country.name}
                       </h3>
-                      <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-primary/15 text-primary">
+                      <span class="px-2 py-0.5 rounded-full text-[11px] sm:text-xs font-bold bg-primary/15 text-primary shrink-0">
                         {country.currency}
                       </span>
                     </div>
-                    <p class="text-xs font-semibold text-text/65 mt-0.5">
+                    <p class="text-xs font-semibold text-text/65 mt-0.5 truncate">
                       {country.region} • {country.season}
                     </p>
                   </div>
                 </a>
 
-                <span class="px-2.5 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-emerald-500/15 text-emerald-800 border border-emerald-500/30 shrink-0">
-                  {country.stats.totalDays} Days Ready
+                <span class="px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider bg-emerald-500/15 text-emerald-800 border border-emerald-500/30 shrink-0">
+                  {country.stats.totalDays}d Ready
                 </span>
               </div>
 
-              <p class="text-sm text-text/80 leading-relaxed mb-5">
+              <p class="text-xs sm:text-sm text-text/80 leading-relaxed mb-4 sm:mb-5">
                 {country.description}
               </p>
 
               <!-- Chunked Trip Stats (Law of Proximity & Miller's Law) -->
-              <div class="grid grid-cols-3 gap-2.5 p-3 rounded-xl bg-white/70 border border-primary/15 mb-5">
-                <div>
-                  <span class="block text-[10px] font-bold uppercase tracking-wider text-text/55">Duration</span>
-                  <span class="text-sm font-extrabold text-text">{country.stats.totalDays} Days</span>
+              <div class="grid grid-cols-3 gap-2 p-2.5 sm:p-3 rounded-xl bg-white/70 border border-primary/15 mb-4 sm:mb-5">
+                <div class="min-w-0">
+                  <span class="block text-[10px] font-bold uppercase tracking-wider text-text/55 truncate">Duration</span>
+                  <span class="block text-xs sm:text-sm font-extrabold text-text truncate">{country.stats.totalDays} Days</span>
                 </div>
-                <div>
-                  <span class="block text-[10px] font-bold uppercase tracking-wider text-text/55">Activities</span>
-                  <span class="text-sm font-extrabold text-text">{country.stats.totalActivities} Stops</span>
+                <div class="min-w-0">
+                  <span class="block text-[10px] font-bold uppercase tracking-wider text-text/55 truncate">Activities</span>
+                  <span class="block text-xs sm:text-sm font-extrabold text-text truncate">{country.stats.totalActivities} Stops</span>
                 </div>
-                <div>
-                  <span class="block text-[10px] font-bold uppercase tracking-wider text-text/55">Est. Local Cost</span>
-                  <span class="text-sm font-extrabold text-primary">
+                <div class="min-w-0">
+                  <span class="block text-[10px] font-bold uppercase tracking-wider text-text/55 truncate">Est. Cost</span>
+                  <span class="block text-xs sm:text-sm font-extrabold text-primary truncate" title={`${country.stats.totalLocalCost.toLocaleString()} ${country.currency}`}>
                     {country.stats.totalLocalCost.toLocaleString()} {country.currency}
                   </span>
                 </div>
@@ -120,18 +120,18 @@ const totalGlobalActivities = activeCountries.reduce((acc, c) => acc + c.stats.t
             </div>
 
             <!-- Action Bar (Fitts's Law: High-contrast primary CTA + secondary overview pill) -->
-            <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-primary/15">
+            <div class="grid grid-cols-2 sm:flex items-center justify-between gap-2 pt-3 border-t border-primary/15">
               <a
                 href={`/${country.slug}`}
-                class="touch-target inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-white/80 text-text/80 hover:text-primary border border-primary/15 transition-colors"
+                class="touch-target inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-white/80 text-text/80 hover:text-primary border border-primary/15 transition-colors"
               >
                 <span>🧭</span>
-                <span>Country Overview</span>
+                <span>Overview</span>
               </a>
 
               <a
                 href={`/${country.slug}/itinerary`}
-                class="touch-target inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-white text-xs sm:text-sm font-bold shadow-sm hover:opacity-95 transition-opacity"
+                class="touch-target inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl bg-primary text-white text-xs sm:text-sm font-bold shadow-sm hover:opacity-95 transition-opacity"
               >
                 <span>Open Itinerary</span>
                 <span class="group-hover:translate-x-0.5 transition-transform">→</span>
@@ -143,13 +143,13 @@ const totalGlobalActivities = activeCountries.reduce((acc, c) => acc + c.stats.t
     </section>
 
     <!-- Global Multi-Country Analytics & Live Currency Exchange Dashboard -->
-    <section aria-labelledby="global-analytics-heading" class="glass-effect rounded-3xl shadow-lg border border-primary/20 overflow-hidden">
-      <div class="p-5 sm:p-7 border-b border-primary/15 bg-white/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <section aria-labelledby="global-analytics-heading" class="glass-effect rounded-2xl sm:rounded-3xl shadow-lg border border-primary/20 overflow-hidden">
+      <div class="p-4 sm:p-7 border-b border-primary/15 bg-white/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <span class="text-xs font-extrabold uppercase tracking-wider text-primary">
             Cross-Country Comparison
           </span>
-          <h2 id="global-analytics-heading" class="text-2xl font-extrabold text-text mt-0.5">
+          <h2 id="global-analytics-heading" class="text-xl sm:text-2xl font-extrabold text-text mt-0.5">
             Analytics & Live Currency Exchange
           </h2>
           <p class="text-xs sm:text-sm text-text/70">
@@ -157,7 +157,7 @@ const totalGlobalActivities = activeCountries.reduce((acc, c) => acc + c.stats.t
           </p>
         </div>
       </div>
-      <div class="p-4 sm:p-6">
+      <div class="p-3.5 sm:p-6">
         <AnalyticsDashboard dataSources={allItineraries} client:load />
       </div>
     </section>

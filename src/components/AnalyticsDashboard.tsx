@@ -296,34 +296,34 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ dataSour
   };
 
   return (
-    <div className="w-full flex flex-col gap-6">
+    <div className="w-full flex flex-col gap-5 sm:gap-6">
       {/* Top Header Bar: Title, Live Status, Base Currency Toggle */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-primary/20">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4 pb-4 border-b border-primary/20">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/30 text-primary">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="p-2 sm:p-2.5 rounded-xl bg-primary/10 border border-primary/30 text-primary shrink-0">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
           </div>
-          <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-text">Trip Analytics & Currency</h2>
+          <div className="min-w-0">
+            <h2 className="text-lg sm:text-2xl font-bold text-text truncate">Trip Analytics & Currency</h2>
             <div className="flex items-center gap-2 mt-0.5 text-xs text-text/60">
-              <span className={`inline-block w-2 h-2 rounded-full ${rateStatus === 'success' ? 'bg-emerald-400 animate-pulse' : 'bg-yellow-400'}`}></span>
-              <span>{rateStatus === 'success' ? 'Live Public API Connected' : 'Rates Initializing...'}</span>
+              <span className={`inline-block w-2 h-2 rounded-full shrink-0 ${rateStatus === 'success' ? 'bg-emerald-400 animate-pulse' : 'bg-yellow-400'}`}></span>
+              <span className="truncate">{rateStatus === 'success' ? 'Live Public API Connected' : 'Rates Initializing...'}</span>
             </div>
           </div>
         </div>
 
         {/* Base Currency Switcher */}
-        <div className="flex items-center gap-2 bg-bg/50 px-3 py-2 rounded-xl border border-primary/20">
-          <label htmlFor="base-currency-select" className="text-xs text-text/70 font-medium">
+        <div className="flex items-center justify-between sm:justify-start gap-2 bg-bg/50 px-3 py-2 rounded-xl border border-primary/20 w-full sm:w-auto">
+          <label htmlFor="base-currency-select" className="text-xs text-text/70 font-medium whitespace-nowrap">
             Home Currency:
           </label>
           <select
             id="base-currency-select"
             value={baseCurrency}
             onChange={(e) => setBaseCurrency(e.currentTarget.value)}
-            className="bg-bg text-text text-sm font-semibold rounded-lg px-2.5 py-1 border border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer"
+            className="bg-bg text-text text-xs sm:text-sm font-semibold rounded-lg px-2.5 py-1.5 border border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer"
           >
             {POPULAR_CURRENCIES.map((curr) => (
               <option key={curr.code} value={curr.code}>
@@ -334,41 +334,41 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ dataSour
         </div>
       </div>
 
-      {/* Segmented Navigation Tabs */}
-      <div className="flex flex-wrap gap-2 p-1.5 rounded-xl bg-bg/40 border border-primary/20">
+      {/* Segmented Navigation Tabs (2x2 grid on mobile, row on sm+) */}
+      <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-1.5 sm:gap-2 p-1.5 rounded-xl bg-bg/40 border border-primary/20">
         {[
           { key: 'overview', label: 'Overview', icon: '📊' },
           { key: 'charts', label: 'Charts & Insights', icon: '📈' },
           { key: 'currency', label: 'Currency Hub', icon: '💱' },
-          { key: 'expenses', label: 'Detailed Expenses', icon: '📋' },
+          { key: 'expenses', label: 'Expenses', icon: '📋' },
         ].map((tab) => (
           <button
             key={tab.key}
             type="button"
             onClick={() => setActiveTab(tab.key as any)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
+            className={`touch-target flex items-center justify-center sm:justify-start gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
               activeTab === tab.key
                 ? 'bg-primary text-white shadow-md'
                 : 'text-text/70 hover:text-text hover:bg-primary/10'
             }`}
           >
             <span>{tab.icon}</span>
-            <span>{tab.label}</span>
+            <span className="truncate">{tab.label}</span>
           </button>
         ))}
       </div>
 
       {/* TAB 1: OVERVIEW */}
       {activeTab === 'overview' && (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-5 sm:gap-6">
           {/* Hero Banner with Total Converted Cost */}
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-secondary/10 to-bg/50 p-6 border border-primary/30 shadow-lg">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-secondary/10 to-bg/50 p-4 sm:p-6 border border-primary/30 shadow-lg">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <span className="text-xs font-semibold uppercase tracking-wider text-text/70">
+              <div className="min-w-0">
+                <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-text/70">
                   Total Trip Expenditure (Converted)
                 </span>
-                <div className="text-3xl sm:text-4xl font-extrabold text-text mt-1">
+                <div className="text-2xl sm:text-4xl font-extrabold text-text mt-1 break-words">
                   {formatAmount(totalCostInBase, baseCurrency)}
                 </div>
                 <div className="text-xs text-text/60 mt-1 flex flex-wrap gap-2">
@@ -381,44 +381,44 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ dataSour
                 {currencySummaries.map((s) => (
                   <div
                     key={s.currency}
-                    className="px-3 py-1 rounded-lg bg-bg/60 border border-primary/20 text-xs text-text/80 flex items-center gap-2"
+                    className="px-2.5 sm:px-3 py-1 rounded-lg bg-bg/60 border border-primary/20 text-xs text-text/80 flex items-center gap-1.5 sm:gap-2"
                   >
                     <span className="font-bold text-primary">{s.currency}</span>
                     <span>{formatAmount(s.total, s.currency)}</span>
-                    <span className="text-text/40">({s.count} items)</span>
+                    <span className="text-text/40">({s.count})</span>
                   </div>
                 ))}
               </div>
             </div>
           </div>
 
-          {/* 4 Key Metric Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="p-4 rounded-xl bg-bg/40 border border-primary/20 flex flex-col gap-1">
-              <span className="text-xs text-text/60 font-medium">Daily Spend Average</span>
-              <span className="text-xl font-bold text-text">
+          {/* 4 Key Metric Cards (2x2 on mobile, 4 columns on desktop) */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className="p-3.5 sm:p-4 rounded-xl bg-bg/40 border border-primary/20 flex flex-col gap-1 min-w-0">
+              <span className="text-[11px] sm:text-xs text-text/60 font-medium truncate">Daily Spend Avg</span>
+              <span className="text-base sm:text-xl font-bold text-text truncate">
                 {formatAmount(totalCostInBase / totalDays, baseCurrency)}
               </span>
-              <span className="text-[11px] text-text/50">Across {totalDays} travel days</span>
+              <span className="text-[10px] sm:text-[11px] text-text/50">Across {totalDays} days</span>
             </div>
 
-            <div className="p-4 rounded-xl bg-bg/40 border border-primary/20 flex flex-col gap-1">
-              <span className="text-xs text-text/60 font-medium">Total Activities</span>
-              <span className="text-xl font-bold text-text">{processedItems.length}</span>
-              <span className="text-[11px] text-text/50">
-                Avg {(processedItems.length / totalDays).toFixed(1)} per day
+            <div className="p-3.5 sm:p-4 rounded-xl bg-bg/40 border border-primary/20 flex flex-col gap-1 min-w-0">
+              <span className="text-[11px] sm:text-xs text-text/60 font-medium truncate">Total Activities</span>
+              <span className="text-base sm:text-xl font-bold text-text">{processedItems.length}</span>
+              <span className="text-[10px] sm:text-[11px] text-text/50">
+                Avg {(processedItems.length / totalDays).toFixed(1)} / day
               </span>
             </div>
 
-            <div className="p-4 rounded-xl bg-bg/40 border border-primary/20 flex flex-col gap-1">
-              <span className="text-xs text-text/60 font-medium">Top Single Expense</span>
+            <div className="p-3.5 sm:p-4 rounded-xl bg-bg/40 border border-primary/20 flex flex-col gap-1 min-w-0">
+              <span className="text-[11px] sm:text-xs text-text/60 font-medium truncate">Top Single Expense</span>
               {topExpenseItem ? (
                 <>
-                  <span className="text-sm font-bold text-text truncate" title={topExpenseItem.title}>
+                  <span className="text-xs sm:text-sm font-bold text-text truncate" title={topExpenseItem.title}>
                     {topExpenseItem.title}
                   </span>
-                  <span className="text-xs font-semibold text-primary">
-                    {formatAmount(topExpenseItem.amount, topExpenseItem.currency)} (≈ {formatAmount(topExpenseItem.convertedAmount, baseCurrency)})
+                  <span className="text-[11px] sm:text-xs font-semibold text-primary truncate">
+                    {formatAmount(topExpenseItem.convertedAmount, baseCurrency)}
                   </span>
                 </>
               ) : (
@@ -426,13 +426,13 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ dataSour
               )}
             </div>
 
-            <div className="p-4 rounded-xl bg-bg/40 border border-primary/20 flex flex-col gap-1">
-              <span className="text-xs text-text/60 font-medium">Peak Spending Day</span>
+            <div className="p-3.5 sm:p-4 rounded-xl bg-bg/40 border border-primary/20 flex flex-col gap-1 min-w-0">
+              <span className="text-[11px] sm:text-xs text-text/60 font-medium truncate">Peak Spending Day</span>
               {peakDay ? (
                 <>
-                  <span className="text-xl font-bold text-text">{peakDay.dayLabel}</span>
-                  <span className="text-xs text-text/60">
-                    {formatAmount(peakDay.totalBase, baseCurrency)} ({peakDay.count} items)
+                  <span className="text-base sm:text-xl font-bold text-text">{peakDay.dayLabel}</span>
+                  <span className="text-[11px] sm:text-xs text-text/60 truncate">
+                    {formatAmount(peakDay.totalBase, baseCurrency)} ({peakDay.count})
                   </span>
                 </>
               ) : (
@@ -442,19 +442,19 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ dataSour
           </div>
 
           {/* Quick Category Summary Grid */}
-          <div className="rounded-xl bg-bg/30 p-5 border border-primary/20">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-text/70 mb-3">
+          <div className="rounded-xl bg-bg/30 p-4 sm:p-5 border border-primary/20">
+            <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-text/70 mb-3">
               Spending by Category
             </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2.5 sm:gap-3">
               {categoryStats.map((stat) => (
                 <div
                   key={stat.category.key}
-                  className={`p-3 rounded-xl border flex flex-col gap-1 ${stat.category.bgClass}`}
+                  className={`p-3 rounded-xl border flex flex-col gap-1 min-w-0 ${stat.category.bgClass}`}
                 >
                   <span className="text-lg">{stat.category.emoji}</span>
                   <span className="text-xs font-semibold truncate">{stat.category.label}</span>
-                  <span className="text-sm font-bold text-text mt-1">
+                  <span className="text-xs sm:text-sm font-bold text-text mt-0.5 truncate">
                     {formatAmount(stat.totalBase, baseCurrency)}
                   </span>
                   <span className="text-[10px] text-text/60">
@@ -618,12 +618,12 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ dataSour
           </div>
 
           {/* Quick Interactive Currency Converter */}
-          <div className="p-5 rounded-2xl bg-bg/30 border border-primary/20 flex flex-col gap-4">
+          <div className="p-4 sm:p-5 rounded-2xl bg-bg/30 border border-primary/20 flex flex-col gap-4">
             <h3 className="text-base font-bold text-text flex items-center gap-2">
               <span>🧮</span> Quick Currency Converter
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-5 items-center gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-5 items-center gap-2.5 sm:gap-3">
               {/* Amount & From */}
               <div className="md:col-span-2 flex flex-col gap-1">
                 <label className="text-xs text-text/60 font-medium">Amount</label>
@@ -633,13 +633,13 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ dataSour
                     min="1"
                     value={converterAmount}
                     onChange={(e) => setConverterAmount(parseFloat(e.currentTarget.value) || 0)}
-                    className="w-full px-3 py-2 bg-transparent text-text font-bold focus:outline-none"
+                    className="w-full min-w-0 px-3 py-2 bg-transparent text-text font-bold focus:outline-none"
                     placeholder="Enter amount"
                   />
                   <select
                     value={converterFrom}
                     onChange={(e) => setConverterFrom(e.currentTarget.value)}
-                    className="bg-bg/80 text-text font-semibold px-3 py-2 border-l border-primary/30 focus:outline-none cursor-pointer"
+                    className="bg-bg/80 text-text font-semibold px-3 py-2 border-l border-primary/30 focus:outline-none cursor-pointer shrink-0"
                   >
                     {POPULAR_CURRENCIES.map((c) => (
                       <option key={c.code} value={c.code}>
@@ -651,7 +651,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ dataSour
               </div>
 
               {/* Swap Button */}
-              <div className="flex justify-center md:col-span-1 pt-4 md:pt-5">
+              <div className="flex justify-center md:col-span-1 py-1 md:pt-5">
                 <button
                   type="button"
                   onClick={() => {
@@ -670,7 +670,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ dataSour
               <div className="md:col-span-2 flex flex-col gap-1">
                 <label className="text-xs text-text/60 font-medium">Converted To</label>
                 <div className="flex rounded-xl overflow-hidden border border-primary/30 bg-bg">
-                  <div className="w-full px-3 py-2 text-text font-extrabold text-lg flex items-center">
+                  <div className="w-full min-w-0 px-3 py-2 text-text font-extrabold text-base sm:text-lg flex items-center truncate">
                     {formatAmount(convertedResult, converterTo)}
                   </div>
                   <select
@@ -679,7 +679,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ dataSour
                       setConverterTo(e.currentTarget.value);
                       setGraphTarget(e.currentTarget.value);
                     }}
-                    className="bg-bg/80 text-text font-semibold px-3 py-2 border-l border-primary/30 focus:outline-none cursor-pointer"
+                    className="bg-bg/80 text-text font-semibold px-3 py-2 border-l border-primary/30 focus:outline-none cursor-pointer shrink-0"
                   >
                     {POPULAR_CURRENCIES.map((c) => (
                       <option key={c.code} value={c.code}>
@@ -708,9 +708,9 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ dataSour
           </div>
 
           {/* Historical Trend Chart Component */}
-          <div className="p-5 rounded-2xl bg-bg/30 border border-primary/20 flex flex-col gap-4">
+          <div className="p-4 sm:p-5 rounded-2xl bg-bg/30 border border-primary/20 flex flex-col gap-4">
             <div>
-              <h3 className="text-base font-bold text-text flex items-center gap-2">
+              <h3 className="text-sm sm:text-base font-bold text-text flex items-center gap-2">
                 <span>📈</span> Historical Exchange Rate Trend ({baseCurrency} → {graphTarget})
               </h3>
               <p className="text-xs text-text/60">
@@ -735,7 +735,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ dataSour
       {activeTab === 'expenses' && (
         <div className="flex flex-col gap-4">
           {/* Filter Bar */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 rounded-xl bg-bg/30 border border-primary/20">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 p-3.5 sm:p-4 rounded-xl bg-bg/30 border border-primary/20">
             {/* Search Input */}
             <div className="relative w-full sm:w-72">
               <input
@@ -756,12 +756,12 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ dataSour
             </div>
 
             {/* Dropdown Filters */}
-            <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto">
               {/* Category Filter */}
               <select
                 value={selectedCategoryFilter}
                 onChange={(e) => setSelectedCategoryFilter(e.currentTarget.value)}
-                className="bg-bg text-text text-sm rounded-lg px-3 py-2 border border-primary/30 focus:outline-none cursor-pointer flex-1 sm:flex-initial"
+                className="bg-bg text-text text-xs sm:text-sm rounded-lg px-2.5 sm:px-3 py-2 border border-primary/30 focus:outline-none cursor-pointer w-full sm:w-auto"
               >
                 <option value="all">All Categories</option>
                 {Object.values(CATEGORIES).map((cat) => (
@@ -775,7 +775,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ dataSour
               <select
                 value={selectedDayFilter}
                 onChange={(e) => setSelectedDayFilter(e.currentTarget.value)}
-                className="bg-bg text-text text-sm rounded-lg px-3 py-2 border border-primary/30 focus:outline-none cursor-pointer flex-1 sm:flex-initial"
+                className="bg-bg text-text text-xs sm:text-sm rounded-lg px-2.5 sm:px-3 py-2 border border-primary/30 focus:outline-none cursor-pointer w-full sm:w-auto"
               >
                 <option value="all">All Days</option>
                 {Array.from({ length: totalDays }, (_, i) => i + 1).map((d) => (
@@ -788,7 +788,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ dataSour
           </div>
 
           {/* Results Count */}
-          <div className="flex items-center justify-between text-xs text-text/60 px-1">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-text/60 px-1">
             <span>Showing {filteredItems.length} items</span>
             {filteredItems.length > 0 && (
               <span>
@@ -797,8 +797,62 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ dataSour
             )}
           </div>
 
-          {/* Expenses Table */}
-          <div className="overflow-x-auto rounded-xl border border-primary/20 bg-bg/20">
+          {/* Mobile Card List (md:hidden) */}
+          <div className="md:hidden space-y-2.5">
+            {filteredItems.length > 0 ? (
+              filteredItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="p-3.5 rounded-xl border border-primary/20 bg-bg/40 flex flex-col gap-2"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5">
+                      <span className="px-2 py-0.5 rounded-md bg-primary/10 text-primary text-xs font-bold">
+                        Day {item.day}
+                      </span>
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border ${item.category.bgClass}`}>
+                        <span>{item.category.emoji}</span>
+                        <span>{item.category.label}</span>
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      {item.amount > 0 ? (
+                        <div className="text-xs font-bold text-text">
+                          {formatAmount(item.convertedAmount, baseCurrency)}
+                        </div>
+                      ) : (
+                        <span className="text-emerald-500 text-xs font-bold">Free</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="font-semibold text-sm text-text">{item.title}</div>
+                    {item.description && (
+                      <div className="text-xs text-text/65 line-clamp-2 mt-0.5">{item.description}</div>
+                    )}
+                    {item.note && (
+                      <div className="text-[11px] text-text/50 italic mt-0.5">{item.note}</div>
+                    )}
+                  </div>
+
+                  {item.amount > 0 && (
+                    <div className="pt-1.5 border-t border-primary/10 flex items-center justify-between text-[11px] text-text/60">
+                      <span>Local Price:</span>
+                      <span className="font-semibold text-text/80">{formatAmount(item.amount, item.currency)}</span>
+                    </div>
+                  )}
+                </div>
+              ))
+            ) : (
+              <div className="p-6 text-center text-sm text-text/50 rounded-xl border border-primary/20 bg-bg/20">
+                No activities match your filters.
+              </div>
+            )}
+          </div>
+
+          {/* Desktop Expenses Table (hidden on mobile) */}
+          <div className="hidden md:block overflow-x-auto rounded-xl border border-primary/20 bg-bg/20">
             <table className="w-full text-left text-sm">
               <thead className="bg-bg/60 border-b border-primary/20 text-xs font-semibold text-text/70 uppercase">
                 <tr>

@@ -28,24 +28,24 @@ export default function TimelineItem(props: TimelineItemProps) {
   };
 
   return (
-    <div className="relative pl-8 sm:pl-10 group">
+    <div className="relative pl-6 sm:pl-10 group">
       {/* Timeline Node & Vertical Connector */}
       <div
-        className="absolute left-1.5 sm:left-2 top-5 w-3.5 h-3.5 rounded-full bg-primary ring-4 ring-white shadow-sm z-10"
+        className="absolute left-0.5 sm:left-2 top-5 w-3 sm:w-3.5 h-3 sm:h-3.5 rounded-full bg-primary ring-4 ring-white shadow-sm z-10"
         aria-hidden="true"
       />
       {!isLast && (
         <div
-          className="absolute left-[11px] sm:left-[13px] top-8 -bottom-5 w-0.5 bg-primary/25"
+          className="absolute left-[7px] sm:left-[13px] top-8 -bottom-5 w-0.5 bg-primary/25"
           aria-hidden="true"
         />
       )}
 
       {/* Activity Card (Law of Common Region & Law of Proximity: Keep Time, Category, Price & Location scannable together) */}
-      <article className="bg-white/80 hover:bg-white/95 rounded-2xl border border-primary/15 hover:border-primary/35 shadow-sm hover:shadow-md transition-all duration-150 p-4 sm:p-5">
+      <article className="bg-white/80 hover:bg-white/95 rounded-2xl border border-primary/15 hover:border-primary/35 shadow-sm hover:shadow-md transition-all duration-150 p-3.5 sm:p-5">
         {/* Top Metadata Bar: Time + Category + Price */}
         <div className="flex flex-wrap items-center justify-between gap-2 mb-2.5">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-extrabold bg-primary/15 text-primary">
               <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                 <path
@@ -93,7 +93,7 @@ export default function TimelineItem(props: TimelineItemProps) {
         <h3 className="text-base sm:text-lg font-extrabold text-text mb-1.5 leading-snug">
           {title}
         </h3>
-        <p className="text-sm text-text/80 leading-relaxed mb-3.5">
+        <p className="text-xs sm:text-sm text-text/80 leading-relaxed mb-3.5">
           {description}
         </p>
 
@@ -101,7 +101,7 @@ export default function TimelineItem(props: TimelineItemProps) {
         {images && (
           <div className="relative mb-3.5 overflow-hidden rounded-xl border border-primary/15 bg-primary/5">
             {!imageLoaded && (
-              <div className="h-48 w-full animate-pulse bg-primary/10 rounded-xl" />
+              <div className="h-44 sm:h-48 w-full animate-pulse bg-primary/10 rounded-xl" />
             )}
             <img
               src={images}
@@ -138,7 +138,7 @@ export default function TimelineItem(props: TimelineItemProps) {
               href={location.mapsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/10 hover:bg-primary text-primary hover:text-white text-xs font-bold transition-colors duration-150"
+              className="inline-flex items-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-xl bg-primary/10 hover:bg-primary text-primary hover:text-white text-xs font-bold transition-colors duration-150 max-w-full min-w-0"
             >
               <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -154,7 +154,7 @@ export default function TimelineItem(props: TimelineItemProps) {
                   d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                 />
               </svg>
-              <span className="truncate max-w-[240px] sm:max-w-md">{location.name}</span>
+              <span className="truncate">{location.name}</span>
               <svg className="w-3 h-3 shrink-0 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
@@ -170,7 +170,7 @@ export default function TimelineItem(props: TimelineItemProps) {
             <button
               type="button"
               onClick={() => setShowVideo(!showVideo)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-600 text-red-700 hover:text-white text-xs font-bold transition-colors duration-150"
+              className="inline-flex items-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-xl bg-red-500/10 hover:bg-red-600 text-red-700 hover:text-white text-xs font-bold transition-colors duration-150"
             >
               <span>▶</span>
               <span>{showVideo ? 'Hide Video Guide' : 'Watch Video Guide'}</span>
@@ -182,14 +182,12 @@ export default function TimelineItem(props: TimelineItemProps) {
         {youtubeUrl && showVideo && (
           <div className="mt-3 pt-3 border-t border-primary/10">
             <iframe
-              width="100%"
-              height="315"
               src={youtubeUrl}
               title={`${title} video guide`}
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
-              className="rounded-xl shadow-sm"
+              className="w-full aspect-video rounded-xl shadow-sm"
             />
           </div>
         )}

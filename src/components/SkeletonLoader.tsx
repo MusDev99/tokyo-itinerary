@@ -93,7 +93,7 @@ export function TabSkeleton() {
 export function HeaderSkeleton() {
   return (
     <header className="sticky top-0 z-50 bg-bg/80 backdrop-blur-sm border-b border-primary/20">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+      <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row items-center justify-between py-3 sm:py-0 sm:h-16 gap-2 sm:gap-0">
           <div className="flex items-center gap-2 sm:gap-3">
             <Skeleton height="h-6" width="w-6" />

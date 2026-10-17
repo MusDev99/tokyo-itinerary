@@ -24,7 +24,7 @@ const currentPath = Astro.url.pathname;
 ---
 
 <header class="sticky top-0 z-50 glass-effect border-b border-primary/20">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
       <!-- Brand / Home Link (Jakob's Law & Fitts's Law) -->
       <div class="flex items-center gap-6">
@@ -50,11 +50,11 @@ const currentPath = Astro.url.pathname;
       </div>
 
       <!-- Desktop Navigation (Miller's Law: Chunked & clear active states) -->
-      <nav class="hidden md:flex items-center gap-1.5" aria-label="Main Navigation">
+      <nav class="hidden lg:flex items-center gap-1.5" aria-label="Main Navigation">
         <a
           href="/"
           class:list={[
-            'px-3.5 py-2 rounded-xl text-sm font-semibold transition-all duration-150 flex items-center gap-1.5',
+            'px-3.5 py-2 rounded-xl text-sm font-semibold transition-all duration-150 flex items-center gap-1.5 shrink-0',
             currentPath === '/'
               ? 'bg-primary text-white shadow-sm'
               : 'text-text/80 hover:bg-primary/10 hover:text-primary',
@@ -65,16 +65,16 @@ const currentPath = Astro.url.pathname;
           <span>Dashboard</span>
         </a>
 
-        <div class="h-4 w-px bg-primary/20 mx-1" aria-hidden="true"></div>
+        <div class="h-4 w-px bg-primary/20 mx-1 shrink-0" aria-hidden="true"></div>
 
         {navLinks.map((link) => {
           const isActive = currentPath === link.hubHref || currentPath.startsWith(`/${link.slug}/`);
           return (
-            <div class="relative group">
+            <div class="relative group shrink-0">
               <a
                 href={link.href}
                 class:list={[
-                  'px-3.5 py-2 rounded-xl text-sm font-semibold transition-all duration-150 flex items-center gap-1.5',
+                  'px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-150 flex items-center gap-1.5 whitespace-nowrap',
                   isActive
                     ? 'bg-primary text-white shadow-sm'
                     : 'text-text/80 hover:bg-primary/10 hover:text-primary',
@@ -149,7 +149,7 @@ const currentPath = Astro.url.pathname;
       </nav>
 
       <!-- Mobile menu button (Fitts's Law: 44x44 touch target) -->
-      <div class="flex items-center md:hidden">
+      <div class="flex items-center lg:hidden">
         <button
           type="button"
           id="menu-toggle"
@@ -170,12 +170,12 @@ const currentPath = Astro.url.pathname;
   </div>
 
   <!-- Mobile Menu Drawer -->
-  <div class="md:hidden hidden border-t border-primary/15 bg-white/95 backdrop-blur-xl" id="mobile-menu">
-    <div class="px-4 pt-3 pb-5 space-y-2">
+  <div class="lg:hidden hidden border-t border-primary/15 bg-white/95 backdrop-blur-xl max-h-[calc(100vh-4rem)] overflow-y-auto overscroll-contain" id="mobile-menu">
+    <div class="px-4 pt-3 pb-6 space-y-2">
       <a
         href="/"
         class:list={[
-          'flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-base font-semibold',
+          'touch-target flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-base font-semibold',
           currentPath === '/'
             ? 'bg-primary text-white'
             : 'text-text hover:bg-primary/10',
@@ -192,31 +192,43 @@ const currentPath = Astro.url.pathname;
       {navLinks.map((link) => {
         const isActive = currentPath === link.hubHref || currentPath.startsWith(`/${link.slug}/`);
         return (
-          <div class="rounded-xl border border-primary/15 bg-bg/40 p-2">
+          <div class="rounded-xl border border-primary/15 bg-bg/40 p-2.5">
             <a
               href={link.href}
               class:list={[
-                'flex items-center justify-between px-3 py-2 rounded-lg text-base font-bold',
+                'flex items-center justify-between px-2.5 py-1.5 rounded-lg text-base font-bold',
                 isActive ? 'text-primary' : 'text-text',
               ]}
             >
-              <span class="flex items-center gap-2">
-                <span>{link.flag}</span>
-                <span>{link.text}</span>
+              <span class="flex items-center gap-2 min-w-0">
+                <span class="shrink-0">{link.flag}</span>
+                <span class="truncate">{link.text}</span>
               </span>
               {link.daysCount > 0 ? (
-                <span class="text-xs px-2 py-0.5 rounded-full bg-primary/15 text-primary font-semibold">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-primary/15 text-primary font-semibold shrink-0">
                   {link.daysCount} Days
                 </span>
               ) : (
-                <span class="text-xs px-2 py-0.5 rounded-full bg-text/10 text-text/60">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-text/10 text-text/60 shrink-0">
                   Planning
                 </span>
               )}
             </a>
 
             {link.sublinks && (
-              <div class="grid grid-cols-3 gap-1.5 mt-2 pt-2 border-t border-primary/10">
+              <div class="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-primary/10">
+                <a
+                  href={link.hubHref}
+                  class:list={[
+                    'touch-target flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-lg text-xs font-semibold text-center transition-colors',
+                    currentPath === link.hubHref
+                      ? 'bg-primary text-white shadow-sm'
+                      : 'bg-white/70 text-text/80 hover:bg-primary/10',
+                  ]}
+                >
+                  <span>🧭</span>
+                  <span>Overview</span>
+                </a>
                 {link.sublinks.map((sublink) => {
                   const isSubActive =
                     currentPath === sublink.href || currentPath === `${sublink.href}/`;
@@ -224,14 +236,14 @@ const currentPath = Astro.url.pathname;
                     <a
                       href={sublink.href}
                       class:list={[
-                        'flex flex-col items-center justify-center py-2 px-2 rounded-lg text-xs font-semibold text-center transition-colors',
+                        'touch-target flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-lg text-xs font-semibold text-center transition-colors',
                         isSubActive
                           ? 'bg-primary text-white shadow-sm'
                           : 'bg-white/70 text-text/80 hover:bg-primary/10',
                       ]}
                     >
-                      <span class="text-base mb-0.5">{sublink.icon}</span>
-                      <span>{sublink.text}</span>
+                      <span>{sublink.icon}</span>
+                      <span>Timeline</span>
                     </a>
                   );
                 })}

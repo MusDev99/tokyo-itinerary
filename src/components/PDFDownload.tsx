@@ -198,11 +198,11 @@ export default function PDFDownload({ itinerary }: Props) {
   };
 
   return (
-    <div className="flex justify-center my-8">
+    <div className="flex justify-center my-6 sm:my-8">
       <button
         onClick={generatePDF}
         disabled={isGenerating}
-        className={`relative px-8 py-3 text-base font-semibold rounded-full transition-all duration-300 overflow-hidden group touch-target focus-ring
+        className={`relative w-full sm:w-auto px-6 sm:px-8 py-3.5 text-sm sm:text-base font-semibold rounded-full transition-all duration-300 overflow-hidden group touch-target focus-ring flex items-center justify-center
           ${isGenerating 
             ? 'bg-gray-400 text-white cursor-not-allowed' 
             : 'bg-gradient-to-r from-primary to-accent text-white hover:from-accent hover:to-primary active:scale-95 shadow-lg hover:shadow-2xl transform hover:-translate-y-1'
@@ -214,8 +214,8 @@ export default function PDFDownload({ itinerary }: Props) {
           </div>
         )}
         
-        <span className="relative z-10 flex items-center gap-3">
-          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+        <span className="relative z-10 flex items-center justify-center gap-2.5 sm:gap-3">
+          <svg className="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
             <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM5.05 8.95a.75.75 0 011.06 0L10 12.84l3.89-3.89a.75.75 0 111.06 1.06l-4.42 4.42a.75.75 0 01-1.06 0L5.05 10.01a.75.75 0 010-1.06z" clipRule="evenodd" fillRule="evenodd" />
           </svg>
           {isGenerating ? 'Generating...' : 'Download PDF Itinerary'}

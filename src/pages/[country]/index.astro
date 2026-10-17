@@ -22,29 +22,29 @@ const countryDataSource = country.stats.hasItinerary
 
 <Layout title={`${country.name} Hub - Travel Planner`}>
   <Header />
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+  <div class="w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8">
     <CountrySubNav country={country} activeTab="overview" />
 
     {country.stats.hasItinerary ? (
-      <div class="space-y-8">
+      <div class="space-y-6 sm:space-y-8">
         <!-- Quick Day Preview Grid (Miller's Law: Chunked daily overview) -->
-        <section aria-label="Days Overview" class="glass-effect rounded-2xl p-5 sm:p-6 border border-primary/20 shadow-md">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-3 border-b border-primary/15">
+        <section aria-label="Days Overview" class="glass-effect rounded-2xl p-4 sm:p-6 border border-primary/20 shadow-md">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-5 pb-3 border-b border-primary/15">
             <div>
-              <h2 class="text-xl font-extrabold text-text">Daily Schedule Summary</h2>
+              <h2 class="text-lg sm:text-xl font-extrabold text-text">Daily Schedule Summary</h2>
               <p class="text-xs sm:text-sm text-text/70">
                 Select any day to jump directly into the interactive timeline
               </p>
             </div>
             <a
               href={`/${country.slug}/itinerary`}
-              class="touch-target inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-white text-xs sm:text-sm font-bold shadow-sm hover:opacity-95 transition-opacity self-start sm:self-auto"
+              class="touch-target inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-primary text-white text-xs sm:text-sm font-bold shadow-sm hover:opacity-95 transition-opacity w-full sm:w-auto"
             >
               <span>Open Full {country.stats.totalDays}-Day Timeline</span>
               <span>→</span>
             </a>
           </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {country.itinerary.map((day) => {
               const dayTotal = day.items.reduce((acc, item) => acc + (item.price?.amount || 0), 0);
               return (
@@ -76,10 +76,10 @@ const countryDataSource = country.stats.hasItinerary
         </section>
 
         <!-- Country Analytics & Currency Exchange -->
-        <section aria-label={`${country.name} Analytics & Currency`} class="glass-effect rounded-2xl p-4 sm:p-6 border border-primary/20 shadow-md">
+        <section aria-label={`${country.name} Analytics & Currency`} class="glass-effect rounded-2xl p-3.5 sm:p-6 border border-primary/20 shadow-md">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-primary/15">
             <div>
-              <h2 class="text-xl font-extrabold text-text">
+              <h2 class="text-lg sm:text-xl font-extrabold text-text">
                 {country.flag} {country.name} Budget & Currency Analytics
               </h2>
               <p class="text-xs sm:text-sm text-text/70">
@@ -92,7 +92,7 @@ const countryDataSource = country.stats.hasItinerary
       </div>
     ) : (
       <!-- Empty / Coming Soon State with developer instructions -->
-      <div class="glass-effect rounded-2xl p-8 sm:p-12 border border-primary/20 shadow-md text-center max-w-2xl mx-auto my-8">
+      <div class="w-full glass-effect rounded-2xl p-8 sm:p-12 border border-primary/20 shadow-md text-center max-w-2xl mx-auto my-8">
         <div class="w-20 h-20 rounded-3xl bg-primary/15 border border-primary/25 flex items-center justify-center text-5xl mx-auto mb-5">
           {country.flag}
         </div>
