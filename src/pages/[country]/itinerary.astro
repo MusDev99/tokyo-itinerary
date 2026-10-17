@@ -6,23 +6,17 @@ import CountrySubNav from '../../components/CountrySubNav.astro';
 import Tabs from '../../components/TabsNew';
 import PDFDownload from '../../components/PDFDownload';
 import AnalyticsDashboard from '../../components/AnalyticsDashboard';
-import { getAllCountriesWithSheets, type CountryMetadata } from '../../utils/countries';
+import { getAllCountriesWithSheets } from '../../utils/countries';
 
-export async function getStaticPaths() {
-  const { countries } = await getAllCountriesWithSheets();
-  return countries.map((country) => ({
-    params: { country: country.slug },
-    props: { country },
-  }));
-}
-
-interface Props {
-  country: CountryMetadata;
-}
+Astro.response.headers.set('Cache-Control', 'no-store, max-age=0');
 
 const { countries } = await getAllCountriesWithSheets();
-const country =
-  countries.find((c) => c.slug === Astro.params.country?.toLowerCase()) || Astro.props.country;
+const country = countries.find((c) => c.slug === Astro.params.country?.toLowerCase());
+
+if (!country) {
+  return Astro.redirect('/404');
+}
+
 const countryDataSource = country.stats.hasItinerary
   ? { [country.slug]: country.itinerary }
   : {};

@@ -5,6 +5,8 @@ import Footer from '../components/Footer.astro';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import { getAllCountriesWithSheets, getActiveItinerariesMap } from '../utils/countries';
 
+Astro.response.headers.set('Cache-Control', 'no-store, max-age=0');
+
 const { countries, syncResult } = await getAllCountriesWithSheets();
 const activeCountries = countries.filter((c) => c.stats.hasItinerary);
 const upcomingCountries = countries.filter((c) => !c.stats.hasItinerary);
