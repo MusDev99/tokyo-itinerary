@@ -58,7 +58,6 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 │   │   ├── CountrySubNav.astro        # Sub-navigation between Overview & Timeline
 │   │   ├── CurrencyExchangeGraph.tsx  # Historical exchange rate chart & converter
 │   │   ├── Footer.astro               # Site-wide footer
-│   │   ├── GoogleSheetsSyncBanner.tsx # Live UI control for Google Sheets connection & refresh
 │   │   ├── Header.astro               # Dynamic country switcher & theme controls
 │   │   ├── PDFDownload.tsx            # Client-side PDF itinerary generator
 │   │   ├── SearchFilter.tsx           # Search & category filter bar

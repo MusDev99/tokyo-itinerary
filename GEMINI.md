@@ -32,7 +32,6 @@ Reusable UI components built with Preact (`.tsx`) or Astro (`.astro`):
 *   `CountrySubNav.astro`: Sticky sub-navigation bar for switching between a country's Overview and Itinerary Timeline views.
 *   `CurrencyExchangeGraph.tsx`: Interactive SVG historical exchange rate chart and quick currency calculator.
 *   `Footer.astro`: Site-wide footer.
-*   `GoogleSheetsSyncBanner.tsx`: Interactive UI panel to inspect Google Sheets connection status and trigger live refreshes.
 *   `Header.astro`: Site-wide sticky header featuring dynamic country navigation pills discovered from Google Sheets tabs.
 *   `PDFDownload.tsx`: Client-side PDF generator for country itineraries.
 *   `SearchFilter.tsx`: Search and category filtering component for itinerary items.
