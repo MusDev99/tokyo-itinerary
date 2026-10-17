@@ -1,0 +1,241 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import CountrySubNav from '../../components/CountrySubNav.astro';
+import AnalyticsDashboard from '../../components/AnalyticsDashboard';
+import { getAllCountries, type CountryMetadata } from '../../utils/countries';
+
+export function getStaticPaths() {
+  const countries = getAllCountries();
+  return countries.map((country) => ({
+    params: { country: country.slug },
+    props: { country },
+  }));
+}
+
+interface Props {
+  country: CountryMetadata;
+}
+
+const { country } = Astro.props;
+const countryDataSource = country.stats.hasItinerary
+  ? { [country.slug]: country.itinerary }
+  : {};
+---
+
+<Layout title={`${country.name} Hub - Travel Planner`}>
+  <Header />
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+    <CountrySubNav country={country} activeTab="overview" />
+
+    {country.stats.hasItinerary ? (
+      <div class="space-y-8">
+        <!-- Quick Action Cards (Law of Common Region, Fitts's Law & Von Restorff Effect) -->
+        <section aria-label="Destination Tools" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <a
+            href={`/${country.slug}/itinerary`}
+            class="group relative glass-effect rounded-2xl p-6 border-2 border-primary/40 shadow-md hover:shadow-xl transition-all duration-150 flex flex-col justify-between bg-gradient-to-br from-primary/10 to-transparent"
+          >
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="w-11 h-11 rounded-xl bg-primary text-white flex items-center justify-center text-xl shadow-sm">
+                  🗓️
+                </span>
+                <span class="px-2.5 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-primary text-white">
+                  Primary View
+                </span>
+              </div>
+              <h2 class="text-xl font-extrabold text-text group-hover:text-primary transition-colors">
+                Day-by-Day Itinerary
+              </h2>
+              <p class="text-sm text-text/75 mt-1">
+                Explore {country.stats.totalDays} days and {country.stats.totalActivities} scheduled activities with maps, costs, and notes.
+              </p>
+            </div>
+            <div class="mt-5 flex items-center gap-1.5 text-sm font-bold text-primary">
+              <span>Open Timeline</span>
+              <span class="group-hover:translate-x-1 transition-transform">→</span>
+            </div>
+          </a>
+
+          {country.stats.hasDictionary ? (
+            <a
+              href={`/${country.slug}/dictionary`}
+              class="group glass-effect rounded-2xl p-6 border border-primary/20 shadow-sm hover:shadow-lg hover:border-primary/40 transition-all duration-150 flex flex-col justify-between"
+            >
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <span class="w-11 h-11 rounded-xl bg-primary/15 text-primary flex items-center justify-center text-xl">
+                    📖
+                  </span>
+                  <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary">
+                    Phrasebook
+                  </span>
+                </div>
+                <h2 class="text-xl font-extrabold text-text group-hover:text-primary transition-colors">
+                  Local Phrasebook
+                </h2>
+                <p class="text-sm text-text/75 mt-1">
+                  Essential local phrases for dining, transit, shopping, and emergencies in {country.name}.
+                </p>
+              </div>
+              <div class="mt-5 flex items-center gap-1.5 text-sm font-bold text-primary">
+                <span>Browse Phrases</span>
+                <span class="group-hover:translate-x-1 transition-transform">→</span>
+              </div>
+            </a>
+          ) : (
+            <div class="glass-effect rounded-2xl p-6 border border-primary/15 opacity-75 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <span class="w-11 h-11 rounded-xl bg-text/10 text-text/60 flex items-center justify-center text-xl">
+                    📖
+                  </span>
+                  <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-text/10 text-text/60">
+                    Optional Data
+                  </span>
+                </div>
+                <h2 class="text-lg font-bold text-text/80">Local Phrasebook</h2>
+                <p class="text-xs text-text/60 mt-1">
+                  Add <code class="px-1 py-0.5 rounded bg-black/5">src/data/{country.slug}/dictionary.json</code> to enable the phrasebook for {country.name}.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {country.stats.hasPrayer ? (
+            <a
+              href={`/${country.slug}/prayer`}
+              class="group glass-effect rounded-2xl p-6 border border-primary/20 shadow-sm hover:shadow-lg hover:border-primary/40 transition-all duration-150 flex flex-col justify-between"
+            >
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <span class="w-11 h-11 rounded-xl bg-primary/15 text-primary flex items-center justify-center text-xl">
+                    🕌
+                  </span>
+                  <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary">
+                    Interactive Clock
+                  </span>
+                </div>
+                <h2 class="text-xl font-extrabold text-text group-hover:text-primary transition-colors">
+                  Prayer Time Wheel
+                </h2>
+                <p class="text-sm text-text/75 mt-1">
+                  Interactive 24-hour prayer time dial and city schedules for {country.name}.
+                </p>
+              </div>
+              <div class="mt-5 flex items-center gap-1.5 text-sm font-bold text-primary">
+                <span>Open Prayer Clock</span>
+                <span class="group-hover:translate-x-1 transition-transform">→</span>
+              </div>
+            </a>
+          ) : (
+            <div class="glass-effect rounded-2xl p-6 border border-primary/15 opacity-75 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <span class="w-11 h-11 rounded-xl bg-text/10 text-text/60 flex items-center justify-center text-xl">
+                    🕌
+                  </span>
+                  <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-text/10 text-text/60">
+                    Optional Data
+                  </span>
+                </div>
+                <h2 class="text-lg font-bold text-text/80">Prayer Schedule</h2>
+                <p class="text-xs text-text/60 mt-1">
+                  Add <code class="px-1 py-0.5 rounded bg-black/5">src/data/{country.slug}/prayer.json</code> to enable prayer times for {country.name}.
+                </p>
+              </div>
+            </div>
+          )}
+        </section>
+
+        <!-- Country Analytics & Currency Exchange -->
+        <section aria-label={`${country.name} Analytics & Currency`} class="glass-effect rounded-2xl p-4 sm:p-6 border border-primary/20 shadow-md">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-primary/15">
+            <div>
+              <h2 class="text-xl font-extrabold text-text">
+                {country.flag} {country.name} Budget & Currency Analytics
+              </h2>
+              <p class="text-xs sm:text-sm text-text/70">
+                Live {country.currency} conversion, category breakdown, and daily expenditure insights
+              </p>
+            </div>
+            <a
+              href={`/${country.slug}/itinerary`}
+              class="touch-target inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-white text-xs sm:text-sm font-bold shadow-sm hover:opacity-95 transition-opacity self-start sm:self-auto"
+            >
+              <span>View Full {country.stats.totalDays}-Day Timeline</span>
+              <span>→</span>
+            </a>
+          </div>
+          <AnalyticsDashboard dataSources={countryDataSource} client:load />
+        </section>
+
+        <!-- Quick Day Preview Grid (Miller's Law: Chunked daily overview) -->
+        <section aria-label="Days Overview">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-extrabold text-text">Daily Schedule Summary</h2>
+            <a href={`/${country.slug}/itinerary`} class="text-sm font-bold text-primary hover:underline">
+              Open interactive view →
+            </a>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {country.itinerary.map((day) => {
+              const dayTotal = day.items.reduce((acc, item) => acc + (item.price?.amount || 0), 0);
+              return (
+                <a
+                  href={`/${country.slug}/itinerary?day=${day.day}`}
+                  class="group glass-effect rounded-xl p-4 border border-primary/15 hover:border-primary/40 shadow-sm hover:shadow-md transition-all duration-150 flex flex-col justify-between"
+                >
+                  <div>
+                    <div class="flex items-center justify-between gap-2 mb-2">
+                      <span class="px-2.5 py-0.5 rounded-lg text-xs font-extrabold bg-primary text-white">
+                        Day {day.day}
+                      </span>
+                      <span class="text-xs font-medium text-text/60">{day.date}</span>
+                    </div>
+                    <h3 class="text-base font-bold text-text group-hover:text-primary transition-colors line-clamp-2">
+                      {day.title}
+                    </h3>
+                  </div>
+                  <div class="mt-4 pt-3 border-t border-primary/10 flex items-center justify-between text-xs text-text/75">
+                    <span>{day.items.length} activities</span>
+                    <span class="font-bold text-primary">
+                      {dayTotal > 0 ? `${dayTotal.toLocaleString()} ${country.currency}` : 'Free'}
+                    </span>
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+        </section>
+      </div>
+    ) : (
+      <!-- Empty / Coming Soon State with developer instructions -->
+      <div class="glass-effect rounded-2xl p-8 sm:p-12 border border-primary/20 shadow-md text-center max-w-2xl mx-auto my-8">
+        <div class="w-20 h-20 rounded-3xl bg-primary/15 border border-primary/25 flex items-center justify-center text-5xl mx-auto mb-5">
+          {country.flag}
+        </div>
+        <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-500/15 text-amber-800 border border-amber-500/30">
+          Itinerary In Planning
+        </span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-text mt-4">
+          {country.name} Itinerary Coming Soon
+        </h2>
+        <p class="text-sm sm:text-base text-text/75 mt-2 leading-relaxed">
+          This destination is registered via <code class="px-1.5 py-0.5 rounded bg-primary/10 text-primary font-mono text-xs">src/data/{country.slug}.json</code>. Populate the JSON array with day objects to automatically unlock the interactive timeline, analytics, and currency converter.
+        </p>
+        <div class="mt-6 flex flex-wrap justify-center gap-3">
+          <a
+            href="/"
+            class="touch-target inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-white text-sm font-bold shadow-sm hover:opacity-95 transition-opacity"
+          >
+            <span>← Back to All Destinations</span>
+          </a>
+        </div>
+      </div>
+    )}
+  </div>
+  <Footer />
+</Layout>

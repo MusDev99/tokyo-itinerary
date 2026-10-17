@@ -24,3 +24,15 @@ export interface HistoricalCurrencyResponse {
   statusCode?: number;
   message?: string;
 }
+
+export interface CurrencyHistoricalPoint {
+  date: string;
+  rate: number;
+}
+
+export interface CurrencyRatesResponse {
+  result: string;
+  base_code: string;
+  rates: Record<string, number>;
+  time_last_update_utc?: string;
+}

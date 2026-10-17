@@ -1,9 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap');
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-/* rest of your code... */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -11,76 +6,82 @@
 
 @layer base {
   html {
-    font-family: 'Inter', 'Noto Sans JP', 
-                 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 
-                 'Yu Gothic', 'Meiryo', 
+    font-family: 'Inter', 'Noto Sans JP',
+                 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+                 'Yu Gothic', 'Meiryo',
                  system-ui, sans-serif;
     scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+
   [lang="jp"], .jp-text {
-    font-family: 'Noto Sans JP', 
+    font-family: 'Noto Sans JP',
                  'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
                  'Yu Gothic', 'Meiryo', sans-serif;
   }
-  
-  
+
   body {
     overflow-x: hidden;
-  }
-  
-  * {
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--color-text);
+    background-color: var(--color-bg);
   }
 }
 
 @layer components {
+  /* Law of Common Region & Aesthetic-Usability Effect: High-contrast frosted glass surfaces */
   .glass-effect {
-    @apply backdrop-blur-md bg-white/10 border border-white/20;
+    @apply backdrop-blur-xl bg-white/80 shadow-sm;
+    border: 1px solid color-mix(in srgb, var(--color-primary) 20%, transparent);
   }
-  
+
+  .surface-subtle {
+    @apply bg-white/60 backdrop-blur-md;
+    border: 1px solid color-mix(in srgb, var(--color-primary) 15%, transparent);
+  }
+
   .card-hover {
-    @apply hover:scale-[1.02] hover:shadow-xl transition-all duration-300 ease-out;
+    @apply hover:-translate-y-0.5 hover:shadow-xl transition-all duration-200 ease-out;
   }
-  
+
   .smooth-transition {
-    @apply transition-all duration-300 ease-out;
+    @apply transition-all duration-200 ease-out;
   }
-  
+
   .gradient-text {
     @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
   }
-  
+
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  
+
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
-  
-  /* Mobile optimizations */
+
+  /* Fitts's Law: Ergonomic touch target minimum 44x44px */
   .touch-target {
     @apply min-h-[44px] min-w-[44px];
   }
-  
+
   .mobile-safe-area {
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
     padding-bottom: env(safe-area-inset-bottom);
   }
-  
-  /* Enhanced touch interactions */
+
+  /* Doherty Threshold: Immediate tactile feedback (<150ms) */
   .touch-feedback {
-    @apply active:scale-95 transition-transform duration-150 ease-out;
+    @apply active:scale-[0.98] transition-transform duration-100 ease-out;
   }
-  
-  /* Improved focus states for accessibility */
+
+  /* Accessibility focus ring */
   .focus-ring {
-    @apply focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:ring-offset-2 focus:ring-offset-amber-50;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
   }
-  
-  /* Smooth scrolling for mobile */
+
   .smooth-scroll {
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
@@ -88,41 +89,41 @@
 }
 
 :root {
-  --color-bg: #fef3c7;
-  --color-text: #78350f;
-  --color-primary: #fbbf24;
+  --color-bg: #fffbeb;
+  --color-text: #451a03;
+  --color-primary: #d97706;
   --color-secondary: #fde68a;
-  --color-accent: #d97706;
+  --color-accent: #b45309;
 }
 
 [data-theme="autumn"] {
-  --color-bg: #fef3c7;
-  --color-text: #78350f;
-  --color-primary: #fbbf24;
+  --color-bg: #fffbeb;
+  --color-text: #451a03;
+  --color-primary: #d97706;
   --color-secondary: #fde68a;
-  --color-accent: #d97706;
+  --color-accent: #b45309;
 }
 
 [data-theme="winter"] {
-  --color-bg: #e6f7ff;
+  --color-bg: #f0f9ff;
   --color-text: #0c4a6e;
-  --color-primary: #66c2ff;
-  --color-secondary: #b3e0ff;
-  --color-accent: #99d6ff;
+  --color-primary: #0284c7;
+  --color-secondary: #bae6fd;
+  --color-accent: #0369a1;
 }
 
 [data-theme="spring"] {
   --color-bg: #fdf2f8;
-  --color-text: #831843;
-  --color-primary: #ec4899;
+  --color-text: #500724;
+  --color-primary: #db2777;
   --color-secondary: #fbcfe8;
-  --color-accent: #db2777;
+  --color-accent: #be185d;
 }
 
 [data-theme="summer"] {
   --color-bg: #f0fdf4;
-  --color-text: #166534;
-  --color-primary: #22c55e;
+  --color-text: #052e16;
+  --color-primary: #16a34a;
   --color-secondary: #bbf7d0;
-  --color-accent: #16a34a;
-} 
+  --color-accent: #15803d;
+}

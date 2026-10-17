@@ -10,110 +10,195 @@ interface Props {
 
 export default function Tabs({ itinerary }: Props) {
   const [activeTab, setActiveTab] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
   const [filteredItinerary, setFilteredItinerary] = useState(itinerary);
   const [showSearch, setShowSearch] = useState(false);
 
+  // Support deep linking via ?day=N query param
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const dayParam = Number(params.get('day'));
+    if (dayParam > 0) {
+      const idx = itinerary.findIndex((d) => d.day === dayParam);
+      if (idx >= 0) {
+        setActiveTab(idx);
+      }
+    }
+  }, [itinerary]);
+
   const handleTabChange = (index: number) => {
-    if (index === activeTab || isAnimating) return;
-    
-    setIsAnimating(true);
+    if (index === activeTab || index < 0 || index >= filteredItinerary.length) return;
     setActiveTab(index);
-    
-    // Reset animation state after transition
-    setTimeout(() => setIsAnimating(false), 300);
   };
 
   const handleFilteredItinerary = (filtered: DayItinerary[]) => {
     setFilteredItinerary(filtered);
-    // Reset to first tab if current tab doesn't exist in filtered results
     if (activeTab >= filtered.length && filtered.length > 0) {
       setActiveTab(0);
     }
   };
 
+  const formatShortDate = (dateStr: string) => {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+  const currentDay = filteredItinerary[activeTab];
+
   return (
-    <div className="w-full px-2 sm:px-4 py-3 sm:py-6">
-      {/* Search and Filter Controls */}
-      <div className="mb-4">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-semibold text-text">Itinerary Explorer</h3>
-          <button
-            onClick={() => setShowSearch(!showSearch)}
-            className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-secondary/20 to-bg/20 border border-primary/20 rounded-lg hover:from-secondary/30 hover:to-bg/30 transition-all duration-200"
-          >
-            <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <span className="text-sm font-medium text-text">Search & Filter</span>
-          </button>
+    <div className="w-full p-4 sm:p-6">
+      {/* Top Toolbar: Day Selector Header + Search Toggle (Hick's Law: Progressive disclosure for filters) */}
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div>
+          <h3 className="text-lg sm:text-xl font-extrabold text-text">
+            Daily Itinerary Schedule
+          </h3>
+          <p className="text-xs text-text/70">
+            Select a day below or search across all {itinerary.length} days
+          </p>
         </div>
-        
-        {showSearch && (
-          <SearchFilter 
-            itinerary={itinerary} 
+
+        <button
+          type="button"
+          onClick={() => setShowSearch(!showSearch)}
+          aria-expanded={showSearch}
+          className={`touch-target inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold border transition-all duration-150 ${
+            showSearch
+              ? 'bg-primary text-white border-primary shadow-sm'
+              : 'bg-white/75 text-text/80 border-primary/20 hover:border-primary/40 hover:text-primary'
+          }`}
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+          <span>{showSearch ? 'Hide Search & Filters' : 'Search & Filter Activities'}</span>
+        </button>
+      </div>
+
+      {showSearch && (
+        <div className="mb-5">
+          <SearchFilter
+            itinerary={itinerary}
             onFilteredItinerary={handleFilteredItinerary}
           />
-        )}
-      </div>
-
-      {/* Tab buttons with progress indicator */}
-      <div className="relative">
-        <div className="flex space-x-1.5 overflow-x-auto pb-2 scrollbar-hide -mx-2 px-2 snap-x snap-mandatory">
-          {filteredItinerary.map((day, index) => (
-            <button
-              key={day.day}
-              onClick={() => handleTabChange(index)}
-              className={`relative px-3 sm:px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 whitespace-nowrap snap-start min-w-[80px] sm:min-w-[100px] touch-manipulation group touch-target touch-feedback focus-ring
-                ${activeTab === index
-                  ? 'bg-primary text-white shadow-lg scale-105'
-                  : 'bg-bg/50 text-text/80 hover:bg-primary/10 hover:text-text hover:scale-105 active:bg-primary/20'
-                }`}
-            >
-              <span className="relative z-10">Day {day.day}</span>
-              
-              {/* Hover effect */}
-              <div className={`absolute inset-0 rounded-lg transition-opacity duration-300 ${
-                activeTab === index 
-                  ? 'bg-gradient-to-r from-primary to-accent opacity-100' 
-                  : 'bg-gradient-to-r from-primary/20 to-accent/20 opacity-0 group-hover:opacity-100'
-              }`} />
-              
-              {/* Active indicator */}
-              {activeTab === index && (
-                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-white rounded-full animate-pulse" />
-              )}
-            </button>
-          ))}
         </div>
-        
-        {/* Progress bar */}
-        <div className="mt-2 h-1 bg-bg/30 rounded-full overflow-hidden">
-          <div 
-            className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all duration-500 ease-out"
-            style={{ width: `${filteredItinerary.length > 0 ? ((activeTab + 1) / filteredItinerary.length) * 100 : 0}%` }}
+      )}
+
+      {/* Day Tabs Strip (Fitts's Law & Miller's Law: Large touch targets with Day + Short Date) */}
+      <div className="relative mb-6">
+        <div
+          role="tablist"
+          aria-label="Trip Days"
+          className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory"
+        >
+          {filteredItinerary.map((day, index) => {
+            const isActive = activeTab === index;
+            return (
+              <button
+                key={day.day}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => handleTabChange(index)}
+                className={`touch-target shrink-0 snap-start px-3.5 py-2 rounded-xl text-left transition-all duration-150 border ${
+                  isActive
+                    ? 'bg-primary text-white border-primary shadow-md'
+                    : 'bg-white/70 text-text/80 border-primary/15 hover:bg-primary/10 hover:border-primary/35'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs sm:text-sm font-extrabold">Day {day.day}</span>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+                      isActive ? 'bg-white/25 text-white' : 'bg-primary/10 text-primary'
+                    }`}
+                  >
+                    {day.items.length}
+                  </span>
+                </div>
+                <div
+                  className={`text-[11px] font-medium mt-0.5 ${
+                    isActive ? 'text-white/90' : 'text-text/60'
+                  }`}
+                >
+                  {formatShortDate(day.date)}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Trip Progress Bar (Goal-Gradient Effect) */}
+        <div className="mt-2 h-1.5 bg-primary/15 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all duration-200 ease-out"
+            style={{
+              width: `${
+                filteredItinerary.length > 0
+                  ? ((activeTab + 1) / filteredItinerary.length) * 100
+                  : 0
+              }%`,
+            }}
           />
         </div>
       </div>
 
-      {/* Tab content with animation */}
-      <div className={`mt-3 sm:mt-6 glass-effect rounded-lg sm:rounded-xl shadow-lg p-3 sm:p-6 transition-all duration-300 ${
-        isAnimating ? 'opacity-50 scale-95' : 'opacity-100 scale-100'
-      }`}>
-        {filteredItinerary.length > 0 ? (
-          <div className="transition-all duration-300 ease-out">
-            <Timeline day={filteredItinerary[activeTab]} />
+      {/* Active Day Timeline Content */}
+      <div className="rounded-2xl bg-white/55 border border-primary/15 p-4 sm:p-6">
+        {currentDay ? (
+          <div>
+            <Timeline day={currentDay} />
+
+            {/* Bottom Day Stepper (Fitts's Law: Easy sequential progression at the end of reading a day) */}
+            {filteredItinerary.length > 1 && (
+              <div className="mt-8 pt-4 border-t border-primary/15 flex items-center justify-between gap-3">
+                <button
+                  type="button"
+                  disabled={activeTab === 0}
+                  onClick={() => handleTabChange(activeTab - 1)}
+                  className="touch-target inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white/80 border border-primary/20 text-text disabled:opacity-40 disabled:pointer-events-none hover:bg-primary/10 transition-colors"
+                >
+                  <span>←</span>
+                  <span>
+                    {activeTab > 0
+                      ? `Day ${filteredItinerary[activeTab - 1].day}`
+                      : 'Previous'}
+                  </span>
+                </button>
+
+                <span className="text-xs font-bold text-text/60">
+                  Day {activeTab + 1} of {filteredItinerary.length}
+                </span>
+
+                <button
+                  type="button"
+                  disabled={activeTab === filteredItinerary.length - 1}
+                  onClick={() => handleTabChange(activeTab + 1)}
+                  className="touch-target inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-primary text-white disabled:opacity-40 disabled:pointer-events-none hover:opacity-95 transition-opacity shadow-sm"
+                >
+                  <span>
+                    {activeTab < filteredItinerary.length - 1
+                      ? `Next: Day ${filteredItinerary[activeTab + 1].day}`
+                      : 'Completed'}
+                  </span>
+                  <span>→</span>
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           <div className="text-center py-12">
-            <svg className="w-16 h-16 text-text/30 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <h3 className="text-lg font-medium text-text/70 mb-2">No activities found</h3>
-            <p className="text-text/50 text-sm">Try adjusting your search or filter criteria</p>
+            <p className="text-lg font-bold text-text/75 mb-1">No matching activities found</p>
+            <p className="text-sm text-text/55">Try adjusting your search keywords or price filters</p>
           </div>
         )}
       </div>
     </div>
   );
-} 
+}

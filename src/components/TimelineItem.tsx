@@ -1,144 +1,199 @@
 import { h } from 'preact';
 import { useState } from 'preact/hooks';
 import type { TimelineItem as TimelineItemType } from '../types/itinerary';
+import { CATEGORIES, detectCategory } from '../utils/analytics';
 
-interface TimelineItemProps extends TimelineItemType {}
+interface TimelineItemProps extends TimelineItemType {
+  isLast?: boolean;
+}
 
-export default function TimelineItem({ time, title, description, location, price, note, images, youtubeUrl }: TimelineItemProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+export default function TimelineItem(props: TimelineItemProps) {
+  const { time, title, description, location, price, note, images, youtubeUrl, isLast } = props;
+  const [showVideo, setShowVideo] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
 
-  const formatPrice = (price: TimelineItemType['price']) => {
-    if (price.amount === 0) return 'Free';
-    return new Intl.NumberFormat('ja-JP', {
-      style: 'currency',
-      currency: price.currency,
-    }).format(price.amount);
+  const categoryMeta = detectCategory(props);
+
+  const formatPrice = (p: TimelineItemType['price']) => {
+    if (!p || p.amount === 0) return 'Free';
+    try {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: p.currency || 'USD',
+        maximumFractionDigits: p.amount % 1 === 0 ? 0 : 2,
+      }).format(p.amount);
+    } catch {
+      return `${p.amount.toLocaleString()} ${p.currency}`;
+    }
   };
 
   return (
-    <div className="relative mb-8 group">
-      {/* Enhanced Timeline dot and connecting line */}
-      <div className="absolute left-4 top-6 w-4 h-4 rounded-full bg-gradient-to-br from-primary to-accent border-4 border-white shadow-lg group-hover:scale-110 transition-transform duration-300" />
-      <div className="absolute left-[1.5rem] top-10 bottom-0 w-0.5 bg-gradient-to-b from-primary via-accent to-secondary opacity-60" />
+    <div className="relative pl-8 sm:pl-10 group">
+      {/* Timeline Node & Vertical Connector */}
+      <div
+        className="absolute left-1.5 sm:left-2 top-5 w-3.5 h-3.5 rounded-full bg-primary ring-4 ring-white shadow-sm z-10"
+        aria-hidden="true"
+      />
+      {!isLast && (
+        <div
+          className="absolute left-[11px] sm:left-[13px] top-8 -bottom-5 w-0.5 bg-primary/25"
+          aria-hidden="true"
+        />
+      )}
 
-      <div className="ml-14">
-        {/* Enhanced Time card */}
-        <div className="inline-block px-4 py-2 mb-4 text-sm font-medium text-text bg-gradient-to-r from-secondary to-bg rounded-lg shadow-sm border border-primary/20 hover:shadow-md transition-all duration-300">
-          <span className="flex items-center gap-2">
-            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-            </svg>
-            {time}
-          </span>
-        </div>
-
-        {/* Enhanced Content card */}
-        <div className="glass-effect rounded-xl shadow-lg border border-primary/20 p-6 card-hover group/card">
-          {/* Image with loading state */}
-          {images && (
-            <div className="relative mb-4 overflow-hidden rounded-lg">
-              {!imageLoaded && (
-                <div className="absolute inset-0 bg-gradient-to-r from-secondary/20 to-bg/20 animate-pulse rounded-lg" />
-              )}
-              <img 
-                src={images} 
-                alt={title} 
-                className={`w-full max-h-56 object-cover rounded-lg border border-primary/10 shadow-sm transition-all duration-500 ${
-                  imageLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
-                }`}
-                loading="lazy"
-                onLoad={() => setImageLoaded(true)}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-300" />
-            </div>
-          )}
-          
-          {/* Title with expand/collapse */}
-          <div className="flex items-start justify-between mb-2">
-            <h3 className="text-xl font-semibold text-text group-hover/card:gradient-text transition-all duration-300">
-              {title}
-            </h3>
-            <button
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="ml-2 p-1 rounded-full hover:bg-primary/10 transition-colors duration-200 touch-target touch-feedback focus-ring"
-              aria-label={isExpanded ? 'Collapse details' : 'Expand details'}
-            >
-              <svg 
-                className={`w-4 h-4 text-primary transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+      {/* Activity Card (Law of Common Region & Law of Proximity: Keep Time, Category, Price & Location scannable together) */}
+      <article className="bg-white/80 hover:bg-white/95 rounded-2xl border border-primary/15 hover:border-primary/35 shadow-sm hover:shadow-md transition-all duration-150 p-4 sm:p-5">
+        {/* Top Metadata Bar: Time + Category + Price */}
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-extrabold bg-primary/15 text-primary">
+              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                  clipRule="evenodd"
+                />
               </svg>
-            </button>
+              {time}
+            </span>
+
+            <span
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border"
+              style={{
+                backgroundColor: `${categoryMeta.color}15`,
+                borderColor: `${categoryMeta.color}35`,
+                color: categoryMeta.color,
+              }}
+            >
+              <span>{categoryMeta.emoji}</span>
+              <span>{categoryMeta.label}</span>
+            </span>
           </div>
 
-          {/* Description */}
-          <p className="text-text/80 mb-4 leading-relaxed">{description}</p>
+          {/* Price Badge (Von Restorff Effect: Distinct cost badge) */}
+          <div className="flex items-center gap-1.5">
+            <span
+              className={`px-2.5 py-1 rounded-lg text-xs font-extrabold ${
+                price.amount > 0
+                  ? 'bg-amber-500/15 text-amber-900 border border-amber-500/30'
+                  : 'bg-emerald-500/15 text-emerald-800 border border-emerald-500/25'
+              }`}
+            >
+              {formatPrice(price)}
+            </span>
+            {price.notes && (
+              <span className="text-[11px] font-medium text-text/60 hidden sm:inline">
+                ({price.notes})
+              </span>
+            )}
+          </div>
+        </div>
 
-          {/* Expandable details */}
-          <div className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
-            <div className="space-y-3 pt-2">
-              {/* Location with enhanced Google Maps link */}
-              <div className="flex items-center gap-2 p-3 bg-gradient-to-r from-secondary/20 to-bg/20 rounded-lg hover:from-secondary/30 hover:to-bg/30 transition-all duration-200">
-                <svg className="w-4 h-4 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <a 
-                  href={location.mapsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-text/70 hover:text-primary text-sm font-medium transition-colors duration-200 flex items-center gap-1"
-                >
-                  {location.name}
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                </a>
-              </div>
+        {/* Title & Description */}
+        <h3 className="text-base sm:text-lg font-extrabold text-text mb-1.5 leading-snug">
+          {title}
+        </h3>
+        <p className="text-sm text-text/80 leading-relaxed mb-3.5">
+          {description}
+        </p>
 
-              {/* Enhanced Price */}
-              <div className="flex items-center gap-2 p-3 bg-gradient-to-r from-secondary/20 to-bg/20 rounded-lg">
-                <svg className="w-4 h-4 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div className="text-sm text-text/80">
-                  <span className="font-medium text-lg">{formatPrice(price)}</span>
-                  {price.notes && <span className="ml-2 text-primary/80 text-xs">({price.notes})</span>}
-                </div>
-              </div>
+        {/* Optional Activity Image */}
+        {images && (
+          <div className="relative mb-3.5 overflow-hidden rounded-xl border border-primary/15 bg-primary/5">
+            {!imageLoaded && (
+              <div className="h-48 w-full animate-pulse bg-primary/10 rounded-xl" />
+            )}
+            <img
+              src={images}
+              alt={title}
+              className={`w-full max-h-60 object-cover transition-opacity duration-200 ${
+                imageLoaded ? 'opacity-100' : 'opacity-0 h-0'
+              }`}
+              loading="lazy"
+              onLoad={() => setImageLoaded(true)}
+            />
+          </div>
+        )}
 
-              {/* Enhanced Note */}
-              {note && (
-                <div className="flex items-start gap-2 p-3 bg-gradient-to-r from-secondary/30 to-bg rounded-lg border border-primary/20">
-                  <svg className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <p className="text-sm text-text/80 leading-relaxed">{note}</p>
-                </div>
-              )}
-
-              {youtubeUrl && (
-                <div className="mt-4">
-                  <iframe
-                    width="100%"
-                    height="315"
-                    src={youtubeUrl}
-                    title="YouTube video player"
-                    frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                    className="rounded-lg"
-                  ></iframe>
-                </div>
+        {/* Travel Note / Tip Box */}
+        {note && (
+          <div className="flex items-start gap-2 p-3 mb-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 text-xs sm:text-sm text-text/85">
+            <span className="shrink-0 mt-0.5">💡</span>
+            <div className="leading-relaxed">
+              <span className="font-bold text-text">Tip: </span>
+              <span>{note}</span>
+              {price.notes && (
+                <span className="block sm:hidden text-xs text-text/65 mt-0.5">
+                  Cost note: {price.notes}
+                </span>
               )}
             </div>
           </div>
+        )}
+
+        {/* Action Footer: Direct Google Maps Link + Optional Video Toggle (Fitts's Law) */}
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t border-primary/10">
+          {location?.name && (
+            <a
+              href={location.mapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/10 hover:bg-primary text-primary hover:text-white text-xs font-bold transition-colors duration-150"
+            >
+              <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+              <span className="truncate max-w-[240px] sm:max-w-md">{location.name}</span>
+              <svg className="w-3 h-3 shrink-0 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                />
+              </svg>
+            </a>
+          )}
+
+          {youtubeUrl && (
+            <button
+              type="button"
+              onClick={() => setShowVideo(!showVideo)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-600 text-red-700 hover:text-white text-xs font-bold transition-colors duration-150"
+            >
+              <span>▶</span>
+              <span>{showVideo ? 'Hide Video Guide' : 'Watch Video Guide'}</span>
+            </button>
+          )}
         </div>
-      </div>
+
+        {/* Progressive Disclosure for Video Embed (Hick's Law) */}
+        {youtubeUrl && showVideo && (
+          <div className="mt-3 pt-3 border-t border-primary/10">
+            <iframe
+              width="100%"
+              height="315"
+              src={youtubeUrl}
+              title={`${title} video guide`}
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              className="rounded-xl shadow-sm"
+            />
+          </div>
+        )}
+      </article>
     </div>
   );
-} 
+}

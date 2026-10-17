@@ -1,0 +1,88 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import CountrySubNav from '../../components/CountrySubNav.astro';
+import Tabs from '../../components/TabsNew';
+import PDFDownload from '../../components/PDFDownload';
+import AnalyticsDashboard from '../../components/AnalyticsDashboard';
+import { getAllCountries, type CountryMetadata } from '../../utils/countries';
+
+export function getStaticPaths() {
+  const countries = getAllCountries();
+  return countries.map((country) => ({
+    params: { country: country.slug },
+    props: { country },
+  }));
+}
+
+interface Props {
+  country: CountryMetadata;
+}
+
+const { country } = Astro.props;
+const countryDataSource = country.stats.hasItinerary
+  ? { [country.slug]: country.itinerary }
+  : {};
+---
+
+<Layout title={`${country.title} - Interactive Timeline`}>
+  <Header />
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+    <CountrySubNav country={country} activeTab="itinerary" />
+
+    {country.stats.hasItinerary ? (
+      <div class="space-y-8">
+        <!-- Main Interactive Day-by-Day Timeline (Priority #1 on Itinerary Page - Hick's Law) -->
+        <section
+          aria-label="Interactive Daily Timeline"
+          class="glass-effect rounded-2xl shadow-md border border-primary/20 overflow-hidden"
+        >
+          <Tabs itinerary={country.itinerary} client:load />
+        </section>
+
+        <!-- Collapsible / Secondary Country Budget & Currency Analytics (Progressive Disclosure) -->
+        <details class="group glass-effect rounded-2xl shadow-md border border-primary/20 overflow-hidden">
+          <summary class="cursor-pointer list-none p-5 sm:p-6 flex items-center justify-between gap-4 hover:bg-primary/5 transition-colors select-none">
+            <div class="flex items-center gap-3">
+              <span class="w-10 h-10 rounded-xl bg-primary/15 text-primary flex items-center justify-center text-lg">
+                📊
+              </span>
+              <div>
+                <h2 class="text-lg sm:text-xl font-extrabold text-text">
+                  {country.name} Trip Analytics & Live {country.currency} Converter
+                </h2>
+                <p class="text-xs sm:text-sm text-text/70">
+                  Click to expand budget breakdown, category spending, and historical exchange rates
+                </p>
+              </div>
+            </div>
+            <span class="px-3 py-1.5 rounded-xl bg-primary/10 text-primary text-xs font-bold flex items-center gap-1.5 shrink-0">
+              <span class="group-open:hidden">Show Analytics</span>
+              <span class="hidden group-open:inline">Hide Analytics</span>
+              <svg class="w-4 h-4 transition-transform duration-150 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </span>
+          </summary>
+          <div class="p-4 sm:p-6 pt-0 border-t border-primary/15">
+            <AnalyticsDashboard dataSources={countryDataSource} client:visible />
+          </div>
+        </details>
+
+        <!-- PDF Export Action -->
+        <div class="flex justify-center">
+          <PDFDownload itinerary={country.itinerary} client:visible />
+        </div>
+      </div>
+    ) : (
+      <div class="glass-effect rounded-2xl p-8 text-center border border-primary/20">
+        <p class="text-lg font-bold text-text">No itinerary entries found for {country.name} yet.</p>
+        <p class="text-sm text-text/70 mt-1">
+          Add day entries to <code class="px-1.5 py-0.5 rounded bg-primary/10 text-primary">src/data/{country.slug}.json</code> to view the timeline.
+        </p>
+      </div>
+    )}
+  </div>
+  <Footer />
+</Layout>

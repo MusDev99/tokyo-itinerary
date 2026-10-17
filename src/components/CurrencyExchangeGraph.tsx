@@ -1,5 +1,4 @@
-import { h, Fragment } from 'preact';
-import { useState, useEffect } from 'preact/hooks';
+import React, { useState, useEffect } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -8,193 +7,226 @@ import {
   Title,
   Tooltip,
   Legend,
-  PointElement, // Re-add for Line chart
-  LineElement,  // Re-add for Line chart
+  PointElement,
+  LineElement,
+  Filler,
 } from 'chart.js';
-// import { CandlestickController, OhlcElement } from 'chartjs-chart-financial'; // Removed
+import { fetchHistoricalRates, type HistoricalRateItem } from '../utils/analytics';
 
-import type { CurrencyExchangeData, HistoricalCurrencyResponse } from '../types/currency';
-
-// Register Chart.js components
 ChartJS.register(
   CategoryScale,
   LinearScale,
   Title,
   Tooltip,
   Legend,
-  PointElement, // Re-add for Line chart
-  LineElement   // Re-add for Line chart
+  PointElement,
+  LineElement,
+  Filler
 );
 
-interface CurrencyDataPoint {
-  date: string;
-  value: number; // The exchange rate
+interface CurrencyExchangeGraphProps {
+  baseCurrency?: string;
+  targetCurrency?: string;
+  availableTargets?: string[];
+  onTargetChange?: (target: string) => void;
 }
 
-const CurrencyExchangeGraph = () => {
-  const [chartData, setChartData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+export const CurrencyExchangeGraph: React.FC<CurrencyExchangeGraphProps> = ({
+  baseCurrency = 'MYR',
+  targetCurrency = 'JPY',
+  availableTargets = ['JPY', 'KZT', 'CNY', 'TRY', 'AUD', 'USD', 'EUR'],
+  onTargetChange,
+}) => {
+  const [timeframe, setTimeframe] = useState<7 | 14 | 30>(14);
+  const [dataPoints, setDataPoints] = useState<HistoricalRateItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log('Component mounted, fetching data...');
-    
-    const fetchCurrencyData = async () => {
-      try {
-        setLoading(true);
-        console.log('Making request to /api/currency-exchange');
-        
-        const response = await fetch('/api/currency-exchange', {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-          },
-        });
+    let isMounted = true;
+    setLoading(true);
+    setError(null);
 
-        console.log('Response received:', response.status, response.statusText);
-
-        if (!response.ok) {
-          const errorData = await response.text();
-          console.error('Error response:', errorData);
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const apiResponse: HistoricalCurrencyResponse = await response.json();
-        console.log('API Response:', apiResponse);
-
-        if (!apiResponse || !apiResponse.data || !Array.isArray(apiResponse.data)) {
-          throw new Error('Invalid API response structure');
-        }
-
-        if (apiResponse.data.length === 0) {
-          throw new Error('No data returned from API');
-        }
-
-        const processedData: CurrencyDataPoint[] = apiResponse.data.map(item => ({
-          date: item.rowDate,
-          value: parseFloat(item.last_closeRaw),
-        }));
-
-        processedData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-        console.log('Processed data points:', processedData.length);
-
-        const pointColors = processedData.map((data, index) => {
-          if (index === 0) {
-            return 'rgb(59, 130, 246)'; // Neutral blue for the first point
-          }
-          const previousValue = processedData[index - 1].value;
-          if (data.value < previousValue) {
-            return 'rgb(34, 197, 94)'; // Green for decrease (good to buy JPY)
-          } else if (data.value > previousValue) {
-            return 'rgb(239, 68, 68)'; // Red for increase (bad to buy JPY)
-          } else {
-            return 'rgb(156, 163, 175)'; // Gray for no change
-          }
-        });
-
-        setChartData({
-          labels: processedData.map(data => data.date),
-          datasets: [
-            {
-              label: 'JPY/MYR Exchange Rate',
-              data: processedData.map(data => data.value),
-              borderColor: 'rgb(75, 192, 192)',
-              backgroundColor: 'rgba(75, 192, 192, 0.5)',
-              tension: 0.4, // Smoother line
-              fill: false,
-              pointRadius: 5, // Slightly larger points for better visibility of color
-              pointHoverRadius: 7,
-              pointBackgroundColor: pointColors, // Dynamic colors
-              pointBorderColor: '#fff',
-              pointBorderWidth: 2,
-            },
-          ],
-        });
-      } catch (e: any) {
-        console.error("Failed to fetch currency data:", e);
-        setError(e.message);
-      } finally {
+    fetchHistoricalRates(baseCurrency, targetCurrency, timeframe)
+      .then((points) => {
+        if (!isMounted) return;
+        setDataPoints(points);
         setLoading(false);
-      }
+      })
+      .catch((err) => {
+        if (!isMounted) return;
+        console.error('Error fetching rate history:', err);
+        setError('Failed to load exchange rate history.');
+        setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
     };
+  }, [baseCurrency, targetCurrency, timeframe]);
 
-    fetchCurrencyData();
-  }, []);
+  // Derived stats
+  const rates = dataPoints.map((p) => p.rate);
+  const minRate = rates.length > 0 ? Math.min(...rates) : 0;
+  const maxRate = rates.length > 0 ? Math.max(...rates) : 0;
+  const firstRate = rates.length > 0 ? rates[0] : 0;
+  const latestRate = rates.length > 0 ? rates[rates.length - 1] : 0;
+  const changePercent = firstRate > 0 ? ((latestRate - firstRate) / firstRate) * 100 : 0;
+  const isUp = changePercent >= 0;
 
-  if (loading) {
-    return <div className="text-center py-4">Loading currency data...</div>;
-  }
+  const chartData = {
+    labels: dataPoints.map((p) => {
+      const parts = p.date.split('-');
+      return `${parts[1]}/${parts[2]}`;
+    }),
+    datasets: [
+      {
+        label: `1 ${baseCurrency} → ${targetCurrency}`,
+        data: dataPoints.map((p) => p.rate),
+        borderColor: isUp ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)',
+        backgroundColor: isUp ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+        fill: true,
+        tension: 0.35,
+        pointRadius: timeframe <= 14 ? 4 : 2,
+        pointHoverRadius: 6,
+        pointBackgroundColor: isUp ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)',
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 1.5,
+      },
+    ],
+  };
 
-  if (error) {
-    return (
-      <div className="text-center py-4 text-red-500">
-        <p>Error: {error}</p>
-        <p className="text-sm mt-2">Check browser console for details</p>
-      </div>
-    );
-  }
-
-  if (!chartData) {
-    return <div className="text-center py-4">No data available.</div>;
-  }
-
-  const options = {
+  const chartOptions: any = {
     responsive: true,
-    maintainAspectRatio: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'top' as const,
-        labels: {
-          color: 'rgb(156, 163, 175)', // text-gray-400
-        },
+        display: false,
       },
-      title: {
-        display: true,
-        text: 'JPY/MYR Exchange Rate (Last 15 Days)',
-        color: 'rgb(209, 213, 219)', // text-gray-300
-        font: {
-          size: 16,
+      tooltip: {
+        backgroundColor: 'rgba(17, 24, 39, 0.95)',
+        titleColor: '#f3f4f6',
+        bodyColor: '#e5e7eb',
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderWidth: 1,
+        padding: 10,
+        displayColors: false,
+        callbacks: {
+          label: (context: any) => `Rate: ${context.parsed.y} ${targetCurrency}`,
         },
       },
     },
     scales: {
       x: {
-        title: {
-          display: true,
-          text: 'Date',
-          color: 'rgb(156, 163, 175)', // text-gray-400
+        grid: {
+          color: 'rgba(156, 163, 175, 0.1)',
         },
         ticks: {
-          color: 'rgb(156, 163, 175)', // text-gray-400
-        },
-        grid: {
-          color: 'rgba(156, 163, 175, 0.2)', // Lighter grid lines
+          color: 'rgba(156, 163, 175, 0.8)',
+          font: { size: 11 },
+          maxRotation: 0,
         },
       },
       y: {
-        title: {
-          display: true,
-          text: 'Exchange Rate (MYR)',
-          color: 'rgb(156, 163, 175)', // text-gray-400
+        grid: {
+          color: 'rgba(156, 163, 175, 0.1)',
         },
         ticks: {
-          color: 'rgb(156, 163, 175)', // text-gray-400
-        },
-        grid: {
-          color: 'rgba(156, 163, 175, 0.2)', // Lighter grid lines
+          color: 'rgba(156, 163, 175, 0.8)',
+          font: { size: 11 },
+          callback: (value: any) => Number(value).toFixed(2),
         },
       },
     },
-    backgroundColor: 'rgba(0, 0, 0, 0.1)', // Slightly transparent dark background
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md max-w-3xl mx-auto my-8">
-      <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-        Currency Exchange Graph
-      </h2>
-      <Line data={chartData} options={options} />
+    <div className="flex flex-col gap-4">
+      {/* Header controls */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <span className="text-xs uppercase tracking-wider text-text/60 font-semibold">Pair:</span>
+          <div className="flex flex-wrap gap-1">
+            {availableTargets.map((curr) => (
+              <button
+                key={curr}
+                type="button"
+                onClick={() => onTargetChange?.(curr)}
+                className={`px-2.5 py-1 text-xs rounded-lg font-medium transition-all ${
+                  targetCurrency === curr
+                    ? 'bg-primary text-white shadow-sm'
+                    : 'bg-primary/10 text-text/80 hover:bg-primary/20'
+                }`}
+              >
+                {curr}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Timeframe selector */}
+        <div className="flex items-center gap-1 bg-bg/60 p-1 rounded-lg border border-primary/20">
+          {([7, 14, 30] as const).map((days) => (
+            <button
+              key={days}
+              type="button"
+              onClick={() => setTimeframe(days)}
+              className={`px-2.5 py-1 text-xs rounded-md font-medium transition-all ${
+                timeframe === days
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'text-text/70 hover:text-text'
+              }`}
+            >
+              {days}D
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Snapshot metrics */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+        <div className="p-2.5 rounded-lg bg-bg/40 border border-primary/15">
+          <div className="text-[11px] text-text/60">Current Rate</div>
+          <div className="text-base font-bold text-text">
+            {latestRate ? latestRate.toFixed(3) : '—'} <span className="text-xs font-normal text-text/60">{targetCurrency}</span>
+          </div>
+        </div>
+        <div className="p-2.5 rounded-lg bg-bg/40 border border-primary/15">
+          <div className="text-[11px] text-text/60">{timeframe}D Change</div>
+          <div className={`text-base font-bold flex items-center gap-1 ${isUp ? 'text-emerald-400' : 'text-red-400'}`}>
+            <span>{isUp ? '▲' : '▼'}</span>
+            <span>{Math.abs(changePercent).toFixed(2)}%</span>
+          </div>
+        </div>
+        <div className="p-2.5 rounded-lg bg-bg/40 border border-primary/15">
+          <div className="text-[11px] text-text/60">{timeframe}D Low</div>
+          <div className="text-base font-semibold text-text">
+            {minRate ? minRate.toFixed(3) : '—'}
+          </div>
+        </div>
+        <div className="p-2.5 rounded-lg bg-bg/40 border border-primary/15">
+          <div className="text-[11px] text-text/60">{timeframe}D High</div>
+          <div className="text-base font-semibold text-text">
+            {maxRate ? maxRate.toFixed(3) : '—'}
+          </div>
+        </div>
+      </div>
+
+      {/* Chart container */}
+      <div className="relative h-64 sm:h-72 w-full rounded-xl bg-bg/30 p-3 border border-primary/15 flex items-center justify-center">
+        {loading ? (
+          <div className="flex flex-col items-center gap-2 text-text/60 text-sm">
+            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+            <span>Fetching historical rates...</span>
+          </div>
+        ) : error ? (
+          <div className="text-center text-red-400 text-sm">
+            {error}
+          </div>
+        ) : (
+          <Line data={chartData} options={chartOptions} />
+        )}
+      </div>
     </div>
   );
 };

@@ -4,16 +4,16 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg: 'var(--color-bg)',
-        text: 'var(--color-text)',
-        primary: 'var(--color-primary)',
-        secondary: 'var(--color-secondary)',
-        accent: 'var(--color-accent)',
+        bg: 'color-mix(in srgb, var(--color-bg) calc(<alpha-value> * 100%), transparent)',
+        text: 'color-mix(in srgb, var(--color-text) calc(<alpha-value> * 100%), transparent)',
+        primary: 'color-mix(in srgb, var(--color-primary) calc(<alpha-value> * 100%), transparent)',
+        secondary: 'color-mix(in srgb, var(--color-secondary) calc(<alpha-value> * 100%), transparent)',
+        accent: 'color-mix(in srgb, var(--color-accent) calc(<alpha-value> * 100%), transparent)',
       },
       fontFamily: {
-        sans: ['Inter var', 'sans-serif'],
+        sans: ['Inter var', 'Inter', 'sans-serif'],
       },
     },
   },
   plugins: [],
-} 
+};

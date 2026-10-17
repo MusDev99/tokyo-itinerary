@@ -16,6 +16,7 @@ export interface TimelineItem {
   location: Location;
   price: Price;
   note: string;
+  category?: string;
   images?: string;
   youtubeUrl?: string;
 }
