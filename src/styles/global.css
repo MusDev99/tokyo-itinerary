@@ -31,13 +31,14 @@
 @layer components {
   /* Law of Common Region & Aesthetic-Usability Effect: High-contrast frosted glass surfaces */
   .glass-effect {
-    @apply backdrop-blur-xl bg-white/80 shadow-sm;
-    border: 1px solid color-mix(in srgb, var(--color-primary) 20%, transparent);
+    @apply backdrop-blur-md backdrop-saturate-150 bg-white/30;
+    border: 1px solid rgb(255 255 255 / 0.45);
+    box-shadow: 0 8px 32px rgb(0 0 0 / 0.08), inset 0 1px 0 rgb(255 255 255 / 0.5);
   }
 
   .surface-subtle {
-    @apply bg-white/60 backdrop-blur-md;
-    border: 1px solid color-mix(in srgb, var(--color-primary) 15%, transparent);
+    @apply bg-white/25 backdrop-blur-sm;
+    border: 1px solid rgb(255 255 255 / 0.35);
   }
 
   .card-hover {
@@ -94,6 +95,7 @@
   --color-primary: #d97706;
   --color-secondary: #fde68a;
   --color-accent: #b45309;
+  --surface-solid: #ffffff;
 }
 
 [data-theme="autumn"] {
@@ -102,6 +104,7 @@
   --color-primary: #d97706;
   --color-secondary: #fde68a;
   --color-accent: #b45309;
+  --surface-solid: #ffffff;
 }
 
 [data-theme="winter"] {
@@ -121,9 +124,62 @@
 }
 
 [data-theme="summer"] {
-  --color-bg: #f0fdf4;
-  --color-text: #052e16;
-  --color-primary: #16a34a;
-  --color-secondary: #bbf7d0;
-  --color-accent: #15803d;
+  --color-bg: #fffdf0;
+  --color-text: #063a4a;
+  --color-primary: #0e7490;
+  --color-secondary: #fde68a;
+  --color-accent: #d97706;
+  --surface-solid: #ffffff;
+}
+
+[data-theme="rain"] {
+  --color-bg: #eef2f7;
+  --color-text: #0f2338;
+  --color-primary: #3b6ea5;
+  --color-secondary: #c7d6e8;
+  --color-accent: #1e4b7a;
+  --surface-solid: #ffffff;
+}
+
+[data-theme="haze"] {
+  --color-bg: #faf5ee;
+  --color-text: #3b2f24;
+  --color-primary: #a8672c;
+  --color-secondary: #e9d9c3;
+  --color-accent: #7c4a1d;
+  --surface-solid: #fffdf9;
+}
+
+/* Dark theme: light text, dark translucent glass */
+[data-theme="night"] {
+  --color-bg: #0b1026;
+  --color-text: #e8ecff;
+  --color-primary: #fbbf24;
+  --color-secondary: #1e2a5a;
+  --color-accent: #a5b4fc;
+  --surface-solid: #151c3b;
+  color-scheme: dark;
+}
+
+[data-theme="night"] .glass-effect {
+  background-color: rgb(15 23 60 / 0.45);
+  border-color: rgb(165 180 252 / 0.25);
+  box-shadow: 0 8px 32px rgb(0 0 0 / 0.35), inset 0 1px 0 rgb(165 180 252 / 0.15);
+}
+
+[data-theme="night"] .surface-subtle {
+  background-color: rgb(15 23 60 / 0.35);
+  border-color: rgb(165 180 252 / 0.2);
+}
+
+/* Hard-coded white utility surfaces become dark translucent glass at night */
+[data-theme="night"] [class*="bg-white/"] {
+  background-color: rgb(30 41 90 / 0.4) !important;
+}
+[data-theme="night"] [class*="hover:bg-white"]:hover {
+  background-color: rgb(30 41 90 / 0.65) !important;
+}
+[data-theme="night"] .text-white\/90,
+[data-theme="night"] .text-white {
+  color: #fff;
 }

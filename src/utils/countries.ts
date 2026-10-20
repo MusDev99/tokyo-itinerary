@@ -6,6 +6,15 @@ import {
   type SheetSyncResult,
 } from './googleSheets';
 
+export interface StateMetadata {
+  slug: string;
+  name: string;
+  tabName: string;
+  currency: string;
+  itinerary: DayItinerary[];
+  stats: CountryMetadata['stats'];
+}
+
 export interface CountryMetadata {
   slug: string;
   name: string;
@@ -18,6 +27,8 @@ export interface CountryMetadata {
   season?: string;
   itinerary: DayItinerary[];
   dataSource: 'google-sheets';
+  /** Per-state tabs ("Japan - Tokyo"). Empty for plain country tabs. */
+  states: StateMetadata[];
   stats: {
     totalDays: number;
     totalActivities: number;
@@ -251,6 +262,7 @@ function buildCountryMetadataFromTab(
     season,
     itinerary,
     dataSource: 'google-sheets',
+    states: [],
     stats: {
       totalDays: itinerary.length,
       totalActivities,
@@ -272,6 +284,109 @@ function sortCountries(countries: CountryMetadata[]): CountryMetadata[] {
     }
     return a.name.localeCompare(b.name);
   });
+}
+
+
+export const TAB_SEPARATOR = ' - ';
+export const RESERVED_SLUGS = new Set(['itinerary', 'add', 'api', '404']);
+
+export function slugify(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+/** "Japan - Tokyo" -> { country: "Japan", state: "Tokyo" }; "japan" -> { country: "japan", state: null } */
+export function parseTabName(tabName: string): { country: string; state: string | null } {
+  const idx = tabName.indexOf(TAB_SEPARATOR);
+  if (idx === -1) return { country: tabName.trim(), state: null };
+  const state = tabName.slice(idx + TAB_SEPARATOR.length).trim();
+  return { country: tabName.slice(0, idx).trim(), state: state || null };
+}
+
+export function buildTabName(country: string, state: string): string {
+  return `${country.trim()}${TAB_SEPARATOR}${state.trim()}`;
+}
+
+/** Known countries (slug -> defaults) for the add-itinerary form. */
+export function getCountryOptions(): Array<{ name: string; slug: string; flag: string; currency: string }> {
+  return Object.entries(COUNTRY_DEFAULTS).map(([slug, d]) => ({
+    slug,
+    name: formatTabNameToCountryName(slug),
+    flag: d.flag,
+    currency: d.currency,
+  }));
+}
+
+function firstTime(days: DayItinerary[]): number {
+  const t = days[0]?.date ? new Date(days[0].date).getTime() : NaN;
+  return isNaN(t) ? Number.MAX_SAFE_INTEGER : t;
+}
+
+/**
+ * Groups worksheet tabs by country. Tabs named "Country - State" become states of a country;
+ * plain tabs ("japan") are treated as a country with no states.
+ * Country-level itinerary = all states merged (ordered by start date, days renumbered).
+ */
+function buildCountries(
+  itineraries: Record<string, DayItinerary[]>,
+  tabTitles: Record<string, string>
+): CountryMetadata[] {
+  const groups = new Map<
+    string,
+    { countryName: string; tabs: Array<{ tab: string; state: string | null; days: DayItinerary[] }> }
+  >();
+
+  for (const [slug, days] of Object.entries(itineraries)) {
+    const rawTab = tabTitles[slug] || slug;
+    const { country, state } = parseTabName(rawTab);
+    const countrySlug = slugify(country);
+    if (!countrySlug || RESERVED_SLUGS.has(countrySlug)) continue;
+    const group = groups.get(countrySlug) || { countryName: country, tabs: [] };
+    group.tabs.push({ tab: rawTab, state, days });
+    groups.set(countrySlug, group);
+  }
+
+  const result: CountryMetadata[] = [];
+  for (const [countrySlug, group] of groups) {
+    const stateTabs = group.tabs.filter((t) => t.state);
+    const plainTabs = group.tabs.filter((t) => !t.state);
+
+    // Order tabs chronologically and merge days into one continuous country timeline
+    const ordered = [...group.tabs].sort((a, b) => firstTime(a.days) - firstTime(b.days));
+    let offset = 0;
+    const merged: DayItinerary[] = [];
+    for (const t of ordered) {
+      for (const d of t.days) {
+        merged.push({ ...d, day: d.day + offset });
+      }
+      offset += t.days.length ? Math.max(...t.days.map((d) => d.day)) : 0;
+    }
+
+    const country = buildCountryMetadataFromTab(countrySlug, group.countryName, merged);
+    country.tabName = plainTabs[0]?.tab || group.countryName;
+
+    country.states = stateTabs
+      .map((t) => {
+        const stateName = formatTabNameToCountryName(t.state as string);
+        const meta = buildCountryMetadataFromTab(countrySlug, t.tab, t.days);
+        return {
+          slug: slugify(t.state as string),
+          name: stateName,
+          tabName: t.tab,
+          currency: meta.currency,
+          itinerary: t.days,
+          stats: meta.stats,
+        } satisfies StateMetadata;
+      })
+      .filter((st) => st.slug && !RESERVED_SLUGS.has(st.slug))
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    result.push(country);
+  }
+  return result;
 }
 
 interface GlobalSheetsCache {
@@ -338,12 +453,7 @@ export async function getAllCountriesWithSheets(forceRefresh = false): Promise<{
     });
 
     if (result.source === 'google-sheets') {
-      const sheetCountries: CountryMetadata[] = [];
-
-      for (const [slug, sheetDays] of Object.entries(itineraries)) {
-        const rawTabTitle = tabTitles[slug] || slug;
-        sheetCountries.push(buildCountryMetadataFromTab(slug, rawTabTitle, sheetDays));
-      }
+      const sheetCountries = buildCountries(itineraries, tabTitles);
 
       const sorted = sortCountries(sheetCountries);
       g.__TOKYO_SHEETS_CACHE__ = {

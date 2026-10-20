@@ -4,9 +4,11 @@ import type { CountryMetadata } from '../utils/countries';
 interface Props {
   country: CountryMetadata;
   activeTab: 'overview' | 'itinerary';
+  /** When set, the page shows a single "Country - State" trip. */
+  state?: { slug: string; name: string };
 }
 
-const { country, activeTab } = Astro.props;
+const { country, activeTab, state } = Astro.props;
 
 const tabs = [
   {
@@ -20,7 +22,7 @@ const tabs = [
     key: 'itinerary',
     label: 'Itinerary',
     icon: '🗓️',
-    href: `/${country.slug}/itinerary`,
+    href: state ? `/${country.slug}/${state.slug}` : `/${country.slug}/itinerary`,
     badge: country.stats.totalDays > 0 ? `${country.stats.totalDays}d` : undefined,
     available: country.stats.hasItinerary,
   },
@@ -39,7 +41,12 @@ const tabs = [
       <span>{country.flag}</span>
       <span>{country.name}</span>
     </a>
-    {activeTab !== 'overview' && (
+    {state ? (
+      <>
+        <span aria-hidden="true">/</span>
+        <span class="text-primary font-bold">{state.name}</span>
+      </>
+    ) : activeTab !== 'overview' && (
       <>
         <span aria-hidden="true">/</span>
         <span class="text-primary font-bold capitalize">{activeTab}</span>
@@ -69,24 +76,24 @@ const tabs = [
         {/* Quick Metadata Chips (Miller's Law: Chunked into 4 scannable badges) */}
         {country.stats.hasItinerary && (
           <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-3">
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/70 border border-primary/15 text-[11px] sm:text-xs font-semibold text-text/80">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/45 border border-primary/15 text-[11px] sm:text-xs font-semibold text-text/80">
               <span>📅</span>
               <span>{country.stats.totalDays} Days ({country.stats.totalActivities} Activities)</span>
             </span>
             {country.region && (
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/70 border border-primary/15 text-[11px] sm:text-xs font-semibold text-text/80">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/45 border border-primary/15 text-[11px] sm:text-xs font-semibold text-text/80">
                 <span>📍</span>
                 <span>{country.region}</span>
               </span>
             )}
             {country.season && (
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/70 border border-primary/15 text-[11px] sm:text-xs font-semibold text-text/80">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/45 border border-primary/15 text-[11px] sm:text-xs font-semibold text-text/80">
                 <span>🌤️</span>
                 <span>{country.season}</span>
               </span>
             )}
             {country.stats.firstDate && (
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/70 border border-primary/15 text-[11px] sm:text-xs font-semibold text-text/80">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/45 border border-primary/15 text-[11px] sm:text-xs font-semibold text-text/80">
                 <span>🛫</span>
                 <span>{country.stats.firstDate}</span>
               </span>
@@ -98,7 +105,7 @@ const tabs = [
 
     <!-- Country Tool Switcher (Fitts's Law: Large 44px touch targets, full width on mobile) -->
     {tabs.length > 1 && (
-      <div class="grid grid-cols-2 sm:flex items-center gap-1.5 p-1.5 rounded-xl bg-white/60 border border-primary/20 w-full sm:w-auto self-stretch sm:self-start lg:self-center shrink-0">
+      <div class="grid grid-cols-2 sm:flex items-center gap-1.5 p-1.5 rounded-xl bg-white/45 border border-primary/20 w-full sm:w-auto self-stretch sm:self-start lg:self-center shrink-0">
         {tabs.map((tab) => {
           const isCurrent = activeTab === tab.key;
           return (

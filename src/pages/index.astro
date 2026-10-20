@@ -33,15 +33,15 @@ const totalGlobalActivities = activeCountries.reduce((acc, c) => acc + c.stats.t
 
       <!-- Summary Stat Pills (Miller's Law: Chunked into 3 key metrics) -->
       <div class="grid grid-cols-3 gap-2 sm:gap-4 shrink-0">
-        <div class="p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white/75 border border-primary/20 text-center shadow-xs min-w-0">
+        <div class="p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white/45 border border-primary/20 text-center shadow-xs min-w-0">
           <p class="text-xl sm:text-3xl font-extrabold text-primary">{activeCountries.length}</p>
           <p class="text-[10px] sm:text-xs font-bold text-text/70 uppercase tracking-wider mt-0.5 truncate">Active Trips</p>
         </div>
-        <div class="p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white/75 border border-primary/20 text-center shadow-xs min-w-0">
+        <div class="p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white/45 border border-primary/20 text-center shadow-xs min-w-0">
           <p class="text-xl sm:text-3xl font-extrabold text-primary">{totalGlobalDays}</p>
           <p class="text-[10px] sm:text-xs font-bold text-text/70 uppercase tracking-wider mt-0.5 truncate">Total Days</p>
         </div>
-        <div class="p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white/75 border border-primary/20 text-center shadow-xs min-w-0">
+        <div class="p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white/45 border border-primary/20 text-center shadow-xs min-w-0">
           <p class="text-xl sm:text-3xl font-extrabold text-primary">{totalGlobalActivities}</p>
           <p class="text-[10px] sm:text-xs font-bold text-text/70 uppercase tracking-wider mt-0.5 truncate">Activities</p>
         </div>
@@ -101,7 +101,7 @@ const totalGlobalActivities = activeCountries.reduce((acc, c) => acc + c.stats.t
               </p>
 
               <!-- Chunked Trip Stats (Law of Proximity & Miller's Law) -->
-              <div class="grid grid-cols-3 gap-2 p-2.5 sm:p-3 rounded-xl bg-white/70 border border-primary/15 mb-4 sm:mb-5">
+              <div class="grid grid-cols-3 gap-2 p-2.5 sm:p-3 rounded-xl bg-white/45 border border-primary/15 mb-4 sm:mb-5">
                 <div class="min-w-0">
                   <span class="block text-[10px] font-bold uppercase tracking-wider text-text/55 truncate">Duration</span>
                   <span class="block text-xs sm:text-sm font-extrabold text-text truncate">{country.stats.totalDays} Days</span>
@@ -123,7 +123,7 @@ const totalGlobalActivities = activeCountries.reduce((acc, c) => acc + c.stats.t
             <div class="grid grid-cols-2 sm:flex items-center justify-between gap-2 pt-3 border-t border-primary/15">
               <a
                 href={`/${country.slug}`}
-                class="touch-target inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-white/80 text-text/80 hover:text-primary border border-primary/15 transition-colors"
+                class="touch-target inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-white/45 text-text/80 hover:text-primary border border-primary/15 transition-colors"
               >
                 <span>🧭</span>
                 <span>Overview</span>

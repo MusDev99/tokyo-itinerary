@@ -1,0 +1,43 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import AddItineraryForm from '../components/AddItineraryForm';
+import { getAllCountriesWithSheets, getCountryOptions } from '../utils/countries';
+
+Astro.response.headers.set('Cache-Control', 'no-store, max-age=0');
+
+const initialCountry = Astro.url.searchParams.get('country') || '';
+const initialState = Astro.url.searchParams.get('state') || '';
+
+const { countries } = await getAllCountriesWithSheets();
+
+const trips = countries.flatMap((c) =>
+  c.states.length > 0
+    ? c.states.map((s) => ({ country: c.name, state: s.name }))
+    : []
+);
+
+// Known defaults plus any countries already in the sheet
+const options = getCountryOptions();
+for (const c of countries) {
+  if (!options.some((o) => o.slug === c.slug)) {
+    options.push({ name: c.name, slug: c.slug, flag: c.flag, currency: c.currency });
+  }
+}
+---
+
+<Layout title="Add New Itinerary - Travel Planner">
+  <Header />
+  <div class="w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8">
+    <div class="max-w-3xl mx-auto mb-5 sm:mb-6">
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-text tracking-tight">Add new itinerary</h1>
+      <p class="text-sm text-text/70 mt-1">
+        Pick a country and state/city, then add your activities. A new Google Sheet tab named
+        “Country - State” is created automatically.
+      </p>
+    </div>
+    <AddItineraryForm countries={options} trips={trips} initialCountry={initialCountry} initialState={initialState} client:load />
+  </div>
+  <Footer />
+</Layout>

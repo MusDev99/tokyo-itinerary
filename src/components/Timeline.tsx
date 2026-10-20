@@ -29,7 +29,7 @@ export default function Timeline({ day }: Props) {
         </div>
 
         <div className="flex flex-wrap items-center gap-2 sm:gap-3 self-start sm:self-center">
-          <div className="px-3 py-1.5 rounded-xl bg-white/80 border border-primary/15 text-xs font-bold text-text/80">
+          <div className="px-3 py-1.5 rounded-xl bg-white/45 border border-primary/15 text-xs font-bold text-text/80">
             <span>📍 {day.items.length} Stops</span>
           </div>
           <div className="px-3 py-1.5 rounded-xl bg-primary/10 border border-primary/25 text-xs font-extrabold text-primary">
