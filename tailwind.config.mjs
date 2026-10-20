@@ -8,6 +8,7 @@ export default {
         text: 'color-mix(in srgb, var(--color-text) calc(<alpha-value> * 100%), transparent)',
         primary: 'color-mix(in srgb, var(--color-primary) calc(<alpha-value> * 100%), transparent)',
         secondary: 'color-mix(in srgb, var(--color-secondary) calc(<alpha-value> * 100%), transparent)',
+        'surface-solid': 'var(--surface-solid)',
         accent: 'color-mix(in srgb, var(--color-accent) calc(<alpha-value> * 100%), transparent)',
       },
       fontFamily: {

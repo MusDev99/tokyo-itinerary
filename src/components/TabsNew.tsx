@@ -66,7 +66,7 @@ export default function Tabs({ itinerary }: Props) {
           className={`touch-target inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold border transition-all duration-150 w-full sm:w-auto ${
             showSearch
               ? 'bg-primary text-white border-primary shadow-sm'
-              : 'bg-white/75 text-text/80 border-primary/20 hover:border-primary/40 hover:text-primary'
+              : 'bg-white/45 text-text/80 border-primary/20 hover:border-primary/40 hover:text-primary'
           }`}
         >
           <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -109,7 +109,7 @@ export default function Tabs({ itinerary }: Props) {
                 className={`touch-target shrink-0 snap-start px-3.5 py-2 rounded-xl text-left transition-all duration-150 border ${
                   isActive
                     ? 'bg-primary text-white border-primary shadow-md'
-                    : 'bg-white/70 text-text/80 border-primary/15 hover:bg-primary/10 hover:border-primary/35'
+                    : 'bg-white/45 text-text/80 border-primary/15 hover:bg-primary/10 hover:border-primary/35'
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
@@ -150,7 +150,7 @@ export default function Tabs({ itinerary }: Props) {
       </div>
 
       {/* Active Day Timeline Content */}
-      <div className="rounded-2xl bg-white/55 border border-primary/15 p-3 sm:p-6">
+      <div className="rounded-2xl bg-white/45 border border-primary/15 p-3 sm:p-6">
         {currentDay ? (
           <div>
             <Timeline day={currentDay} />
@@ -162,7 +162,7 @@ export default function Tabs({ itinerary }: Props) {
                   type="button"
                   disabled={activeTab === 0}
                   onClick={() => handleTabChange(activeTab - 1)}
-                  className="touch-target inline-flex items-center gap-1 sm:gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white/80 border border-primary/20 text-text disabled:opacity-40 disabled:pointer-events-none hover:bg-primary/10 transition-colors"
+                  className="touch-target inline-flex items-center gap-1 sm:gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white/45 border border-primary/20 text-text disabled:opacity-40 disabled:pointer-events-none hover:bg-primary/10 transition-colors"
                 >
                   <span>←</span>
                   <span>
