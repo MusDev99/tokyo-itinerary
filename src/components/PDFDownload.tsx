@@ -64,7 +64,7 @@ export default function PDFDownload({ itinerary }: Props) {
         
         pdf.setFontSize(12);
         pdf.setFont('NotoSansJP', 'normal');
-        pdf.text('One week exploration in Autumn', pageWidth - margin, 18, { align: 'right' });
+        pdf.text(`${itinerary.length}-day itinerary`, pageWidth - margin, 18, { align: 'right' });
         
         yPosition = 40;
       };
