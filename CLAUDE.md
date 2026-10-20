@@ -35,3 +35,5 @@ npm run preview  # preview the build
 - Commit only when asked. Keep commits focused, with a clear imperative message.
 - Push the branch to `origin` and merge via pull request.
 - Run `npm run build` before committing and make sure it passes.
+- **Always update `CHANGELOG.md` before every commit**: add an entry at the top with the date and time (`date "+%Y-%m-%d %H:%M"`) and a short list of what changed.
+- **Update `README.md` when needed** (new features, routes, env vars, scripts, sheet columns or project structure change) and include it in the same commit.

@@ -36,6 +36,8 @@ interface Props {
   errors?: Record<string, string>;
   onChange: (patch: Partial<ActivityDraft>) => void;
   idPrefix: string;
+  /** Hide the date field when the date is set by the surrounding day block */
+  hideDate?: boolean;
 }
 
 function Field({
@@ -65,7 +67,7 @@ function Field({
   );
 }
 
-export default function ActivityFields({ value, errors = {}, onChange, idPrefix }: Props) {
+export default function ActivityFields({ value, errors = {}, onChange, idPrefix, hideDate }: Props) {
   const id = (k: string) => `${idPrefix}-${k}`;
   const cur = POPULAR_CURRENCIES.some((c) => c.code === value.price_currency) || !value.price_currency
     ? POPULAR_CURRENCIES
@@ -73,15 +75,17 @@ export default function ActivityFields({ value, errors = {}, onChange, idPrefix 
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-6 gap-3">
-      <Field label="Date" required error={errors.date} htmlFor={id('date')} className="sm:col-span-2">
-        <input id={id('date')} type="date" className={inputClass} value={value.date}
-          onInput={(e) => onChange({ date: (e.target as HTMLInputElement).value })} />
-      </Field>
-      <Field label="Time" required error={errors.time} htmlFor={id('time')} className="sm:col-span-2">
+      {!hideDate && (
+        <Field label="Date" required error={errors.date} htmlFor={id('date')} className="sm:col-span-2">
+          <input id={id('date')} type="date" className={inputClass} value={value.date}
+            onInput={(e) => onChange({ date: (e.target as HTMLInputElement).value })} />
+        </Field>
+      )}
+      <Field label="Time" required error={errors.time} htmlFor={id('time')} className={hideDate ? 'sm:col-span-3' : 'sm:col-span-2'}>
         <AnalogTimePicker id={id('time')} value={value.time} invalid={!!errors.time}
           onChange={(time) => onChange({ time })} />
       </Field>
-      <Field label="Category" htmlFor={id('category')} className="sm:col-span-2">
+      <Field label="Category" htmlFor={id('category')} className={hideDate ? 'sm:col-span-3' : 'sm:col-span-2'}>
         <select id={id('category')} className={inputClass} value={value.category}
           onChange={(e) => onChange({ category: (e.target as HTMLSelectElement).value })}>
           <option value="">Auto-detect</option>
