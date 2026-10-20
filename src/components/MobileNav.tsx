@@ -6,6 +6,7 @@ import { animate, stagger } from 'motion';
 export interface NavState {
   name: string;
   href: string;
+  toolsHref: string;
   days: number;
 }
 export interface NavCountry {
@@ -15,6 +16,7 @@ export interface NavCountry {
   days: number;
   hubHref: string;
   itineraryHref: string | null;
+  toolsHref: string | null;
   states: NavState[];
 }
 
@@ -212,12 +214,24 @@ export default function MobileNav({ countries, currentPath }: Props) {
                               <span aria-hidden="true">🗓️</span> {c.states.length > 0 ? 'All timelines' : 'Interactive timeline'}
                             </a>
                           )}
-                          {c.states.map((s) => (
-                            <a key={s.href} href={s.href} tabIndex={isOpen ? 0 : -1}
-                              className={`${linkBase} justify-between ${isHere(currentPath, s.href) ? 'bg-primary text-white' : 'text-text/85 hover:bg-primary/10'}`}>
-                              <span className="flex items-center gap-2"><span aria-hidden="true">📍</span> {s.name}</span>
-                              {s.days > 0 && <span className="text-[11px] opacity-75">{s.days}d</span>}
+                          {c.toolsHref && (
+                            <a href={c.toolsHref} tabIndex={isOpen ? 0 : -1}
+                              className={`${linkBase} ${isHere(currentPath, c.toolsHref) ? 'bg-primary text-white' : 'text-text/85 hover:bg-primary/10'}`}>
+                              <span aria-hidden="true">🕌</span> Travel tools
                             </a>
+                          )}
+                          {c.states.map((s) => (
+                            <div key={s.href} className="flex gap-1">
+                              <a href={s.href} tabIndex={isOpen ? 0 : -1}
+                                className={`${linkBase} flex-1 min-w-0 justify-between ${isHere(currentPath, s.href) ? 'bg-primary text-white' : 'text-text/85 hover:bg-primary/10'}`}>
+                                <span className="flex items-center gap-2 min-w-0"><span aria-hidden="true">📍</span> <span className="truncate">{s.name}</span></span>
+                                {s.days > 0 && <span className="text-[11px] opacity-75">{s.days}d</span>}
+                              </a>
+                              <a href={s.toolsHref} tabIndex={isOpen ? 0 : -1} aria-label={`${s.name} travel tools`}
+                                className={`${linkBase} px-3 justify-center ${isHere(currentPath, s.toolsHref) ? 'bg-primary text-white' : 'text-text/85 hover:bg-primary/10'}`}>
+                                <span aria-hidden="true">🕌</span>
+                              </a>
+                            </div>
                           ))}
                         </div>
                       </Collapsible>

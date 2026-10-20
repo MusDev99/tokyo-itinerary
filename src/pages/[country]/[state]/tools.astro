@@ -1,0 +1,52 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import CountrySubNav from '../../../components/CountrySubNav.astro';
+import TravelTools from '../../../components/TravelTools';
+import { getAllCountriesWithSheets } from '../../../utils/countries';
+import { getPlace } from '../../../utils/googleSheets';
+import { tripIsoDates } from '../../../utils/dates';
+import { topPlace } from '../../../utils/geocode';
+import type { Place } from '../../../types/place';
+
+Astro.response.headers.set('Cache-Control', 'no-store, max-age=0');
+
+const { countries } = await getAllCountriesWithSheets();
+const baseCountry = countries.find((c) => c.slug === Astro.params.country?.toLowerCase());
+const stateMeta = baseCountry?.states.find((s) => s.slug === Astro.params.state?.toLowerCase());
+
+if (!baseCountry || !stateMeta) {
+  return Astro.redirect('/404');
+}
+
+const country = {
+  ...baseCountry,
+  title: `${baseCountry.name} – ${stateMeta.name} Travel Tools`,
+  description: `Prayer times and trip tools for ${stateMeta.name}, ${baseCountry.name}.`,
+  itinerary: stateMeta.itinerary,
+  currency: stateMeta.currency,
+  region: stateMeta.name,
+  stats: stateMeta.stats,
+  tabName: stateMeta.tabName,
+};
+
+const savedPlace = await getPlace(stateMeta.tabName);
+const suggestion: Place | null = savedPlace ? null : await topPlace(stateMeta.name);
+---
+
+<Layout title={`${stateMeta.name} Travel Tools - ${baseCountry.name}`}>
+  <Header />
+  <div class="w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8">
+    <CountrySubNav country={country} activeTab="tools" state={{ slug: stateMeta.slug, name: stateMeta.name }} />
+    <TravelTools
+      client:load
+      tab={stateMeta.tabName}
+      searchName={stateMeta.name}
+      savedPlace={savedPlace}
+      suggestion={suggestion}
+      dates={tripIsoDates(stateMeta.itinerary)}
+    />
+  </div>
+  <Footer />
+</Layout>

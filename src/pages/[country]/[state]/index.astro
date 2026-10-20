@@ -1,13 +1,13 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
-import CountrySubNav from '../../components/CountrySubNav.astro';
-import Tabs from '../../components/TabsNew';
-import PDFDownload from '../../components/PDFDownload';
-import TripActions from '../../components/TripActions';
-import AnalyticsDashboard from '../../components/AnalyticsDashboard';
-import { getAllCountriesWithSheets } from '../../utils/countries';
+import Layout from '../../../layouts/Layout.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import CountrySubNav from '../../../components/CountrySubNav.astro';
+import Tabs from '../../../components/TabsNew';
+import PDFDownload from '../../../components/PDFDownload';
+import TripActions from '../../../components/TripActions';
+import AnalyticsDashboard from '../../../components/AnalyticsDashboard';
+import { getAllCountriesWithSheets } from '../../../utils/countries';
 
 Astro.response.headers.set('Cache-Control', 'no-store, max-age=0');
 
