@@ -25,6 +25,12 @@ ChartJS.register(
   Filler
 );
 
+function ClientOnly({ children }: { children: React.ReactNode }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  return mounted ? <>{children}</> : null;
+}
+
 interface CurrencyExchangeGraphProps {
   baseCurrency?: string;
   targetCurrency?: string;
@@ -242,7 +248,7 @@ export const CurrencyExchangeGraph: React.FC<CurrencyExchangeGraphProps> = ({
             {error}
           </div>
         ) : (
-          <Line data={chartData} options={chartOptions} />
+          <ClientOnly><Line data={chartData} options={chartOptions} /></ClientOnly>
         )}
       </div>
     </div>

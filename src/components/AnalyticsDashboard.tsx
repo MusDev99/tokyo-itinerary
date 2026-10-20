@@ -57,6 +57,13 @@ interface Item {
 type Tab = 'overview' | 'currency' | 'expenses';
 const PAGE_SIZES = [10, 25, 50] as const;
 
+/** Chart.js components can't be server-rendered under Preact, so render them only in the browser. */
+function ClientOnly({ children }: { children: React.ReactNode }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  return mounted ? <>{children}</> : null;
+}
+
 const slugLabel = (s: string) => s.split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
 export const AnalyticsDashboard: React.FC<Props> = ({ dataSources, currencies = [] }) => {
@@ -376,6 +383,7 @@ export const AnalyticsDashboard: React.FC<Props> = ({ dataSources, currencies = 
                   <h3 className="text-sm font-extrabold text-text">Where the money goes</h3>
                   <p className="text-xs text-text/60 mb-3">Share of spend by category</p>
                   <div className="relative h-64 w-full">
+                    <ClientOnly>
                     <Doughnut
                       data={doughnutData}
                       plugins={[centerPlugin]}
@@ -389,6 +397,7 @@ export const AnalyticsDashboard: React.FC<Props> = ({ dataSources, currencies = 
                         },
                       }}
                     />
+                    </ClientOnly>
                   </div>
                   <ul className="mt-3 space-y-1.5">
                     {categoryStats.map((c) => (
@@ -409,6 +418,7 @@ export const AnalyticsDashboard: React.FC<Props> = ({ dataSources, currencies = 
                   <h3 className="text-sm font-extrabold text-text">Biggest expenses</h3>
                   <p className="text-xs text-text/60 mb-3">Top {topItems.length} activities in {base}</p>
                   <div className="relative" style={{ height: `${Math.max(200, topItems.length * 42)}px` }}>
+                    <ClientOnly>
                     <Chart
                       type="bar"
                       data={topData as any}
@@ -426,6 +436,7 @@ export const AnalyticsDashboard: React.FC<Props> = ({ dataSources, currencies = 
                         },
                       } as any}
                     />
+                    </ClientOnly>
                   </div>
                 </section>
               </div>
@@ -443,6 +454,7 @@ export const AnalyticsDashboard: React.FC<Props> = ({ dataSources, currencies = 
                   )}
                 </div>
                 <div className="relative h-64 sm:h-72 w-full">
+                  <ClientOnly>
                   <Chart
                     type="bar"
                     data={stackedData}
@@ -460,6 +472,7 @@ export const AnalyticsDashboard: React.FC<Props> = ({ dataSources, currencies = 
                       },
                     } as any}
                   />
+                  </ClientOnly>
                 </div>
               </section>
             </>
