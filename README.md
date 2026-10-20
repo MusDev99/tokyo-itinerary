@@ -17,12 +17,12 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 - **Live Sync & Refresh**: Every page load (and the in-app **Refresh from Google Sheets** button via `/api/sheets-sync`) reads directly from Google Sheets with built-in request deduplication and rate-limit retry backoff.
 
 ### 2. Comprehensive Trip Analytics & Currency Exchange
-- **Global & Per-Country Analytics (`AnalyticsDashboard.tsx`)**:
+- **Global & Per-Country Analytics (`AnalyticsDashboard.tsx`)**: three tabs — Overview (category doughnut, biggest expenses, daily stacked spend), Currency and paginated Expenses.
   - Total trip cost, daily average burn rate, cost per activity, and paid vs. free activity ratios.
   - **6-Category Spending Breakdown**: Automatically classifies activities into `Transport`, `Food`, `Lodging`, `Attraction`, `Shopping`, and `Other` using explicit `category` cells or keyword heuristics.
   - **Daily Spending Profile & Peak Spend Alerts**: Visualizes highest-cost days and top individual expenses.
 - **Live Multi-Currency Exchange (`CurrencyExchangeGraph.tsx` & `/api/currency-exchange`)**:
-  - Instant conversion across major and regional currencies (`USD`, `EUR`, `GBP`, `SGD`, `MYR`, `JPY`, `KZT`, `AUD`, `CNY`, `TRY`, etc.).
+  - Instant conversion for **MYR, USD and every currency used by a country with an itinerary** (no fixed list; the hub grows with your trips).
   - Interactive historical exchange rate trend chart with 30-day high/low/average statistics powered by Frankfurter & Open ER-API.
 
 ### 3. UX-First Interface ([Laws of UX](https://lawsofux.com/))

@@ -121,7 +121,7 @@ export default function MobileNav({ countries, currentPath }: Props) {
 
   return (
     <>
-      <div className="flex items-center gap-1 lg:hidden">
+      <div className="flex items-center gap-1 xl:hidden">
         <button
           ref={toggle}
           type="button"
@@ -146,7 +146,7 @@ export default function MobileNav({ countries, currentPath }: Props) {
 
       {mounted &&
         createPortal(
-          <div className="lg:hidden fixed inset-0 z-[70]">
+          <div className="xl:hidden fixed inset-0 z-[70]">
             <div ref={backdrop} className="absolute inset-0 bg-black/40" onPointerDown={hide} aria-hidden="true" />
             <div
               ref={panel}

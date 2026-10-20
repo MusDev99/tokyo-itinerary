@@ -8,206 +8,208 @@ import { getAllCountriesWithSheets, getActiveItinerariesMap } from '../utils/cou
 Astro.response.headers.set('Cache-Control', 'no-store, max-age=0');
 
 const { countries, syncResult } = await getAllCountriesWithSheets();
-const activeCountries = countries.filter((c) => c.stats.hasItinerary);
-const upcomingCountries = countries.filter((c) => !c.stats.hasItinerary);
 const allItineraries = getActiveItinerariesMap(countries);
 
-const totalGlobalDays = activeCountries.reduce((acc, c) => acc + c.stats.totalDays, 0);
-const totalGlobalActivities = activeCountries.reduce((acc, c) => acc + c.stats.totalActivities, 0);
+const DAY = 86_400_000;
+const startOfToday = new Date();
+startOfToday.setHours(0, 0, 0, 0);
+
+const parse = (d: string | null) => {
+  if (!d) return null;
+  const t = new Date(d);
+  return isNaN(t.getTime()) ? null : t;
+};
+const short = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+// One lightweight record per trip: what it is, when, and where it stands (Upcoming / Ongoing / Past)
+const trips = countries
+  .filter((c) => c.stats.hasItinerary)
+  .map((c) => {
+    const start = parse(c.stats.firstDate);
+    const end = parse(c.stats.lastDate) ?? start;
+    let status: 'upcoming' | 'ongoing' | 'past' | 'undated' = 'undated';
+    let statusLabel = '';
+    if (start && end) {
+      if (startOfToday < start) {
+        status = 'upcoming';
+        const days = Math.ceil((start.getTime() - startOfToday.getTime()) / DAY);
+        statusLabel = days === 1 ? 'Tomorrow' : `In ${days} days`;
+      } else if (startOfToday <= end) {
+        status = 'ongoing';
+        statusLabel = 'Happening now';
+      } else {
+        status = 'past';
+        statusLabel = 'Completed';
+      }
+    }
+    const range = start
+      ? `${short(start)}${end && end.getTime() !== start.getTime() ? ` – ${short(end)}` : ''}, ${(end ?? start).getFullYear()}`
+      : null;
+    return { c, start, status, statusLabel, range };
+  })
+  // Ongoing first, then soonest upcoming, then past
+  .sort((a, b) => {
+    const rank = { ongoing: 0, upcoming: 1, undated: 2, past: 3 } as const;
+    if (rank[a.status] !== rank[b.status]) return rank[a.status] - rank[b.status];
+    return (a.start?.getTime() ?? 0) - (b.start?.getTime() ?? 0);
+  });
+
+const upcomingCountries = countries.filter((c) => !c.stats.hasItinerary);
+const totalDays = trips.reduce((n, t) => n + t.c.stats.totalDays, 0);
+const totalActivities = trips.reduce((n, t) => n + t.c.stats.totalActivities, 0);
+
+const statusStyle = {
+  ongoing: 'bg-emerald-500/20 text-emerald-900 border-emerald-500/40',
+  upcoming: 'bg-primary/15 text-primary border-primary/30',
+  past: 'bg-text/10 text-text/60 border-text/15',
+  undated: 'bg-text/10 text-text/60 border-text/15',
+} as const;
 ---
 
-<Layout title="Global Travel Planner & Analytics">
+<Layout title="PlanTravel – Your Trips">
   <Header />
-  <div class="w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-10 space-y-6 sm:space-y-8">
-    <!-- Hero Banner (Aesthetic-Usability Effect & Miller's Law: 3 scannable global stats) -->
-    <section class="glass-effect rounded-2xl sm:rounded-3xl p-4 sm:p-8 border border-primary/20 shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6">
-      <div class="max-w-2xl space-y-2">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/15 text-primary text-[11px] sm:text-xs font-extrabold uppercase tracking-wider">
-          <span>✈️</span>
-          <span>Dynamic Multi-Country Travel Hub</span>
-        </div>
-        <h1 class="text-2xl sm:text-4xl font-extrabold text-text tracking-tight leading-tight">
-          Global Itinerary & Expense Intelligence
-        </h1>
+  <div class="w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8 space-y-6 sm:space-y-8">
+    <!-- Hero: one title, one primary action, three numbers (Miller's Law). Everything else lives below. -->
+    <section data-reveal class="glass-effect rounded-2xl sm:rounded-3xl p-4 sm:p-7 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
+      <div class="space-y-1">
+        <h1 class="text-2xl sm:text-4xl font-extrabold text-text tracking-tight">Your trips</h1>
+        <p class="text-sm text-text/70">
+          {trips.length > 0
+            ? `${totalDays} days and ${totalActivities} activities planned across ${trips.length} ${trips.length === 1 ? 'country' : 'countries'}.`
+            : 'Nothing planned yet. Start with your first trip.'}
+        </p>
       </div>
-
-      <!-- Summary Stat Pills (Miller's Law: Chunked into 3 key metrics) -->
-      <div class="grid grid-cols-3 gap-2 sm:gap-4 shrink-0">
-        <div class="p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white/45 border border-primary/20 text-center shadow-xs min-w-0">
-          <p class="text-xl sm:text-3xl font-extrabold text-primary">{activeCountries.length}</p>
-          <p class="text-[10px] sm:text-xs font-bold text-text/70 uppercase tracking-wider mt-0.5 truncate">Active Trips</p>
-        </div>
-        <div class="p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white/45 border border-primary/20 text-center shadow-xs min-w-0">
-          <p class="text-xl sm:text-3xl font-extrabold text-primary">{totalGlobalDays}</p>
-          <p class="text-[10px] sm:text-xs font-bold text-text/70 uppercase tracking-wider mt-0.5 truncate">Total Days</p>
-        </div>
-        <div class="p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white/45 border border-primary/20 text-center shadow-xs min-w-0">
-          <p class="text-xl sm:text-3xl font-extrabold text-primary">{totalGlobalActivities}</p>
-          <p class="text-[10px] sm:text-xs font-bold text-text/70 uppercase tracking-wider mt-0.5 truncate">Activities</p>
-        </div>
-      </div>
+      <a
+        href="/add"
+        class="touch-target inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-primary text-white text-sm font-extrabold shadow-md hover:opacity-95 active:scale-[0.98] transition-all w-full md:w-auto"
+      >
+        <span aria-hidden="true">＋</span>
+        <span>New itinerary</span>
+      </a>
     </section>
 
-    <!-- Active Destinations Grid (Von Restorff Effect: Visually prioritize active trips first) -->
-    <section aria-labelledby="active-destinations-heading" class="space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
-        <div>
-          <h2 id="active-destinations-heading" class="text-xl sm:text-2xl font-extrabold text-text tracking-tight">
-            Active Destination Itineraries
-          </h2>
-          <p class="text-xs sm:text-sm text-text/70">
-            Select a destination to open its day-by-day timeline and budget analytics
-          </p>
-        </div>
-        <span class="text-[11px] sm:text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full self-start sm:self-auto">
-          {syncResult.source === 'google-sheets'
-            ? `Live from Google Sheets (${syncResult.countriesSynced.length} country tabs)`
-            : 'Configure GOOGLE_SHEET_ID to load country tabs'}
-        </span>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-        {activeCountries.map((country) => (
-          <article class="group glass-effect rounded-2xl p-4 sm:p-6 border-2 border-primary/25 hover:border-primary/50 shadow-md hover:shadow-xl transition-all duration-150 flex flex-col justify-between">
-            <div>
-              <!-- Card Header: Flag, Title, Currency & Ready Badge -->
-              <div class="flex items-start justify-between gap-2.5 sm:gap-4 mb-3.5 sm:mb-4">
-                <a href={`/${country.slug}/itinerary`} class="flex items-center gap-3 sm:gap-3.5 group/title min-w-0">
-                  <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/15 border border-primary/25 flex items-center justify-center text-2xl sm:text-3xl shadow-inner shrink-0 group-hover/title:scale-105 transition-transform">
-                    {country.flag}
+    <!-- Trips: one tappable card each, soonest first (Von Restorff: status chip marks what's next) -->
+    {trips.length > 0 && (
+      <section aria-labelledby="trips-heading" class="space-y-3">
+        <h2 id="trips-heading" class="text-lg sm:text-xl font-extrabold text-text px-1">Destinations</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          {trips.map(({ c, status, statusLabel, range }) => (
+            <article
+              data-reveal
+              data-card
+              class="relative glass-effect rounded-2xl p-4 sm:p-5 hover:border-primary/50 hover:shadow-lg transition-shadow duration-150 flex flex-col gap-3"
+            >
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="w-12 h-12 rounded-2xl bg-primary/15 border border-primary/25 flex items-center justify-center text-2xl shrink-0">
+                    {c.flag}
                   </div>
                   <div class="min-w-0">
-                    <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                      <h3 class="text-lg sm:text-2xl font-extrabold text-text group-hover/title:text-primary transition-colors truncate">
-                        {country.name}
-                      </h3>
-                      <span class="px-2 py-0.5 rounded-full text-[11px] sm:text-xs font-bold bg-primary/15 text-primary shrink-0">
-                        {country.currency}
-                      </span>
-                    </div>
-                    <p class="text-xs font-semibold text-text/65 mt-0.5 truncate">
-                      {country.region} • {country.season}
-                    </p>
+                    <h3 class="text-lg font-extrabold text-text leading-tight truncate">
+                      <!-- Stretched link: the whole card opens the trip -->
+                      <a href={`/${c.slug}`} class="after:absolute after:inset-0 after:content-[''] focus-ring rounded">
+                        {c.name}
+                      </a>
+                    </h3>
+                    <p class="text-xs text-text/65 mt-0.5">{range ?? `${c.stats.totalDays} days`}</p>
                   </div>
-                </a>
+                </div>
+                {statusLabel && (
+                  <span class:list={['px-2 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wide border shrink-0 whitespace-nowrap', statusStyle[status]]}>
+                    {statusLabel}
+                  </span>
+                )}
+              </div>
 
-                <span class="px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider bg-emerald-500/15 text-emerald-800 border border-emerald-500/30 shrink-0">
-                  {country.stats.totalDays}d Ready
+              <div class="flex items-center justify-between gap-3 text-sm">
+                <span class="text-text/75">{c.stats.totalDays} {c.stats.totalDays === 1 ? 'day' : 'days'} · {c.stats.totalActivities} {c.stats.totalActivities === 1 ? 'activity' : 'activities'}</span>
+                <span class="font-extrabold text-primary whitespace-nowrap">
+                  {c.stats.totalLocalCost > 0 ? `${Math.round(c.stats.totalLocalCost).toLocaleString()} ${c.currency}` : 'No costs'}
                 </span>
               </div>
 
-              <p class="text-xs sm:text-sm text-text/80 leading-relaxed mb-4 sm:mb-5">
-                {country.description}
-              </p>
+              {c.states.length > 0 && (
+                <ul class="relative z-10 flex flex-wrap gap-1.5" aria-label={`Places in ${c.name}`}>
+                  {c.states.map((s) => (
+                    <li>
+                      <a
+                        href={`/${c.slug}/${s.slug}`}
+                        class="touch-target inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/45 border border-primary/20 text-xs font-semibold text-text/80 hover:text-primary hover:border-primary/40 transition-colors"
+                      >
+                        <span aria-hidden="true">📍</span>{s.name}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </article>
+          ))}
+        </div>
+      </section>
+    )}
 
-              <!-- Chunked Trip Stats (Law of Proximity & Miller's Law) -->
-              <div class="grid grid-cols-3 gap-2 p-2.5 sm:p-3 rounded-xl bg-white/45 border border-primary/15 mb-4 sm:mb-5">
-                <div class="min-w-0">
-                  <span class="block text-[10px] font-bold uppercase tracking-wider text-text/55 truncate">Duration</span>
-                  <span class="block text-xs sm:text-sm font-extrabold text-text truncate">{country.stats.totalDays} Days</span>
-                </div>
-                <div class="min-w-0">
-                  <span class="block text-[10px] font-bold uppercase tracking-wider text-text/55 truncate">Activities</span>
-                  <span class="block text-xs sm:text-sm font-extrabold text-text truncate">{country.stats.totalActivities} Stops</span>
-                </div>
-                <div class="min-w-0">
-                  <span class="block text-[10px] font-bold uppercase tracking-wider text-text/55 truncate">Est. Cost</span>
-                  <span class="block text-xs sm:text-sm font-extrabold text-primary truncate" title={`${country.stats.totalLocalCost.toLocaleString()} ${country.currency}`}>
-                    {country.stats.totalLocalCost.toLocaleString()} {country.currency}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Action Bar (Fitts's Law: High-contrast primary CTA + secondary overview pill) -->
-            <div class="grid grid-cols-2 sm:flex items-center justify-between gap-2 pt-3 border-t border-primary/15">
-              <a
-                href={`/${country.slug}`}
-                class="touch-target inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-white/45 text-text/80 hover:text-primary border border-primary/15 transition-colors"
-              >
-                <span>🧭</span>
-                <span>Overview</span>
-              </a>
-
-              <a
-                href={`/${country.slug}/itinerary`}
-                class="touch-target inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl bg-primary text-white text-xs sm:text-sm font-bold shadow-sm hover:opacity-95 transition-opacity"
-              >
-                <span>Open Itinerary</span>
-                <span class="group-hover:translate-x-0.5 transition-transform">→</span>
-              </a>
-            </div>
-          </article>
-        ))}
-      </div>
-    </section>
-
-    <!-- Global Multi-Country Analytics & Live Currency Exchange Dashboard -->
-    <section aria-labelledby="global-analytics-heading" class="glass-effect rounded-2xl sm:rounded-3xl shadow-lg border border-primary/20 overflow-hidden">
-      <div class="p-4 sm:p-7 border-b border-primary/15 bg-white/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <span class="text-xs font-extrabold uppercase tracking-wider text-primary">
-            Cross-Country Comparison
+    <!-- Analytics collapsed by default (Hick's Law: progressive disclosure) -->
+    {trips.length > 0 && (
+      <details data-reveal class="group glass-effect rounded-2xl sm:rounded-3xl overflow-hidden">
+        <summary class="cursor-pointer list-none p-4 sm:p-6 flex items-center justify-between gap-3 hover:bg-primary/5 transition-colors select-none">
+          <span class="flex items-center gap-3 min-w-0">
+            <span class="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center text-lg shrink-0" aria-hidden="true">📊</span>
+            <span class="min-w-0">
+              <span class="block text-base sm:text-lg font-extrabold text-text">Spending & currency</span>
+              <span class="block text-xs sm:text-sm text-text/70">Budget breakdown across countries and live exchange rates</span>
+            </span>
           </span>
-          <h2 id="global-analytics-heading" class="text-xl sm:text-2xl font-extrabold text-text mt-0.5">
-            Analytics & Live Currency Exchange
-          </h2>
-          <p class="text-xs sm:text-sm text-text/70">
-            Real-time conversion, spending categories, and historical exchange rate trends
-          </p>
+          <svg class="w-5 h-5 text-text/60 shrink-0 transition-transform duration-150 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </summary>
+        <div class="p-3.5 sm:p-6 border-t border-primary/15">
+          <AnalyticsDashboard dataSources={allItineraries} currencies={trips.map((t) => t.c.currency)} client:visible />
         </div>
-      </div>
-      <div class="p-3.5 sm:p-6">
-        <AnalyticsDashboard dataSources={allItineraries} client:load />
-      </div>
-    </section>
+      </details>
+    )}
 
-    <!-- Upcoming / Wishlist Destinations (Hick's Law: Secondary hierarchy so they don't compete with active trips) -->
+    <!-- Wishlist: compact chips, secondary to real trips -->
     {upcomingCountries.length > 0 && (
-      <section aria-labelledby="upcoming-destinations-heading" class="space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div>
-            <h2 id="upcoming-destinations-heading" class="text-xl font-extrabold text-text">
-              Upcoming & Wishlist Destinations
-            </h2>
-            <p class="text-xs sm:text-sm text-text/70">
-              Discovered from Google Sheets tabs — add activity rows to the country tab to activate
-            </p>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {upcomingCountries.map((country) => (
+      <section data-reveal aria-labelledby="wishlist-heading" class="space-y-2">
+        <h2 id="wishlist-heading" class="text-sm font-bold uppercase tracking-wider text-text/60 px-1">Wishlist (no activities yet)</h2>
+        <div class="flex flex-wrap gap-2">
+          {upcomingCountries.map((c) => (
             <a
-              href={`/${country.slug}`}
-              class="group glass-effect rounded-2xl p-5 border border-primary/15 hover:border-primary/40 shadow-sm hover:shadow-md transition-all duration-150 flex items-start justify-between gap-3"
+              href={`/${c.slug}`}
+              class="touch-target inline-flex items-center gap-2 px-3.5 py-2 rounded-full glass-effect text-sm font-semibold text-text/85 hover:text-primary transition-colors"
             >
-              <div class="flex items-start gap-3.5">
-                <div class="w-11 h-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-2xl shrink-0">
-                  {country.flag}
-                </div>
-                <div>
-                  <div class="flex items-center gap-2">
-                    <h3 class="text-base font-extrabold text-text group-hover:text-primary transition-colors">
-                      {country.name}
-                    </h3>
-                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-text/10 text-text/70">
-                      {country.currency}
-                    </span>
-                  </div>
-                  <p class="text-xs text-text/70 mt-1 line-clamp-2">
-                    {country.description}
-                  </p>
-                </div>
-              </div>
-              <span class="text-xs font-bold text-primary shrink-0 mt-1 group-hover:translate-x-0.5 transition-transform">
-                →
-              </span>
+              <span aria-hidden="true">{c.flag}</span>{c.name}
             </a>
           ))}
         </div>
       </section>
     )}
+
+    <!-- Quiet sync status instead of a loud badge -->
+    <p class="text-center text-[11px] text-text/50">
+      {syncResult.source === 'google-sheets'
+        ? `Synced live from Google Sheets · ${syncResult.countriesSynced.length} tabs`
+        : 'Set GOOGLE_SHEET_ID to load your trips'}
+    </p>
   </div>
   <Footer />
 </Layout>
+
+<script>
+  import { animate, stagger, hover } from 'motion';
+
+  // Staggered entrance + subtle card lift; skipped for reduced motion
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const items = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'));
+    items.forEach((el) => (el.style.opacity = '0'));
+    animate(items, { opacity: [0, 1], y: [18, 0] }, { delay: stagger(0.07), duration: 0.5, ease: [0.22, 1, 0.36, 1] });
+
+    document.querySelectorAll<HTMLElement>('[data-card]').forEach((card) => {
+      hover(card, () => {
+        animate(card, { y: -3 }, { type: 'spring', stiffness: 400, damping: 24 });
+        return () => animate(card, { y: 0 }, { type: 'spring', stiffness: 400, damping: 24 });
+      });
+    });
+  }
+</script>
