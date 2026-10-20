@@ -2,15 +2,69 @@ import { h } from 'preact';
 import { useState } from 'preact/hooks';
 import type { TimelineItem as TimelineItemType } from '../types/itinerary';
 import { CATEGORIES, detectCategory } from '../utils/analytics';
+import ConfirmDialog from './ConfirmDialog';
+import ActivityFields, { draftToPayload, type ActivityDraft } from './ActivityFields';
 
 interface TimelineItemProps extends TimelineItemType {
   isLast?: boolean;
 }
 
 export default function TimelineItem(props: TimelineItemProps) {
-  const { time, title, description, location, price, note, images, youtubeUrl, isLast } = props;
+  const { id, tab, row, date, time, title, description, location, price, note, images, youtubeUrl, isLast } = props;
   const [showVideo, setShowVideo] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const canEdit = Boolean(tab && (id || row));
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  // Addresses the row by id, or by sheet row + original title for legacy rows without an id
+  const rowRef = id ? { id } : { row, expectTitle: title };
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState<ActivityDraft | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [busy, setBusy] = useState(false);
+  const [actionError, setActionError] = useState('');
+
+  const startEdit = () => {
+    setDraft({
+      date: date || '',
+      title,
+      time,
+      description: description || '',
+      category: props.category || '',
+      location_name: location?.name === title ? '' : location?.name || '',
+      price_amount: price?.amount ? String(price.amount) : '',
+      price_currency: price?.currency || '',
+      price_notes: price?.notes || '',
+    });
+    setFieldErrors({});
+    setActionError('');
+    setEditing(true);
+  };
+
+  const callApi = async (method: 'PATCH' | 'DELETE', body: unknown) => {
+    setBusy(true);
+    setActionError('');
+    try {
+      const res = await fetch('/api/itinerary', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setActionError(data.error || 'Something went wrong');
+        setFieldErrors(data.rowErrors?.[0] || {});
+        return;
+      }
+      window.location.reload();
+    } catch {
+      setActionError('Network error — please try again.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const saveEdit = () => draft && callApi('PATCH', { tab, ...rowRef, activity: draftToPayload(draft) });
+  const remove = () => callApi('DELETE', { tab, ...rowRef });
 
   const categoryMeta = detectCategory(props);
 
@@ -42,7 +96,7 @@ export default function TimelineItem(props: TimelineItemProps) {
       )}
 
       {/* Activity Card (Law of Common Region & Law of Proximity: Keep Time, Category, Price & Location scannable together) */}
-      <article className="bg-white/80 hover:bg-white/95 rounded-2xl border border-primary/15 hover:border-primary/35 shadow-sm hover:shadow-md transition-all duration-150 p-3.5 sm:p-5">
+      <article className="bg-white/45 hover:bg-surface-solid rounded-2xl border border-primary/15 hover:border-primary/35 shadow-sm hover:shadow-md transition-all duration-150 p-3.5 sm:p-5">
         {/* Top Metadata Bar: Time + Category + Price */}
         <div className="flex flex-wrap items-center justify-between gap-2 mb-2.5">
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
@@ -166,6 +220,28 @@ export default function TimelineItem(props: TimelineItemProps) {
             </a>
           )}
 
+          {canEdit && !editing && (
+            <div className="flex items-center gap-1.5 ml-auto">
+              <button
+                type="button"
+                onClick={startEdit}
+                className="px-3 py-2 sm:py-1.5 rounded-xl bg-primary/10 hover:bg-primary hover:text-white text-primary text-xs font-bold transition-colors duration-150"
+                aria-label={`Edit ${title}`}
+              >
+                ✏️ Edit
+              </button>
+              <button
+                type="button"
+                onClick={() => { setActionError(''); setConfirmOpen(true); }}
+                disabled={busy}
+                className="px-3 py-2 sm:py-1.5 rounded-xl bg-red-500/10 hover:bg-red-600 text-red-700 hover:text-white text-xs font-bold transition-colors duration-150 disabled:opacity-60"
+                aria-label={`Delete ${title}`}
+              >
+                🗑️ Delete
+              </button>
+            </div>
+          )}
+
           {youtubeUrl && (
             <button
               type="button"
@@ -177,6 +253,37 @@ export default function TimelineItem(props: TimelineItemProps) {
             </button>
           )}
         </div>
+
+        {editing && draft && (
+          <div className="mt-3 pt-3 border-t border-primary/10 space-y-3">
+            <ActivityFields
+              idPrefix={`edit-${id || row}`}
+              value={draft}
+              errors={fieldErrors}
+              onChange={(patch) => setDraft({ ...draft, ...patch })}
+            />
+            {actionError && (
+              <div role="alert" className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-xs font-semibold text-red-800">
+                {actionError}
+              </div>
+            )}
+            <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
+              <button type="button" onClick={() => setEditing(false)} disabled={busy}
+                className="touch-target px-4 py-2 rounded-xl bg-primary/10 text-primary text-xs font-bold">
+                Cancel
+              </button>
+              <button type="button" onClick={saveEdit} disabled={busy}
+                className="touch-target px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold disabled:opacity-60">
+                {busy ? 'Saving…' : 'Save changes'}
+              </button>
+            </div>
+          </div>
+        )}
+        {!editing && actionError && (
+          <div role="alert" className="mt-3 p-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-xs font-semibold text-red-800">
+            {actionError}
+          </div>
+        )}
 
         {/* Progressive Disclosure for Video Embed (Hick's Law) */}
         {youtubeUrl && showVideo && (
@@ -192,6 +299,17 @@ export default function TimelineItem(props: TimelineItemProps) {
           </div>
         )}
       </article>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Delete this activity?"
+        message={<>“{title}” will be permanently removed from the Google Sheet. This can't be undone.</>}
+        confirmLabel="Delete activity"
+        busy={busy}
+        error={confirmOpen ? actionError : ''}
+        onConfirm={remove}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </div>
   );
 }
