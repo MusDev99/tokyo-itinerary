@@ -110,7 +110,7 @@ const countryDataSource = country.stats.hasItinerary
               </p>
             </div>
           </div>
-          <AnalyticsDashboard dataSources={countryDataSource} client:load />
+          <AnalyticsDashboard dataSources={countryDataSource} currencies={[country.currency]} client:load />
         </section>
       </div>
     ) : (

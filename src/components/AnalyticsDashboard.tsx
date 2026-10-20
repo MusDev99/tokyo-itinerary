@@ -1,918 +1,638 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import type { DayItinerary } from '../types/itinerary';
-import {
-  CATEGORIES,
-  POPULAR_CURRENCIES,
-  detectCategory,
-  fetchLiveRates,
-  type CategoryInfo,
-} from '../utils/analytics';
+import { CATEGORIES, detectCategory, fetchLiveRates, type CategoryInfo } from '../utils/analytics';
+import { buildHubCurrencies, currencyName, currencySymbol, formatMoney } from '../utils/currencyInfo';
+import { useThemeColors } from './useThemeColors';
 import CurrencyExchangeGraph from './CurrencyExchangeGraph';
 import {
   Chart as ChartJS,
   ArcElement,
   BarElement,
+  BarController,
+  DoughnutController,
+  LineController,
+  LineElement,
+  PointElement,
   CategoryScale,
   LinearScale,
   Tooltip,
   Legend,
 } from 'chart.js';
-import { Doughnut, Bar } from 'react-chartjs-2';
+import { Doughnut, Chart } from 'react-chartjs-2';
 
-ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
+ChartJS.register(
+  ArcElement,
+  BarElement,
+  BarController,
+  DoughnutController,
+  LineController,
+  LineElement,
+  PointElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend
+);
 
-interface AnalyticsDashboardProps {
+interface Props {
   dataSources: { [country: string]: DayItinerary[] };
+  /** Currencies of the countries that have an itinerary (MYR and USD are always added) */
+  currencies?: string[];
 }
 
-interface FlattenedExpenseItem {
+interface Item {
   id: string;
   country: string;
   day: number;
-  dateStr: string;
+  dayKey: string;
   title: string;
   description: string;
   note?: string;
   amount: number;
   currency: string;
   category: CategoryInfo;
-  convertedAmount: number;
+  converted: number;
 }
 
-export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ dataSources }) => {
-  // Navigation & user preferences
-  const [activeTab, setActiveTab] = useState<'overview' | 'charts' | 'currency' | 'expenses'>('overview');
-  const [baseCurrency, setBaseCurrency] = useState<string>('MYR');
-  const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({});
-  const [rateStatus, setRateStatus] = useState<'loading' | 'success' | 'fallback'>('loading');
+type Tab = 'overview' | 'currency' | 'expenses';
+const PAGE_SIZES = [10, 25, 50] as const;
 
-  // Quick Currency Converter state
-  const [converterAmount, setConverterAmount] = useState<number>(100);
-  const [converterFrom, setConverterFrom] = useState<string>('MYR');
-  const [converterTo, setConverterTo] = useState<string>('JPY');
+const slugLabel = (s: string) => s.split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
-  // Graph state in Currency Hub
-  const [graphTarget, setGraphTarget] = useState<string>('JPY');
+export const AnalyticsDashboard: React.FC<Props> = ({ dataSources, currencies = [] }) => {
+  const colors = useThemeColors();
+  const hub = useMemo(() => buildHubCurrencies(currencies), [currencies.join('|')]);
 
-  // Expenses filtering
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('all');
-  const [selectedDayFilter, setSelectedDayFilter] = useState<string>('all');
+  const [tab, setTab] = useState<Tab>('overview');
+  const [base, setBase] = useState('MYR');
+  const [rates, setRates] = useState<Record<string, number>>({});
+  const [rateStatus, setRateStatus] = useState<'loading' | 'live' | 'fallback'>('loading');
 
-  // Fetch live exchange rates whenever base currency changes
+  // Converter + chart target (defaults to the first trip currency that isn't the base)
+  const firstTarget = hub.find((c) => c !== base) || 'USD';
+  const [amount, setAmount] = useState(100);
+  const [from, setFrom] = useState('MYR');
+  const [to, setTo] = useState(firstTarget);
+  const [graphTarget, setGraphTarget] = useState(firstTarget);
+
+  // Expenses: filters, sorting, pagination
+  const [query, setQuery] = useState('');
+  const [catFilter, setCatFilter] = useState('all');
+  const [countryFilter, setCountryFilter] = useState('all');
+  const [sort, setSort] = useState<'trip' | 'cost'>('trip');
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [page, setPage] = useState(1);
+  const listTop = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    let isMounted = true;
+    let alive = true;
     setRateStatus('loading');
-
-    fetchLiveRates(baseCurrency)
-      .then((rates) => {
-        if (!isMounted) return;
-        setExchangeRates(rates);
-        setRateStatus('success');
-      })
-      .catch((err) => {
-        if (!isMounted) return;
-        console.warn('Failed to fetch live rates, using fallback:', err);
-        setRateStatus('fallback');
-      });
-
+    fetchLiveRates(base)
+      .then((r) => alive && (setRates(r), setRateStatus('live')))
+      .catch(() => alive && setRateStatus('fallback'));
     return () => {
-      isMounted = false;
+      alive = false;
     };
-  }, [baseCurrency]);
+  }, [base]);
 
-  // Convert amount from one currency to base currency
-  const toBase = useMemo(() => {
-    return (amount: number, fromCurrency: string): number => {
-      if (amount <= 0) return 0;
-      if (fromCurrency === baseCurrency) return amount;
-      const rate = exchangeRates[fromCurrency];
-      if (rate && rate > 0) {
-        return amount / rate;
-      }
-      return amount; // default 1:1 if rate unknown
-    };
-  }, [baseCurrency, exchangeRates]);
+  // Keep converter/graph selections valid when the base or hub changes
+  useEffect(() => {
+    if (graphTarget === base || !hub.includes(graphTarget)) setGraphTarget(hub.find((c) => c !== base) || 'USD');
+    if (!hub.includes(from)) setFrom(base);
+    if (!hub.includes(to)) setTo(hub.find((c) => c !== base) || 'USD');
+  }, [base, hub.join('|')]);
 
-  // Flatten and process all expense items across all itineraries
-  const processedItems = useMemo<FlattenedExpenseItem[]>(() => {
-    const list: FlattenedExpenseItem[] = [];
-
-    Object.entries(dataSources).forEach(([country, itinerary]) => {
-      if (!Array.isArray(itinerary)) return;
-
-      itinerary.forEach((dayObj) => {
-        const dayNumber = dayObj.day;
-        const dateStr = dayObj.date || `Day ${dayNumber}`;
-
-        dayObj.items.forEach((item, idx) => {
-          const amount = item.price?.amount || 0;
-          const currency = item.price?.currency || 'JPY';
-          const category = detectCategory(item);
-          const converted = toBase(amount, currency);
-
-          list.push({
-            id: `${country}-d${dayNumber}-i${idx}`,
-            country,
-            day: dayNumber,
-            dateStr,
-            title: item.title,
-            description: item.description,
-            note: item.note,
-            amount,
-            currency,
-            category,
-            convertedAmount: converted,
-          });
-        });
-      });
-    });
-
-    return list;
-  }, [dataSources, toBase]);
-
-  // Non-zero expense items for financial analytics
-  const paidItems = useMemo(() => {
-    return processedItems.filter((item) => item.amount > 0);
-  }, [processedItems]);
-
-  // Currency summaries (totals grouped by native currency)
-  const currencySummaries = useMemo(() => {
-    const map = new Map<string, { total: number; count: number; inBase: number }>();
-
-    paidItems.forEach((item) => {
-      const prev = map.get(item.currency) || { total: 0, count: 0, inBase: 0 };
-      map.set(item.currency, {
-        total: prev.total + item.amount,
-        count: prev.count + 1,
-        inBase: prev.inBase + item.convertedAmount,
-      });
-    });
-
-    return Array.from(map.entries()).map(([currency, data]) => ({
-      currency,
-      ...data,
-      avg: data.total / data.count,
-    }));
-  }, [paidItems]);
-
-  // Total trip cost in active base currency
-  const totalCostInBase = useMemo(() => {
-    return paidItems.reduce((acc, item) => acc + item.convertedAmount, 0);
-  }, [paidItems]);
-
-  // Total distinct travel days
-  const totalDays = useMemo(() => {
-    const set = new Set<string>();
-    processedItems.forEach((item) => set.add(`${item.country}-${item.day}`));
-    return Math.max(set.size, 1);
-  }, [processedItems]);
-
-  // Top / peak metrics
-  const topExpenseItem = useMemo(() => {
-    if (paidItems.length === 0) return null;
-    return [...paidItems].sort((a, b) => b.convertedAmount - a.convertedAmount)[0];
-  }, [paidItems]);
-
-  // Group by Day for daily timeline chart & peak day
-  const dailySpending = useMemo(() => {
-    const map = new Map<string, { dayLabel: string; dayNum: number; totalBase: number; count: number }>();
-
-    processedItems.forEach((item) => {
-      const key = `Day ${item.day}`;
-      const prev = map.get(key) || { dayLabel: key, dayNum: item.day, totalBase: 0, count: 0 };
-      map.set(key, {
-        ...prev,
-        totalBase: prev.totalBase + item.convertedAmount,
-        count: prev.count + 1,
-      });
-    });
-
-    const list = Array.from(map.values()).sort((a, b) => a.dayNum - b.dayNum);
-    return list;
-  }, [processedItems]);
-
-  const peakDay = useMemo(() => {
-    if (dailySpending.length === 0) return null;
-    return [...dailySpending].sort((a, b) => b.totalBase - a.totalBase)[0];
-  }, [dailySpending]);
-
-  // Category breakdown for doughnut chart
-  const categoryStats = useMemo(() => {
-    const map = new Map<string, { category: CategoryInfo; totalBase: number; count: number }>();
-
-    paidItems.forEach((item) => {
-      const catKey = item.category.key;
-      const prev = map.get(catKey) || { category: item.category, totalBase: 0, count: 0 };
-      map.set(catKey, {
-        ...prev,
-        totalBase: prev.totalBase + item.convertedAmount,
-        count: prev.count + 1,
-      });
-    });
-
-    return Array.from(map.values()).sort((a, b) => b.totalBase - a.totalBase);
-  }, [paidItems]);
-
-  // Doughnut Chart Data for Categories
-  const categoryChartData = useMemo(() => {
-    return {
-      labels: categoryStats.map((c) => `${c.category.emoji} ${c.category.label}`),
-      datasets: [
-        {
-          data: categoryStats.map((c) => Math.round(c.totalBase)),
-          backgroundColor: categoryStats.map((c) => c.category.color),
-          borderWidth: 2,
-          borderColor: 'rgba(255, 255, 255, 0.1)',
-        },
-      ],
-    };
-  }, [categoryStats]);
-
-  // Daily Spending Bar Chart Data
-  const dailyChartData = useMemo(() => {
-    return {
-      labels: dailySpending.map((d) => d.dayLabel),
-      datasets: [
-        {
-          label: `Daily Spending (${baseCurrency})`,
-          data: dailySpending.map((d) => Math.round(d.totalBase)),
-          backgroundColor: 'rgba(59, 130, 246, 0.8)',
-          hoverBackgroundColor: 'rgba(59, 130, 246, 1)',
-          borderRadius: 6,
-        },
-      ],
-    };
-  }, [dailySpending, baseCurrency]);
-
-  // Quick Currency Converter computation
-  const convertedResult = useMemo(() => {
-    if (!converterAmount || converterAmount <= 0) return 0;
-    if (converterFrom === converterTo) return converterAmount;
-
-    // Convert from -> base -> to
-    let inBase = converterAmount;
-    if (converterFrom !== baseCurrency) {
-      const fromRate = exchangeRates[converterFrom] || 1;
-      inBase = converterAmount / fromRate;
-    }
-
-    if (converterTo === baseCurrency) {
-      return inBase;
-    }
-
-    const toRate = exchangeRates[converterTo] || 1;
-    return inBase * toRate;
-  }, [converterAmount, converterFrom, converterTo, baseCurrency, exchangeRates]);
-
-  // Filtered detailed items
-  const filteredItems = useMemo(() => {
-    return processedItems.filter((item) => {
-      const matchesSearch =
-        searchQuery === '' ||
-        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (item.note && item.note.toLowerCase().includes(searchQuery.toLowerCase()));
-
-      const matchesCat =
-        selectedCategoryFilter === 'all' || item.category.key === selectedCategoryFilter;
-
-      const matchesDay =
-        selectedDayFilter === 'all' || item.day.toString() === selectedDayFilter;
-
-      return matchesSearch && matchesCat && matchesDay;
-    });
-  }, [processedItems, searchQuery, selectedCategoryFilter, selectedDayFilter]);
-
-  // Format currency helper
-  const formatAmount = (val: number, curr: string) => {
-    const isZeroDecimal = ['JPY', 'KZT'].includes(curr);
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: curr,
-      minimumFractionDigits: isZeroDecimal ? 0 : 2,
-      maximumFractionDigits: isZeroDecimal ? 0 : 2,
-    }).format(val);
+  const toBase = (value: number, cur: string) => {
+    if (value <= 0 || cur === base) return value;
+    const r = rates[cur];
+    return r && r > 0 ? value / r : value;
   };
 
-  return (
-    <div className="w-full flex flex-col gap-5 sm:gap-6">
-      {/* Top Header Bar: Title, Live Status, Base Currency Toggle */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4 pb-4 border-b border-primary/20">
-        <div className="flex items-center gap-3">
-          <div className="p-2 sm:p-2.5 rounded-xl bg-primary/10 border border-primary/30 text-primary shrink-0">
-            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-          </div>
-          <div className="min-w-0">
-            <h2 className="text-lg sm:text-2xl font-bold text-text truncate">Trip Analytics & Currency</h2>
-            <div className="flex items-center gap-2 mt-0.5 text-xs text-text/60">
-              <span className={`inline-block w-2 h-2 rounded-full shrink-0 ${rateStatus === 'success' ? 'bg-emerald-400 animate-pulse' : 'bg-yellow-400'}`}></span>
-              <span className="truncate">{rateStatus === 'success' ? 'Live Public API Connected' : 'Rates Initializing...'}</span>
-            </div>
-          </div>
-        </div>
+  const multiCountry = Object.keys(dataSources).length > 1;
 
-        {/* Base Currency Switcher */}
-        <div className="flex items-center justify-between sm:justify-start gap-2 bg-bg/50 px-3 py-2 rounded-xl border border-primary/20 w-full sm:w-auto">
-          <label htmlFor="base-currency-select" className="text-xs text-text/70 font-medium whitespace-nowrap">
-            Home Currency:
-          </label>
-          <select
-            id="base-currency-select"
-            value={baseCurrency}
-            onChange={(e) => setBaseCurrency(e.currentTarget.value)}
-            className="bg-bg text-text text-xs sm:text-sm font-semibold rounded-lg px-2.5 py-1.5 border border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer"
-          >
-            {POPULAR_CURRENCIES.map((curr) => (
-              <option key={curr.code} value={curr.code}>
-                {curr.flag} {curr.code} ({curr.symbol})
-              </option>
+  const items = useMemo<Item[]>(() => {
+    const out: Item[] = [];
+    Object.entries(dataSources).forEach(([country, itinerary]) => {
+      if (!Array.isArray(itinerary)) return;
+      itinerary.forEach((d) =>
+        d.items.forEach((it, i) => {
+          const amountN = it.price?.amount || 0;
+          const cur = it.price?.currency || 'USD';
+          out.push({
+            id: `${country}-d${d.day}-i${i}`,
+            country,
+            day: d.day,
+            dayKey: `${country}|${d.day}`,
+            title: it.title,
+            description: it.description,
+            note: it.note,
+            amount: amountN,
+            currency: cur,
+            category: detectCategory(it),
+            converted: toBase(amountN, cur),
+          });
+        })
+      );
+    });
+    return out;
+  }, [dataSources, base, rates]);
+
+  const paid = useMemo(() => items.filter((i) => i.amount > 0), [items]);
+  const total = useMemo(() => paid.reduce((a, i) => a + i.converted, 0), [paid]);
+  const dayKeys = useMemo(() => Array.from(new Set(items.map((i) => i.dayKey))), [items]);
+  const totalDays = Math.max(dayKeys.length, 1);
+
+  const nativeTotals = useMemo(() => {
+    const m = new Map<string, { total: number; count: number }>();
+    paid.forEach((i) => {
+      const p = m.get(i.currency) || { total: 0, count: 0 };
+      m.set(i.currency, { total: p.total + i.amount, count: p.count + 1 });
+    });
+    return [...m.entries()].map(([currency, v]) => ({ currency, ...v }));
+  }, [paid]);
+
+  const categoryStats = useMemo(() => {
+    const m = new Map<string, { cat: CategoryInfo; total: number; count: number }>();
+    paid.forEach((i) => {
+      const p = m.get(i.category.key) || { cat: i.category, total: 0, count: 0 };
+      m.set(i.category.key, { ...p, total: p.total + i.converted, count: p.count + 1 });
+    });
+    return [...m.values()].sort((a, b) => b.total - a.total);
+  }, [paid]);
+
+  // Per-day totals split by category (feeds the stacked chart + peak day)
+  const daily = useMemo(() => {
+    const m = new Map<string, { label: string; total: number; byCat: Record<string, number>; order: number }>();
+    let order = 0;
+    items.forEach((i) => {
+      let d = m.get(i.dayKey);
+      if (!d) {
+        const prefix = multiCountry ? `${slugLabel(i.country).slice(0, 3).toUpperCase()} ` : '';
+        d = { label: `${prefix}D${i.day}`, total: 0, byCat: {}, order: order++ };
+        m.set(i.dayKey, d);
+      }
+      d.total += i.converted;
+      d.byCat[i.category.key] = (d.byCat[i.category.key] || 0) + i.converted;
+    });
+    return [...m.values()].sort((a, b) => a.order - b.order);
+  }, [items, multiCountry]);
+
+  const peakDay = useMemo(() => [...daily].sort((a, b) => b.total - a.total)[0], [daily]);
+  const topItems = useMemo(() => [...paid].sort((a, b) => b.converted - a.converted).slice(0, 6), [paid]);
+  const avgPerDay = total / totalDays;
+
+  const money = (v: number, c = base) => formatMoney(v, c);
+  const tick = { color: colors.text + 'b3', font: { size: 11 } };
+  const grid = { color: colors.text + '1a' };
+
+  // ---- Charts -----------------------------------------------------------
+  const doughnutData = {
+    labels: categoryStats.map((c) => `${c.cat.emoji} ${c.cat.label}`),
+    datasets: [
+      {
+        data: categoryStats.map((c) => Math.round(c.total)),
+        backgroundColor: categoryStats.map((c) => c.cat.color),
+        borderWidth: 2,
+        borderColor: 'rgba(255,255,255,0.6)',
+        hoverOffset: 6,
+      },
+    ],
+  };
+  // Total in the middle of the doughnut (closure over the current total/colors)
+  const centerPlugin = {
+    id: 'centerText',
+    afterDraw(chart: any) {
+      const { ctx, chartArea } = chart;
+      if (!chartArea) return;
+      const cx = (chartArea.left + chartArea.right) / 2;
+      const cy = (chartArea.top + chartArea.bottom) / 2;
+      ctx.save();
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = colors.text;
+      ctx.font = '700 15px Inter, sans-serif';
+      ctx.fillText(money(total), cx, cy - 8);
+      ctx.fillStyle = colors.text + '99';
+      ctx.font = '500 11px Inter, sans-serif';
+      ctx.fillText('total spend', cx, cy + 10);
+      ctx.restore();
+    },
+  };
+
+  const stackedData: any = {
+    labels: daily.map((d) => d.label),
+    datasets: [
+      ...categoryStats.map((c) => ({
+        type: 'bar' as const,
+        label: c.cat.label,
+        data: daily.map((d) => Math.round(d.byCat[c.cat.key] || 0)),
+        backgroundColor: c.cat.color,
+        stack: 'spend',
+        borderRadius: 3,
+      })),
+      {
+        type: 'line' as const,
+        label: `Average / day`,
+        data: daily.map(() => Math.round(avgPerDay)),
+        borderColor: colors.text,
+        borderDash: [6, 5],
+        borderWidth: 1.5,
+        pointRadius: 0,
+        fill: false,
+      },
+    ],
+  };
+
+  const topData = {
+    labels: topItems.map((i) => (i.title.length > 26 ? `${i.title.slice(0, 25)}…` : i.title)),
+    datasets: [
+      {
+        data: topItems.map((i) => Math.round(i.converted)),
+        backgroundColor: topItems.map((i) => i.category.color),
+        borderRadius: 6,
+      },
+    ],
+  };
+
+  // ---- Converter -------------------------------------------------------
+  const converted = useMemo(() => {
+    if (!amount || amount <= 0) return 0;
+    if (from === to) return amount;
+    const inBase = from === base ? amount : amount / (rates[from] || 1);
+    return to === base ? inBase : inBase * (rates[to] || 1);
+  }, [amount, from, to, base, rates]);
+
+  // ---- Expenses: filter + sort + paginate ------------------------------
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const list = items.filter(
+      (i) =>
+        (!q || i.title.toLowerCase().includes(q) || i.description?.toLowerCase().includes(q) || i.note?.toLowerCase().includes(q)) &&
+        (catFilter === 'all' || i.category.key === catFilter) &&
+        (countryFilter === 'all' || i.country === countryFilter)
+    );
+    return sort === 'cost' ? [...list].sort((a, b) => b.converted - a.converted) : list;
+  }, [items, query, catFilter, countryFilter, sort]);
+
+  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const current = Math.min(page, pageCount);
+  const start = (current - 1) * pageSize;
+  const pageItems = filtered.slice(start, start + pageSize);
+  const filteredTotal = filtered.reduce((a, i) => a + i.converted, 0);
+
+  // Any filter/size change returns to page 1
+  useEffect(() => setPage(1), [query, catFilter, countryFilter, sort, pageSize]);
+
+  const goTo = (p: number) => {
+    setPage(Math.min(Math.max(1, p), pageCount));
+    listTop.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  };
+
+  // Compact page list: 1 … c-1 c c+1 … n
+  const pageNumbers = useMemo(() => {
+    const nums = new Set([1, pageCount, current - 1, current, current + 1]);
+    const sorted = [...nums].filter((n) => n >= 1 && n <= pageCount).sort((a, b) => a - b);
+    const out: Array<number | '…'> = [];
+    sorted.forEach((n, i) => {
+      if (i > 0 && n - sorted[i - 1] > 1) out.push('…');
+      out.push(n);
+    });
+    return out;
+  }, [pageCount, current]);
+
+  const card = 'rounded-2xl bg-white/40 border border-primary/20 p-4 sm:p-5';
+  const field = 'bg-white/70 text-text text-sm rounded-lg px-3 py-2 border border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/40';
+
+  return (
+    <div className="w-full flex flex-col gap-4 sm:gap-5">
+      {/* Header: title, live status, home currency */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 className="text-lg sm:text-xl font-extrabold text-text">Spending & currency</h2>
+          <p className="text-xs text-text/60 flex items-center gap-1.5 mt-0.5">
+            <span className={`inline-block w-2 h-2 rounded-full ${rateStatus === 'live' ? 'bg-emerald-500' : 'bg-amber-400'}`} />
+            {rateStatus === 'live' ? 'Live exchange rates' : rateStatus === 'loading' ? 'Loading rates…' : 'Offline rates (approximate)'}
+          </p>
+        </div>
+        <label className="flex items-center justify-between sm:justify-start gap-2 text-xs font-semibold text-text/70">
+          Home currency
+          <select value={base} onChange={(e) => setBase(e.currentTarget.value)} className={field} aria-label="Home currency">
+            {hub.map((c) => (
+              <option key={c} value={c}>{c} ({currencySymbol(c)})</option>
             ))}
           </select>
-        </div>
+        </label>
       </div>
 
-      {/* Segmented Navigation Tabs (2x2 grid on mobile, row on sm+) */}
-      <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-1.5 sm:gap-2 p-1.5 rounded-xl bg-bg/40 border border-primary/20">
-        {[
-          { key: 'overview', label: 'Overview', icon: '📊' },
-          { key: 'charts', label: 'Charts & Insights', icon: '📈' },
-          { key: 'currency', label: 'Currency Hub', icon: '💱' },
-          { key: 'expenses', label: 'Expenses', icon: '📋' },
-        ].map((tab) => (
+      {/* Three tabs (Hick's Law: fewer choices) */}
+      <div role="tablist" className="grid grid-cols-3 gap-1.5 p-1.5 rounded-xl bg-white/40 border border-primary/20">
+        {([
+          ['overview', '📊', 'Overview'],
+          ['currency', '💱', 'Currency'],
+          ['expenses', '📋', 'Expenses'],
+        ] as const).map(([key, icon, label]) => (
           <button
-            key={tab.key}
+            key={key}
+            role="tab"
+            aria-selected={tab === key}
             type="button"
-            onClick={() => setActiveTab(tab.key as any)}
-            className={`touch-target flex items-center justify-center sm:justify-start gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
-              activeTab === tab.key
-                ? 'bg-primary text-white shadow-md'
-                : 'text-text/70 hover:text-text hover:bg-primary/10'
+            onClick={() => setTab(key)}
+            className={`touch-target flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-xs sm:text-sm font-bold transition-colors ${
+              tab === key ? 'bg-primary text-white shadow-sm' : 'text-text/70 hover:bg-primary/10'
             }`}
           >
-            <span>{tab.icon}</span>
-            <span className="truncate">{tab.label}</span>
+            <span aria-hidden="true">{icon}</span>
+            {label}
           </button>
         ))}
       </div>
 
-      {/* TAB 1: OVERVIEW */}
-      {activeTab === 'overview' && (
-        <div className="flex flex-col gap-5 sm:gap-6">
-          {/* Hero Banner with Total Converted Cost */}
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-secondary/10 to-bg/50 p-4 sm:p-6 border border-primary/30 shadow-lg">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="min-w-0">
-                <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-text/70">
-                  Total Trip Expenditure (Converted)
+      {/* ---------------- OVERVIEW ---------------- */}
+      {tab === 'overview' && (
+        <div className="flex flex-col gap-4 sm:gap-5">
+          <div className={`${card} bg-gradient-to-br from-primary/15 to-transparent flex flex-col sm:flex-row sm:items-center justify-between gap-4`}>
+            <div className="min-w-0">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-text/60">Total estimated spend</div>
+              <div className="text-3xl sm:text-4xl font-extrabold text-text break-words">{money(total)}</div>
+              <div className="text-xs text-text/60 mt-1">
+                ≈ {money(avgPerDay)} per day · {paid.length} paid of {items.length} activities
+              </div>
+            </div>
+            <div className="flex flex-wrap sm:flex-col gap-1.5 sm:items-end">
+              {nativeTotals.map((n) => (
+                <span key={n.currency} className="px-2.5 py-1 rounded-lg bg-white/50 border border-primary/20 text-xs text-text/80">
+                  <strong className="text-primary">{n.currency}</strong> {formatMoney(n.total, n.currency)}
                 </span>
-                <div className="text-2xl sm:text-4xl font-extrabold text-text mt-1 break-words">
-                  {formatAmount(totalCostInBase, baseCurrency)}
-                </div>
-                <div className="text-xs text-text/60 mt-1 flex flex-wrap gap-2">
-                  <span>Based on live exchange rates to {baseCurrency}</span>
-                </div>
-              </div>
+              ))}
+            </div>
+          </div>
 
-              {/* Native currency breakdown chips */}
-              <div className="flex flex-wrap sm:flex-col items-start sm:items-end gap-1.5">
-                {currencySummaries.map((s) => (
-                  <div
-                    key={s.currency}
-                    className="px-2.5 sm:px-3 py-1 rounded-lg bg-bg/60 border border-primary/20 text-xs text-text/80 flex items-center gap-1.5 sm:gap-2"
-                  >
-                    <span className="font-bold text-primary">{s.currency}</span>
-                    <span>{formatAmount(s.total, s.currency)}</span>
-                    <span className="text-text/40">({s.count})</span>
+          {paid.length === 0 ? (
+            <div className={`${card} text-center text-sm text-text/60`}>No costs recorded yet. Add amounts to your activities to see charts.</div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
+                <section className={card} aria-label="Spending by category">
+                  <h3 className="text-sm font-extrabold text-text">Where the money goes</h3>
+                  <p className="text-xs text-text/60 mb-3">Share of spend by category</p>
+                  <div className="relative h-64 w-full">
+                    <Doughnut
+                      data={doughnutData}
+                      plugins={[centerPlugin]}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '62%',
+                        plugins: {
+                          legend: { display: false },
+                          tooltip: { callbacks: { label: (c: any) => ` ${c.label}: ${money(c.raw)}` } },
+                        },
+                      }}
+                    />
                   </div>
-                ))}
+                  <ul className="mt-3 space-y-1.5">
+                    {categoryStats.map((c) => (
+                      <li key={c.cat.key} className="flex items-center justify-between gap-3 text-xs">
+                        <span className="flex items-center gap-2 text-text/80 min-w-0">
+                          <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: c.cat.color }} />
+                          <span className="truncate">{c.cat.emoji} {c.cat.label}</span>
+                        </span>
+                        <span className="font-semibold text-text whitespace-nowrap">
+                          {money(c.total)} <span className="text-text/50">({total > 0 ? Math.round((c.total / total) * 100) : 0}%)</span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+
+                <section className={card} aria-label="Top expenses">
+                  <h3 className="text-sm font-extrabold text-text">Biggest expenses</h3>
+                  <p className="text-xs text-text/60 mb-3">Top {topItems.length} activities in {base}</p>
+                  <div className="relative" style={{ height: `${Math.max(200, topItems.length * 42)}px` }}>
+                    <Chart
+                      type="bar"
+                      data={topData as any}
+                      options={{
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                          legend: { display: false },
+                          tooltip: { callbacks: { label: (c: any) => ` ${money(c.raw)}` } },
+                        },
+                        scales: {
+                          x: { ticks: tick, grid },
+                          y: { ticks: { ...tick, font: { size: 11 } }, grid: { display: false } },
+                        },
+                      } as any}
+                    />
+                  </div>
+                </section>
               </div>
-            </div>
-          </div>
 
-          {/* 4 Key Metric Cards (2x2 on mobile, 4 columns on desktop) */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <div className="p-3.5 sm:p-4 rounded-xl bg-bg/40 border border-primary/20 flex flex-col gap-1 min-w-0">
-              <span className="text-[11px] sm:text-xs text-text/60 font-medium truncate">Daily Spend Avg</span>
-              <span className="text-base sm:text-xl font-bold text-text truncate">
-                {formatAmount(totalCostInBase / totalDays, baseCurrency)}
-              </span>
-              <span className="text-[10px] sm:text-[11px] text-text/50">Across {totalDays} days</span>
-            </div>
-
-            <div className="p-3.5 sm:p-4 rounded-xl bg-bg/40 border border-primary/20 flex flex-col gap-1 min-w-0">
-              <span className="text-[11px] sm:text-xs text-text/60 font-medium truncate">Total Activities</span>
-              <span className="text-base sm:text-xl font-bold text-text">{processedItems.length}</span>
-              <span className="text-[10px] sm:text-[11px] text-text/50">
-                Avg {(processedItems.length / totalDays).toFixed(1)} / day
-              </span>
-            </div>
-
-            <div className="p-3.5 sm:p-4 rounded-xl bg-bg/40 border border-primary/20 flex flex-col gap-1 min-w-0">
-              <span className="text-[11px] sm:text-xs text-text/60 font-medium truncate">Top Single Expense</span>
-              {topExpenseItem ? (
-                <>
-                  <span className="text-xs sm:text-sm font-bold text-text truncate" title={topExpenseItem.title}>
-                    {topExpenseItem.title}
-                  </span>
-                  <span className="text-[11px] sm:text-xs font-semibold text-primary truncate">
-                    {formatAmount(topExpenseItem.convertedAmount, baseCurrency)}
-                  </span>
-                </>
-              ) : (
-                <span className="text-sm text-text/50">None</span>
-              )}
-            </div>
-
-            <div className="p-3.5 sm:p-4 rounded-xl bg-bg/40 border border-primary/20 flex flex-col gap-1 min-w-0">
-              <span className="text-[11px] sm:text-xs text-text/60 font-medium truncate">Peak Spending Day</span>
-              {peakDay ? (
-                <>
-                  <span className="text-base sm:text-xl font-bold text-text">{peakDay.dayLabel}</span>
-                  <span className="text-[11px] sm:text-xs text-text/60 truncate">
-                    {formatAmount(peakDay.totalBase, baseCurrency)} ({peakDay.count})
-                  </span>
-                </>
-              ) : (
-                <span className="text-sm text-text/50">None</span>
-              )}
-            </div>
-          </div>
-
-          {/* Quick Category Summary Grid */}
-          <div className="rounded-xl bg-bg/30 p-4 sm:p-5 border border-primary/20">
-            <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-text/70 mb-3">
-              Spending by Category
-            </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2.5 sm:gap-3">
-              {categoryStats.map((stat) => (
-                <div
-                  key={stat.category.key}
-                  className={`p-3 rounded-xl border flex flex-col gap-1 min-w-0 ${stat.category.bgClass}`}
-                >
-                  <span className="text-lg">{stat.category.emoji}</span>
-                  <span className="text-xs font-semibold truncate">{stat.category.label}</span>
-                  <span className="text-xs sm:text-sm font-bold text-text mt-0.5 truncate">
-                    {formatAmount(stat.totalBase, baseCurrency)}
-                  </span>
-                  <span className="text-[10px] text-text/60">
-                    {totalCostInBase > 0 ? ((stat.totalBase / totalCostInBase) * 100).toFixed(0) : 0}% of budget
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 2: CHARTS & INSIGHTS */}
-      {activeTab === 'charts' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Category Distribution (Doughnut Chart) */}
-          <div className="p-5 rounded-2xl bg-bg/30 border border-primary/20 flex flex-col gap-4">
-            <div>
-              <h3 className="text-base font-bold text-text flex items-center gap-2">
-                <span>🥧</span> Category Expense Distribution
-              </h3>
-              <p className="text-xs text-text/60">Share of total expenditure by activity category</p>
-            </div>
-
-            <div className="relative h-64 sm:h-72 w-full flex items-center justify-center">
-              {categoryStats.length > 0 ? (
-                <Doughnut
-                  data={categoryChartData}
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: {
-                        position: 'bottom',
-                        labels: {
-                          color: 'rgba(156, 163, 175, 0.9)',
-                          font: { size: 11 },
-                          padding: 12,
-                        },
-                      },
-                      tooltip: {
-                        callbacks: {
-                          label: (ctx: any) => ` ${ctx.label}: ${formatAmount(ctx.raw, baseCurrency)}`,
-                        },
-                      },
-                    },
-                  }}
-                />
-              ) : (
-                <div className="text-sm text-text/50">No expenses recorded yet.</div>
-              )}
-            </div>
-
-            {/* List breakdown */}
-            <div className="space-y-1.5 pt-2 border-t border-primary/10">
-              {categoryStats.map((c) => (
-                <div key={c.category.key} className="flex items-center justify-between text-xs py-1">
-                  <span className="flex items-center gap-1.5 text-text/80">
-                    <span>{c.category.emoji}</span>
-                    <span>{c.category.label}</span>
-                  </span>
-                  <span className="font-semibold text-text">
-                    {formatAmount(c.totalBase, baseCurrency)}{' '}
-                    <span className="text-text/50">
-                      ({totalCostInBase > 0 ? ((c.totalBase / totalCostInBase) * 100).toFixed(1) : 0}%)
+              <section className={card} aria-label="Daily spending">
+                <div className="flex flex-wrap items-end justify-between gap-2 mb-3">
+                  <div>
+                    <h3 className="text-sm font-extrabold text-text">Daily spending</h3>
+                    <p className="text-xs text-text/60">Each bar is one day, split by category. Dashed line = daily average.</p>
+                  </div>
+                  {peakDay && (
+                    <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-primary/10 text-primary">
+                      Peak: {peakDay.label} · {money(peakDay.total)}
                     </span>
-                  </span>
+                  )}
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Daily Spending Timeline (Bar Chart) */}
-          <div className="p-5 rounded-2xl bg-bg/30 border border-primary/20 flex flex-col gap-4">
-            <div>
-              <h3 className="text-base font-bold text-text flex items-center gap-2">
-                <span>📊</span> Daily Expenditure Timeline
-              </h3>
-              <p className="text-xs text-text/60">Day-by-day spending converted into {baseCurrency}</p>
-            </div>
-
-            <div className="relative h-64 sm:h-72 w-full flex items-center justify-center">
-              {dailySpending.length > 0 ? (
-                <Bar
-                  data={dailyChartData}
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: { display: false },
-                      tooltip: {
-                        callbacks: {
-                          label: (ctx: any) => ` Spending: ${formatAmount(ctx.raw, baseCurrency)}`,
-                        },
+                <div className="relative h-64 sm:h-72 w-full">
+                  <Chart
+                    type="bar"
+                    data={stackedData}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      interaction: { mode: 'index', intersect: false },
+                      plugins: {
+                        legend: { position: 'bottom', labels: { color: colors.text + 'cc', boxWidth: 10, font: { size: 11 } } },
+                        tooltip: { callbacks: { label: (c: any) => ` ${c.dataset.label}: ${money(c.raw)}` } },
                       },
-                    },
-                    scales: {
-                      x: {
-                        ticks: { color: 'rgba(156, 163, 175, 0.8)', font: { size: 11 } },
-                        grid: { display: false },
+                      scales: {
+                        x: { stacked: true, ticks: tick, grid: { display: false } },
+                        y: { stacked: true, ticks: tick, grid },
                       },
-                      y: {
-                        ticks: { color: 'rgba(156, 163, 175, 0.8)', font: { size: 11 } },
-                        grid: { color: 'rgba(156, 163, 175, 0.1)' },
-                      },
-                    },
-                  }}
-                />
-              ) : (
-                <div className="text-sm text-text/50">No daily spending data.</div>
-              )}
-            </div>
-
-            {/* Quick insights callout */}
-            <div className="p-3 rounded-xl bg-primary/10 border border-primary/20 text-xs text-text/80 flex items-center justify-between">
-              <span>Average Daily Expense:</span>
-              <span className="font-bold text-text">{formatAmount(totalCostInBase / totalDays, baseCurrency)}</span>
-            </div>
-          </div>
+                    } as any}
+                  />
+                </div>
+              </section>
+            </>
+          )}
         </div>
       )}
 
-      {/* TAB 3: CURRENCY HUB */}
-      {activeTab === 'currency' && (
-        <div className="flex flex-col gap-6">
-          {/* Live Rate Destination Cards */}
-          <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-text/70 mb-3">
-              Destination Exchange Rates (1 {baseCurrency})
-            </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-              {['JPY', 'KZT', 'CNY', 'TRY', 'AUD'].map((destCode) => {
-                const rate = exchangeRates[destCode];
+      {/* ---------------- CURRENCY ---------------- */}
+      {tab === 'currency' && (
+        <div className="flex flex-col gap-4 sm:gap-5">
+          <section aria-label="Exchange rates">
+            <h3 className="text-sm font-extrabold text-text mb-2">1 {base} equals</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
+              {hub.filter((c) => c !== base).map((code) => {
+                const rate = rates[code];
+                const active = graphTarget === code;
                 return (
-                  <div
-                    key={destCode}
-                    onClick={() => {
-                      setConverterTo(destCode);
-                      setGraphTarget(destCode);
-                    }}
-                    className={`p-3 rounded-xl border transition-all cursor-pointer ${
-                      graphTarget === destCode
-                        ? 'bg-primary/20 border-primary ring-2 ring-primary/40'
-                        : 'bg-bg/40 border-primary/20 hover:bg-bg/70'
+                  <button
+                    key={code}
+                    type="button"
+                    onClick={() => { setGraphTarget(code); setTo(code); }}
+                    className={`text-left p-3 rounded-xl border transition-colors ${
+                      active ? 'bg-primary/20 border-primary ring-2 ring-primary/30' : 'bg-white/45 border-primary/20 hover:bg-primary/10'
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-sm text-text">{destCode}</span>
-                      <span className="text-xs text-primary font-semibold">Track ↗</span>
+                      <span className="font-extrabold text-sm text-text">{code}</span>
+                      <span className="text-[11px] text-primary font-bold">{active ? 'Charted' : 'Chart ↗'}</span>
                     </div>
-                    <div className="text-lg font-extrabold text-text mt-1">
-                      {rate ? rate.toFixed(destCode === 'JPY' || destCode === 'KZT' ? 2 : 4) : '—'}
-                    </div>
-                    <div className="text-[10px] text-text/60">
-                      1 {baseCurrency} = {rate ? rate.toFixed(2) : '...'} {destCode}
-                    </div>
-                  </div>
+                    <div className="text-lg font-extrabold text-text mt-0.5">{rate ? rate.toLocaleString('en-US', { maximumFractionDigits: rate < 1 ? 4 : 2 }) : '—'}</div>
+                    <div className="text-[11px] text-text/60 truncate">{currencyName(code)}</div>
+                  </button>
                 );
               })}
             </div>
-          </div>
+          </section>
 
-          {/* Quick Interactive Currency Converter */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-bg/30 border border-primary/20 flex flex-col gap-4">
-            <h3 className="text-base font-bold text-text flex items-center gap-2">
-              <span>🧮</span> Quick Currency Converter
-            </h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-5 items-center gap-2.5 sm:gap-3">
-              {/* Amount & From */}
-              <div className="md:col-span-2 flex flex-col gap-1">
+          <section className={card} aria-label="Currency converter">
+            <h3 className="text-sm font-extrabold text-text mb-3">Converter</h3>
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-end gap-3">
+              <div className="flex flex-col gap-1">
                 <label className="text-xs text-text/60 font-medium">Amount</label>
-                <div className="flex rounded-xl overflow-hidden border border-primary/30 bg-bg">
-                  <input
-                    type="number"
-                    min="1"
-                    value={converterAmount}
-                    onChange={(e) => setConverterAmount(parseFloat(e.currentTarget.value) || 0)}
-                    className="w-full min-w-0 px-3 py-2 bg-transparent text-text font-bold focus:outline-none"
-                    placeholder="Enter amount"
-                  />
-                  <select
-                    value={converterFrom}
-                    onChange={(e) => setConverterFrom(e.currentTarget.value)}
-                    className="bg-bg/80 text-text font-semibold px-3 py-2 border-l border-primary/30 focus:outline-none cursor-pointer shrink-0"
-                  >
-                    {POPULAR_CURRENCIES.map((c) => (
-                      <option key={c.code} value={c.code}>
-                        {c.code}
-                      </option>
-                    ))}
+                <div className="flex rounded-xl overflow-hidden border border-primary/30 bg-white/70">
+                  <input type="number" min="0" value={amount} onChange={(e) => setAmount(parseFloat(e.currentTarget.value) || 0)}
+                    className="w-full min-w-0 px-3 py-2 bg-transparent text-text font-bold focus:outline-none" />
+                  <select value={from} onChange={(e) => setFrom(e.currentTarget.value)} className="bg-white/60 text-text font-semibold px-2.5 border-l border-primary/30 focus:outline-none" aria-label="From currency">
+                    {hub.map((c) => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
               </div>
-
-              {/* Swap Button */}
-              <div className="flex justify-center md:col-span-1 py-1 md:pt-5">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const temp = converterFrom;
-                    setConverterFrom(converterTo);
-                    setConverterTo(temp);
-                  }}
-                  className="p-2.5 rounded-full bg-primary/20 hover:bg-primary/30 border border-primary/30 text-primary transition-all cursor-pointer"
-                  title="Swap currencies"
-                >
-                  ⇄
-                </button>
-              </div>
-
-              {/* Converted To Result */}
-              <div className="md:col-span-2 flex flex-col gap-1">
-                <label className="text-xs text-text/60 font-medium">Converted To</label>
-                <div className="flex rounded-xl overflow-hidden border border-primary/30 bg-bg">
-                  <div className="w-full min-w-0 px-3 py-2 text-text font-extrabold text-base sm:text-lg flex items-center truncate">
-                    {formatAmount(convertedResult, converterTo)}
-                  </div>
-                  <select
-                    value={converterTo}
-                    onChange={(e) => {
-                      setConverterTo(e.currentTarget.value);
-                      setGraphTarget(e.currentTarget.value);
-                    }}
-                    className="bg-bg/80 text-text font-semibold px-3 py-2 border-l border-primary/30 focus:outline-none cursor-pointer shrink-0"
-                  >
-                    {POPULAR_CURRENCIES.map((c) => (
-                      <option key={c.code} value={c.code}>
-                        {c.code}
-                      </option>
-                    ))}
+              <button type="button" onClick={() => { setFrom(to); setTo(from); }}
+                className="touch-target mx-auto w-11 h-11 rounded-full bg-primary/15 border border-primary/30 text-primary font-bold" aria-label="Swap currencies">⇄</button>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-text/60 font-medium">Converted</label>
+                <div className="flex rounded-xl overflow-hidden border border-primary/30 bg-white/70">
+                  <div className="w-full min-w-0 px-3 py-2 text-text font-extrabold truncate">{formatMoney(converted, to)}</div>
+                  <select value={to} onChange={(e) => { setTo(e.currentTarget.value); if (e.currentTarget.value !== base) setGraphTarget(e.currentTarget.value); }}
+                    className="bg-white/60 text-text font-semibold px-2.5 border-l border-primary/30 focus:outline-none" aria-label="To currency">
+                    {hub.map((c) => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
               </div>
             </div>
-
-            {/* Preset quick buttons */}
-            <div className="flex flex-wrap items-center gap-1.5 pt-1">
-              <span className="text-xs text-text/50">Quick Amounts:</span>
-              {[50, 100, 500, 1000, 5000, 10000].map((amt) => (
-                <button
-                  key={amt}
-                  type="button"
-                  onClick={() => setConverterAmount(amt)}
-                  className="px-2.5 py-1 text-xs rounded-lg bg-bg/50 border border-primary/20 hover:bg-primary/10 text-text/80 transition-all cursor-pointer"
-                >
-                  {amt.toLocaleString()}
-                </button>
+            <div className="flex flex-wrap items-center gap-1.5 pt-3">
+              {[10, 100, 500, 1000, 5000].map((a) => (
+                <button key={a} type="button" onClick={() => setAmount(a)}
+                  className="px-2.5 py-1 text-xs rounded-lg bg-white/50 border border-primary/20 hover:bg-primary/10 text-text/80">{a.toLocaleString()}</button>
               ))}
             </div>
-          </div>
+          </section>
 
-          {/* Historical Trend Chart Component */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-bg/30 border border-primary/20 flex flex-col gap-4">
-            <div>
-              <h3 className="text-sm sm:text-base font-bold text-text flex items-center gap-2">
-                <span>📈</span> Historical Exchange Rate Trend ({baseCurrency} → {graphTarget})
-              </h3>
-              <p className="text-xs text-text/60">
-                Track rate movements over 7, 14, or 30 days to time currency exchange
-              </p>
-            </div>
-
+          <section className={card} aria-label="Exchange rate history">
+            <h3 className="text-sm font-extrabold text-text">Rate history · {base} → {graphTarget}</h3>
+            <p className="text-xs text-text/60 mb-3">See whether now is a good time to exchange.</p>
             <CurrencyExchangeGraph
-              baseCurrency={baseCurrency}
+              baseCurrency={base}
               targetCurrency={graphTarget}
-              availableTargets={['JPY', 'KZT', 'CNY', 'TRY', 'AUD', 'USD', 'EUR']}
-              onTargetChange={(target) => {
-                setGraphTarget(target);
-                setConverterTo(target);
-              }}
+              availableTargets={hub.filter((c) => c !== base)}
+              onTargetChange={(t) => { setGraphTarget(t); setTo(t); }}
             />
-          </div>
+          </section>
         </div>
       )}
 
-      {/* TAB 4: DETAILED EXPENSES TABLE */}
-      {activeTab === 'expenses' && (
-        <div className="flex flex-col gap-4">
-          {/* Filter Bar */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 p-3.5 sm:p-4 rounded-xl bg-bg/30 border border-primary/20">
-            {/* Search Input */}
-            <div className="relative w-full sm:w-72">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.currentTarget.value)}
-                placeholder="Search activity, description, notes..."
-                className="w-full bg-bg text-text text-sm rounded-lg pl-9 pr-3 py-2 border border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/50"
-              />
-              <svg
-                className="w-4 h-4 text-text/50 absolute left-3 top-2.5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-
-            {/* Dropdown Filters */}
-            <div className="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto">
-              {/* Category Filter */}
-              <select
-                value={selectedCategoryFilter}
-                onChange={(e) => setSelectedCategoryFilter(e.currentTarget.value)}
-                className="bg-bg text-text text-xs sm:text-sm rounded-lg px-2.5 sm:px-3 py-2 border border-primary/30 focus:outline-none cursor-pointer w-full sm:w-auto"
-              >
-                <option value="all">All Categories</option>
-                {Object.values(CATEGORIES).map((cat) => (
-                  <option key={cat.key} value={cat.key}>
-                    {cat.emoji} {cat.label}
-                  </option>
-                ))}
+      {/* ---------------- EXPENSES (paginated) ---------------- */}
+      {tab === 'expenses' && (
+        <div className="flex flex-col gap-3" ref={listTop}>
+          <div className="flex flex-col lg:flex-row gap-2.5 p-3 rounded-xl bg-white/40 border border-primary/20">
+            <input type="search" value={query} onChange={(e) => setQuery(e.currentTarget.value)} placeholder="Search activities…"
+              className={`${field} w-full lg:flex-1`} aria-label="Search expenses" />
+            <div className="grid grid-cols-2 sm:flex gap-2">
+              <select value={catFilter} onChange={(e) => setCatFilter(e.currentTarget.value)} className={field} aria-label="Category">
+                <option value="all">All categories</option>
+                {Object.values(CATEGORIES).map((c) => <option key={c.key} value={c.key}>{c.emoji} {c.label}</option>)}
               </select>
-
-              {/* Day Filter */}
-              <select
-                value={selectedDayFilter}
-                onChange={(e) => setSelectedDayFilter(e.currentTarget.value)}
-                className="bg-bg text-text text-xs sm:text-sm rounded-lg px-2.5 sm:px-3 py-2 border border-primary/30 focus:outline-none cursor-pointer w-full sm:w-auto"
-              >
-                <option value="all">All Days</option>
-                {Array.from({ length: totalDays }, (_, i) => i + 1).map((d) => (
-                  <option key={d} value={d.toString()}>
-                    Day {d}
-                  </option>
-                ))}
+              {multiCountry && (
+                <select value={countryFilter} onChange={(e) => setCountryFilter(e.currentTarget.value)} className={field} aria-label="Country">
+                  <option value="all">All countries</option>
+                  {Object.keys(dataSources).map((c) => <option key={c} value={c}>{slugLabel(c)}</option>)}
+                </select>
+              )}
+              <select value={sort} onChange={(e) => setSort(e.currentTarget.value as any)} className={field} aria-label="Sort">
+                <option value="trip">Trip order</option>
+                <option value="cost">Highest cost</option>
               </select>
             </div>
           </div>
 
-          {/* Results Count */}
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-text/60 px-1">
-            <span>Showing {filteredItems.length} items</span>
-            {filteredItems.length > 0 && (
-              <span>
-                Filtered Total: <strong className="text-text font-bold">{formatAmount(filteredItems.reduce((a, b) => a + b.convertedAmount, 0), baseCurrency)}</strong>
-              </span>
-            )}
+            <span>
+              {filtered.length === 0 ? 'No items' : `Showing ${start + 1}–${Math.min(start + pageSize, filtered.length)} of ${filtered.length}`}
+            </span>
+            <span>Filtered total: <strong className="text-text">{money(filteredTotal)}</strong></span>
           </div>
 
-          {/* Mobile Card List (md:hidden) */}
-          <div className="md:hidden space-y-2.5">
-            {filteredItems.length > 0 ? (
-              filteredItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="p-3.5 rounded-xl border border-primary/20 bg-bg/40 flex flex-col gap-2"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-1.5">
-                      <span className="px-2 py-0.5 rounded-md bg-primary/10 text-primary text-xs font-bold">
-                        Day {item.day}
+          {pageItems.length === 0 ? (
+            <div className="p-6 text-center text-sm text-text/60 rounded-xl border border-primary/20 bg-white/30">No activities match your filters.</div>
+          ) : (
+            <ul className="grid gap-2">
+              {pageItems.map((i) => (
+                <li key={i.id} className="rounded-xl border border-primary/20 bg-white/45 p-3 sm:px-4 sm:py-3 flex items-start sm:items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-1.5 mb-1">
+                      <span className="px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[11px] font-bold">
+                        {multiCountry ? `${slugLabel(i.country)} · ` : ''}Day {i.day}
                       </span>
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border ${item.category.bgClass}`}>
-                        <span>{item.category.emoji}</span>
-                        <span>{item.category.label}</span>
-                      </span>
+                      <span className="text-[11px] font-semibold" style={{ color: i.category.color }}>{i.category.emoji} {i.category.label}</span>
                     </div>
-                    <div className="text-right">
-                      {item.amount > 0 ? (
-                        <div className="text-xs font-bold text-text">
-                          {formatAmount(item.convertedAmount, baseCurrency)}
-                        </div>
-                      ) : (
-                        <span className="text-emerald-500 text-xs font-bold">Free</span>
-                      )}
-                    </div>
+                    <div className="font-semibold text-sm text-text truncate">{i.title}</div>
+                    {i.description && <div className="text-xs text-text/60 line-clamp-1">{i.description}</div>}
                   </div>
-
-                  <div>
-                    <div className="font-semibold text-sm text-text">{item.title}</div>
-                    {item.description && (
-                      <div className="text-xs text-text/65 line-clamp-2 mt-0.5">{item.description}</div>
-                    )}
-                    {item.note && (
-                      <div className="text-[11px] text-text/50 italic mt-0.5">{item.note}</div>
+                  <div className="text-right shrink-0">
+                    {i.amount > 0 ? (
+                      <>
+                        <div className="text-sm font-extrabold text-text">{money(i.converted)}</div>
+                        {i.currency !== base && <div className="text-[11px] text-text/55">{formatMoney(i.amount, i.currency)}</div>}
+                      </>
+                    ) : (
+                      <span className="text-xs font-bold text-emerald-600">Free</span>
                     )}
                   </div>
+                </li>
+              ))}
+            </ul>
+          )}
 
-                  {item.amount > 0 && (
-                    <div className="pt-1.5 border-t border-primary/10 flex items-center justify-between text-[11px] text-text/60">
-                      <span>Local Price:</span>
-                      <span className="font-semibold text-text/80">{formatAmount(item.amount, item.currency)}</span>
-                    </div>
-                  )}
-                </div>
-              ))
-            ) : (
-              <div className="p-6 text-center text-sm text-text/50 rounded-xl border border-primary/20 bg-bg/20">
-                No activities match your filters.
-              </div>
-            )}
-          </div>
-
-          {/* Desktop Expenses Table (hidden on mobile) */}
-          <div className="hidden md:block overflow-x-auto rounded-xl border border-primary/20 bg-bg/20">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-bg/60 border-b border-primary/20 text-xs font-semibold text-text/70 uppercase">
-                <tr>
-                  <th className="px-4 py-3">Day</th>
-                  <th className="px-4 py-3">Category</th>
-                  <th className="px-4 py-3">Activity & Notes</th>
-                  <th className="px-4 py-3 text-right">Local Price</th>
-                  <th className="px-4 py-3 text-right">Converted ({baseCurrency})</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-primary/10">
-                {filteredItems.length > 0 ? (
-                  filteredItems.map((item) => (
-                    <tr key={item.id} className="hover:bg-bg/40 transition-colors">
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <span className="px-2 py-0.5 rounded-md bg-primary/10 text-primary text-xs font-bold">
-                          Day {item.day}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${item.category.bgClass}`}>
-                          <span>{item.category.emoji}</span>
-                          <span>{item.category.label}</span>
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="font-semibold text-text">{item.title}</div>
-                        {item.description && (
-                          <div className="text-xs text-text/60 line-clamp-1">{item.description}</div>
-                        )}
-                        {item.note && (
-                          <div className="text-[11px] text-text/40 italic mt-0.5">{item.note}</div>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-right font-medium text-text whitespace-nowrap">
-                        {item.amount > 0 ? (
-                          formatAmount(item.amount, item.currency)
-                        ) : (
-                          <span className="text-emerald-400 text-xs font-bold">Free</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-right font-bold text-text whitespace-nowrap">
-                        {item.amount > 0 ? (
-                          formatAmount(item.convertedAmount, baseCurrency)
-                        ) : (
-                          <span className="text-emerald-400 text-xs">—</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-text/50">
-                      No activities match your filters.
-                    </td>
-                  </tr>
+          {/* Pagination (Fitts's Law: 44px targets; Jakob's Law: familiar prev/numbers/next) */}
+          {filtered.length > 0 && (
+            <nav aria-label="Expenses pages" className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
+              <label className="flex items-center gap-2 text-xs text-text/60">
+                Rows per page
+                <select value={pageSize} onChange={(e) => setPageSize(Number(e.currentTarget.value))} className={field}>
+                  {PAGE_SIZES.map((n) => <option key={n} value={n}>{n}</option>)}
+                </select>
+              </label>
+              <div className="flex items-center gap-1">
+                <button type="button" onClick={() => goTo(current - 1)} disabled={current === 1}
+                  className="touch-target px-3 rounded-lg border border-primary/25 bg-white/50 text-sm font-bold text-text disabled:opacity-40" aria-label="Previous page">‹</button>
+                {pageNumbers.map((n, idx) =>
+                  n === '…' ? (
+                    <span key={`e${idx}`} className="px-1.5 text-text/50" aria-hidden="true">…</span>
+                  ) : (
+                    <button key={n} type="button" onClick={() => goTo(n)} aria-current={n === current ? 'page' : undefined}
+                      className={`touch-target min-w-[44px] px-2 rounded-lg border text-sm font-bold ${
+                        n === current ? 'bg-primary text-white border-primary' : 'bg-white/50 border-primary/25 text-text hover:bg-primary/10'
+                      }`}>{n}</button>
+                  )
                 )}
-              </tbody>
-            </table>
-          </div>
+                <button type="button" onClick={() => goTo(current + 1)} disabled={current === pageCount}
+                  className="touch-target px-3 rounded-lg border border-primary/25 bg-white/50 text-sm font-bold text-text disabled:opacity-40" aria-label="Next page">›</button>
+              </div>
+            </nav>
+          )}
         </div>
       )}
     </div>

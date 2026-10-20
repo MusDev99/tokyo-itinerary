@@ -12,6 +12,7 @@ import {
   Filler,
 } from 'chart.js';
 import { fetchHistoricalRates, type HistoricalRateItem } from '../utils/analytics';
+import { useThemeColors } from './useThemeColors';
 
 ChartJS.register(
   CategoryScale,
@@ -33,10 +34,11 @@ interface CurrencyExchangeGraphProps {
 
 export const CurrencyExchangeGraph: React.FC<CurrencyExchangeGraphProps> = ({
   baseCurrency = 'MYR',
-  targetCurrency = 'JPY',
-  availableTargets = ['JPY', 'KZT', 'CNY', 'TRY', 'AUD', 'USD', 'EUR'],
+  targetCurrency = 'USD',
+  availableTargets = [],
   onTargetChange,
 }) => {
+  const colors = useThemeColors();
   const [timeframe, setTimeframe] = useState<7 | 14 | 30>(14);
   const [dataPoints, setDataPoints] = useState<HistoricalRateItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -73,6 +75,8 @@ export const CurrencyExchangeGraph: React.FC<CurrencyExchangeGraphProps> = ({
   const latestRate = rates.length > 0 ? rates[rates.length - 1] : 0;
   const changePercent = firstRate > 0 ? ((latestRate - firstRate) / firstRate) * 100 : 0;
   const isUp = changePercent >= 0;
+  const avgRate = rates.length > 0 ? rates.reduce((a, b) => a + b, 0) / rates.length : 0;
+  const vsAvg = avgRate > 0 ? ((latestRate - avgRate) / avgRate) * 100 : 0;
 
   const chartData = {
     labels: dataPoints.map((p) => {
@@ -93,6 +97,16 @@ export const CurrencyExchangeGraph: React.FC<CurrencyExchangeGraphProps> = ({
         pointBorderColor: '#ffffff',
         pointBorderWidth: 1.5,
       },
+      {
+        // Period average: makes it obvious whether today's rate is above or below normal
+        label: 'Average',
+        data: dataPoints.map(() => avgRate),
+        borderColor: colors.text + '80',
+        borderDash: [6, 5],
+        borderWidth: 1.2,
+        pointRadius: 0,
+        fill: false,
+      },
     ],
   };
 
@@ -112,27 +126,27 @@ export const CurrencyExchangeGraph: React.FC<CurrencyExchangeGraphProps> = ({
         padding: 10,
         displayColors: false,
         callbacks: {
-          label: (context: any) => `Rate: ${context.parsed.y} ${targetCurrency}`,
+          label: (context: any) => (context.datasetIndex === 1 ? `Average: ${Number(context.parsed.y).toFixed(4)}` : `Rate: ${context.parsed.y} ${targetCurrency}`),
         },
       },
     },
     scales: {
       x: {
         grid: {
-          color: 'rgba(156, 163, 175, 0.1)',
+          color: colors.text + '1a',
         },
         ticks: {
-          color: 'rgba(156, 163, 175, 0.8)',
+          color: colors.text + 'b3',
           font: { size: 11 },
           maxRotation: 0,
         },
       },
       y: {
         grid: {
-          color: 'rgba(156, 163, 175, 0.1)',
+          color: colors.text + '1a',
         },
         ticks: {
-          color: 'rgba(156, 163, 175, 0.8)',
+          color: colors.text + 'b3',
           font: { size: 11 },
           callback: (value: any) => Number(value).toFixed(2),
         },
@@ -144,6 +158,7 @@ export const CurrencyExchangeGraph: React.FC<CurrencyExchangeGraphProps> = ({
     <div className="flex flex-col gap-4">
       {/* Header controls */}
       <div className="flex flex-wrap items-center justify-between gap-3">
+        {availableTargets.length === 0 && <span className="text-xs text-text/60">Add a trip with a different currency to compare rates.</span>}
         <div className="flex items-center gap-2">
           <span className="text-xs uppercase tracking-wider text-text/60 font-semibold">Pair:</span>
           <div className="flex flex-wrap gap-1">
@@ -190,6 +205,9 @@ export const CurrencyExchangeGraph: React.FC<CurrencyExchangeGraphProps> = ({
           <div className="text-base font-bold text-text">
             {latestRate ? latestRate.toFixed(3) : '—'} <span className="text-xs font-normal text-text/60">{targetCurrency}</span>
           </div>
+          {avgRate > 0 && (
+            <div className="text-[10px] text-text/55">{Math.abs(vsAvg).toFixed(1)}% {vsAvg >= 0 ? 'above' : 'below'} {timeframe}D avg</div>
+          )}
         </div>
         <div className="p-2.5 rounded-lg bg-bg/40 border border-primary/15">
           <div className="text-[11px] text-text/60">{timeframe}D Change</div>
