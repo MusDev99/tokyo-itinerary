@@ -27,6 +27,29 @@ const countryDataSource = country.stats.hasItinerary
 
     {country.stats.hasItinerary ? (
       <div class="space-y-6 sm:space-y-8">
+        {country.states.length > 0 && (
+          <section aria-label="Destinations in this country" class="glass-effect rounded-2xl p-4 sm:p-6 border border-primary/20 shadow-md">
+            <h2 class="text-lg sm:text-xl font-extrabold text-text mb-1">States & Cities</h2>
+            <p class="text-xs sm:text-sm text-text/70 mb-4">Each place has its own itinerary.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+              {country.states.map((st) => (
+                <a
+                  href={`/${country.slug}/${st.slug}`}
+                  class="group bg-white/45 hover:bg-white rounded-xl p-4 border border-primary/15 hover:border-primary/40 shadow-xs hover:shadow-md transition-all duration-150 flex items-center justify-between gap-3"
+                >
+                  <div class="min-w-0">
+                    <h3 class="text-base font-bold text-text group-hover:text-primary transition-colors truncate">📍 {st.name}</h3>
+                    <p class="text-xs text-text/70 mt-0.5">
+                      {st.stats.totalDays} {st.stats.totalDays === 1 ? 'day' : 'days'} · {st.stats.totalActivities} activities
+                    </p>
+                  </div>
+                  <span class="text-primary font-bold shrink-0">→</span>
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
+
         <!-- Quick Day Preview Grid (Miller's Law: Chunked daily overview) -->
         <section aria-label="Days Overview" class="glass-effect rounded-2xl p-4 sm:p-6 border border-primary/20 shadow-md">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-5 pb-3 border-b border-primary/15">
@@ -50,7 +73,7 @@ const countryDataSource = country.stats.hasItinerary
               return (
                 <a
                   href={`/${country.slug}/itinerary?day=${day.day}`}
-                  class="group bg-white/75 hover:bg-white rounded-xl p-4 border border-primary/15 hover:border-primary/40 shadow-xs hover:shadow-md transition-all duration-150 flex flex-col justify-between"
+                  class="group bg-white/45 hover:bg-white rounded-xl p-4 border border-primary/15 hover:border-primary/40 shadow-xs hover:shadow-md transition-all duration-150 flex flex-col justify-between"
                 >
                   <div>
                     <div class="flex items-center justify-between gap-2 mb-2">

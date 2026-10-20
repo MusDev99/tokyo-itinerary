@@ -7,6 +7,9 @@ const navLinks = countries.map((country) => {
   const sublinks: Array<{ href: string; text: string; icon: string }> = [
     { href: `/${country.slug}/itinerary`, text: 'Interactive Timeline', icon: '🗓️' },
   ];
+  for (const st of country.states) {
+    sublinks.push({ href: `/${country.slug}/${st.slug}`, text: st.name, icon: '📍' });
+  }
 
   return {
     slug: country.slug,
@@ -108,7 +111,7 @@ const currentPath = Astro.url.pathname;
               {/* Fitts's Law: Continuous hover bridge (pt-2) prevents menu loss */}
               {link.sublinks && (
                 <div class="absolute top-full left-0 pt-2 w-52 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-50">
-                  <div class="glass-effect bg-white/95 rounded-2xl shadow-xl border border-primary/20 p-1.5 flex flex-col gap-0.5">
+                  <div class="glass-effect bg-surface-solid rounded-2xl shadow-xl border border-primary/20 p-1.5 flex flex-col gap-0.5">
                     <a
                       href={link.hubHref}
                       class:list={[
@@ -170,7 +173,7 @@ const currentPath = Astro.url.pathname;
   </div>
 
   <!-- Mobile Menu Drawer -->
-  <div class="lg:hidden hidden border-t border-primary/15 bg-white/95 backdrop-blur-xl max-h-[calc(100vh-4rem)] overflow-y-auto overscroll-contain" id="mobile-menu">
+  <div class="lg:hidden hidden border-t border-primary/15 bg-surface-solid backdrop-blur-xl max-h-[calc(100vh-4rem)] overflow-y-auto overscroll-contain" id="mobile-menu">
     <div class="px-4 pt-3 pb-6 space-y-2">
       <a
         href="/"
@@ -223,7 +226,7 @@ const currentPath = Astro.url.pathname;
                     'touch-target flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-lg text-xs font-semibold text-center transition-colors',
                     currentPath === link.hubHref
                       ? 'bg-primary text-white shadow-sm'
-                      : 'bg-white/70 text-text/80 hover:bg-primary/10',
+                      : 'bg-white/45 text-text/80 hover:bg-primary/10',
                   ]}
                 >
                   <span>🧭</span>
@@ -239,7 +242,7 @@ const currentPath = Astro.url.pathname;
                         'touch-target flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-lg text-xs font-semibold text-center transition-colors',
                         isSubActive
                           ? 'bg-primary text-white shadow-sm'
-                          : 'bg-white/70 text-text/80 hover:bg-primary/10',
+                          : 'bg-white/45 text-text/80 hover:bg-primary/10',
                       ]}
                     >
                       <span>{sublink.icon}</span>
