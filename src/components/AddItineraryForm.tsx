@@ -1,6 +1,8 @@
 import { h } from 'preact';
 import { useState, useMemo, useEffect, useRef } from 'preact/hooks';
 import { animate } from 'motion';
+import LocationPicker from './LocationPicker';
+import type { Place } from '../types/place';
 import ActivityFields, { emptyActivity, draftToPayload, inputClass, type ActivityDraft } from './ActivityFields';
 
 interface CountryOption {
@@ -27,7 +29,7 @@ interface Props {
 }
 
 const FORBIDDEN = /[\[\]*?:\/\\'!]/;
-const RESERVED = new Set(['itinerary', 'add', 'api', '404']);
+const RESERVED = new Set(['itinerary', 'add', 'api', '404', 'tools']);
 
 /** Mirrors the server-side tab-name rules so tab 2 only unlocks for a valid trip. */
 function validateTrip(country: string, state: string): { country?: string; state?: string } {
@@ -100,6 +102,7 @@ function Reveal({ children, className = '' }: { children: any; className?: strin
 export default function AddItineraryForm({ countries, trips, initialCountry = '', initialState = '' }: Props) {
   const [country, setCountry] = useState(initialCountry);
   const [state, setState] = useState(initialState);
+  const [place, setPlace] = useState<Place | null>(null);
   const [days, setDays] = useState<DayDraft[]>([newDay()]);
   const [showErrors, setShowErrors] = useState(false);
   // Server-side row errors, keyed "dayIndex-activityIndex"
@@ -120,12 +123,21 @@ export default function AddItineraryForm({ countries, trips, initialCountry = ''
   const currency = match?.currency || '';
   const tripErrors = validateTrip(country, state);
   const tripValid = !tripErrors.country && !tripErrors.state;
+  // New trips must have a confirmed location (used for prayer times); existing trips already have one
+  const needsPlace = tripValid && !isExisting;
+  const tripReady = tripValid && (isExisting || Boolean(place));
   // Tab 2 is only reachable while tab 1 is complete and valid
-  const activeStep = tripValid ? step : 1;
+  const activeStep = tripReady ? step : 1;
+
+  // A different country/state means a different place: clear the old pick
+  const tripKey = `${slugify(country)}|${slugify(state)}`;
+  useEffect(() => {
+    setPlace(null);
+  }, [tripKey]);
 
   const goStep2 = () => {
     setTouched(true);
-    if (tripValid) setStep(2);
+    if (tripReady) setStep(2);
   };
 
   // Fade/slide the panel in on tab change (Motion; skipped for reduced motion)
@@ -160,7 +172,7 @@ export default function AddItineraryForm({ countries, trips, initialCountry = ''
 
   const submit = async (e: Event) => {
     e.preventDefault();
-    if (!tripValid || activeStep !== 2) return;
+    if (!tripReady || activeStep !== 2) return;
     setShowErrors(true);
     if (!daysValid) {
       setError('Please complete the highlighted fields.');
@@ -186,6 +198,7 @@ export default function AddItineraryForm({ countries, trips, initialCountry = ''
         body: JSON.stringify({
           country,
           state,
+          place: isExisting ? undefined : place,
           website: (document.getElementById('hp-website') as HTMLInputElement | null)?.value || '',
           activities,
         }),
@@ -270,7 +283,7 @@ export default function AddItineraryForm({ countries, trips, initialCountry = ''
       {/* Tab switcher (Hick's Law: one task per tab; Jakob's Law: familiar stepper) */}
       <div role="tablist" aria-label="Add itinerary steps" className="flex gap-1.5 p-1.5 rounded-xl bg-white/45 border border-primary/20">
         {tabBtn(1, 'Country & State', false)}
-        {tabBtn(2, 'Days & Activities', !tripValid)}
+        {tabBtn(2, 'Days & Activities', !tripReady)}
       </div>
 
       <div ref={panelRef}>
@@ -308,12 +321,19 @@ export default function AddItineraryForm({ countries, trips, initialCountry = ''
                 {currency && <> Default currency: <strong>{currency}</strong> (change per activity if needed).</>}
               </p>
             )}
+            {needsPlace && (
+              <div className="rounded-xl bg-white/30 border border-primary/15 p-3 sm:p-4 space-y-1">
+                <LocationPicker key={tripKey} idPrefix="add-loc" initialQuery={state.trim()} value={place} onSelect={setPlace} />
+                <p className="text-[11px] text-text/60">Used for prayer times and other travel tools at your destination.</p>
+                {touched && !place && <p className="text-[11px] font-semibold text-red-600">Pick the matching location to continue.</p>}
+              </div>
+            )}
             {/* Honeypot (hidden from humans) */}
             <input id="hp-website" type="text" tabIndex={-1} autoComplete="off" aria-hidden="true"
               className="absolute -left-[9999px] w-px h-px opacity-0" />
             <button type="button" onClick={goStep2}
               className={`touch-target w-full px-5 py-3 rounded-xl text-sm sm:text-base font-extrabold shadow-md transition-opacity ${
-                tripValid ? 'bg-primary text-white hover:opacity-95' : 'bg-primary/40 text-white'
+                tripReady ? 'bg-primary text-white hover:opacity-95' : 'bg-primary/40 text-white'
               }`}>
               Continue to activities →
             </button>

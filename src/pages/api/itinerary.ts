@@ -8,6 +8,8 @@ import {
   type ActivityInput,
 } from '../../utils/googleSheets';
 import { buildTabName, slugify, RESERVED_SLUGS } from '../../utils/countries';
+import { savePlace } from '../../utils/googleSheets';
+import { parsePlace } from '../../types/place';
 
 const MAX_ACTIVITIES = 50;
 const TAB_FORBIDDEN = /[\[\]*?:\/\\'!]/;
@@ -107,7 +109,17 @@ export const POST: APIRoute = async ({ request }) => {
 
   try {
     const result = await submitItinerary(buildTabName(country, state), activities);
+    // Save the confirmed location (best-effort: itinerary rows are already written)
+    const place = parsePlace(body.place);
+    let placeSaved = false;
+    if (place) {
+      try {
+        await savePlace(result.tab, place);
+        placeSaved = true;
+      } catch {}
+    }
     return json({
+      placeSaved,
       ok: true,
       tab: result.tab,
       created: result.created,

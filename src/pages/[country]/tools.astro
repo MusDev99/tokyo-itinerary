@@ -1,0 +1,44 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import CountrySubNav from '../../components/CountrySubNav.astro';
+import TravelTools from '../../components/TravelTools';
+import { getAllCountriesWithSheets } from '../../utils/countries';
+import { getPlace } from '../../utils/googleSheets';
+import { tripIsoDates } from '../../utils/dates';
+import { topPlace } from '../../utils/geocode';
+import type { Place } from '../../types/place';
+
+Astro.response.headers.set('Cache-Control', 'no-store, max-age=0');
+
+const { countries } = await getAllCountriesWithSheets();
+const country = countries.find((c) => c.slug === Astro.params.country?.toLowerCase());
+
+if (!country) {
+  return Astro.redirect('/404');
+}
+// A country split into states has one tools page per state
+if (country.states.length > 0) {
+  return Astro.redirect(`/${country.slug}/${country.states[0].slug}/tools`);
+}
+
+const savedPlace = await getPlace(country.tabName);
+const suggestion: Place | null = savedPlace ? null : await topPlace(country.name);
+---
+
+<Layout title={`${country.name} Travel Tools`}>
+  <Header />
+  <div class="w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8">
+    <CountrySubNav country={country} activeTab="tools" />
+    <TravelTools
+      client:load
+      tab={country.tabName}
+      searchName={country.name}
+      savedPlace={savedPlace}
+      suggestion={suggestion}
+      dates={tripIsoDates(country.itinerary)}
+    />
+  </div>
+  <Footer />
+</Layout>

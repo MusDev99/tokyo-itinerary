@@ -10,6 +10,10 @@ const navLinks = countries.map((country) => {
   ];
   for (const st of country.states) {
     sublinks.push({ href: `/${country.slug}/${st.slug}`, text: st.name, icon: '📍' });
+    sublinks.push({ href: `/${country.slug}/${st.slug}/tools`, text: `${st.name} tools`, icon: '🕌' });
+  }
+  if (country.states.length === 0) {
+    sublinks.push({ href: `/${country.slug}/tools`, text: 'Travel tools', icon: '🕌' });
   }
 
   return {
@@ -33,7 +37,8 @@ const mobileCountries = countries.map((c) => ({
   days: c.stats.totalDays,
   hubHref: `/${c.slug}`,
   itineraryHref: c.stats.hasItinerary ? `/${c.slug}/itinerary` : null,
-  states: c.states.map((st) => ({ name: st.name, href: `/${c.slug}/${st.slug}`, days: st.stats.totalDays })),
+  toolsHref: c.states.length === 0 ? `/${c.slug}/tools` : null,
+  states: c.states.map((st) => ({ name: st.name, href: `/${c.slug}/${st.slug}`, toolsHref: `/${c.slug}/${st.slug}/tools`, days: st.stats.totalDays })),
 }));
 ---
 
@@ -66,7 +71,7 @@ const mobileCountries = countries.map((c) => ({
       </div>
 
       <!-- Desktop Navigation (Miller's Law: Chunked & clear active states) -->
-      <nav class="hidden lg:flex items-center gap-1.5" aria-label="Main Navigation">
+      <nav class="hidden xl:flex items-center gap-1.5" aria-label="Main Navigation">
         <a
           href="/"
           class:list={[

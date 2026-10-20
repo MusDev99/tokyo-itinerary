@@ -3,7 +3,7 @@ import type { CountryMetadata } from '../utils/countries';
 
 interface Props {
   country: CountryMetadata;
-  activeTab: 'overview' | 'itinerary';
+  activeTab: 'overview' | 'itinerary' | 'tools';
   /** When set, the page shows a single "Country - State" trip. */
   state?: { slug: string; name: string };
 }
@@ -15,7 +15,7 @@ const tabs = [
     key: 'overview',
     label: 'Overview',
     icon: '🧭',
-    href: `/${country.slug}`,
+    href: state ? `/${country.slug}/${state.slug}` : `/${country.slug}`,
     available: true,
   },
   {
@@ -26,7 +26,43 @@ const tabs = [
     badge: country.stats.totalDays > 0 ? `${country.stats.totalDays}d` : undefined,
     available: country.stats.hasItinerary,
   },
+  {
+    key: 'tools',
+    label: 'Tools',
+    icon: '🕌',
+    // Tools are per trip: a state page, or a plain country tab (a split country has one tools page per state)
+    href: state ? `/${country.slug}/${state.slug}/tools` : `/${country.slug}/tools`,
+    available: Boolean(state) || country.states.length === 0,
+  },
 ].filter((t) => t.available);
+
+const fmt = (d: string | null, opts: Intl.DateTimeFormatOptions) => {
+  if (!d) return null;
+  const date = new Date(d);
+  return isNaN(date.getTime()) ? d : date.toLocaleDateString('en-US', opts);
+};
+const first = country.stats.firstDate ? new Date(country.stats.firstDate) : null;
+const last = country.stats.lastDate ? new Date(country.stats.lastDate) : null;
+const validRange = first && last && !isNaN(first.getTime()) && !isNaN(last.getTime());
+const dateRange = validRange
+  ? first!.getTime() === last!.getTime()
+    ? fmt(country.stats.firstDate, { month: 'short', day: 'numeric' })
+    : `${fmt(country.stats.firstDate, { month: 'short', day: 'numeric' })} – ${fmt(country.stats.lastDate, { month: 'short', day: 'numeric' })}`
+  : fmt(country.stats.firstDate, { month: 'short', day: 'numeric' });
+const dateYear = validRange ? first!.getFullYear() : null;
+
+// Stat tiles (Miller's Law: 3-4 chunked facts). The destination tile is skipped on state pages,
+// where the breadcrumb and title already say it.
+const stats = [
+  {
+    icon: '📅',
+    value: `${country.stats.totalDays} ${country.stats.totalDays === 1 ? 'day' : 'days'}`,
+    label: `${country.stats.totalActivities} activities`,
+  },
+  dateRange && { icon: '🛫', value: dateRange, label: dateYear ? String(dateYear) : 'Start date' },
+  !state && country.region && { icon: '📍', value: country.region, label: 'Destination' },
+  country.season && { icon: '🌤️', value: country.season.replace(' Season', ''), label: 'Season' },
+].filter(Boolean) as Array<{ icon: string; value: string; label: string }>;
 ---
 
 <div class="flex flex-col gap-3 sm:gap-4 mb-5 sm:mb-6">
@@ -56,63 +92,51 @@ const tabs = [
 
   <!-- Hero Header + Sub-navigation Switcher (Law of Common Region & Fitts's Law) -->
   <div class="glass-effect rounded-2xl p-4 sm:p-6 border border-primary/20 shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-    <div class="flex items-start sm:items-center gap-3.5 sm:gap-4">
-      <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-primary/15 border border-primary/25 flex items-center justify-center text-2xl sm:text-4xl shadow-inner shrink-0">
-        {country.flag}
-      </div>
-      <div class="min-w-0">
-        <div class="flex flex-wrap items-center gap-2">
-          <h1 class="text-xl sm:text-3xl font-extrabold text-text tracking-tight">
+    <div class="flex flex-col gap-3.5 min-w-0 flex-1">
+      <!-- Identity row: flag + title + currency. Description sits below at full width so text isn't squeezed by the flag column. -->
+      <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+        <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-primary/15 border border-primary/25 flex items-center justify-center text-2xl sm:text-4xl shadow-inner shrink-0">
+          {country.flag}
+        </div>
+        <div class="min-w-0 flex-1">
+          <h1 class="text-xl sm:text-3xl font-extrabold text-text tracking-tight leading-tight">
             {country.title}
           </h1>
-          <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/15 text-primary border border-primary/25">
+          <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-bold bg-primary/15 text-primary border border-primary/25">
             {country.currency}
           </span>
         </div>
-        <p class="text-xs sm:text-sm text-text/75 mt-1 max-w-2xl leading-relaxed">
-          {country.description}
-        </p>
-
-        {/* Quick Metadata Chips (Miller's Law: Chunked into 4 scannable badges) */}
-        {country.stats.hasItinerary && (
-          <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-3">
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/45 border border-primary/15 text-[11px] sm:text-xs font-semibold text-text/80">
-              <span>📅</span>
-              <span>{country.stats.totalDays} Days ({country.stats.totalActivities} Activities)</span>
-            </span>
-            {country.region && (
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/45 border border-primary/15 text-[11px] sm:text-xs font-semibold text-text/80">
-                <span>📍</span>
-                <span>{country.region}</span>
-              </span>
-            )}
-            {country.season && (
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/45 border border-primary/15 text-[11px] sm:text-xs font-semibold text-text/80">
-                <span>🌤️</span>
-                <span>{country.season}</span>
-              </span>
-            )}
-            {country.stats.firstDate && (
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/45 border border-primary/15 text-[11px] sm:text-xs font-semibold text-text/80">
-                <span>🛫</span>
-                <span>{country.stats.firstDate}</span>
-              </span>
-            )}
-          </div>
-        )}
       </div>
+
+      <p class="text-sm text-text/75 max-w-2xl leading-relaxed">
+        {country.description}
+      </p>
+
+      {country.stats.hasItinerary && (
+        <ul class="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 [&>li:last-child:nth-child(odd)]:col-span-2 sm:[&>li:last-child:nth-child(odd)]:col-span-1">
+          {stats.map((st) => (
+            <li class="flex items-center gap-2.5 rounded-xl bg-white/45 border border-primary/15 px-3 py-2 min-w-0">
+              <span class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-base shrink-0" aria-hidden="true">{st.icon}</span>
+              <span class="min-w-0 leading-tight">
+                <span class="block text-sm font-bold text-text break-words">{st.value}</span>
+                <span class="block text-[11px] font-medium text-text/60 truncate">{st.label}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
 
     <!-- Country Tool Switcher (Fitts's Law: Large 44px touch targets, full width on mobile) -->
     {tabs.length > 1 && (
-      <div class="grid grid-cols-2 sm:flex items-center gap-1.5 p-1.5 rounded-xl bg-white/45 border border-primary/20 w-full sm:w-auto self-stretch sm:self-start lg:self-center shrink-0">
+      <div class:list={['grid sm:flex items-center gap-1.5 p-1.5 rounded-xl bg-white/45 border border-primary/20 w-full sm:w-auto self-stretch sm:self-start lg:self-center shrink-0', tabs.length >= 3 ? 'grid-cols-3' : 'grid-cols-2']}>
         {tabs.map((tab) => {
           const isCurrent = activeTab === tab.key;
           return (
             <a
               href={tab.href}
               class:list={[
-                'touch-target inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all duration-150',
+                'touch-target inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all duration-150',
                 isCurrent
                   ? 'bg-primary text-white shadow-sm'
                   : 'text-text/75 hover:text-primary hover:bg-primary/10',
@@ -124,7 +148,7 @@ const tabs = [
               {tab.badge && (
                 <span
                   class:list={[
-                    'text-[10px] px-1.5 py-0.5 rounded-full',
+                    'text-[10px] px-1.5 py-0.5 rounded-full hidden sm:inline',
                     isCurrent ? 'bg-white/25 text-white' : 'bg-primary/15 text-primary',
                   ]}
                 >

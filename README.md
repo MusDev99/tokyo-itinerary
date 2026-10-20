@@ -10,17 +10,19 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 
 ### 1. Google Sheets as Single Source of Truth
 - **Tabs = Countries and States**: Add a destination by creating a worksheet tab. A plain tab (e.g., `Japan`) is a country; a tab named `Country - State` (e.g., `Japan - Tokyo`, `Japan - Osaka`) becomes a state/city of that country. Routes: `/[country]`, `/[country]/itinerary` (all states), `/[country]/[state]`.
+- **Travel tools** (`/[country]/[state]/tools`): prayer times for every trip date in the destination's local time with the local calculation method per country (AlAdhan API) plus Qibla direction, driven by the trip's confirmed location. No API keys needed.
+- **Trip locations**: each trip's real place (lat/lng, timezone) is confirmed when adding a trip and stored in a hidden `_trips` worksheet (columns `tab, place, admin1, country, country_code, lat, lng, timezone`) — don't delete it.
 - **Add & edit from the website**: `/add` creates a new tab and day-by-day activities (date + day title, then activities) straight into the sheet; activities can be edited/deleted, and trips renamed/deleted, with a confirmation modal before any delete. The service account needs **Editor** access to the sheet.
 - **Zero-Dependency Service Account Client**: Authenticates with Google Sheets API v4 using an `RS256` OAuth 2.0 JWT signed via Node's built-in `node:crypto` (`src/utils/googleSheets.ts`)—no heavy SDKs or local `.json` data files required.
 - **Live Sync & Refresh**: Every page load (and the in-app **Refresh from Google Sheets** button via `/api/sheets-sync`) reads directly from Google Sheets with built-in request deduplication and rate-limit retry backoff.
 
 ### 2. Comprehensive Trip Analytics & Currency Exchange
-- **Global & Per-Country Analytics (`AnalyticsDashboard.tsx`)**:
+- **Global & Per-Country Analytics (`AnalyticsDashboard.tsx`)**: three tabs — Overview (category doughnut, biggest expenses, daily stacked spend), Currency and paginated Expenses.
   - Total trip cost, daily average burn rate, cost per activity, and paid vs. free activity ratios.
   - **6-Category Spending Breakdown**: Automatically classifies activities into `Transport`, `Food`, `Lodging`, `Attraction`, `Shopping`, and `Other` using explicit `category` cells or keyword heuristics.
   - **Daily Spending Profile & Peak Spend Alerts**: Visualizes highest-cost days and top individual expenses.
 - **Live Multi-Currency Exchange (`CurrencyExchangeGraph.tsx` & `/api/currency-exchange`)**:
-  - Instant conversion across major and regional currencies (`USD`, `EUR`, `GBP`, `SGD`, `MYR`, `JPY`, `KZT`, `AUD`, `CNY`, `TRY`, etc.).
+  - Instant conversion for **MYR, USD and every currency used by a country with an itinerary** (no fixed list; the hub grows with your trips).
   - Interactive historical exchange rate trend chart with 30-day high/low/average statistics powered by Frankfurter & Open ER-API.
 
 ### 3. UX-First Interface ([Laws of UX](https://lawsofux.com/))
@@ -74,6 +76,9 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 │   │   ├── AnalogTimePicker.tsx       # Analog clock time picker
 │   │   ├── ConfirmDialog.tsx          # Confirmation modal for destructive actions
 │   │   ├── TripActions.tsx            # Add activities / rename / delete trip
+│   │   ├── TravelTools.tsx            # Travel tools tab (location + prayer times)
+│   │   ├── LocationPicker.tsx         # Search & pick a trip's real place
+│   │   ├── PrayerTimesCard.tsx        # Prayer times per trip date + Qibla compass
 │   │   ├── Timeline.tsx               # Daily activity timeline container
 │   │   └── TimelineItem.tsx           # Individual activity card (progressive disclosure)
 │   ├── layouts/
@@ -83,12 +88,17 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 │   │   ├── 404.astro                  # Custom 404 page
 │   │   ├── [country]/
 │   │   │   ├── index.astro            # Country overview, schedule summary & analytics
-│   │   │   ├── [state].astro          # Single `Country - State` trip timeline
+│   │   │   ├── [state]/index.astro    # Single `Country - State` trip timeline
+│   │   │   ├── [state]/tools.astro    # Travel tools (location + prayer times) for a state
+│   │   │   ├── tools.astro            # Travel tools for a plain country tab
 │   │   │   └── itinerary.astro        # Interactive day-by-day country itinerary & PDF export
 │   │   ├── add.astro                  # Add-itinerary form (days & activities)
 │   │   └── api/
 │   │       ├── currency-exchange.ts   # Live & historical FX rate endpoint
 │   │       ├── itinerary.ts           # Create / edit / delete / rename trips (writes to Google Sheets)
+│   │       ├── geocode.ts             # Place search (Open-Meteo geocoding)
+│   │       ├── place.ts               # Confirm/change a trip's saved location
+│   │       ├── prayer-times.ts        # Prayer times + Qibla (AlAdhan)
 │   │       └── sheets-sync.ts         # Google Sheets status & live refresh API endpoint
 │   ├── styles/
 │   │   ├── global.css                 # Global styles & design tokens

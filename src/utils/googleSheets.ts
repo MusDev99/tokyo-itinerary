@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import type { DayItinerary, TimelineItem } from '../types/itinerary';
+import type { Place } from '../types/place';
 
 export interface ServiceAccountCredentials {
   type: string;
@@ -921,6 +922,7 @@ export async function deleteTrip(tabName: string): Promise<void> {
     method: 'POST',
     body: JSON.stringify({ requests: [{ deleteSheet: { sheetId: match.sheetId } }] }),
   });
+  await removePlace(match.title).catch(() => {});
   clearSheetsCache();
 }
 
@@ -947,7 +949,119 @@ export async function renameTrip(tabName: string, newName: string): Promise<void
       ],
     }),
   });
+  await renamePlaceTab(match.title, newName).catch(() => {});
   clearSheetsCache();
+}
+
+// ---------------------------------------------------------------------------
+// Trip places: hidden "_trips" worksheet (tabs starting with "_" are ignored by the reader)
+// Columns: tab, place, admin1, country, country_code, lat, lng, timezone
+// ---------------------------------------------------------------------------
+
+const PLACES_TAB = '_trips';
+const PLACE_HEADERS = ['tab', 'place', 'admin1', 'country', 'country_code', 'lat', 'lng', 'timezone'];
+
+function placeToRow(tab: string, p: Place): string[] {
+  return [tab, p.name, p.admin1 || '', p.country, p.country_code, String(p.lat), String(p.lng), p.timezone];
+}
+
+function rowToPlace(row: string[]): Place | null {
+  const lat = parseFloat(row[5]);
+  const lng = parseFloat(row[6]);
+  if (!row[1] || !Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  return {
+    name: row[1],
+    admin1: row[2] || undefined,
+    country: row[3] || '',
+    country_code: row[4] || '',
+    lat,
+    lng,
+    timezone: row[7] || 'UTC',
+  };
+}
+
+async function readPlaceRows(
+  ctx: { creds: ServiceAccountCredentials; token: string },
+  spreadsheetId: string
+): Promise<string[][] | null> {
+  const res = await fetchSheetsApiWithRetry(
+    `${SHEETS_BASE}/${encodeURIComponent(spreadsheetId)}/values/${encodeURIComponent(`${PLACES_TAB}!A1:H1000`)}`,
+    { headers: { Authorization: `Bearer ${ctx.token}` } }
+  );
+  if (!res.ok) return null; // tab doesn't exist yet
+  const data = (await res.json()) as { values?: string[][] };
+  return data.values || [];
+}
+
+/** Saved place for a trip tab, or null when none was confirmed yet. */
+export async function getPlace(tab: string): Promise<Place | null> {
+  try {
+    const ctx = await writeContext();
+    const rows = await readPlaceRows(ctx, ctx.spreadsheetId);
+    if (!rows) return null;
+    const wanted = tab.trim().toLowerCase();
+    const row = rows.slice(1).find((r) => String(r[0] || '').trim().toLowerCase() === wanted);
+    return row ? rowToPlace(row) : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Creates/updates the trip's place row (creating the hidden tab on first use). */
+export async function savePlace(tab: string, place: Place): Promise<void> {
+  const ctx = await writeContext();
+  const { spreadsheetId } = ctx;
+  let rows = await readPlaceRows(ctx, spreadsheetId);
+  if (!rows) {
+    await sheetsRequest(ctx, `${SHEETS_BASE}/${encodeURIComponent(spreadsheetId)}:batchUpdate`, {
+      method: 'POST',
+      body: JSON.stringify({ requests: [{ addSheet: { properties: { title: PLACES_TAB, hidden: true } } }] }),
+    });
+    await sheetsRequest(
+      ctx,
+      `${SHEETS_BASE}/${encodeURIComponent(spreadsheetId)}/values/${encodeURIComponent(`${PLACES_TAB}!A1`)}?valueInputOption=RAW`,
+      { method: 'PUT', body: JSON.stringify({ values: [PLACE_HEADERS] }) }
+    );
+    rows = [PLACE_HEADERS];
+  }
+  const wanted = tab.trim().toLowerCase();
+  const idx = rows.findIndex((r, i) => i > 0 && String(r[0] || '').trim().toLowerCase() === wanted);
+  const values = [placeToRow(tab, place)];
+  if (idx > 0) {
+    await sheetsRequest(
+      ctx,
+      `${SHEETS_BASE}/${encodeURIComponent(spreadsheetId)}/values/${encodeURIComponent(`${PLACES_TAB}!A${idx + 1}:H${idx + 1}`)}?valueInputOption=RAW`,
+      { method: 'PUT', body: JSON.stringify({ values }) }
+    );
+  } else {
+    await sheetsRequest(
+      ctx,
+      `${SHEETS_BASE}/${encodeURIComponent(spreadsheetId)}/values/${encodeURIComponent(`${PLACES_TAB}!A1`)}:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`,
+      { method: 'POST', body: JSON.stringify({ values }) }
+    );
+  }
+}
+
+/** Blanks the place row of a deleted trip (rows are left in place; reader ignores empty tabs). */
+export async function removePlace(tab: string): Promise<void> {
+  const ctx = await writeContext();
+  const rows = await readPlaceRows(ctx, ctx.spreadsheetId);
+  if (!rows) return;
+  const wanted = tab.trim().toLowerCase();
+  const idx = rows.findIndex((r, i) => i > 0 && String(r[0] || '').trim().toLowerCase() === wanted);
+  if (idx < 1) return;
+  await sheetsRequest(
+    ctx,
+    `${SHEETS_BASE}/${encodeURIComponent(ctx.spreadsheetId)}/values/${encodeURIComponent(`${PLACES_TAB}!A${idx + 1}:H${idx + 1}`)}:clear`,
+    { method: 'POST', body: '{}' }
+  );
+}
+
+export async function renamePlaceTab(oldTab: string, newTab: string): Promise<void> {
+  const place = await getPlace(oldTab);
+  if (!place) return;
+  await removePlace(oldTab);
+  await savePlace(newTab, place);
 }
 
 // Allow direct CLI invocation: `node src/utils/googleSheets.ts [spreadsheetId]`
