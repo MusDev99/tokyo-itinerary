@@ -21,15 +21,17 @@ const json = (body: unknown, status = 200) =>
 const str = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 
 /** Validates one activity; returns the clean record or a map of field errors. */
-function parseActivity(raw: any): { value?: ActivityInput; errors?: Record<string, string> } {
+function parseActivity(raw: any, requireDayTitle = false): { value?: ActivityInput; errors?: Record<string, string> } {
   const errors: Record<string, string> = {};
   const date = str(raw?.date, 20);
   const title = str(raw?.title, 200);
   const time = str(raw?.time, 20);
+  const dayTitle = str(raw?.day_title, 200);
 
   if (!date || isNaN(new Date(date).getTime())) errors.date = 'Valid date is required';
   if (!title) errors.title = 'Title is required';
   if (!time) errors.time = 'Time is required';
+  if (requireDayTitle && !dayTitle) errors.day_title = 'Day title is required';
 
   let amount: number | null = null;
   if (raw?.price_amount !== undefined && raw?.price_amount !== null && raw?.price_amount !== '') {
@@ -47,6 +49,7 @@ function parseActivity(raw: any): { value?: ActivityInput; errors?: Record<strin
       date,
       title,
       time,
+      ...(dayTitle ? { day_title: dayTitle } : {}),
       description: str(raw?.description, 2000),
       category: str(raw?.category, 40),
       location_name: str(raw?.location_name, 200),
@@ -95,7 +98,7 @@ export const POST: APIRoute = async ({ request }) => {
   const rowErrors: Array<Record<string, string>> = [];
   let hasErrors = false;
   for (const raw of rawActivities) {
-    const parsed = parseActivity(raw);
+    const parsed = parseActivity(raw, true);
     rowErrors.push(parsed.errors || {});
     if (parsed.errors) hasErrors = true;
     else activities.push(parsed.value!);

@@ -357,7 +357,7 @@ export function rowsToDayItinerary(
       });
     } else {
       const existingDay = dayMap.get(dayNum)!;
-      if (!existingDay.title && dayTitle) existingDay.title = dayTitle;
+      if ((!existingDay.title || existingDay.title === `Day ${dayNum}`) && dayTitle) existingDay.title = dayTitle;
       if (!existingDay.date && dateStr) existingDay.date = dateStr;
     }
 
@@ -617,6 +617,7 @@ export async function pullCountriesFromGoogleSheets(options?: {
 
 export interface ActivityInput {
   date: string;
+  day_title?: string;
   title: string;
   time: string;
   description?: string;
@@ -722,6 +723,7 @@ function recordToRow(headers: string[], record: Partial<Record<SheetColumn, stri
 function activityToRecord(a: ActivityInput, id?: string): Partial<Record<SheetColumn, string>> {
   return {
     date: a.date,
+    ...(a.day_title ? { day_title: a.day_title } : {}),
     time: a.time,
     title: a.title,
     description: a.description || '',
@@ -752,7 +754,7 @@ async function ensureHeaders(
   } else {
     for (const col of SHEET_HEADERS) {
       const present = headers.some((h) => COLUMN_ALIASES[col].includes(h));
-      if (!present && ['date', 'time', 'title', 'id'].includes(col)) headers.push(col);
+      if (!present && ['date', 'day_title', 'time', 'title', 'id'].includes(col)) headers.push(col);
     }
   }
   await sheetsRequest(
