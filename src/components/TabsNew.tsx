@@ -47,7 +47,7 @@ export default function Tabs({ itinerary }: Props) {
   const currentDay = filteredItinerary[activeTab];
 
   return (
-    <div className="w-full p-3.5 sm:p-6">
+    <div className="w-full p-3 sm:p-6">
       {/* Top Toolbar: Day Selector Header + Search Toggle (Hick's Law: Progressive disclosure for filters) */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div>
@@ -150,7 +150,7 @@ export default function Tabs({ itinerary }: Props) {
       </div>
 
       {/* Active Day Timeline Content */}
-      <div className="rounded-2xl bg-white/45 border border-primary/15 p-3 sm:p-6">
+      <div className="rounded-2xl bg-white/45 border border-primary/15 p-2.5 sm:p-6">
         {currentDay ? (
           <div>
             <Timeline day={currentDay} />

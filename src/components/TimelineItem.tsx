@@ -1,5 +1,6 @@
 import { h } from 'preact';
-import { useState } from 'preact/hooks';
+import { useState, useEffect, useRef } from 'preact/hooks';
+import { animate } from 'motion';
 import type { TimelineItem as TimelineItemType } from '../types/itinerary';
 import { CATEGORIES, detectCategory } from '../utils/analytics';
 import ConfirmDialog from './ConfirmDialog';
@@ -15,6 +16,27 @@ export default function TimelineItem(props: TimelineItemProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const canEdit = Boolean(tab && (id || row));
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const menuPanel = useRef<HTMLDivElement>(null);
+
+  // Overflow ("⋯") menu: close on outside tap / Escape, small spring-in (Motion)
+  useEffect(() => {
+    if (!menuOpen) return;
+    const down = (e: PointerEvent) => {
+      if (!menuRef.current?.contains(e.target as Node)) setMenuOpen(false);
+    };
+    const key = (e: KeyboardEvent) => e.key === 'Escape' && setMenuOpen(false);
+    document.addEventListener('pointerdown', down);
+    document.addEventListener('keydown', key);
+    if (menuPanel.current && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      animate(menuPanel.current, { opacity: [0, 1], scale: [0.92, 1], y: [-6, 0] }, { type: 'spring', stiffness: 420, damping: 28 });
+    }
+    return () => {
+      document.removeEventListener('pointerdown', down);
+      document.removeEventListener('keydown', key);
+    };
+  }, [menuOpen]);
   // Addresses the row by id, or by sheet row + original title for legacy rows without an id
   const rowRef = id ? { id } : { row, expectTitle: title };
   const [editing, setEditing] = useState(false);
@@ -82,7 +104,7 @@ export default function TimelineItem(props: TimelineItemProps) {
   };
 
   return (
-    <div className="relative pl-6 sm:pl-10 group">
+    <div className="relative pl-5 sm:pl-10 group">
       {/* Timeline Node & Vertical Connector */}
       <div
         className="absolute left-0.5 sm:left-2 top-5 w-3 sm:w-3.5 h-3 sm:h-3.5 rounded-full bg-primary ring-4 ring-white shadow-sm z-10"
@@ -96,36 +118,17 @@ export default function TimelineItem(props: TimelineItemProps) {
       )}
 
       {/* Activity Card (Law of Common Region & Law of Proximity: Keep Time, Category, Price & Location scannable together) */}
-      <article className="bg-white/45 hover:bg-surface-solid rounded-2xl border border-primary/15 hover:border-primary/35 shadow-sm hover:shadow-md transition-all duration-150 p-3.5 sm:p-5">
-        {/* Top Metadata Bar: Time + Category + Price */}
-        <div className="flex flex-wrap items-center justify-between gap-2 mb-2.5">
-          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-extrabold bg-primary/15 text-primary">
-              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              {time}
-            </span>
+      <article className="bg-white/45 hover:bg-white/60 rounded-2xl border border-primary/15 hover:border-primary/35 shadow-sm transition-colors duration-150 p-3.5 sm:p-5">
+        {/* Row 1: when (left) and cost + actions (right). Fewer, aligned elements = faster scanning (Miller's Law, Law of Proximity) */}
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <span className="inline-flex items-center gap-1.5 text-sm font-extrabold text-primary tabular-nums">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+            </svg>
+            {time}
+          </span>
 
-            <span
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border"
-              style={{
-                backgroundColor: `${categoryMeta.color}15`,
-                borderColor: `${categoryMeta.color}35`,
-                color: categoryMeta.color,
-              }}
-            >
-              <span>{categoryMeta.emoji}</span>
-              <span>{categoryMeta.label}</span>
-            </span>
-          </div>
-
-          {/* Price Badge (Von Restorff Effect: Distinct cost badge) */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 shrink-0">
             <span
               className={`px-2.5 py-1 rounded-lg text-xs font-extrabold ${
                 price.amount > 0
@@ -135,21 +138,59 @@ export default function TimelineItem(props: TimelineItemProps) {
             >
               {formatPrice(price)}
             </span>
-            {price.notes && (
-              <span className="text-[11px] font-medium text-text/60 hidden sm:inline">
-                ({price.notes})
-              </span>
+
+            {canEdit && !editing && (
+              <div ref={menuRef} className="relative">
+                <button
+                  type="button"
+                  onClick={() => setMenuOpen((o) => !o)}
+                  aria-haspopup="menu"
+                  aria-expanded={menuOpen}
+                  aria-label={`Actions for ${title}`}
+                  className="touch-target inline-flex items-center justify-center w-11 h-11 -mr-2 rounded-full text-text/70 hover:bg-primary/10 active:bg-primary/15 text-xl leading-none"
+                >
+                  <span aria-hidden="true">⋯</span>
+                </button>
+                {menuOpen && (
+                  <div
+                    ref={menuPanel}
+                    role="menu"
+                    className="absolute right-0 top-full mt-1 z-20 w-40 rounded-xl bg-surface-solid border border-primary/20 shadow-xl p-1"
+                  >
+                    <button type="button" role="menuitem"
+                      onClick={() => { setMenuOpen(false); startEdit(); }}
+                      className="touch-target w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-text hover:bg-primary/10 text-left">
+                      <span aria-hidden="true">✏️</span> Edit
+                    </button>
+                    <button type="button" role="menuitem"
+                      onClick={() => { setMenuOpen(false); setActionError(''); setConfirmOpen(true); }}
+                      className="touch-target w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-red-700 hover:bg-red-500/10 text-left">
+                      <span aria-hidden="true">🗑️</span> Delete
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>
 
+        {/* Category as a quiet overline above the title instead of a boxed chip */}
+        <div
+          className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide mb-1"
+          style={{ color: categoryMeta.color }}
+        >
+          <span aria-hidden="true">{categoryMeta.emoji}</span>
+          <span>{categoryMeta.label}</span>
+        </div>
+
         {/* Title & Description */}
-        <h3 className="text-base sm:text-lg font-extrabold text-text mb-1.5 leading-snug">
-          {title}
-        </h3>
-        <p className="text-xs sm:text-sm text-text/80 leading-relaxed mb-3.5">
-          {description}
-        </p>
+        <h3 className="text-base sm:text-lg font-extrabold text-text mb-1 leading-snug">{title}</h3>
+        {description && (
+          <p className="text-sm text-text/75 leading-relaxed mb-3">{description}</p>
+        )}
+        {price.notes && (
+          <p className="text-xs text-text/60 -mt-1.5 mb-3">💬 {price.notes}</p>
+        )}
 
         {/* Optional Activity Image */}
         {images && (
@@ -169,90 +210,48 @@ export default function TimelineItem(props: TimelineItemProps) {
           </div>
         )}
 
-        {/* Travel Note / Tip Box */}
+        {/* Travel Note / Tip: lightweight, no heavy box */}
         {note && (
-          <div className="flex items-start gap-2 p-3 mb-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 text-xs sm:text-sm text-text/85">
-            <span className="shrink-0 mt-0.5">💡</span>
-            <div className="leading-relaxed">
-              <span className="font-bold text-text">Tip: </span>
-              <span>{note}</span>
-              {price.notes && (
-                <span className="block sm:hidden text-xs text-text/65 mt-0.5">
-                  Cost note: {price.notes}
-                </span>
-              )}
-            </div>
+          <div className="flex items-start gap-2 pl-3 py-0.5 mb-3 border-l-2 border-amber-500/60 text-xs sm:text-sm text-text/80">
+            <span aria-hidden="true">💡</span>
+            <p className="leading-relaxed"><span className="font-bold text-text">Tip: </span>{note}</p>
           </div>
         )}
 
-        {/* Action Footer: Direct Google Maps Link + Optional Video Toggle (Fitts's Law) */}
-        <div className="flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t border-primary/10">
-          {location?.name && (
-            <a
-              href={location.mapsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-xl bg-primary/10 hover:bg-primary text-primary hover:text-white text-xs font-bold transition-colors duration-150 max-w-full min-w-0"
-            >
-              <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-              </svg>
-              <span className="truncate">{location.name}</span>
-              <svg className="w-3 h-3 shrink-0 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                />
-              </svg>
-            </a>
-          )}
+        {/* Actions: one full-width, 44px primary target; secondary below (Fitts's Law, Hick's Law) */}
+        {(location?.name || youtubeUrl) && (
+          <div className="grid gap-2 pt-3 border-t border-primary/10">
+            {location?.name && (
+              <a
+                href={location.mapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="touch-target flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl bg-primary/10 hover:bg-primary hover:text-white active:bg-primary active:text-white text-primary text-sm font-bold transition-colors min-w-0"
+              >
+                <span className="flex items-center gap-2 min-w-0">
+                  <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <span className="truncate">{location.name}</span>
+                </span>
+                <span className="text-xs font-semibold opacity-80 shrink-0">Open map ↗</span>
+              </a>
+            )}
 
-          {canEdit && !editing && (
-            <div className="flex items-center gap-1.5 ml-auto">
+            {youtubeUrl && (
               <button
                 type="button"
-                onClick={startEdit}
-                className="px-3 py-2 sm:py-1.5 rounded-xl bg-primary/10 hover:bg-primary hover:text-white text-primary text-xs font-bold transition-colors duration-150"
-                aria-label={`Edit ${title}`}
+                onClick={() => setShowVideo(!showVideo)}
+                aria-expanded={showVideo}
+                className="touch-target flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-600 active:bg-red-600 text-red-700 hover:text-white active:text-white text-sm font-bold transition-colors"
               >
-                ✏️ Edit
+                <span aria-hidden="true">▶</span>
+                <span>{showVideo ? 'Hide video guide' : 'Watch video guide'}</span>
               </button>
-              <button
-                type="button"
-                onClick={() => { setActionError(''); setConfirmOpen(true); }}
-                disabled={busy}
-                className="px-3 py-2 sm:py-1.5 rounded-xl bg-red-500/10 hover:bg-red-600 text-red-700 hover:text-white text-xs font-bold transition-colors duration-150 disabled:opacity-60"
-                aria-label={`Delete ${title}`}
-              >
-                🗑️ Delete
-              </button>
-            </div>
-          )}
-
-          {youtubeUrl && (
-            <button
-              type="button"
-              onClick={() => setShowVideo(!showVideo)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-xl bg-red-500/10 hover:bg-red-600 text-red-700 hover:text-white text-xs font-bold transition-colors duration-150"
-            >
-              <span>▶</span>
-              <span>{showVideo ? 'Hide Video Guide' : 'Watch Video Guide'}</span>
-            </button>
-          )}
-        </div>
+            )}
+          </div>
+        )}
 
         {editing && draft && (
           <div className="mt-3 pt-3 border-t border-primary/10 space-y-3">
