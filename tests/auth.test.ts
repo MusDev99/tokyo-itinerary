@@ -138,6 +138,7 @@ test('safeNext blocks open redirects', () => {
 test('same-origin check for CSRF', () => {
   const req = (h: Record<string, string>) => new Request('https://trip.example/api/itinerary', { method: 'POST', headers: h });
   assert.equal(isSameOrigin(req({ origin: 'https://trip.example' })), true);
+  assert.equal(isSameOrigin(req({ origin: 'http://trip.example' })), true, 'scheme can differ behind a proxy; the host decides');
   assert.equal(isSameOrigin(req({ origin: 'https://evil.test' })), false);
   assert.equal(isSameOrigin(req({})), false, 'no Origin and no Fetch-Metadata is rejected');
   assert.equal(isSameOrigin(req({ 'sec-fetch-site': 'cross-site', origin: 'https://trip.example' })), false);
