@@ -3,6 +3,12 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-10-24 13:21 — SEO, CI, jspdf 4
+
+- **SEO:** every page now has a meta description, canonical URL and Open Graph/Twitter tags (`<Layout description>`); new `/robots.txt` (hides `/add`, `/login`, `/api`) and `/sitemap.xml` built from the sheet.
+- **CI:** GitHub Actions runs `npm run verify` on PRs and an advisory `npm audit`.
+- **Dependencies:** `jspdf` 3 -> 4.2.1 (critical advisory). Astro 7 is blocked by `@astrojs/tailwind` (needs a Tailwind 4 migration); tracked in the audit.
+
 ## 2026-10-24 13:16 — Security: editor auth guard + OWASP hardening, AI dev workflow
 
 - **Breaking (deploy):** editing now requires `EDITOR_PASSWORD` + `AUTH_SECRET` (see `.env.example`). Without them production writes return 503. Viewing stays public.
