@@ -2,182 +2,180 @@ import { h } from 'preact';
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { animate, stagger } from 'motion';
 import { SEASONS, readSavedSeason, type SeasonId } from '../utils/seasons';
+import { playChime, readSoundOn, saveSoundOn } from '../utils/seasonSound';
+import { prefersReducedMotion } from '../utils/motion';
+import { useDismiss } from './useDismiss';
 
-const FAB = 56; // px, floating button
-const ITEM = 48; // px, season button (>= 44px touch target)
-const RADIUS = 180;
-const SPAN = 90; // degrees: wheel fans from "up" to "left" of the button
+const FAB = 56; // px, floating button (Fitts's Law: large target in the bottom-right thumb zone)
+const COLS = 4;
 
-const spring = { type: 'spring', stiffness: 320, damping: 22 } as const;
+const GROUPS = [
+  { id: 'season', label: 'Seasons' },
+  { id: 'weather', label: 'Weather' },
+] as const;
 
-/** Position of the i-th season on the arc, relative to the FAB center (math angle: 90° = up, 180° = left). */
-function polar(i: number, total: number) {
-  const angle = ((180 - (i * SPAN) / (total - 1)) * Math.PI) / 180;
-  return { x: RADIUS * Math.cos(angle), y: -RADIUS * Math.sin(angle) };
+const spring = { type: 'spring', stiffness: 380, damping: 28 } as const;
+
+function SpeakerIcon({ on }: { on: boolean }) {
+  return (
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M11 5L6 9H3v6h3l5 4V5z" />
+      {on ? <path d="M15.5 8.5a5 5 0 010 7M18.5 5.5a9 9 0 010 13" /> : <path d="M22 9l-6 6M16 9l6 6" />}
+    </svg>
+  );
 }
 
 const ThemeSwitcher = () => {
   const [theme, setTheme] = useState<SeasonId>('autumn');
-  const [visible, setVisible] = useState(false);
-  const [caption, setCaption] = useState('');
-  const wheel = useRef<HTMLDivElement>(null);
-  const backdrop = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
+  const [soundOn, setSoundOn] = useState(true);
+  const root = useRef<HTMLDivElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
   const fab = useRef<HTMLButtonElement>(null);
   const fabIcon = useRef<HTMLSpanElement>(null);
   const closing = useRef(false);
-  const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   useEffect(() => {
     const saved = readSavedSeason();
     setTheme(saved);
+    setSoundOn(readSoundOn());
     document.documentElement.setAttribute('data-theme', saved);
   }, []);
 
-  // Open animation: wheel spins in, items stagger out from the button
+  // Open: panel grows from the button, tiles stagger in; focus lands on the current theme
   useEffect(() => {
-    if (!visible) return;
-    const el = wheel.current;
-    if (!el) return;
-    const items = Array.from(el.querySelectorAll<HTMLElement>('[data-season]'));
-    const current = items.find((b) => b.dataset.season === theme) || items[0];
-    current?.focus();
-    if (reduced()) return;
-    animate(backdrop.current!, { opacity: [0, 1] }, { duration: 0.25 });
-    animate(el, { rotate: [-90, 0], scale: [0.3, 1], opacity: [0, 1] }, spring);
-    animate(items, { scale: [0, 1], opacity: [0, 1] }, { delay: stagger(0.05, { startDelay: 0.05 }), ...spring });
-  }, [visible]);
+    if (!open || !panel.current) return;
+    const tiles = Array.from(panel.current.querySelectorAll<HTMLElement>('[data-season]'));
+    (tiles.find((t) => t.dataset.season === theme) || tiles[0])?.focus();
+    if (prefersReducedMotion()) return;
+    animate(panel.current, { opacity: [0, 1], scale: [0.85, 1], y: [12, 0] }, spring);
+    animate(tiles, { opacity: [0, 1], y: [8, 0] }, { delay: stagger(0.025, { startDelay: 0.04 }), duration: 0.2 });
+  }, [open]);
 
   const close = async (refocus = true) => {
-    if (!visible || closing.current) return;
+    if (!open || closing.current) return;
     closing.current = true;
-    if (!reduced() && wheel.current) {
-      await Promise.all([
-        animate(wheel.current, { rotate: [0, 70], scale: [1, 0.3], opacity: [1, 0] }, { duration: 0.28, ease: 'easeIn' }).finished,
-        animate(backdrop.current!, { opacity: [1, 0] }, { duration: 0.25 }).finished,
-      ]);
+    if (!prefersReducedMotion() && panel.current) {
+      await animate(panel.current, { opacity: [1, 0], scale: [1, 0.9], y: [0, 8] }, { duration: 0.15, ease: 'easeIn' }).finished;
     }
-    setVisible(false);
+    setOpen(false);
     closing.current = false;
-    setCaption('');
     if (refocus) fab.current?.focus();
   };
 
-  const choose = (id: SeasonId) => {
+  useDismiss(open, [root], (reason) => close(reason === 'escape'));
+
+  // The panel stays open after a pick so themes can be compared; the page re-themes instantly (Doherty Threshold)
+  const choose = (id: SeasonId, tile: HTMLElement) => {
+    if (soundOn) playChime(id);
+    if (id === theme) return;
     setTheme(id);
-    localStorage.setItem('theme', id);
+    try {
+      localStorage.setItem('theme', id);
+    } catch {
+      /* private mode: theme still applies for this page */
+    }
     document.documentElement.setAttribute('data-theme', id);
     document.dispatchEvent(new CustomEvent('theme-changed', { detail: { theme: id } }));
-    if (!reduced() && fabIcon.current) {
-      animate(fabIcon.current, { rotate: [0, 360], scale: [0.6, 1.15, 1] }, { duration: 0.6, ease: 'easeOut' });
-    }
-    close();
+    if (prefersReducedMotion()) return;
+    animate(tile, { scale: [0.9, 1.06, 1] }, { duration: 0.3, ease: 'easeOut' });
+    if (fabIcon.current) animate(fabIcon.current, { rotate: [0, 360], scale: [0.6, 1.15, 1] }, { duration: 0.6, ease: 'easeOut' });
   };
 
-  const onKeyDown = (e: KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      e.preventDefault();
-      close();
-      return;
-    }
-    const dir = e.key === 'ArrowRight' || e.key === 'ArrowUp' ? -1 : e.key === 'ArrowLeft' || e.key === 'ArrowDown' ? 1 : 0;
-    if (!dir) return;
+  const toggleSound = () => {
+    const next = !soundOn;
+    setSoundOn(next);
+    saveSoundOn(next);
+    if (next) playChime(theme);
+  };
+
+  // Arrow keys move through the tiles as a 4-column grid
+  const onTileKey = (e: KeyboardEvent) => {
+    const tiles = Array.from(panel.current!.querySelectorAll<HTMLElement>('[data-season]'));
+    const i = tiles.indexOf(document.activeElement as HTMLElement);
+    if (i < 0) return;
+    const moves: Record<string, number> = {
+      ArrowRight: i + 1,
+      ArrowLeft: i - 1,
+      ArrowDown: Math.min(i + COLS, tiles.length - 1),
+      ArrowUp: i - COLS,
+      Home: 0,
+      End: tiles.length - 1,
+    };
+    const next = moves[e.key];
+    if (next === undefined) return;
     e.preventDefault();
-    const items = Array.from(wheel.current!.querySelectorAll<HTMLElement>('[data-season]'));
-    const idx = items.indexOf(document.activeElement as HTMLElement);
-    items[(idx + dir + items.length) % items.length]?.focus();
+    tiles[Math.max(0, Math.min(next, tiles.length - 1))]?.focus();
   };
 
   const active = SEASONS.find((s) => s.id === theme)!;
-  const capPos = polar(3, SEASONS.length);
 
   return (
-    <div className="theme-switcher relative" style={{ width: `${FAB}px`, height: `${FAB}px` }} onKeyDown={visible ? onKeyDown : undefined}>
-      {visible && (
+    <div ref={root} className="theme-switcher relative" style={{ width: `${FAB}px`, height: `${FAB}px` }}>
+      {open && (
         <div
-          ref={backdrop}
-          className="fixed inset-0 -z-10 bg-black/20"
-          onPointerDown={() => close(false)}
-          aria-hidden="true"
-        />
-      )}
-
-      {visible && (
-        <div
-          ref={wheel}
-          role="menu"
-          aria-label="Choose a season"
-          className="absolute"
-          style={{ left: `${FAB / 2}px`, top: `${FAB / 2}px`, width: 0, height: 0, transformOrigin: '0 0' }}
+          ref={panel}
+          role="dialog"
+          aria-label="Choose a theme"
+          onKeyDown={onTileKey}
+          className="absolute right-0 rounded-2xl bg-surface-solid border border-primary/25 shadow-2xl p-3"
+          style={{ bottom: `${FAB + 12}px`, width: 'min(304px, calc(100vw - 40px))', transformOrigin: 'bottom right' }}
         >
-          {/* Wheel face: translucent glass sector behind the buttons */}
-          <svg
-            className="absolute pointer-events-none"
-            style={{ left: `-${RADIUS + 50}px`, top: `-${RADIUS + 50}px` }}
-            width={RADIUS + 50}
-            height={RADIUS + 50}
-            viewBox={`0 0 ${RADIUS + 50} ${RADIUS + 50}`}
-            aria-hidden="true"
-          >
-            <path
-              d={`M ${RADIUS + 50} ${RADIUS + 50} L ${RADIUS + 50} 0 A ${RADIUS + 50} ${RADIUS + 50} 0 0 0 0 ${RADIUS + 50} Z`}
-              fill="rgba(255,255,255,0.22)"
-              stroke="rgba(255,255,255,0.55)"
-              strokeWidth="1.5"
-            />
-            <path
-              d={`M ${RADIUS + 50} ${50} A ${RADIUS} ${RADIUS} 0 0 0 ${50} ${RADIUS + 50}`}
-              fill="none"
-              stroke="rgba(255,255,255,0.6)"
-              strokeWidth="1.5"
-              strokeDasharray="3 7"
-              strokeLinecap="round"
-            />
-          </svg>
-
-          {/* Caption of the hovered / focused season */}
-          <div
-            className="absolute px-3 py-1 rounded-full bg-surface-solid text-text text-xs font-bold shadow-lg whitespace-nowrap pointer-events-none -translate-x-1/2 -translate-y-1/2"
-            style={{ left: `${capPos.x * 0.55}px`, top: `${capPos.y * 0.55}px`, opacity: caption ? 1 : 0, transition: 'opacity .15s' }}
-          >
-            {caption || ' '}
+          <div className="flex items-center justify-between mb-2 pl-1">
+            <span className="text-sm font-extrabold text-text">Theme</span>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={soundOn}
+              onClick={toggleSound}
+              className="touch-target inline-flex items-center gap-1.5 h-11 px-3 rounded-xl text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 transition-colors"
+            >
+              <SpeakerIcon on={soundOn} />
+              {soundOn ? 'Sound on' : 'Sound off'}
+            </button>
           </div>
 
-          {SEASONS.map((s, i) => {
-            const p = polar(i, SEASONS.length);
-            const isActive = s.id === theme;
-            return (
-              <button
-                key={s.id}
-                type="button"
-                role="menuitemradio"
-                aria-checked={isActive}
-                aria-label={s.label}
-                data-season={s.id}
-                onClick={() => choose(s.id)}
-                onPointerEnter={() => setCaption(s.label)}
-                onFocus={() => setCaption(s.label)}
-                onPointerLeave={() => setCaption('')}
-                className={`absolute flex items-center justify-center rounded-full text-2xl shadow-lg border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
-                  isActive
-                    ? 'bg-gradient-to-br from-primary to-accent border-white/70'
-                    : 'bg-surface-solid border-primary/25 hover:border-primary/60'
-                }`}
-                style={{ width: `${ITEM}px`, height: `${ITEM}px`, left: `${p.x - ITEM / 2}px`, top: `${p.y - ITEM / 2}px` }}
-              >
-                <span aria-hidden="true">{s.icon}</span>
-              </button>
-            );
-          })}
+          {/* Two labelled chunks instead of one long fan (Miller's Law); visible labels, no hover-only captions (Hick's Law) */}
+          {GROUPS.map((g) => (
+            <div key={g.id} role="group" aria-labelledby={`theme-group-${g.id}`} className="mt-1 first-of-type:mt-0">
+              <p id={`theme-group-${g.id}`} className="px-1 pt-1 pb-1.5 text-[10px] font-extrabold uppercase tracking-wider text-text/55">
+                {g.label}
+              </p>
+              <div className="grid grid-cols-4 gap-1.5">
+                {SEASONS.filter((s) => s.group === g.id).map((s) => {
+                  const isActive = s.id === theme;
+                  return (
+                    <button
+                      key={s.id}
+                      type="button"
+                      data-season={s.id}
+                      aria-pressed={isActive}
+                      onClick={(e) => choose(s.id, e.currentTarget as HTMLElement)}
+                      className={`flex flex-col items-center justify-center gap-0.5 min-h-[64px] px-1 rounded-xl border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                        isActive
+                          ? 'bg-gradient-to-br from-primary to-accent text-white border-white/60 shadow-md'
+                          : 'bg-primary/5 text-text border-transparent hover:bg-primary/15 hover:border-primary/30'
+                      }`}
+                    >
+                      <span className="text-2xl leading-none" aria-hidden="true">{s.icon}</span>
+                      <span className="text-[11px] font-bold leading-tight text-center">{s.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
+      {/* Jakob's Law: one familiar floating button that opens a small menu above it */}
       <button
         ref={fab}
         type="button"
-        aria-haspopup="menu"
-        aria-expanded={visible}
-        aria-label={`Season: ${active.label}. Change season`}
-        onClick={() => (visible ? close() : setVisible(true))}
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        aria-label={`Theme: ${active.label}. Change theme`}
+        onClick={() => (open ? close() : setOpen(true))}
         className="relative flex items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-white shadow-xl border-2 border-white/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
         style={{ width: `${FAB}px`, height: `${FAB}px` }}
       >

@@ -2,6 +2,7 @@ import { h } from 'preact';
 import { useEffect, useRef } from 'preact/hooks';
 import { animate } from 'motion';
 import { readSavedSeason, isSeason, type SeasonId } from '../utils/seasons';
+import { prefersReducedMotion } from '../utils/motion';
 
 type Controls = { stop: () => void; pause: () => void; play: () => void };
 
@@ -171,7 +172,7 @@ export default function SeasonBackground() {
     const hostEl = host.current;
     if (!hostEl) return;
 
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reduced = prefersReducedMotion();
     const density = window.innerWidth < 640 ? 0.55 : 1;
     let current: { id: SeasonId; el: HTMLElement; controls: Controls[] } | null = null;
 

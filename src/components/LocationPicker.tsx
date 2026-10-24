@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { animate, stagger } from 'motion';
 import { inputClass } from './inputClass';
 import { placeLabel, type Place } from '../types/place';
+import { prefersReducedMotion } from '../utils/motion';
 
 interface Props {
   /** Initial search text (e.g. the state name) */
@@ -53,7 +54,7 @@ export default function LocationPicker({ initialQuery, value, onSelect, idPrefix
   }, [query]);
 
   useEffect(() => {
-    if (!list.current || !results.length || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!list.current || !results.length || prefersReducedMotion()) return;
     animate(list.current.querySelectorAll('li'), { opacity: [0, 1], y: [8, 0] }, { delay: stagger(0.04), duration: 0.25 });
   }, [results]);
 

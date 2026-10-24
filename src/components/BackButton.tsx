@@ -1,5 +1,6 @@
 import { h } from 'preact';
 import { animate } from 'motion';
+import { prefersReducedMotion } from '../utils/motion';
 
 interface Props {
   /** Current pathname; used to find a sensible parent when there is no in-site history */
@@ -22,7 +23,7 @@ export default function BackButton({ path }: Props) {
 
   const goBack = (e: MouseEvent) => {
     const el = e.currentTarget as HTMLElement;
-    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (!prefersReducedMotion()) {
       animate(el, { x: [0, -4, 0] }, { duration: 0.25 });
     }
     const sameSite = document.referrer && new URL(document.referrer).origin === window.location.origin;

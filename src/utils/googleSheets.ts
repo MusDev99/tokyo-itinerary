@@ -890,7 +890,7 @@ export async function deleteActivity(tabName: string, ref: RowRef): Promise<void
   const ctx = await writeContext();
   const tabs = await listTabs(ctx, ctx.spreadsheetId);
   const match = tabs.find((t) => t.title.trim().toLowerCase() === tabName.trim().toLowerCase());
-  if (!match) throw new UserError('Trip tab not found.');
+  if (!match) throw new UserError('Trip not found.');
   const found = await locateRow(ctx, ctx.spreadsheetId, match.title, ref);
   if (!found) throw new UserError('Activity not found — it may have been changed or removed. Refresh and try again.');
 
@@ -919,8 +919,8 @@ export async function deleteTrip(tabName: string): Promise<void> {
   const ctx = await writeContext();
   const tabs = await listTabs(ctx, ctx.spreadsheetId);
   const match = tabs.find((t) => t.title.trim().toLowerCase() === tabName.trim().toLowerCase());
-  if (!match) throw new UserError('Trip tab not found.');
-  if (tabs.length <= 1) throw new UserError("A spreadsheet needs at least one tab, so the last tab can't be deleted.");
+  if (!match) throw new UserError('Trip not found.');
+  if (tabs.length <= 1) throw new UserError("This is the only trip, so it can't be deleted.");
   await sheetsRequest(ctx, `${SHEETS_BASE}/${encodeURIComponent(ctx.spreadsheetId)}:batchUpdate`, {
     method: 'POST',
     body: JSON.stringify({ requests: [{ deleteSheet: { sheetId: match.sheetId } }] }),
@@ -934,7 +934,7 @@ export async function renameTrip(tabName: string, newName: string): Promise<void
   const ctx = await writeContext();
   const tabs = await listTabs(ctx, ctx.spreadsheetId);
   const match = tabs.find((t) => t.title.trim().toLowerCase() === tabName.trim().toLowerCase());
-  if (!match) throw new UserError('Trip tab not found.');
+  if (!match) throw new UserError('Trip not found.');
   const clash = tabs.find(
     (t) => t.sheetId !== match.sheetId && t.title.trim().toLowerCase() === newName.trim().toLowerCase()
   );

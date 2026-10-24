@@ -2,10 +2,12 @@ import { h } from 'preact';
 import { redirectIfSignedOut } from '../utils/authClient';
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { animate } from 'motion';
+import { useDismiss } from './useDismiss';
 import type { TimelineItem as TimelineItemType } from '../types/itinerary';
 import { CATEGORIES, detectCategory } from '../utils/analytics';
 import ConfirmDialog from './ConfirmDialog';
 import ActivityFields, { draftToPayload, type ActivityDraft } from './ActivityFields';
+import { prefersReducedMotion } from '../utils/motion';
 
 interface TimelineItemProps extends TimelineItemType {
   isLast?: boolean;
@@ -27,21 +29,10 @@ export default function TimelineItem(props: TimelineItemProps) {
   const menuPanel = useRef<HTMLDivElement>(null);
 
   // Overflow ("⋯") menu: close on outside tap / Escape, small spring-in (Motion)
+  useDismiss(menuOpen, [menuRef], () => setMenuOpen(false));
   useEffect(() => {
-    if (!menuOpen) return;
-    const down = (e: PointerEvent) => {
-      if (!menuRef.current?.contains(e.target as Node)) setMenuOpen(false);
-    };
-    const key = (e: KeyboardEvent) => e.key === 'Escape' && setMenuOpen(false);
-    document.addEventListener('pointerdown', down);
-    document.addEventListener('keydown', key);
-    if (menuPanel.current && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      animate(menuPanel.current, { opacity: [0, 1], scale: [0.92, 1], y: [-6, 0] }, { type: 'spring', stiffness: 420, damping: 28 });
-    }
-    return () => {
-      document.removeEventListener('pointerdown', down);
-      document.removeEventListener('keydown', key);
-    };
+    if (!menuOpen || !menuPanel.current || prefersReducedMotion()) return;
+    animate(menuPanel.current, { opacity: [0, 1], scale: [0.92, 1], y: [-6, 0] }, { type: 'spring', stiffness: 420, damping: 28 });
   }, [menuOpen]);
   // Addresses the row by id, or by sheet row + original title for legacy rows without an id
   const rowRef = id ? { id } : { row, expectTitle: title };
@@ -103,7 +94,7 @@ export default function TimelineItem(props: TimelineItemProps) {
   const shown = isOpen || editing;
 
   useEffect(() => {
-    if (!isOpen || !bodyRef.current || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!isOpen || !bodyRef.current || prefersReducedMotion()) return;
     animate(bodyRef.current, { opacity: [0, 1], y: [-8, 0] }, { duration: 0.25, ease: [0.22, 1, 0.36, 1] });
   }, [isOpen]);
 
@@ -358,7 +349,7 @@ export default function TimelineItem(props: TimelineItemProps) {
       <ConfirmDialog
         open={confirmOpen}
         title="Delete this activity?"
-        message={<>“{title}” will be permanently removed from the Google Sheet. This can't be undone.</>}
+        message={<>“{title}” will be permanently deleted. This can't be undone.</>}
         confirmLabel="Delete activity"
         busy={busy}
         error={confirmOpen ? actionError : ''}

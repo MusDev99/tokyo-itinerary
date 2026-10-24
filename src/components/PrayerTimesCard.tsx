@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { animate, stagger } from 'motion';
 import { PRAYERS, compassPoint, type DayTimings, type PrayerMethod } from '../utils/prayer';
 import type { Place } from '../types/place';
+import { prefersReducedMotion } from '../utils/motion';
 
 interface Props {
   place: Place;
@@ -66,7 +67,7 @@ export default function PrayerTimesCard({ place, dates }: Props) {
 
   // Qibla needle swings to its bearing; day cards stagger in (Motion, skipped for reduced motion)
   useEffect(() => {
-    if (!data || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!data || prefersReducedMotion()) return;
     if (needle.current && data.qibla != null) {
       animate(needle.current, { rotate: [0, data.qibla] }, { type: 'spring', stiffness: 60, damping: 12 });
     }
