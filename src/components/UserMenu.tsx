@@ -1,6 +1,8 @@
 import { h } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { animate } from 'motion';
+import { useDismiss } from './useDismiss';
+import { prefersReducedMotion } from '../utils/motion';
 
 interface Props {
   user: { name: string; email: string; picture: string } | null;
@@ -17,19 +19,10 @@ export default function UserMenu({ user, next }: Props) {
   const panel = useRef<HTMLDivElement>(null);
   const [imgOk, setImgOk] = useState(true);
 
+  useDismiss(open, [root], () => setOpen(false));
   useEffect(() => {
-    if (!open) return;
-    const down = (e: PointerEvent) => !root.current?.contains(e.target as Node) && setOpen(false);
-    const key = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
-    document.addEventListener('pointerdown', down);
-    document.addEventListener('keydown', key);
-    if (panel.current && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      animate(panel.current, { opacity: [0, 1], y: [-6, 0], scale: [0.96, 1] }, { type: 'spring', stiffness: 420, damping: 28 });
-    }
-    return () => {
-      document.removeEventListener('pointerdown', down);
-      document.removeEventListener('keydown', key);
-    };
+    if (!open || !panel.current || prefersReducedMotion()) return;
+    animate(panel.current, { opacity: [0, 1], y: [-6, 0], scale: [0.96, 1] }, { type: 'spring', stiffness: 420, damping: 28 });
   }, [open]);
 
   if (!user) {

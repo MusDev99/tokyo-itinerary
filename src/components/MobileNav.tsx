@@ -2,6 +2,7 @@ import { h } from 'preact';
 import { createPortal } from 'preact/compat';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { animate, stagger } from 'motion';
+import { prefersReducedMotion } from '../utils/motion';
 
 export interface NavState {
   name: string;
@@ -28,7 +29,6 @@ interface Props {
 }
 
 const spring = { type: 'spring', stiffness: 340, damping: 30 } as const;
-const reduced = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const isHere = (path: string, href: string) => path === href || path === `${href}/`;
 
@@ -40,7 +40,7 @@ function Collapsible({ open, children }: { open: boolean; children: any }) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    if (first.current || reduced()) {
+    if (first.current || prefersReducedMotion()) {
       first.current = false;
       el.style.height = open ? 'auto' : '0px';
       return;
@@ -81,7 +81,7 @@ export default function MobileNav({ countries, currentPath, canEdit = false }: P
     if (closing.current) return;
     closing.current = true;
     setOpen(false);
-    if (!reduced() && panel.current && backdrop.current) {
+    if (!prefersReducedMotion() && panel.current && backdrop.current) {
       await Promise.all([
         animate(panel.current, { x: [0, '100%'], opacity: [1, 0.6] }, { duration: 0.22, ease: 'easeIn' }).finished,
         animate(backdrop.current, { opacity: [1, 0] }, { duration: 0.2 }).finished,
@@ -95,7 +95,7 @@ export default function MobileNav({ countries, currentPath, canEdit = false }: P
   // Hamburger ↔ close morph
   useEffect(() => {
     const [a, b, c] = bars.current;
-    if (!a || !b || !c || reduced()) return;
+    if (!a || !b || !c || prefersReducedMotion()) return;
     animate(a, { y: open ? 7 : 0, rotate: open ? 45 : 0 }, spring);
     animate(b, { opacity: open ? 0 : 1, scaleX: open ? 0.3 : 1 }, { duration: 0.15 });
     animate(c, { y: open ? -7 : 0, rotate: open ? -45 : 0 }, spring);
@@ -108,7 +108,7 @@ export default function MobileNav({ countries, currentPath, canEdit = false }: P
     document.body.style.overflow = 'hidden';
     const key = (e: KeyboardEvent) => e.key === 'Escape' && hide();
     document.addEventListener('keydown', key);
-    if (!reduced() && panel.current && backdrop.current) {
+    if (!prefersReducedMotion() && panel.current && backdrop.current) {
       animate(backdrop.current, { opacity: [0, 1] }, { duration: 0.25 });
       animate(panel.current, { x: ['100%', 0], opacity: [0.6, 1] }, spring);
       animate(panel.current.querySelectorAll('[data-item]'), { opacity: [0, 1], y: [14, 0] }, { delay: stagger(0.045, { startDelay: 0.12 }), duration: 0.35, ease: [0.22, 1, 0.36, 1] });

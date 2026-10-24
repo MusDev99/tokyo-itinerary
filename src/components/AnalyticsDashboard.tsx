@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import type { DayItinerary } from '../types/itinerary';
 import { CATEGORIES, detectCategory, fetchLiveRates, type CategoryInfo } from '../utils/analytics';
-import { buildHubCurrencies, currencyName, currencySymbol, formatMoney } from '../utils/currencyInfo';
+import { buildHubCurrencies, currencySymbol, formatMoney } from '../utils/currencyInfo';
 import { useThemeColors } from './useThemeColors';
 import CurrencyExchangeGraph from './CurrencyExchangeGraph';
 import {
@@ -483,33 +483,6 @@ export const AnalyticsDashboard: React.FC<Props> = ({ dataSources, currencies = 
       {/* ---------------- CURRENCY ---------------- */}
       {tab === 'currency' && (
         <div className="flex flex-col gap-4 sm:gap-5">
-          <section aria-label="Exchange rates">
-            <h3 className="text-sm font-extrabold text-text mb-2">1 {base} equals</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
-              {hub.filter((c) => c !== base).map((code) => {
-                const rate = rates[code];
-                const active = graphTarget === code;
-                return (
-                  <button
-                    key={code}
-                    type="button"
-                    onClick={() => { setGraphTarget(code); setTo(code); }}
-                    className={`text-left p-3 rounded-xl border transition-colors ${
-                      active ? 'bg-primary/20 border-primary ring-2 ring-primary/30' : 'bg-white/45 border-primary/20 hover:bg-primary/10'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-extrabold text-sm text-text">{code}</span>
-                      <span className="text-[11px] text-primary font-bold">{active ? 'Charted' : 'Chart ↗'}</span>
-                    </div>
-                    <div className="text-lg font-extrabold text-text mt-0.5">{rate ? rate.toLocaleString('en-US', { maximumFractionDigits: rate < 1 ? 4 : 2 }) : '—'}</div>
-                    <div className="text-[11px] text-text/60 truncate">{currencyName(code)}</div>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-
           <section className={card} aria-label="Currency converter">
             <h3 className="text-sm font-extrabold text-text mb-3">Converter</h3>
             <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-end gap-3">

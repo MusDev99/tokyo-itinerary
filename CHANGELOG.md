@@ -3,6 +3,48 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-10-25 08:00 — Remove the unused Japanese dictionary component
+
+- Deleted `src/components/JapaneseDictionary.tsx` (no page imported it).
+
+## 2026-10-25 07:55 — Remove "Google Sheets" wording from the UI
+
+- **Home:** removed the "Synced live from Google Sheets · N tabs" footer line (and the "Set GOOGLE_SHEET_ID" fallback).
+- **Plain trip language instead of sheet/tab wording:** add page intro and new-trip hint, rename and delete-trip dialogs, delete-activity dialog, footer CTA, and the empty states on country, state and itinerary pages (no more raw tab names).
+- **Error messages:** "Trip tab not found." → "Trip not found."; the last-tab delete error now reads "This is the only trip, so it can't be deleted."
+- Code comments, internal names and the editors-only `/api/sheets-sync` diagnostics are unchanged.
+
+## 2026-10-25 07:50 — Remove the rate cards from the Currency tab
+
+- **Currency tab:** removed the "1 MYR equals" grid of rate cards. The converter and the rate history chart stay; the chart keeps its own currency selector, and picking a "To" currency in the converter still updates the chart.
+
+## 2026-10-25 07:45 — Theme picker redesign + selection sound
+
+- **Removed the quarter-circle wheel:** it covered page content and only showed names on hover. The floating button (bottom-right, same place) now opens a compact 304px panel just above it.
+- **Grouped, labelled tiles:** Seasons (Autumn, Winter, Spring, Summer) and Weather (Rain, Haze, Starry Night) as 64px tiles with icon + name; the current theme is highlighted. The panel stays open after a pick so themes can be compared, and closes on outside tap, Escape or the button.
+- **Sound:** each theme plays a short, quiet chime (leaves, bells, birdsong, arpeggio, raindrops, pad, night bell), synthesised with the Web Audio API, so there are no audio files and no CSP change. A "Sound on/off" switch in the panel is remembered (`theme-sound` in localStorage).
+- **Keyboard:** focus starts on the current theme; arrows move across the grid, Home/End jump, Enter picks, Escape closes and returns focus.
+- **Laws of UX:** Fitts (thumb zone, 64px tiles, 44px switch), Hick + Miller (two labelled groups instead of seven unlabelled icons), Jakob (familiar popover menu from a FAB), Doherty (theme and sound respond instantly).
+- **Tests:** `tests/seasonSound.test.ts` (every theme has a chime under 1s in a comfortable range, grouping, default sound on).
+
+## 2026-10-25 07:40 — Reusable picker, dismiss and form-field building blocks
+
+- **Refactor (no behaviour change):** the date and time pickers now share `PickerPopover.tsx` (`usePickerPopover`, `PickerTrigger`, `PickerPopover`, `pickerButton`) for the trigger, placement, entrance animation and close handling. Placement math lives in `utils/popover.ts` (`anchorPosition`).
+- **`useDismiss` hook:** one implementation of close-on-outside-press + Escape, used by both pickers, the user menu and the activity "⋯" menu.
+- **`prefersReducedMotion()`** (`utils/motion.ts`) replaces 17 copies of the inline `matchMedia` check.
+- **`FormField`:** shared label / required-or-optional / error layout, used by the activity fields and the add form (country, state, day date, day title).
+- **Calendar:** keyboard moves are a pure, tested helper (`dateForKey`).
+- **Small fixes picked up:** the time picker now fits screens narrower than 288px, and its Cancel button returns focus to the field.
+- **Tests:** `tests/popover.test.ts` and keyboard navigation cases in `tests/calendar.test.ts` (32 tests total).
+
+## 2026-10-25 07:25 — Calendar date picker
+
+- **New `CalendarPicker`:** the Day date on `/add` and the Date field when editing an activity now open a month-grid calendar instead of the browser's native date input, styled like the analog time picker. Tap a day to pick it; Today and Cancel buttons; today is ringed, the selected day filled.
+- **Keyboard:** arrows move by day/week, Home/End go to the start/end of the week, PageUp/PageDown change month (Shift for a year), Enter/Space pick the date, Escape closes it and focus goes back to the field.
+- **Mobile:** 44px day targets, fits 375px with no horizontal scroll; opens above the field when there's no room below. Motion entrance and month slide, skipped for reduced motion.
+- **Data unchanged:** still writes `YYYY-MM-DD`; legacy sheet dates such as "October 17, 2026" display correctly and are only rewritten if a new date is picked. Optional `min`/`max` bounds.
+- **Tests:** `tests/calendar.test.ts` covers the date helpers (leap years, month clamping, grid layout, timezone safety).
+
 ## 2026-10-24 20:27 — Fix: sign out failed with "Cross-site POST form submissions are forbidden"
 
 - **Fix:** on Vercel, Astro's built-in form-POST origin check rebuilt the request URL as `http://` while the browser's `Origin` was `https://`, so every sign-out was rejected. The built-in check is switched off (`security.checkOrigin: false` in `astro.config.mjs`) because CSRF is already enforced by our own `isSameOrigin()` (Sec-Fetch-Site, then the Origin host) in the middleware for every write API and in `/api/logout`. Cross-site requests are still refused with 403.
