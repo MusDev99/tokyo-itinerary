@@ -1,6 +1,7 @@
 ---
 import { getAllCountriesWithSheets } from '../utils/countries';
 import MobileNav from './MobileNav';
+import BackButton from './BackButton';
 
 const { countries } = await getAllCountriesWithSheets();
 
@@ -46,7 +47,9 @@ const mobileCountries = countries.map((c) => ({
   <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
       <!-- Brand / Home Link (Jakob's Law & Fitts's Law) -->
-      <div class="flex items-center gap-6">
+      <div class="flex items-center gap-2 sm:gap-4">
+        <!-- Back to the previous page (hidden on the home page) -->
+        <BackButton path={Astro.url.pathname} client:load />
         <a
           href="/"
           class="flex items-center gap-2.5 py-2 group focus-ring rounded-lg"
