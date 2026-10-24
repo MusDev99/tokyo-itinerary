@@ -2,7 +2,7 @@
 name: dev-workflow
 description: AI-driven development pipeline for this repo (brainstorm, plan, feature analysis, implement, verify, validate, git, release). Use at the START of any feature, fix or refactor, and whenever asked how to approach a change. Orchestrates feature-checklist, code-review-checklist, owasp-audit and release.
 ---
-# 🧭 AI-driven development workflow — PlanTravel itinerary planner (Astro 5 SSR + Preact + Google Sheets)
+# 🧭 AI-driven development workflow — PlanTravel itinerary planner (Astro 7 SSR + Preact + Google Sheets)
 
 Every change walks the 8 gates below. Do not skip a gate; leave the artifact. Stop and ask the owner at 🛑.
 Keep chat output concise: tables, emoji status, roadmaps (owner preference).

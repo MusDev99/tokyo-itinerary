@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Multi-country travel itinerary planner (Astro 5 SSR on Vercel + Preact + Tailwind). Google Sheets is the single source of truth. See `GEMINI.md` and `README.md` for the full feature tour.
+Multi-country travel itinerary planner (Astro 7 SSR on Vercel + Preact + Tailwind 3 via PostCSS). Google Sheets is the single source of truth. See `GEMINI.md` and `README.md` for the full feature tour.
 
 ## Commands
 

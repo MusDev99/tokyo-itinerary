@@ -62,7 +62,7 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 
 | Layer | Technology |
 | :--- | :--- |
-| **Framework** | [Astro v5](https://astro.build/) |
+| **Framework** | [Astro v7](https://astro.build/) |
 | **UI Components** | [Preact](https://preactjs.com/) + TypeScript |
 | **Styling** | [Tailwind CSS](https://tailwindcss.com/) |
 | **Animation** | [Motion](https://motion.dev/) |

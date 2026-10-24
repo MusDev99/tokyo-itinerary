@@ -21,12 +21,11 @@ jobs:
 
   audit:
     runs-on: ubuntu-latest
-    # Advisory until the Astro 7 migration lands (docs/audits F-07); then remove continue-on-error.
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      # Fails on critical advisories only; lower severities are tracked in docs/audits.
-      - run: npm audit --omit=dev --audit-level=critical
+      # Blocking: production dependencies must have no high or critical advisories.
+      # Moderate and dev-only (build tooling) advisories are tracked in docs/audits.
+      - run: npm audit --omit=dev --audit-level=high
