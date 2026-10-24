@@ -37,6 +37,11 @@ export default function Timeline({ day }: Props) {
             <span className="px-2.5 py-0.5 rounded-lg text-xs font-extrabold uppercase tracking-wider bg-primary text-white">
               Day {day.day}
             </span>
+            {day.state && (
+              <span className="px-2.5 py-0.5 rounded-lg text-xs font-extrabold bg-primary/15 text-primary border border-primary/30">
+                📍 {day.state}
+              </span>
+            )}
             <span className="text-xs sm:text-sm font-semibold text-text/70">
               📅 {day.date}
             </span>

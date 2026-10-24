@@ -129,6 +129,11 @@ export default function Tabs({ itinerary }: Props) {
                 >
                   {formatShortDate(day.date)}
                 </div>
+                {day.state && (
+                  <div className={`text-[10px] font-bold mt-0.5 truncate max-w-[96px] ${isActive ? 'text-white/90' : 'text-primary'}`}>
+                    📍 {day.state}
+                  </div>
+                )}
               </button>
             );
           })}
