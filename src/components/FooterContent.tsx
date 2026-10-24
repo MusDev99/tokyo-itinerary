@@ -1,6 +1,7 @@
 import { h } from 'preact';
 import { useEffect, useRef } from 'preact/hooks';
 import { animate, hover, press, inView, stagger } from 'motion';
+import { prefersReducedMotion } from '../utils/motion';
 
 interface Destination {
   slug: string;
@@ -34,7 +35,7 @@ export default function FooterContent({ destinations, year, canEdit = false }: P
     const el = root.current;
     if (!el) return;
     // Respect reduced motion: leave everything static and visible
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (prefersReducedMotion()) return;
 
     const cleanups: Array<() => void> = [];
 
@@ -103,7 +104,7 @@ export default function FooterContent({ destinations, year, canEdit = false }: P
   }, [destinations.length]);
 
   const toTop = () => {
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reduce = prefersReducedMotion();
     window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
   };
 

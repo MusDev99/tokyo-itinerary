@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'preact/hooks';
 import { animate } from 'motion';
 import TimelineItem from './TimelineItem';
 import type { DayItinerary } from '../types/itinerary';
+import { prefersReducedMotion } from '../utils/motion';
 
 interface Props {
   day: DayItinerary;
@@ -24,7 +25,7 @@ export default function Timeline({ day, canEdit = false }: Props) {
   const first = useRef(true);
   useEffect(() => {
     if (!chevron.current) return;
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reduce = prefersReducedMotion();
     animate(chevron.current, { rotate: allOpen ? 180 : 0 }, { duration: first.current || reduce ? 0 : 0.25 });
     first.current = false;
   }, [allOpen]);

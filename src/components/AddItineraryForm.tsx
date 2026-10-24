@@ -3,8 +3,11 @@ import { redirectIfSignedOut } from '../utils/authClient';
 import { useState, useMemo, useEffect, useRef } from 'preact/hooks';
 import { animate } from 'motion';
 import LocationPicker from './LocationPicker';
+import CalendarPicker from './CalendarPicker';
+import FormField from './FormField';
 import type { Place } from '../types/place';
 import ActivityFields, { emptyActivity, draftToPayload, inputClass, type ActivityDraft } from './ActivityFields';
+import { prefersReducedMotion } from '../utils/motion';
 
 interface CountryOption {
   name: string;
@@ -98,7 +101,7 @@ function Reveal({ children, className = '' }: { children: any; className?: strin
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = ref.current;
-    if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!el || prefersReducedMotion()) return;
     animate(el, { opacity: [0, 1], y: [14, 0] }, { duration: 0.35, ease: [0.22, 1, 0.36, 1] });
   }, []);
   return <div ref={ref} className={className}>{children}</div>;
@@ -148,7 +151,7 @@ export default function AddItineraryForm({ countries = [], trips = [], initialCo
   // Fade/slide the panel in on tab change (Motion; skipped for reduced motion)
   useEffect(() => {
     const el = panelRef.current;
-    if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!el || prefersReducedMotion()) return;
     animate(el, { opacity: [0, 1], y: [16, 0] }, { duration: 0.35, ease: [0.22, 1, 0.36, 1] });
   }, [activeStep]);
 
@@ -309,26 +312,22 @@ export default function AddItineraryForm({ countries = [], trips = [], initialCo
             className="glass-effect rounded-2xl p-4 sm:p-6 border border-primary/20 shadow-md space-y-4">
             <h2 className="text-base sm:text-lg font-extrabold text-text">Where are you going?</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1 min-w-0">
-                <label htmlFor="country" className="text-xs font-bold text-text/80">Country <span className="text-red-600">*</span></label>
+              <FormField label="Country" htmlFor="country" required error={touched ? tripErrors.country : ''}>
                 <input id="country" list="country-list" className={inputClass} placeholder="e.g. Malaysia"
                   aria-invalid={touched && !!tripErrors.country}
                   value={country} onInput={(e) => setCountry((e.target as HTMLInputElement).value)} />
                 <datalist id="country-list">
                   {countries.map((c) => <option key={c.slug} value={c.name}>{c.flag}</option>)}
                 </datalist>
-                {touched && tripErrors.country && <span className="text-[11px] font-semibold text-red-600">{tripErrors.country}</span>}
-              </div>
-              <div className="flex flex-col gap-1 min-w-0">
-                <label htmlFor="state" className="text-xs font-bold text-text/80">State / City <span className="text-red-600">*</span></label>
+              </FormField>
+              <FormField label="State / City" htmlFor="state" required error={touched ? tripErrors.state : ''}>
                 <input id="state" list="state-list" className={inputClass} placeholder="e.g. Kuala Lumpur"
                   aria-invalid={touched && !!tripErrors.state}
                   value={state} onInput={(e) => setState((e.target as HTMLInputElement).value)} />
                 <datalist id="state-list">
                   {knownStates.map((s) => <option key={s} value={s} />)}
                 </datalist>
-                {touched && tripErrors.state && <span className="text-[11px] font-semibold text-red-600">{tripErrors.state}</span>}
-              </div>
+              </FormField>
             </div>
             {tripValid && (
               <p className="text-xs text-text/70">
@@ -384,18 +383,14 @@ export default function AddItineraryForm({ countries = [], trips = [], initialCo
                     )}
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-6 gap-3">
-                    <div className="flex flex-col gap-1 min-w-0 sm:col-span-2">
-                      <label htmlFor={`day-${di}-date`} className="text-xs font-bold text-text/80">Date <span className="text-red-600">*</span></label>
-                      <input id={`day-${di}-date`} type="date" className={inputClass} value={day.date}
-                        onInput={(e) => patchDay(di, { date: (e.target as HTMLInputElement).value })} />
-                      {showErrors && de?.date && <span className="text-[11px] font-semibold text-red-600">{de.date}</span>}
-                    </div>
-                    <div className="flex flex-col gap-1 min-w-0 sm:col-span-4">
-                      <label htmlFor={`day-${di}-title`} className="text-xs font-bold text-text/80">Day title <span className="text-red-600">*</span></label>
+                    <FormField label="Date" htmlFor={`day-${di}-date`} required error={showErrors ? de?.date : ''} className="sm:col-span-2">
+                      <CalendarPicker id={`day-${di}-date`} value={day.date} invalid={!!(showErrors && de?.date)}
+                        onChange={(date) => patchDay(di, { date })} />
+                    </FormField>
+                    <FormField label="Day title" htmlFor={`day-${di}-title`} required error={showErrors ? de?.title : ''} className="sm:col-span-4">
                       <input id={`day-${di}-title`} type="text" maxLength={200} className={inputClass} placeholder="e.g. Arrival & Shibuya night walk"
                         value={day.title} onInput={(e) => patchDay(di, { title: (e.target as HTMLInputElement).value })} />
-                      {showErrors && de?.title && <span className="text-[11px] font-semibold text-red-600">{de.title}</span>}
-                    </div>
+                    </FormField>
                   </div>
 
                   {/* Step B: activities for this day, unlocked once date + title are filled */}

@@ -2,6 +2,7 @@ import { h } from 'preact';
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { animate, stagger } from 'motion';
 import { SEASONS, readSavedSeason, type SeasonId } from '../utils/seasons';
+import { prefersReducedMotion } from '../utils/motion';
 
 const FAB = 56; // px, floating button
 const ITEM = 48; // px, season button (>= 44px touch target)
@@ -25,7 +26,6 @@ const ThemeSwitcher = () => {
   const fab = useRef<HTMLButtonElement>(null);
   const fabIcon = useRef<HTMLSpanElement>(null);
   const closing = useRef(false);
-  const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   useEffect(() => {
     const saved = readSavedSeason();
@@ -41,7 +41,7 @@ const ThemeSwitcher = () => {
     const items = Array.from(el.querySelectorAll<HTMLElement>('[data-season]'));
     const current = items.find((b) => b.dataset.season === theme) || items[0];
     current?.focus();
-    if (reduced()) return;
+    if (prefersReducedMotion()) return;
     animate(backdrop.current!, { opacity: [0, 1] }, { duration: 0.25 });
     animate(el, { rotate: [-90, 0], scale: [0.3, 1], opacity: [0, 1] }, spring);
     animate(items, { scale: [0, 1], opacity: [0, 1] }, { delay: stagger(0.05, { startDelay: 0.05 }), ...spring });
@@ -50,7 +50,7 @@ const ThemeSwitcher = () => {
   const close = async (refocus = true) => {
     if (!visible || closing.current) return;
     closing.current = true;
-    if (!reduced() && wheel.current) {
+    if (!prefersReducedMotion() && wheel.current) {
       await Promise.all([
         animate(wheel.current, { rotate: [0, 70], scale: [1, 0.3], opacity: [1, 0] }, { duration: 0.28, ease: 'easeIn' }).finished,
         animate(backdrop.current!, { opacity: [1, 0] }, { duration: 0.25 }).finished,
@@ -67,7 +67,7 @@ const ThemeSwitcher = () => {
     localStorage.setItem('theme', id);
     document.documentElement.setAttribute('data-theme', id);
     document.dispatchEvent(new CustomEvent('theme-changed', { detail: { theme: id } }));
-    if (!reduced() && fabIcon.current) {
+    if (!prefersReducedMotion() && fabIcon.current) {
       animate(fabIcon.current, { rotate: [0, 360], scale: [0.6, 1.15, 1] }, { duration: 0.6, ease: 'easeOut' });
     }
     close();

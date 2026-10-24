@@ -2,6 +2,7 @@ import { h } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { animate } from 'motion';
 import AddItineraryForm from './AddItineraryForm';
+import { prefersReducedMotion } from '../utils/motion';
 
 interface Props {
   country: string;
@@ -21,7 +22,7 @@ export default function AddActivityPanel({ country, countrySlug, state, currency
   useEffect(() => {
     if (!open || !panel.current) return;
     panel.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (!prefersReducedMotion()) {
       animate(panel.current, { opacity: [0, 1], y: [-10, 0] }, { duration: 0.3, ease: [0.22, 1, 0.36, 1] });
     }
   }, [open]);

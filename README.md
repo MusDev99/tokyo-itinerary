@@ -77,7 +77,7 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 ```text
 ├── .claude/skills/                    # AI-driven dev workflow: dev-workflow, feature-checklist, code-review-checklist, owasp-audit, release
 ├── docs/                              # features/ (feature.md), reviews/, audits/ (audit.md)
-├── tests/                             # node:test unit tests (auth + security helpers)
+├── tests/                             # node:test unit tests (auth, users, calendar, popover helpers)
 ├── scripts/smoke.mjs                  # post-deploy auth/header smoke test
 ├── credentials/
 │   └── keys.json                      # Local Google Service Account key (gitignored)
@@ -100,6 +100,10 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 │   │   ├── MobileNav.tsx              # Mobile slide-in navigation drawer
 │   │   ├── AddItineraryForm.tsx       # Two-tab add form (trip, then days & activities)
 │   │   ├── AnalogTimePicker.tsx       # Analog clock time picker
+│   │   ├── CalendarPicker.tsx         # Month-grid date picker (keyboard + touch)
+│   │   ├── PickerPopover.tsx          # Shared trigger + popover for the date/time pickers
+│   │   ├── FormField.tsx              # Label + control + error layout for forms
+│   │   ├── useDismiss.ts              # Close-on-outside-press / Escape hook
 │   │   ├── ConfirmDialog.tsx          # Confirmation modal for destructive actions
 │   │   ├── TripActions.tsx            # Add activities / rename / delete trip
 │   │   ├── AddActivityPanel.tsx       # Inline "Add new activity" panel on a trip page

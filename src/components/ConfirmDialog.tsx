@@ -2,6 +2,7 @@ import { h } from 'preact';
 import { createPortal } from 'preact/compat';
 import { useEffect, useRef } from 'preact/hooks';
 import { animate } from 'motion';
+import { prefersReducedMotion } from '../utils/motion';
 
 interface Props {
   open: boolean;
@@ -39,7 +40,7 @@ export default function ConfirmDialog({
     document.addEventListener('keydown', key);
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    if (card.current && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (card.current && !prefersReducedMotion()) {
       animate(card.current, { opacity: [0, 1], scale: [0.92, 1], y: [12, 0] }, { type: 'spring', stiffness: 380, damping: 26 });
     }
     return () => {

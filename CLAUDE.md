@@ -26,6 +26,7 @@ npm run smoke -- <url>   # post-deploy auth/header checks
 
 - Mobile-first: every page must work at 375px with no horizontal scroll. Containers that use `mx-auto` need `w-full` (they sit in a flex column).
 - Match existing component style (Tailwind utility classes).
+- Reuse the shared building blocks before writing new ones: `FormField` (label + error), `PickerPopover` (field-style popovers), `useDismiss` (outside press / Escape), `prefersReducedMotion()` (`utils/motion.ts`).
 - **UI/UX: follow the [Laws of UX](https://lawsofux.com/)** for every new or changed screen (e.g. Hick's Law: progressive disclosure; Miller's Law: chunk content; Fitts's Law: touch targets of at least 44px; Jakob's Law: familiar patterns; Doherty Threshold: feedback under 400ms). Note the law applied in a short code comment where it drives a decision.
 - **Animation: use [Motion](https://motion.dev/)** (the `motion` package) for animations and transitions instead of ad-hoc CSS/JS animation libraries. Keep animations subtle and purposeful, and respect `prefers-reduced-motion`.
 - Never commit secrets: `credentials/` and `.env` stay out of git.
