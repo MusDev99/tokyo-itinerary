@@ -3,6 +3,10 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-10-24 19:24 — Fix: Google sign-in routes were never committed (404 in production)
+
+- **Fix:** `src/pages/api/auth/google/` (`/api/auth/google` and `/api/auth/google/callback`) was silently excluded from git by a global ignore rule for any path named `google`, so production returned 404 and sign-in could not start. The files are now committed and `.gitignore` explicitly un-ignores that folder so the rule on any machine can't hide it again.
+
 ## 2026-10-24 18:42 — Google SSO for editing (replaces the shared password)
 
 - **Breaking (deploy):** `EDITOR_PASSWORD` is gone. Editing now needs Google sign-in by a registered user; set `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `AUTH_SECRET`, `SITE_URL` and `ADMIN_WHATSAPP` (see `.env.example`) and add editors to the hidden `_users` tab. Without them editing returns 503 in every environment (viewing is unaffected).

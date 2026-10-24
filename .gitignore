@@ -18,3 +18,8 @@ keys/
 .DS_Store
 *.log
 npm-debug.log*
+
+# Some machines ignore any path named "google" globally (e.g. python venv bin/google); the SSO routes live in src/pages/api/auth/google/
+!/src/pages/api/auth/
+!/src/pages/api/auth/google/
+!/src/pages/api/auth/google/**
