@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { DayItinerary, TimelineItem } from '../types/itinerary';
 import type { Place } from '../types/place';
-import { UserError, safeHttpUrl, sheetText, youtubeEmbedUrl } from './security';
+import { UserError, safeHttpUrl, sheetText, youtubeEmbedUrl } from './security.ts';
 
 export interface ServiceAccountCredentials {
   type: string;
@@ -1065,6 +1065,56 @@ export async function renamePlaceTab(oldTab: string, newTab: string): Promise<vo
   if (!place) return;
   await removePlace(oldTab);
   await savePlace(newTab, place);
+}
+
+// ---------------------------------------------------------------------------
+// Generic hidden-tab helpers (users, audit): tabs starting with "_" are ignored by the reader
+// ---------------------------------------------------------------------------
+
+/** Rows of a worksheet, or null when the tab doesn't exist. */
+export async function readSheetRows(tab: string, lastCol = 'H'): Promise<string[][] | null> {
+  const ctx = await writeContext();
+  const res = await fetchSheetsApiWithRetry(
+    `${SHEETS_BASE}/${encodeURIComponent(ctx.spreadsheetId)}/values/${encodeURIComponent(`${quoteTab(tab)}!A1:${lastCol}2000`)}`,
+    { headers: { Authorization: `Bearer ${ctx.token}` } }
+  );
+  if (!res.ok) return null;
+  return ((await res.json()) as { values?: string[][] }).values || [];
+}
+
+/** Creates a hidden worksheet with a header row when it doesn't exist yet. */
+export async function ensureHiddenTab(tab: string, headers: readonly string[]): Promise<void> {
+  const ctx = await writeContext();
+  const tabs = await listTabs(ctx, ctx.spreadsheetId);
+  if (tabs.some((t) => t.title === tab)) return;
+  await sheetsRequest(ctx, `${SHEETS_BASE}/${encodeURIComponent(ctx.spreadsheetId)}:batchUpdate`, {
+    method: 'POST',
+    body: JSON.stringify({ requests: [{ addSheet: { properties: { title: tab, hidden: true } } }] }),
+  });
+  await sheetsRequest(
+    ctx,
+    `${SHEETS_BASE}/${encodeURIComponent(ctx.spreadsheetId)}/values/${encodeURIComponent(`${quoteTab(tab)}!A1`)}?valueInputOption=RAW`,
+    { method: 'PUT', body: JSON.stringify({ values: [headers] }) }
+  );
+}
+
+export async function appendSheetRow(tab: string, values: string[]): Promise<void> {
+  const ctx = await writeContext();
+  await sheetsRequest(
+    ctx,
+    `${SHEETS_BASE}/${encodeURIComponent(ctx.spreadsheetId)}/values/${encodeURIComponent(`${quoteTab(tab)}!A1`)}:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`,
+    { method: 'POST', body: JSON.stringify({ values: [values] }) }
+  );
+}
+
+export async function updateSheetRow(tab: string, rowNumber: number, values: string[]): Promise<void> {
+  const ctx = await writeContext();
+  const last = columnLetter(values.length - 1);
+  await sheetsRequest(
+    ctx,
+    `${SHEETS_BASE}/${encodeURIComponent(ctx.spreadsheetId)}/values/${encodeURIComponent(`${quoteTab(tab)}!A${rowNumber}:${last}${rowNumber}`)}?valueInputOption=RAW`,
+    { method: 'PUT', body: JSON.stringify({ values: [values] }) }
+  );
 }
 
 // Allow direct CLI invocation: `node src/utils/googleSheets.ts [spreadsheetId]`

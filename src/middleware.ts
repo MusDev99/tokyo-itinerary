@@ -1,5 +1,7 @@
 import { defineMiddleware } from 'astro:middleware';
-import { SESSION_COOKIE, isSameOrigin, readAuthConfig, verifySessionToken } from './utils/auth';
+import { SESSION_COOKIE, isSameOrigin, verifySession } from './utils/auth';
+import { authConfig } from './utils/authEnv';
+import { findActiveUser } from './utils/users';
 import { securityHeaders } from './utils/security';
 
 // Public site stays read-only for everyone. Anything that changes the sheet needs an editor session (OWASP A01).
@@ -17,6 +19,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const path = url.pathname.replace(/\/+$/, '') || '/';
   const production = import.meta.env.PROD;
   const isApi = path.startsWith('/api/');
+  const auth = authConfig();
+
+  // Who is this? A signed cookie check only (no sheet call), so every page can show the avatar / hide edit controls.
+  context.locals.user = auth.configured ? await verifySession(cookies.get(SESSION_COOKIE)?.value, auth.secret) : null;
 
   const needsEditor =
     matches(path, PROTECTED_PAGES) || (matches(path, PROTECTED_API) && (path === '/api/sheets-sync' || !SAFE_METHODS.has(request.method)));
@@ -24,21 +30,33 @@ export const onRequest = defineMiddleware(async (context, next) => {
   let response: Response | null = null;
 
   if (needsEditor) {
-    const auth = readAuthConfig();
-    if (!auth.configured && production) {
-      // Fail closed: reading keeps working, editing is off until EDITOR_PASSWORD + AUTH_SECRET are set.
-      response = isApi ? json({ error: 'Editing is disabled: the server has no editor password configured.' }, 503) : context.redirect('/login');
-    } else if (auth.configured) {
-      const ok = await verifySessionToken(cookies.get(SESSION_COOKIE)?.value, auth.secret);
-      if (!ok) {
+    const user = context.locals.user;
+    if (!auth.configured) {
+      // Fail closed everywhere: reading keeps working, editing is off until Google sign-in is configured.
+      response = isApi ? json({ error: 'Editing is disabled: Google sign-in is not configured on the server.' }, 503) : context.redirect('/login?error=not_configured');
+    } else if (!user) {
+      response = isApi
+        ? json({ error: 'Please sign in to edit.', code: 'unauthenticated' }, 401)
+        : context.redirect(`/login?next=${encodeURIComponent(path + url.search)}`);
+    } else {
+      // Registered AND still active in the user table (cached for a minute), so revoking a row takes effect quickly.
+      let active = false;
+      try {
+        active = !!(await findActiveUser(user.email));
+      } catch (err) {
+        console.error('[auth] could not check the user table:', err instanceof Error ? err.message : err);
+        response = isApi ? json({ error: 'Could not verify your access right now. Please try again.' }, 503) : context.redirect('/login?error=failed');
+      }
+      if (!response && !active) {
+        cookies.delete(SESSION_COOKIE, { path: '/' });
+        context.locals.user = null;
         response = isApi
-          ? json({ error: 'Please sign in to edit.', code: 'unauthenticated' }, 401)
-          : context.redirect(`/login?next=${encodeURIComponent(path + url.search)}`);
-      } else if (isApi && !SAFE_METHODS.has(request.method) && !isSameOrigin(request)) {
+          ? json({ error: 'Your access was removed. Ask the admin to re-enable it.', code: 'unauthenticated' }, 401)
+          : context.redirect(`/login?error=not_registered&email=${encodeURIComponent(user.email)}`);
+      } else if (!response && isApi && !SAFE_METHODS.has(request.method) && !isSameOrigin(request)) {
         response = json({ error: 'Cross-site request blocked.' }, 403);
       }
     }
-    // Not configured in dev: allow, so local work needs no setup.
   }
 
   const res = response ?? (await next());
