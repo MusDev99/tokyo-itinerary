@@ -13,6 +13,8 @@ interface Destination {
 interface Props {
   destinations: Destination[];
   year: number;
+  /** Only signed-in editors see the "Add new itinerary" call to action */
+  canEdit?: boolean;
 }
 
 const TECHS = [
@@ -25,7 +27,7 @@ const TECHS = [
 
 const spring = { type: 'spring', stiffness: 420, damping: 22 } as const;
 
-export default function FooterContent({ destinations, year }: Props) {
+export default function FooterContent({ destinations, year, canEdit = false }: Props) {
   const root = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -108,6 +110,7 @@ export default function FooterContent({ destinations, year }: Props) {
   return (
     <div ref={root} className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-28 sm:py-14 space-y-10 sm:space-y-12">
       {/* Call-to-action card (Von Restorff: the one standout element) */}
+      {canEdit && (
       <div
         data-reveal
         className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-accent text-white p-6 sm:p-10 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6"
@@ -132,6 +135,7 @@ export default function FooterContent({ destinations, year }: Props) {
           <span data-arrow aria-hidden="true" className="inline-block">→</span>
         </a>
       </div>
+      )}
 
       <div>
         {/* Destinations */}

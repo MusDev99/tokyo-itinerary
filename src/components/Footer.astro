@@ -13,5 +13,5 @@ const destinations = countries.map((c) => ({
 }));
 ---
 <footer class="mt-10 bg-gradient-to-b from-transparent to-secondary/30 border-t border-primary/20 backdrop-blur-sm">
-  <FooterContent destinations={destinations} year={new Date().getFullYear()} client:visible />
+  <FooterContent destinations={destinations} year={new Date().getFullYear()} canEdit={Boolean(Astro.locals.user)} client:visible />
 </footer>

@@ -41,6 +41,7 @@ const suggestion: Place | null = savedPlace ? null : await topPlace(stateMeta.na
     <CountrySubNav country={country} activeTab="tools" state={{ slug: stateMeta.slug, name: stateMeta.name }} />
     <TravelTools
       client:load
+      canEdit={Boolean(Astro.locals.user)}
       tab={stateMeta.tabName}
       searchName={stateMeta.name}
       savedPlace={savedPlace}

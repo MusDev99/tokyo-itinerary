@@ -12,13 +12,15 @@ interface TimelineItemProps extends TimelineItemType {
   /** Controlled expanded state (the day timeline owns it for Expand all / Collapse all). Uncontrolled = expanded. */
   open?: boolean;
   onToggle?: () => void;
+  /** Only signed-in editors get the edit / delete menu */
+  editable?: boolean;
 }
 
 export default function TimelineItem(props: TimelineItemProps) {
-  const { open, onToggle, id, tab, row, date, time, title, description, location, price, note, images, youtubeUrl, isLast } = props;
+  const { open, onToggle, editable = false, id, tab, row, date, time, title, description, location, price, note, images, youtubeUrl, isLast } = props;
   const [showVideo, setShowVideo] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const canEdit = Boolean(tab && (id || row));
+  const canEdit = editable && Boolean(tab && (id || row));
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -91,7 +93,7 @@ export default function TimelineItem(props: TimelineItemProps) {
   };
 
   const saveEdit = () => draft && callApi('PATCH', { tab, ...rowRef, activity: draftToPayload(draft) });
-  const remove = () => callApi('DELETE', { tab, ...rowRef });
+  const remove = () => callApi('DELETE', { tab, ...rowRef, title });
 
   // Collapsed cards show only time + title (Hick's Law: scan first, open what you need)
   const [localOpen, setLocalOpen] = useState(true);

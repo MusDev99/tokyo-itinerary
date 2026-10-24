@@ -6,9 +6,10 @@ import type { DayItinerary } from '../types/itinerary';
 
 interface Props {
   day: DayItinerary;
+  canEdit?: boolean;
 }
 
-export default function Timeline({ day }: Props) {
+export default function Timeline({ day, canEdit = false }: Props) {
   const totalDayCost = day.items.reduce((sum, item) => sum + (item.price?.amount || 0), 0);
   const currency = day.items.find((item) => item.price?.currency)?.price.currency || '';
 
@@ -86,6 +87,7 @@ export default function Timeline({ day }: Props) {
           <TimelineItem
             key={`${day.day}-${index}`}
             {...item}
+            editable={canEdit}
             open={open[index] ?? false}
             onToggle={() => setOpen((prev) => prev.map((v, i) => (i === index ? !v : v)))}
             isLast={index === day.items.length - 1}

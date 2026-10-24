@@ -2,6 +2,7 @@
 import { getAllCountriesWithSheets } from '../utils/countries';
 import MobileNav from './MobileNav';
 import BackButton from './BackButton';
+import UserMenu from './UserMenu';
 
 const { countries } = await getAllCountriesWithSheets();
 
@@ -30,6 +31,8 @@ const navLinks = countries.map((country) => {
 });
 
 const currentPath = Astro.url.pathname;
+const user = Astro.locals.user;
+const signedInUser = user ? { name: user.name, email: user.email, picture: user.picture } : null;
 
 const mobileCountries = countries.map((c) => ({
   slug: c.slug,
@@ -173,7 +176,10 @@ const mobileCountries = countries.map((c) => ({
       </nav>
 
       <!-- Mobile navigation (quick add + animated slide-in drawer) -->
-      <MobileNav countries={mobileCountries} currentPath={currentPath} client:load />
+      <div class="flex items-center gap-1">
+        <UserMenu user={signedInUser} next={currentPath === '/login' ? '/' : currentPath} client:load />
+        <MobileNav countries={mobileCountries} currentPath={currentPath} canEdit={Boolean(user)} client:load />
+      </div>
     </div>
   </div>
 
