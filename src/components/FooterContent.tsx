@@ -122,7 +122,7 @@ export default function FooterContent({ destinations, year, canEdit = false }: P
           <div className="min-w-0">
             <h2 className="text-xl sm:text-3xl font-extrabold tracking-tight">Planning the next trip?</h2>
             <p className="text-sm sm:text-base text-white/85 mt-1">
-              Add a country and city, drop in your activities, and it lands in your sheet.
+              Add a country and city, drop in your activities, and your trip is ready.
             </p>
           </div>
         </div>

@@ -7,7 +7,7 @@ import { getAllCountriesWithSheets, getActiveItinerariesMap } from '../utils/cou
 
 Astro.response.headers.set('Cache-Control', 'no-store, max-age=0');
 
-const { countries, syncResult } = await getAllCountriesWithSheets();
+const { countries } = await getAllCountriesWithSheets();
 const allItineraries = getActiveItinerariesMap(countries);
 
 const DAY = 86_400_000;
@@ -194,13 +194,6 @@ const statusStyle = {
         </div>
       </section>
     )}
-
-    <!-- Quiet sync status instead of a loud badge -->
-    <p class="text-center text-[11px] text-text/50">
-      {syncResult.source === 'google-sheets'
-        ? `Synced live from Google Sheets · ${syncResult.countriesSynced.length} tabs`
-        : 'Set GOOGLE_SHEET_ID to load your trips'}
-    </p>
   </div>
   <Footer />
 </Layout>

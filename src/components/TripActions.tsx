@@ -91,7 +91,7 @@ export default function TripActions({ tab, country, state, activityCount, afterD
         onCancel={close}
         message={
           <div className="space-y-2 mt-2">
-            <p>This renames the Google Sheet tab to “{newCountry.trim()} - {newState.trim()}”.</p>
+            <p>This renames the trip to “{newCountry.trim()} - {newState.trim()}”.</p>
             <input className={inputClass} aria-label="Country" value={newCountry} placeholder="Country"
               onInput={(e) => setNewCountry((e.target as HTMLInputElement).value)} />
             <input className={inputClass} aria-label="State / City" value={newState} placeholder="State / City"
@@ -108,7 +108,7 @@ export default function TripActions({ tab, country, state, activityCount, afterD
         error={error}
         onConfirm={remove}
         onCancel={close}
-        message={<>The whole Google Sheet tab and its {activityCount} {activityCount === 1 ? 'activity' : 'activities'} will be permanently deleted. This can't be undone.</>}
+        message={<>The whole trip and its {activityCount} {activityCount === 1 ? 'activity' : 'activities'} will be permanently deleted. This can't be undone.</>}
       />
     </div>
   );

@@ -349,7 +349,7 @@ export default function TimelineItem(props: TimelineItemProps) {
       <ConfirmDialog
         open={confirmOpen}
         title="Delete this activity?"
-        message={<>“{title}” will be permanently removed from the Google Sheet. This can't be undone.</>}
+        message={<>“{title}” will be permanently deleted. This can't be undone.</>}
         confirmLabel="Delete activity"
         busy={busy}
         error={confirmOpen ? actionError : ''}

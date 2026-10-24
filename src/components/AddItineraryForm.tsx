@@ -333,7 +333,7 @@ export default function AddItineraryForm({ countries = [], trips = [], initialCo
               <p className="text-xs text-text/70">
                 {isExisting
                   ? <>Adding to the existing trip <strong>{country} - {state}</strong>.</>
-                  : <>A new Google Sheet tab <strong>{country} - {state}</strong> will be created.</>}
+                  : <>A new trip <strong>{country} - {state}</strong> will be created.</>}
                 {currency && <> Default currency: <strong>{currency}</strong> (change per activity if needed).</>}
               </p>
             )}

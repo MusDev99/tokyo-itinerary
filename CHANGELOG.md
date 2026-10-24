@@ -3,6 +3,13 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-10-25 07:55 — Remove "Google Sheets" wording from the UI
+
+- **Home:** removed the "Synced live from Google Sheets · N tabs" footer line (and the "Set GOOGLE_SHEET_ID" fallback).
+- **Plain trip language instead of sheet/tab wording:** add page intro and new-trip hint, rename and delete-trip dialogs, delete-activity dialog, footer CTA, and the empty states on country, state and itinerary pages (no more raw tab names).
+- **Error messages:** "Trip tab not found." → "Trip not found."; the last-tab delete error now reads "This is the only trip, so it can't be deleted."
+- Code comments, internal names and the editors-only `/api/sheets-sync` diagnostics are unchanged.
+
 ## 2026-10-25 07:50 — Remove the rate cards from the Currency tab
 
 - **Currency tab:** removed the "1 MYR equals" grid of rate cards. The converter and the rate history chart stay; the chart keeps its own currency selector, and picking a "To" currency in the converter still updates the chart.
