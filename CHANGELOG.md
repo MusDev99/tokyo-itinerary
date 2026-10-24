@@ -3,6 +3,10 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-10-25 08:00 — Remove the unused Japanese dictionary component
+
+- Deleted `src/components/JapaneseDictionary.tsx` (no page imported it).
+
 ## 2026-10-25 07:55 — Remove "Google Sheets" wording from the UI
 
 - **Home:** removed the "Synced live from Google Sheets · N tabs" footer line (and the "Set GOOGLE_SHEET_ID" fallback).
