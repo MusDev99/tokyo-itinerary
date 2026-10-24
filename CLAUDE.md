@@ -18,7 +18,7 @@ npm run smoke -- <url>   # post-deploy auth/header checks
 - **Data**: `src/utils/googleSheets.ts` reads/writes the spreadsheet with a service account (needs **Editor** access to write). `src/utils/countries.ts` turns tabs into countries/states.
 - **Tabs**: tab name `Country - State` (e.g. `Japan - Tokyo`) = a state of a country; a plain tab (e.g. `japan`) = a country with no states.
 - **Routes**: `/[country]`, `/[country]/itinerary` (all states merged), `/[country]/[state]`, `/add`, `/api/itinerary` (POST/PATCH/DELETE), `/api/sheets-sync`.
-- **Auth**: viewing is public; any write needs an editor session (`EDITOR_PASSWORD` + `AUTH_SECRET`, signed cookie) enforced by `src/middleware.ts`; `/login`, `/api/logout`. Core in `src/utils/auth.ts` (dependency-free, unit-tested).
+- **Auth**: viewing is public; any write needs Google sign-in by an `active` user in the hidden `_users` tab (`GOOGLE_CLIENT_ID/SECRET` + `AUTH_SECRET`, signed cookie), enforced by `src/middleware.ts` which also sets `Astro.locals.user`; `/login`, `/api/auth/google[/callback]`, `/api/logout`. Core in `src/utils/auth.ts`, user table helpers in `src/utils/userTable.ts` + `users.ts` (dependency-free, unit-tested). Edits are logged to the hidden `_audit` tab. Edit controls render only when `Astro.locals.user` is set.
 - **Writes** all go through `submitItinerary()` in `src/pages/api/itinerary.ts` (the seam for a future email-approval flow).
 - Sheet columns are defined once in `SHEET_HEADERS` / `COLUMN_ALIASES` (`googleSheets.ts`); rows have a uuid `id` column used for edit/delete.
 
@@ -33,13 +33,13 @@ npm run smoke -- <url>   # post-deploy auth/header checks
 ## Security — OWASP Top 10 (2021), mandatory
 | Risk | Rule in this repo |
 |---|---|
-| A01 Access control | Reading is public; anything that changes the sheet (`POST/PATCH/DELETE /api/itinerary`, `/api/place`, all of `/api/sheets-sync`, `/add`) needs an editor session, enforced in `src/middleware.ts`. A **new write route must be added to `PROTECTED_API`/`PROTECTED_PAGES`**. Redirect targets go through `safeNext()` |
-| A02 Crypto | Secrets only in env (`EDITOR_PASSWORD`, `AUTH_SECRET`, `GOOGLE_*`). Sessions are HMAC-signed, `HttpOnly`, `SameSite=Lax`, `Secure` in prod. Never hand-roll other crypto |
+| A01 Access control | Reading is public; anything that changes the sheet (`POST/PATCH/DELETE /api/itinerary`, `/api/place`, all of `/api/sheets-sync`, `/add`) needs a signed-in, still-`active` user, enforced in `src/middleware.ts`. A **new write route must be added to `PROTECTED_API`/`PROTECTED_PAGES`**. Redirect targets go through `safeNext()` |
+| A02 Crypto | Secrets only in env (`AUTH_SECRET`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_*`). Sessions are HMAC-signed, `HttpOnly`, `SameSite=Lax`, `Secure` in prod. Never hand-roll other crypto |
 | A03 Injection | Validate + trim on the server (`parseActivity`); text written to the sheet goes through `sheetText()` (formula injection); URLs read from the sheet through `safeHttpUrl()` / `youtubeEmbedUrl()`; no `set:html` / `dangerouslySetInnerHTML` |
-| A04 Design | Fail closed: without `EDITOR_PASSWORD` + `AUTH_SECRET` production writes return 503 (the public site keeps working) |
+| A04 Design | Fail closed: without `GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_SECRET` + `AUTH_SECRET` writes return 503 in every environment (the public site keeps working) |
 | A05 Misconfiguration | Headers/CSP live in `src/utils/security.ts` (applied by the middleware; CSP is production-only). API errors go through `clientError()`: only `UserError` text reaches the browser |
 | A06 Components | `npm audit --omit=dev` before each release; `npm audit fix`, never `--force` without a test pass |
-| A07 Auth | Constant-time compare, throttle, one generic message. Do not add hints about which part of a credential failed |
+| A07 Auth | OAuth Authorization Code + PKCE, `state` and `nonce` checked, ID-token signature/`iss`/`aud`/`exp` verified, Google `sub` bound to the user row on first login, throttle, one generic message. Do not add hints about which check failed |
 | A08 Integrity | Commit the lockfile; no new third-party script/CDN/API host without adding it to the CSP in `security.ts` |
 | A09 Logging | Log failures server-side; never log passwords, tokens or keys |
 | A10 SSRF | Server code fetches fixed hosts only; client input is `encodeURIComponent`-ed or validated; never accept a caller-supplied spreadsheet id |

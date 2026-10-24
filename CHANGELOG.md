@@ -3,6 +3,18 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-10-24 18:42 — Google SSO for editing (replaces the shared password)
+
+- **Breaking (deploy):** `EDITOR_PASSWORD` is gone. Editing now needs Google sign-in by a registered user; set `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `AUTH_SECRET`, `SITE_URL` and `ADMIN_WHATSAPP` (see `.env.example`) and add editors to the hidden `_users` tab. Without them editing returns 503 in every environment (viewing is unaffected).
+- **Public viewing unchanged:** guests see every itinerary but no edit controls; a "Sign in to edit" link appears instead.
+- **Sign-in:** Google Authorization Code + PKCE with state, nonce and ID-token signature checks, no new dependencies. The first login links the Google id and stores the profile picture on the user row; a different Google account can't take over a registered email.
+- **User table:** hidden `_users` worksheet (`google_id, email, name, picture_url, status, created_at, last_login`). Only `active` rows can edit; disabling a row revokes access within about a minute.
+- **Not registered?** The login page shows an "Ask the admin on WhatsApp" button with a pre-filled request containing their email.
+- **Audit trail:** hidden `_audit` worksheet records sign-ins and every create, update, delete, rename and location change with the editor's email.
+- **UI:** avatar + sign-out menu in the header (Sign in button for guests), guest/editor-aware mobile drawer, footer CTA, home button, trip card, activity menus and Travel tools confirmation.
+- **Setup script:** `npm run sheets:setup -- you@gmail.com` creates the hidden `_users` and `_audit` tabs (with headers) and registers the first editor, so the table no longer waits for a first sign-in attempt. Failures creating the tab are now logged.
+- **Tests:** session, OAuth state, PKCE, ID-token claims and signature, user table, audit and WhatsApp link tests.
+
 ## 2026-10-24 18:03 — State labels in the daily schedule
 
 - **Daily schedule:** on a country's combined itinerary (`/[country]/itinerary`) each day is labelled with its state or city (e.g. 📍 Bali, 📍 Jakarta) in the day tabs and the day header. Single-place pages are unchanged.

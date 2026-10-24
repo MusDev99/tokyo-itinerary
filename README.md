@@ -38,8 +38,12 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 ---
 
 ### 4. Security (OWASP Top 10) & editor access
-- **Viewing is public; editing needs a sign-in.** `POST/PATCH/DELETE /api/itinerary`, `POST /api/place`, `/api/sheets-sync` and the `/add` page require the editor session (`/login`, 8-hour signed `HttpOnly` cookie). Set `EDITOR_PASSWORD` and `AUTH_SECRET` (see `.env.example`); without them production editing is **disabled (503)**, never open.
-- Hardening: security headers + production CSP, same-origin check on writes (CSRF), login throttle (5 tries / 10 min), constant-time password check, open-redirect-safe `next`, spreadsheet formula-injection guard, http(s)-only map/image links, YouTube-only video embeds, generic API errors.
+- **Viewing is public; editing needs Google sign-in by a registered user.** `POST/PATCH/DELETE /api/itinerary`, `POST /api/place`, `/api/sheets-sync` and the `/add` page require a session (`/login` → Google, 7-day signed `HttpOnly` cookie) **and** an `active` row in the hidden `_users` worksheet. Guests see a read-only site with no edit controls. Without the Google env vars editing is **disabled (503)**, never open.
+- **First-time setup:** `npm run sheets:setup -- you@gmail.com` creates the hidden `_users` and `_audit` tabs and registers you as the first active editor (omit the email to just create the tabs). Show hidden tabs in Google Sheets via the *All sheets* menu.
+- **Registering editors:** add a row to the hidden `_users` tab with the person's Google `email` and `status` = `active` (columns: `google_id, email, name, picture_url, status, created_at, last_login`). Their first sign-in fills `google_id`, name and profile picture; set `status` to `disabled` to revoke (takes effect within ~1 minute). Unregistered people see an **Ask the admin on WhatsApp** button (`ADMIN_WHATSAPP`).
+- **Audit trail:** every sign-in and change is appended to the hidden `_audit` tab (`time, email, action, tab, target`).
+- **Google setup:** Google Cloud Console → OAuth consent screen → Credentials → *Web application*; add the redirect URIs `http://localhost:4321/api/auth/google/callback` and `https://<your-domain>/api/auth/google/callback`. While the consent screen is in *Testing*, only listed test users can sign in.
+- Hardening: security headers + production CSP, same-origin check on writes (CSRF), OAuth with PKCE + state + nonce and verified ID-token signature, sign-in throttle, open-redirect-safe `next`, spreadsheet formula-injection guard, http(s)-only map/image links, YouTube-only video embeds, generic API errors.
 - Process: audit in `docs/audits/`, feature checklist in `docs/features/`, tests in `tests/` (`npm test`), post-deploy `npm run smoke -- <url>`.
 
 ### 5. AI-driven development workflow (Claude skills)
@@ -216,7 +220,9 @@ Because `credentials/keys.json` is gitignored for security, configure the follow
 | :--- | :--- |
 | `GOOGLE_SHEET_ID` | Your Google Spreadsheet ID |
 | `GOOGLE_SERVICE_ACCOUNT_JSON` | Paste the **entire contents** of `credentials/keys.json` |
-| `EDITOR_PASSWORD` | Password for adding/editing/deleting trips (>= 8 chars). **Required for editing in production** |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth Web client used for editor sign-in. **Required for editing** |
+| `SITE_URL` | Public site origin (OAuth redirect base), e.g. `https://trips.example.com` |
+| `ADMIN_WHATSAPP` | Admin WhatsApp number (digits with country code) for access requests |
 | `AUTH_SECRET` | Random signing key for the session cookie (>= 16 chars, e.g. `openssl rand -base64 32`) |
 
 > Set the variables for **Production and Preview**. After deploying run `npm run smoke -- https://<your-url>`: every line should be ✅ (writes refused without a session, security headers present). Netlify works the same way with the Astro Netlify adapter.
@@ -232,6 +238,7 @@ Because `credentials/keys.json` is gitignored for security, configure the follow
 | `npm run dev` | Start local development server with live Google Sheets fetching |
 | `npm run build` | Build production bundle (`dist/`) |
 | `npm run preview` | Preview production build locally |
+| `npm run sheets:setup` | Create the hidden `_users` / `_audit` tabs (optionally `-- you@gmail.com` to add the first editor) |
 | `npm run sheets:pull` | Verify Google Sheets connection and print discovered country tabs |
 | `npm test` | Unit tests (`node --test`, Node 22+) |
 | `npm run verify` | Tests + production build (run before every commit) |
