@@ -7,7 +7,11 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "sheets:pull": "node src/utils/googleSheets.ts"
+    "sheets:pull": "node src/utils/googleSheets.ts",
+    "test": "node --test \"tests/**/*.test.ts\"",
+    "verify": "npm test && npm run build",
+    "smoke": "node scripts/smoke.mjs",
+    "sheets:setup": "node scripts/setup-users.mjs"
   },
   "dependencies": {
     "@astrojs/preact": "^4.1.0",
@@ -15,7 +19,7 @@
     "astro": "^5.8.1",
     "chart.js": "^4.5.1",
     "html2canvas": "^1.4.1",
-    "jspdf": "^3.0.1",
+    "jspdf": "^4.2.1",
     "motion": "^14.4.0",
     "preact": "^10.26.8",
     "react-chartjs-2": "^5.3.1",

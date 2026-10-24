@@ -1,7 +1,6 @@
 import { h } from 'preact';
 import { useEffect, useRef } from 'preact/hooks';
 import { animate, hover, press, inView, stagger } from 'motion';
-import { SiAstro, SiTypescript, SiTailwindcss, SiPreact } from 'react-icons/si';
 
 interface Destination {
   slug: string;
@@ -14,18 +13,21 @@ interface Destination {
 interface Props {
   destinations: Destination[];
   year: number;
+  /** Only signed-in editors see the "Add new itinerary" call to action */
+  canEdit?: boolean;
 }
 
 const TECHS = [
-  { name: 'Astro', icon: SiAstro, url: 'https://astro.build' },
-  { name: 'TypeScript', icon: SiTypescript, url: 'https://www.typescriptlang.org' },
-  { name: 'Tailwind CSS', icon: SiTailwindcss, url: 'https://tailwindcss.com' },
-  { name: 'Preact', icon: SiPreact, url: 'https://preactjs.com' },
+  { name: 'Astro', url: 'https://astro.build' },
+  { name: 'TypeScript', url: 'https://www.typescriptlang.org' },
+  { name: 'Tailwind CSS', url: 'https://tailwindcss.com' },
+  { name: 'Preact', url: 'https://preactjs.com' },
+  { name: 'Motion', url: 'https://motion.dev' },
 ];
 
 const spring = { type: 'spring', stiffness: 420, damping: 22 } as const;
 
-export default function FooterContent({ destinations, year }: Props) {
+export default function FooterContent({ destinations, year, canEdit = false }: Props) {
   const root = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -108,6 +110,7 @@ export default function FooterContent({ destinations, year }: Props) {
   return (
     <div ref={root} className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-28 sm:py-14 space-y-10 sm:space-y-12">
       {/* Call-to-action card (Von Restorff: the one standout element) */}
+      {canEdit && (
       <div
         data-reveal
         className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-accent text-white p-6 sm:p-10 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6"
@@ -132,10 +135,11 @@ export default function FooterContent({ destinations, year }: Props) {
           <span data-arrow aria-hidden="true" className="inline-block">→</span>
         </a>
       </div>
+      )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
+      <div>
         {/* Destinations */}
-        <section data-reveal className="md:col-span-2">
+        <section data-reveal>
           <h3 className="text-xs font-bold text-text uppercase tracking-wider mb-3">Destinations</h3>
           {destinations.length > 0 ? (
             <div className="flex flex-wrap gap-2">
@@ -158,43 +162,42 @@ export default function FooterContent({ destinations, year }: Props) {
             <p className="text-sm text-text/60">No destinations yet — add your first itinerary.</p>
           )}
         </section>
-
-        {/* Built with */}
-        <section data-reveal>
-          <h3 className="text-xs font-bold text-text uppercase tracking-wider mb-3">Built with</h3>
-          <div className="flex flex-wrap gap-2">
-            {TECHS.map((t) => (
-              <a
-                key={t.name}
-                href={t.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-lift
-                className="touch-target inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/45 border border-primary/20 text-xs font-semibold text-text/80 hover:text-primary hover:border-primary/40"
-              >
-                <t.icon className="w-4 h-4" />
-                {t.name}
-              </a>
-            ))}
-          </div>
-        </section>
       </div>
 
-      <div data-reveal className="pt-6 border-t border-primary/15 flex flex-col-reverse sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
-        <div className="space-y-1">
+      {/* Credits + "Built with" in one quiet bar (Law of Proximity: all the fine print together) */}
+      <div data-reveal className="pt-6 border-t border-primary/15 flex flex-col sm:flex-row sm:items-end justify-between gap-5 text-center sm:text-left">
+        <div className="space-y-2.5">
           <p className="text-sm text-text/80">
             Created by <span className="font-bold text-text">Muhammad Mustaqeem</span>
+            <span className="text-text/40"> · </span>
+            <span className="text-text/60">© {year}</span>
           </p>
-          <p className="text-xs text-text/60">© {year} • All rights reserved</p>
+          <p className="flex flex-wrap items-center justify-center sm:justify-start gap-x-1.5 gap-y-1 text-xs text-text/60">
+            <span>Built with</span>
+            {TECHS.map((t, i) => (
+              <span key={t.name} className="inline-flex items-center gap-1.5">
+                <a href={t.url} target="_blank" rel="noopener noreferrer"
+                  className="font-semibold text-text/75 hover:text-primary underline-offset-2 hover:underline py-1">
+                  {t.name}
+                </a>
+                {i < TECHS.length - 1 && <span aria-hidden="true" className="text-text/30">·</span>}
+              </span>
+            ))}
+          </p>
         </div>
+
+        {/* Icon-only; the right margin keeps it clear of the floating season button (Fitts's Law: nothing overlaps the target) */}
         <button
           type="button"
           onClick={toTop}
           data-lift
-          className="touch-target inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-xs font-bold border border-primary/20"
+          className="touch-target self-center sm:self-auto inline-flex items-center justify-center w-11 h-11 rounded-full bg-white/45 text-primary border border-primary/25 sm:mr-20"
           aria-label="Back to top"
+          title="Back to top"
         >
-          <span aria-hidden="true">↑</span> Back to top
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.25" viewBox="0 0 24 24" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
+          </svg>
         </button>
       </div>
     </div>

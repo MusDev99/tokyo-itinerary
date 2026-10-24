@@ -12,6 +12,7 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 - **Tabs = Countries and States**: Add a destination by creating a worksheet tab. A plain tab (e.g., `Japan`) is a country; a tab named `Country - State` (e.g., `Japan - Tokyo`, `Japan - Osaka`) becomes a state/city of that country. Routes: `/[country]`, `/[country]/itinerary` (all states), `/[country]/[state]`.
 - **Travel tools** (`/[country]/[state]/tools`): prayer times for every trip date in the destination's local time with the local calculation method per country (AlAdhan API) plus Qibla direction, driven by the trip's confirmed location. No API keys needed.
 - **Trip locations**: each trip's real place (lat/lng, timezone) is confirmed when adding a trip and stored in a hidden `_trips` worksheet (columns `tab, place, admin1, country, country_code, lat, lng, timezone`) — don't delete it.
+- **Inline add / manage**: on a trip page, "Add new activity" opens the add form in place; rename and delete are icon buttons in the trip card. Activities in a day are collapsed to time + title with an Expand / Collapse all control.
 - **Add & edit from the website**: `/add` creates a new tab and day-by-day activities (date + day title, then activities) straight into the sheet; activities can be edited/deleted, and trips renamed/deleted, with a confirmation modal before any delete. The service account needs **Editor** access to the sheet.
 - **Zero-Dependency Service Account Client**: Authenticates with Google Sheets API v4 using an `RS256` OAuth 2.0 JWT signed via Node's built-in `node:crypto` (`src/utils/googleSheets.ts`)—no heavy SDKs or local `.json` data files required.
 - **Live Sync & Refresh**: Every page load (and the in-app **Refresh from Google Sheets** button via `/api/sheets-sync`) reads directly from Google Sheets with built-in request deduplication and rate-limit retry backoff.
@@ -36,6 +37,27 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 
 ---
 
+### 4. Security (OWASP Top 10) & editor access
+- **Viewing is public; editing needs Google sign-in by a registered user.** `POST/PATCH/DELETE /api/itinerary`, `POST /api/place`, `/api/sheets-sync` and the `/add` page require a session (`/login` → Google, 7-day signed `HttpOnly` cookie) **and** an `active` row in the hidden `_users` worksheet. Guests see a read-only site with no edit controls. Without the Google env vars editing is **disabled (503)**, never open.
+- **First-time setup:** `npm run sheets:setup -- you@gmail.com` creates the hidden `_users` and `_audit` tabs and registers you as the first active editor (omit the email to just create the tabs). Show hidden tabs in Google Sheets via the *All sheets* menu.
+- **Registering editors:** add a row to the hidden `_users` tab with the person's Google `email` and `status` = `active` (columns: `google_id, email, name, picture_url, status, created_at, last_login`). Their first sign-in fills `google_id`, name and profile picture; set `status` to `disabled` to revoke (takes effect within ~1 minute). Unregistered people see an **Ask the admin on WhatsApp** button (`ADMIN_WHATSAPP`).
+- **Audit trail:** every sign-in and change is appended to the hidden `_audit` tab (`time, email, action, tab, target`).
+- **Google setup:** Google Cloud Console → OAuth consent screen → Credentials → *Web application*; add the redirect URIs `http://localhost:4321/api/auth/google/callback` and `https://<your-domain>/api/auth/google/callback`. While the consent screen is in *Testing*, only listed test users can sign in.
+- Hardening: security headers + production CSP, same-origin check on writes (CSRF), OAuth with PKCE + state + nonce and verified ID-token signature, sign-in throttle, open-redirect-safe `next`, spreadsheet formula-injection guard, http(s)-only map/image links, YouTube-only video embeds, generic API errors.
+- Process: audit in `docs/audits/`, feature checklist in `docs/features/`, tests in `tests/` (`npm test`), post-deploy `npm run smoke -- <url>`.
+
+### 5. AI-driven development workflow (Claude skills)
+`.claude/skills/` ships a repeatable pipeline: **brainstorm -> plan -> feature analysis -> implement -> verify (performance, SEO, quality, constraints) -> validate (tests + `feature.md` checklist) -> git -> release**.
+| Skill | Purpose |
+|---|---|
+| `dev-workflow` | the 8 gates and what each must produce |
+| `feature-checklist` | `feature.md` template for every feature |
+| `code-review-checklist` | `code-review.md` report before merge |
+| `owasp-audit` | `audit.md` security audit |
+| `release` | git strategy, SemVer, deploy preview, smoke test, rollback |
+
+---
+
 ## 🛠️ Tech Stack
 
 | Layer | Technology |
@@ -53,6 +75,10 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 ## 📁 Project Structure
 
 ```text
+├── .claude/skills/                    # AI-driven dev workflow: dev-workflow, feature-checklist, code-review-checklist, owasp-audit, release
+├── docs/                              # features/ (feature.md), reviews/, audits/ (audit.md)
+├── tests/                             # node:test unit tests (auth + security helpers)
+├── scripts/smoke.mjs                  # post-deploy auth/header smoke test
 ├── credentials/
 │   └── keys.json                      # Local Google Service Account key (gitignored)
 ├── src/
@@ -76,6 +102,8 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 │   │   ├── AnalogTimePicker.tsx       # Analog clock time picker
 │   │   ├── ConfirmDialog.tsx          # Confirmation modal for destructive actions
 │   │   ├── TripActions.tsx            # Add activities / rename / delete trip
+│   │   ├── AddActivityPanel.tsx       # Inline "Add new activity" panel on a trip page
+│   │   ├── BackButton.tsx             # Universal header back button
 │   │   ├── TravelTools.tsx            # Travel tools tab (location + prayer times)
 │   │   ├── LocationPicker.tsx         # Search & pick a trip's real place
 │   │   ├── PrayerTimesCard.tsx        # Prayer times per trip date + Qibla compass
@@ -192,6 +220,12 @@ Because `credentials/keys.json` is gitignored for security, configure the follow
 | :--- | :--- |
 | `GOOGLE_SHEET_ID` | Your Google Spreadsheet ID |
 | `GOOGLE_SERVICE_ACCOUNT_JSON` | Paste the **entire contents** of `credentials/keys.json` |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth Web client used for editor sign-in. **Required for editing** |
+| `SITE_URL` | Public site origin (OAuth redirect base), e.g. `https://trips.example.com` |
+| `ADMIN_WHATSAPP` | Admin WhatsApp number (digits with country code) for access requests |
+| `AUTH_SECRET` | Random signing key for the session cookie (>= 16 chars, e.g. `openssl rand -base64 32`) |
+
+> Set the variables for **Production and Preview**. After deploying run `npm run smoke -- https://<your-url>`: every line should be ✅ (writes refused without a session, security headers present). Netlify works the same way with the Astro Netlify adapter.
 
 > **Alternative:** Instead of `GOOGLE_SERVICE_ACCOUNT_JSON`, you can set `GOOGLE_CLIENT_EMAIL` and `GOOGLE_PRIVATE_KEY` separately.
 
@@ -204,4 +238,8 @@ Because `credentials/keys.json` is gitignored for security, configure the follow
 | `npm run dev` | Start local development server with live Google Sheets fetching |
 | `npm run build` | Build production bundle (`dist/`) |
 | `npm run preview` | Preview production build locally |
+| `npm run sheets:setup` | Create the hidden `_users` / `_audit` tabs (optionally `-- you@gmail.com` to add the first editor) |
 | `npm run sheets:pull` | Verify Google Sheets connection and print discovered country tabs |
+| `npm test` | Unit tests (`node --test`, Node 22+) |
+| `npm run verify` | Tests + production build (run before every commit) |
+| `npm run smoke -- <url>` | Post-deploy security smoke test |

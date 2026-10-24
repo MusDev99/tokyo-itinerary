@@ -5,9 +5,17 @@ import SeasonBackground from '../components/SeasonBackground';
 
 interface Props {
   title: string;
+  /** <= 160 chars; shown in search results and link previews. */
+  description?: string;
+  /** Admin-only screens (login, add) stay out of search results. */
+  noindex?: boolean;
 }
 
-const { title } = Astro.props;
+const DEFAULT_DESCRIPTION =
+  'Day-by-day travel itineraries with maps, budget analytics, currency conversion and travel tools for every trip.';
+const { title, description = DEFAULT_DESCRIPTION, noindex = false } = Astro.props;
+// Canonical drops the query string so ?country=... variants don't compete with the clean URL
+const canonical = new URL(Astro.url.pathname, Astro.url.origin).toString();
 ---
 
 <!DOCTYPE html>
@@ -20,7 +28,17 @@ const { title } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="PlanTravel" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="theme-color" content="#7c3aed" />
     <script is:inline>
       // Apply the saved season before first paint (no flash of the wrong theme)
       try {

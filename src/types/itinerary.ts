@@ -32,5 +32,7 @@ export interface DayItinerary {
   day: number;
   title: string;
   date: string;
+  /** State / city this day belongs to (set on a country's merged itinerary when it has several states) */
+  state?: string;
   items: TimelineItem[];
 } 

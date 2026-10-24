@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { redirectIfSignedOut } from '../utils/authClient';
 import { useState } from 'preact/hooks';
 import LocationPicker from './LocationPicker';
 import PrayerTimesCard from './PrayerTimesCard';
@@ -12,10 +13,12 @@ interface Props {
   /** Auto-geocoded top match used until the user confirms */
   suggestion: Place | null;
   dates: string[];
+  /** Only signed-in editors can confirm or change the saved location */
+  canEdit?: boolean;
 }
 
 /** Travel tools for one trip. Each tool is a collapsible card (Hick's Law: one thing at a time). */
-export default function TravelTools({ tab, searchName, savedPlace, suggestion, dates }: Props) {
+export default function TravelTools({ tab, searchName, savedPlace, suggestion, dates, canEdit = false }: Props) {
   const [place, setPlace] = useState<Place | null>(savedPlace || suggestion);
   const [confirmed, setConfirmed] = useState(Boolean(savedPlace));
   const [changing, setChanging] = useState(false);
@@ -31,6 +34,7 @@ export default function TravelTools({ tab, searchName, savedPlace, suggestion, d
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tab, place: p }),
       });
+      if (redirectIfSignedOut(res)) return;
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Could not save the location');
       setPlace(p);
@@ -59,7 +63,7 @@ export default function TravelTools({ tab, searchName, savedPlace, suggestion, d
               <p className="text-sm text-text/70 mt-0.5">We couldn't find “{searchName}”. Search for the right place below.</p>
             )}
           </div>
-          {place && !changing && (
+          {canEdit && place && !changing && (
             <div className="grid grid-cols-2 sm:flex gap-2 shrink-0">
               {!confirmed && (
                 <button type="button" disabled={busy} onClick={() => save(place)}
@@ -75,7 +79,7 @@ export default function TravelTools({ tab, searchName, savedPlace, suggestion, d
           )}
         </div>
 
-        {(changing || !place) && (
+        {canEdit && (changing || !place) && (
           <div className="space-y-2">
             <LocationPicker idPrefix="tools-loc" initialQuery={searchName} value={place} onSelect={(p) => save(p)} />
             {changing && (

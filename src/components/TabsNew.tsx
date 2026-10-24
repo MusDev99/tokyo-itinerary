@@ -6,9 +6,11 @@ import type { DayItinerary } from '../types/itinerary';
 
 interface Props {
   itinerary: DayItinerary[];
+  /** Signed-in editors see edit / delete controls on activities */
+  canEdit?: boolean;
 }
 
-export default function Tabs({ itinerary }: Props) {
+export default function Tabs({ itinerary, canEdit = false }: Props) {
   const [activeTab, setActiveTab] = useState(0);
   const [filteredItinerary, setFilteredItinerary] = useState(itinerary);
   const [showSearch, setShowSearch] = useState(false);
@@ -129,6 +131,11 @@ export default function Tabs({ itinerary }: Props) {
                 >
                   {formatShortDate(day.date)}
                 </div>
+                {day.state && (
+                  <div className={`text-[10px] font-bold mt-0.5 truncate max-w-[96px] ${isActive ? 'text-white/90' : 'text-primary'}`}>
+                    📍 {day.state}
+                  </div>
+                )}
               </button>
             );
           })}
@@ -153,7 +160,7 @@ export default function Tabs({ itinerary }: Props) {
       <div className="rounded-2xl bg-white/45 border border-primary/15 p-2.5 sm:p-6">
         {currentDay ? (
           <div>
-            <Timeline day={currentDay} />
+            <Timeline day={currentDay} canEdit={canEdit} />
 
             {/* Bottom Day Stepper (Fitts's Law: Easy sequential progression at the end of reading a day) */}
             {filteredItinerary.length > 1 && (

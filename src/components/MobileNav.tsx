@@ -23,6 +23,8 @@ export interface NavCountry {
 interface Props {
   countries: NavCountry[];
   currentPath: string;
+  /** Signed-in editors get the add button; guests get a sign-in link */
+  canEdit?: boolean;
 }
 
 const spring = { type: 'spring', stiffness: 340, damping: 30 } as const;
@@ -58,7 +60,7 @@ function Collapsible({ open, children }: { open: boolean; children: any }) {
   );
 }
 
-export default function MobileNav({ countries, currentPath }: Props) {
+export default function MobileNav({ countries, currentPath, canEdit = false }: Props) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(
@@ -241,9 +243,15 @@ export default function MobileNav({ countries, currentPath }: Props) {
               </nav>
 
               <div data-item className="shrink-0 p-4 border-t border-primary/15" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
-                <a href="/add" className="touch-target w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-primary text-white text-sm font-extrabold shadow-md">
+                {canEdit ? (
+                  <a href="/add" className="touch-target w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-primary text-white text-sm font-extrabold shadow-md">
                   <span aria-hidden="true">＋</span> Add new itinerary
                 </a>
+                ) : (
+                  <a href={`/login?next=${encodeURIComponent(currentPath)}`} className="touch-target w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-primary/10 text-primary text-sm font-extrabold">
+                    Sign in to edit
+                  </a>
+                )}
               </div>
             </div>
           </div>,

@@ -359,8 +359,9 @@ function buildCountries(
     let offset = 0;
     const merged: DayItinerary[] = [];
     for (const t of ordered) {
+      const stateLabel = t.state ? formatTabNameToCountryName(t.state) : undefined;
       for (const d of t.days) {
-        merged.push({ ...d, day: d.day + offset });
+        merged.push({ ...d, day: d.day + offset, ...(stateLabel ? { state: stateLabel } : {}) });
       }
       offset += t.days.length ? Math.max(...t.days.map((d) => d.day)) : 0;
     }

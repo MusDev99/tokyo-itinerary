@@ -1,14 +1,17 @@
 ---
 import type { CountryMetadata } from '../utils/countries';
+import TripActions from './TripActions';
 
 interface Props {
   country: CountryMetadata;
   activeTab: 'overview' | 'itinerary' | 'tools';
   /** When set, the page shows a single "Country - State" trip. */
   state?: { slug: string; name: string };
+  /** Shows rename / delete controls inside the card (editors only act on them; the API enforces auth) */
+  manage?: { tab: string; country: string; state: string; activityCount: number; afterDeleteHref: string };
 }
 
-const { country, activeTab, state } = Astro.props;
+const { country, activeTab, state, manage } = Astro.props;
 
 const tabs = [
   {
@@ -106,6 +109,16 @@ const stats = [
             {country.currency}
           </span>
         </div>
+        {manage && (
+          <TripActions
+            client:load
+            tab={manage.tab}
+            country={manage.country}
+            state={manage.state}
+            activityCount={manage.activityCount}
+            afterDeleteHref={manage.afterDeleteHref}
+          />
+        )}
       </div>
 
       <p class="text-sm text-text/75 max-w-2xl leading-relaxed">

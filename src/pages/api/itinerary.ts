@@ -10,6 +10,8 @@ import {
 import { buildTabName, slugify, RESERVED_SLUGS } from '../../utils/countries';
 import { savePlace } from '../../utils/googleSheets';
 import { parsePlace } from '../../types/place';
+import { clientError } from '../../utils/security';
+import { recordAudit } from '../../utils/users';
 
 const MAX_ACTIVITIES = 50;
 const TAB_FORBIDDEN = /[\[\]*?:\/\\'!]/;
@@ -19,6 +21,9 @@ const json = (body: unknown, status = 200) =>
     status,
     headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
   });
+
+/** Who is acting (the middleware guarantees a signed-in, active user on these routes) */
+const who = (locals: App.Locals) => locals.user?.email ?? 'unknown';
 
 const str = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 
@@ -78,7 +83,7 @@ function validateTab(country: string, state: string): string | null {
 }
 
 // Create a trip tab (if new) and/or append activities.
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   const body = await request.json().catch(() => null);
   if (!body) return json({ error: 'Invalid JSON body' }, 400);
 
@@ -109,6 +114,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   try {
     const result = await submitItinerary(buildTabName(country, state), activities);
+    await recordAudit({ email: who(locals), action: result.created ? 'create_trip' : 'add_activities', tab: result.tab, target: `${activities.length} activities` });
     // Save the confirmed location (best-effort: itinerary rows are already written)
     const place = parsePlace(body.place);
     let placeSaved = false;
@@ -127,7 +133,7 @@ export const POST: APIRoute = async ({ request }) => {
       href: `/${slugify(country)}/${slugify(state)}`,
     });
   } catch (err: any) {
-    return json({ error: err?.message || 'Failed to save itinerary' }, 500);
+    return json({ error: clientError(err, 'Failed to save itinerary') }, 500);
   }
 };
 
@@ -144,7 +150,7 @@ function parseRef(body: any) {
 }
 
 // Edit one activity, or rename a whole trip ({ tab, rename: { country, state } }).
-export const PATCH: APIRoute = async ({ request }) => {
+export const PATCH: APIRoute = async ({ request, locals }) => {
   const body = await request.json().catch(() => null);
   const tab = str(body?.tab, 100);
   if (!tab) return json({ error: 'tab is required' }, 400);
@@ -157,9 +163,10 @@ export const PATCH: APIRoute = async ({ request }) => {
     try {
       const newTab = buildTabName(country, state);
       await renameTrip(tab, newTab);
+      await recordAudit({ email: who(locals), action: 'rename_trip', tab, target: newTab });
       return json({ ok: true, tab: newTab, href: `/${slugify(country)}/${slugify(state)}` });
     } catch (err: any) {
-      return json({ error: err?.message || 'Failed to rename trip' }, 500);
+      return json({ error: clientError(err, 'Failed to rename trip') }, 500);
     }
   }
 
@@ -169,14 +176,15 @@ export const PATCH: APIRoute = async ({ request }) => {
   if (parsed.errors) return json({ error: 'Please fix the highlighted fields', rowErrors: [parsed.errors] }, 400);
   try {
     await updateActivity(tab, ref, parsed.value!);
+    await recordAudit({ email: who(locals), action: 'update_activity', tab, target: parsed.value!.title });
     return json({ ok: true });
   } catch (err: any) {
-    return json({ error: err?.message || 'Failed to update activity' }, 500);
+    return json({ error: clientError(err, 'Failed to update activity') }, 500);
   }
 };
 
 // Delete one activity, or a whole trip ({ tab, wholeTrip: true }).
-export const DELETE: APIRoute = async ({ request }) => {
+export const DELETE: APIRoute = async ({ request, locals }) => {
   const body = await request.json().catch(() => null);
   const tab = str(body?.tab, 100);
   if (!tab) return json({ error: 'tab is required' }, 400);
@@ -184,14 +192,16 @@ export const DELETE: APIRoute = async ({ request }) => {
   try {
     if (body?.wholeTrip === true) {
       await deleteTrip(tab);
+      await recordAudit({ email: who(locals), action: 'delete_trip', tab });
       return json({ ok: true });
     }
     const ref = parseRef(body);
     if (!ref) return json({ error: 'id (or row) is required' }, 400);
     await deleteActivity(tab, ref);
+    await recordAudit({ email: who(locals), action: 'delete_activity', tab, target: str(body?.title, 200) || str(body?.expectTitle, 200) || str(body?.id, 64) });
     return json({ ok: true });
   } catch (err: any) {
-    return json({ error: err?.message || 'Failed to delete' }, 500);
+    return json({ error: clientError(err, 'Failed to delete') }, 500);
   }
 };
 
