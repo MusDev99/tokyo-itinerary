@@ -5,7 +5,7 @@ import Footer from '../../../components/Footer.astro';
 import CountrySubNav from '../../../components/CountrySubNav.astro';
 import Tabs from '../../../components/TabsNew';
 import PDFDownload from '../../../components/PDFDownload';
-import TripActions from '../../../components/TripActions';
+import AddActivityPanel from '../../../components/AddActivityPanel';
 import AnalyticsDashboard from '../../../components/AnalyticsDashboard';
 import { getAllCountriesWithSheets } from '../../../utils/countries';
 
@@ -39,18 +39,17 @@ const countryDataSource = country.stats.hasItinerary
 <Layout title={`${country.title} - Interactive Timeline`}>
   <Header />
   <div class="w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8">
-    <CountrySubNav country={country} activeTab="itinerary" state={{ slug: stateMeta.slug, name: stateMeta.name }} />
+    <CountrySubNav country={country} activeTab="itinerary" state={{ slug: stateMeta.slug, name: stateMeta.name }}
+      manage={{ tab: stateMeta.tabName, country: baseCountry.name, state: stateMeta.name, activityCount: stateMeta.stats.totalActivities, afterDeleteHref: `/${baseCountry.slug}` }} />
 
     {country.stats.hasItinerary ? (
       <div class="space-y-6 sm:space-y-8">
-        <TripActions
+        <AddActivityPanel
           client:load
-          tab={stateMeta.tabName}
           country={baseCountry.name}
+          countrySlug={baseCountry.slug}
           state={stateMeta.name}
-          activityCount={stateMeta.stats.totalActivities}
-          afterDeleteHref={`/${baseCountry.slug}`}
-          addHref={`/add?country=${encodeURIComponent(baseCountry.name)}&state=${encodeURIComponent(stateMeta.name)}`}
+          currency={stateMeta.currency}
         />
 
         <!-- Main Interactive Day-by-Day Timeline (Priority #1 on Itinerary Page - Hick's Law) -->

@@ -23,10 +23,14 @@ interface DayDraft {
 }
 
 interface Props {
-  countries: CountryOption[];
-  trips: Trip[];
+  countries?: CountryOption[];
+  trips?: Trip[];
   initialCountry?: string;
   initialState?: string;
+  /** Embedded on a trip page: the trip is fixed, only days & activities are shown, no navigation */
+  embedded?: boolean;
+  /** Called after a successful save (embedded mode) */
+  onSaved?: () => void;
 }
 
 const FORBIDDEN = /[\[\]*?:\/\\'!]/;
@@ -100,7 +104,7 @@ function Reveal({ children, className = '' }: { children: any; className?: strin
   return <div ref={ref} className={className}>{children}</div>;
 }
 
-export default function AddItineraryForm({ countries, trips, initialCountry = '', initialState = '' }: Props) {
+export default function AddItineraryForm({ countries = [], trips = [], initialCountry = '', initialState = '', embedded = false, onSaved }: Props) {
   const [country, setCountry] = useState(initialCountry);
   const [state, setState] = useState(initialState);
   const [place, setPlace] = useState<Place | null>(null);
@@ -110,7 +114,7 @@ export default function AddItineraryForm({ countries, trips, initialCountry = ''
   const [serverErrors, setServerErrors] = useState<Record<string, Record<string, string>>>({});
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
-  const [step, setStep] = useState<1 | 2>(initialCountry && initialState ? 2 : 1);
+  const [step, setStep] = useState<1 | 2>(embedded || (initialCountry && initialState) ? 2 : 1);
   const [touched, setTouched] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const [done, setDone] = useState<{ href: string; tab: string; created: boolean; count: number } | null>(null);
@@ -120,7 +124,7 @@ export default function AddItineraryForm({ countries, trips, initialCountry = ''
     () => trips.filter((t) => slugify(t.country) === slugify(country)).map((t) => t.state),
     [trips, country]
   );
-  const isExisting = knownStates.some((s) => slugify(s) === slugify(state));
+  const isExisting = embedded || knownStates.some((s) => slugify(s) === slugify(state));
   const currency = match?.currency || '';
   const tripErrors = validateTrip(country, state);
   const tripValid = !tripErrors.country && !tripErrors.state;
@@ -128,7 +132,7 @@ export default function AddItineraryForm({ countries, trips, initialCountry = ''
   const needsPlace = tripValid && !isExisting;
   const tripReady = tripValid && (isExisting || Boolean(place));
   // Tab 2 is only reachable while tab 1 is complete and valid
-  const activeStep = tripReady ? step : 1;
+  const activeStep = embedded ? 2 : tripReady ? step : 1;
 
   // A different country/state means a different place: clear the old pick
   const tripKey = `${slugify(country)}|${slugify(state)}`;
@@ -218,12 +222,21 @@ export default function AddItineraryForm({ countries, trips, initialCountry = ''
         return;
       }
       setDone({ href: data.href, tab: data.tab, created: data.created, count: data.count });
+      if (embedded) onSaved?.();
     } catch {
       setError('Network error — please try again.');
     } finally {
       setBusy(false);
     }
   };
+
+  if (done && embedded) {
+    return (
+      <div role="status" className="rounded-2xl bg-emerald-500/15 border border-emerald-500/30 p-4 text-center text-sm font-bold text-emerald-900">
+        ✓ {done.count} {done.count === 1 ? 'activity' : 'activities'} saved. Updating the itinerary…
+      </div>
+    );
+  }
 
   if (done) {
     return (
@@ -281,12 +294,14 @@ export default function AddItineraryForm({ countries, trips, initialCountry = ''
   };
 
   return (
-    <form onSubmit={submit} className="space-y-4 sm:space-y-5 max-w-3xl mx-auto w-full" noValidate>
+    <form onSubmit={submit} className={`space-y-4 sm:space-y-5 w-full ${embedded ? '' : 'max-w-3xl mx-auto'}`} noValidate>
       {/* Tab switcher (Hick's Law: one task per tab; Jakob's Law: familiar stepper) */}
+      {!embedded && (
       <div role="tablist" aria-label="Add itinerary steps" className="flex gap-1.5 p-1.5 rounded-xl bg-white/45 border border-primary/20">
         {tabBtn(1, 'Country & State', false)}
         {tabBtn(2, 'Days & Activities', !tripReady)}
       </div>
+      )}
 
       <div ref={panelRef}>
         {activeStep === 1 && (
@@ -346,9 +361,11 @@ export default function AddItineraryForm({ countries, trips, initialCountry = ''
           <div id="add-panel-2" role="tabpanel" aria-labelledby="add-tab-2" className="space-y-4">
             <div className="flex items-center justify-between gap-3 px-1">
               <h2 className="text-base sm:text-lg font-extrabold text-text min-w-0 truncate">{country} - {state}</h2>
-              <button type="button" onClick={() => setStep(1)} className="text-xs font-bold text-primary hover:underline shrink-0 px-2 py-1">
-                ← Edit trip
-              </button>
+              {!embedded && (
+                <button type="button" onClick={() => setStep(1)} className="text-xs font-bold text-primary hover:underline shrink-0 px-2 py-1">
+                  ← Edit trip
+                </button>
+              )}
             </div>
 
             {days.map((day, di) => {
