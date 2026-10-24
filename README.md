@@ -36,6 +36,23 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 
 ---
 
+### 4. Security (OWASP Top 10) & editor access
+- **Viewing is public; editing needs a sign-in.** `POST/PATCH/DELETE /api/itinerary`, `POST /api/place`, `/api/sheets-sync` and the `/add` page require the editor session (`/login`, 8-hour signed `HttpOnly` cookie). Set `EDITOR_PASSWORD` and `AUTH_SECRET` (see `.env.example`); without them production editing is **disabled (503)**, never open.
+- Hardening: security headers + production CSP, same-origin check on writes (CSRF), login throttle (5 tries / 10 min), constant-time password check, open-redirect-safe `next`, spreadsheet formula-injection guard, http(s)-only map/image links, YouTube-only video embeds, generic API errors.
+- Process: audit in `docs/audits/`, feature checklist in `docs/features/`, tests in `tests/` (`npm test`), post-deploy `npm run smoke -- <url>`.
+
+### 5. AI-driven development workflow (Claude skills)
+`.claude/skills/` ships a repeatable pipeline: **brainstorm -> plan -> feature analysis -> implement -> verify (performance, SEO, quality, constraints) -> validate (tests + `feature.md` checklist) -> git -> release**.
+| Skill | Purpose |
+|---|---|
+| `dev-workflow` | the 8 gates and what each must produce |
+| `feature-checklist` | `feature.md` template for every feature |
+| `code-review-checklist` | `code-review.md` report before merge |
+| `owasp-audit` | `audit.md` security audit |
+| `release` | git strategy, SemVer, deploy preview, smoke test, rollback |
+
+---
+
 ## 🛠️ Tech Stack
 
 | Layer | Technology |
@@ -53,6 +70,10 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 ## 📁 Project Structure
 
 ```text
+├── .claude/skills/                    # AI-driven dev workflow: dev-workflow, feature-checklist, code-review-checklist, owasp-audit, release
+├── docs/                              # features/ (feature.md), reviews/, audits/ (audit.md)
+├── tests/                             # node:test unit tests (auth + security helpers)
+├── scripts/smoke.mjs                  # post-deploy auth/header smoke test
 ├── credentials/
 │   └── keys.json                      # Local Google Service Account key (gitignored)
 ├── src/
@@ -192,6 +213,10 @@ Because `credentials/keys.json` is gitignored for security, configure the follow
 | :--- | :--- |
 | `GOOGLE_SHEET_ID` | Your Google Spreadsheet ID |
 | `GOOGLE_SERVICE_ACCOUNT_JSON` | Paste the **entire contents** of `credentials/keys.json` |
+| `EDITOR_PASSWORD` | Password for adding/editing/deleting trips (>= 8 chars). **Required for editing in production** |
+| `AUTH_SECRET` | Random signing key for the session cookie (>= 16 chars, e.g. `openssl rand -base64 32`) |
+
+> Set the variables for **Production and Preview**. After deploying run `npm run smoke -- https://<your-url>`: every line should be ✅ (writes refused without a session, security headers present). Netlify works the same way with the Astro Netlify adapter.
 
 > **Alternative:** Instead of `GOOGLE_SERVICE_ACCOUNT_JSON`, you can set `GOOGLE_CLIENT_EMAIL` and `GOOGLE_PRIVATE_KEY` separately.
 
@@ -205,3 +230,6 @@ Because `credentials/keys.json` is gitignored for security, configure the follow
 | `npm run build` | Build production bundle (`dist/`) |
 | `npm run preview` | Preview production build locally |
 | `npm run sheets:pull` | Verify Google Sheets connection and print discovered country tabs |
+| `npm test` | Unit tests (`node --test`, Node 22+) |
+| `npm run verify` | Tests + production build (run before every commit) |
+| `npm run smoke -- <url>` | Post-deploy security smoke test |
