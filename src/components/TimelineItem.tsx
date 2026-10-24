@@ -9,10 +9,13 @@ import ActivityFields, { draftToPayload, type ActivityDraft } from './ActivityFi
 
 interface TimelineItemProps extends TimelineItemType {
   isLast?: boolean;
+  /** Controlled expanded state (the day timeline owns it for Expand all / Collapse all). Uncontrolled = expanded. */
+  open?: boolean;
+  onToggle?: () => void;
 }
 
 export default function TimelineItem(props: TimelineItemProps) {
-  const { id, tab, row, date, time, title, description, location, price, note, images, youtubeUrl, isLast } = props;
+  const { open, onToggle, id, tab, row, date, time, title, description, location, price, note, images, youtubeUrl, isLast } = props;
   const [showVideo, setShowVideo] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const canEdit = Boolean(tab && (id || row));
@@ -90,6 +93,18 @@ export default function TimelineItem(props: TimelineItemProps) {
   const saveEdit = () => draft && callApi('PATCH', { tab, ...rowRef, activity: draftToPayload(draft) });
   const remove = () => callApi('DELETE', { tab, ...rowRef });
 
+  // Collapsed cards show only time + title (Hick's Law: scan first, open what you need)
+  const [localOpen, setLocalOpen] = useState(true);
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const isOpen = open ?? localOpen;
+  const toggle = () => (onToggle ? onToggle() : setLocalOpen((o) => !o));
+  const shown = isOpen || editing;
+
+  useEffect(() => {
+    if (!isOpen || !bodyRef.current || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    animate(bodyRef.current, { opacity: [0, 1], y: [-8, 0] }, { duration: 0.25, ease: [0.22, 1, 0.36, 1] });
+  }, [isOpen]);
+
   const categoryMeta = detectCategory(props);
 
   const formatPrice = (p: TimelineItemType['price']) => {
@@ -120,7 +135,29 @@ export default function TimelineItem(props: TimelineItemProps) {
       )}
 
       {/* Activity Card (Law of Common Region & Law of Proximity: Keep Time, Category, Price & Location scannable together) */}
-      <article className="bg-white/45 hover:bg-white/60 rounded-2xl border border-primary/15 hover:border-primary/35 shadow-sm transition-colors duration-150 p-3.5 sm:p-5">
+      <article className="bg-white/45 hover:bg-white/60 rounded-2xl border border-primary/15 hover:border-primary/35 shadow-sm transition-colors duration-150 p-3 sm:p-5">
+        {!shown && (
+          <button
+            type="button"
+            onClick={toggle}
+            aria-expanded={false}
+            aria-label={`Show details for ${title}`}
+            className="touch-target w-full flex items-center gap-3 text-left -m-1 p-1"
+          >
+            <span className="inline-flex items-center gap-1.5 text-sm font-extrabold text-primary tabular-nums shrink-0">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+              </svg>
+              {time}
+            </span>
+            <span className="flex-1 min-w-0 truncate text-sm sm:text-base font-bold text-text">{title}</span>
+            <svg className="w-4 h-4 text-text/50 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+        )}
+        {shown && (
+        <div ref={bodyRef}>
         {/* Row 1: when (left) and cost + actions (right). Fewer, aligned elements = faster scanning (Miller's Law, Law of Proximity) */}
         <div className="flex items-center justify-between gap-2 mb-2">
           <span className="inline-flex items-center gap-1.5 text-sm font-extrabold text-primary tabular-nums">
@@ -131,6 +168,19 @@ export default function TimelineItem(props: TimelineItemProps) {
           </span>
 
           <div className="flex items-center gap-1.5 shrink-0">
+            {!editing && (
+              <button
+                type="button"
+                onClick={toggle}
+                aria-expanded={true}
+                aria-label={`Hide details for ${title}`}
+                className="touch-target inline-flex items-center justify-center w-9 h-9 rounded-full text-text/60 hover:bg-primary/10"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7" />
+                </svg>
+              </button>
+            )}
             <span
               className={`px-2.5 py-1 rounded-lg text-xs font-extrabold ${
                 price.amount > 0
@@ -298,6 +348,8 @@ export default function TimelineItem(props: TimelineItemProps) {
               className="w-full aspect-video rounded-xl shadow-sm"
             />
           </div>
+        )}
+        </div>
         )}
       </article>
 

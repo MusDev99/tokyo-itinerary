@@ -3,6 +3,14 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-10-24 15:51 — Collapsible schedule, back button, inline add activity
+
+- **Daily schedule:** activities start collapsed showing only time and title; tap to open, plus an Expand / Collapse button next to the day's cost chip (state resets per day).
+- **Back button:** universal icon button at the left of the header (hidden on the home page); uses browser history when the previous page is on this site, otherwise goes up one level.
+- **Trip card:** rename and delete are icon-only buttons inside the main trip card (the separate action bar is gone).
+- **Add new activity:** the labelled button on a trip page now opens the add form inline, fixed to that trip, instead of navigating to `/add`; the page refreshes after saving.
+- **Footer:** "Built with" moved into the credits line (links to Astro, TypeScript, Tailwind CSS, Preact, Motion); back-to-top is an icon button clear of the season button.
+
 ## 2026-10-24 13:21 — SEO, CI, jspdf 4
 
 - **SEO:** every page now has a meta description, canonical URL and Open Graph/Twitter tags (`<Layout description>`); new `/robots.txt` (hides `/add`, `/login`, `/api`) and `/sitemap.xml` built from the sheet.
