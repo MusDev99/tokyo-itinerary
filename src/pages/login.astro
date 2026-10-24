@@ -1,0 +1,99 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import {
+  SESSION_COOKIE,
+  SESSION_TTL_SECONDS,
+  clientIp,
+  createRateLimiter,
+  createSessionToken,
+  isSameOrigin,
+  passwordMatches,
+  readAuthConfig,
+  safeNext,
+  verifySessionToken,
+} from '../utils/auth';
+
+Astro.response.headers.set('Cache-Control', 'no-store');
+
+// Throttle guesses: 5 attempts / 10 min / IP (per instance; see docs/audit)
+const limiter = ((globalThis as any).__LOGIN_LIMITER__ ||= createRateLimiter(5, 10 * 60 * 1000));
+
+const auth = readAuthConfig();
+const next = safeNext(Astro.url.searchParams.get('next'), '/add');
+const signedIn = auth.configured && (await verifySessionToken(Astro.cookies.get(SESSION_COOKIE)?.value, auth.secret));
+let error = '';
+
+if (Astro.request.method === 'POST') {
+  const ip = clientIp(Astro.request);
+  if (!auth.configured) {
+    error = 'Editing is not configured on this server.';
+  } else if (!isSameOrigin(Astro.request)) {
+    Astro.response.status = 403;
+    error = 'Cross-site request blocked.';
+  } else if (!limiter.take(ip)) {
+    Astro.response.status = 429;
+    error = 'Too many attempts. Please wait a few minutes and try again.';
+  } else {
+    const form = await Astro.request.formData();
+    const password = String(form.get('password') ?? '').slice(0, 200);
+    if (await passwordMatches(password, auth.password, auth.secret)) {
+      limiter.reset(ip);
+      Astro.cookies.set(SESSION_COOKIE, await createSessionToken(auth.secret), {
+        httpOnly: true,
+        secure: import.meta.env.PROD,
+        sameSite: 'lax',
+        path: '/',
+        maxAge: SESSION_TTL_SECONDS,
+      });
+      return Astro.redirect(next);
+    }
+    Astro.response.status = 401;
+    error = 'Incorrect password.'; // same message for every failure: no account/secret hints (OWASP A07)
+  }
+}
+
+const disabled = !auth.configured && import.meta.env.PROD;
+---
+
+<Layout title="Editor sign in - Travel Planner" noindex>
+  <Header />
+  <main class="w-full max-w-md mx-auto px-4 py-10 sm:py-16">
+    <section class="glass-effect rounded-2xl p-5 sm:p-8 space-y-4">
+      <h1 class="text-2xl font-extrabold text-primary">Editor sign in</h1>
+      <p class="text-sm opacity-80">Viewing trips is open to everyone. Adding, editing or deleting needs the editor password.</p>
+
+      {error && <div role="alert" class="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-sm font-semibold text-red-800">{error}</div>}
+
+      {disabled ? (
+        <div role="alert" class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-sm font-semibold">
+          Editing is switched off: set <code>EDITOR_PASSWORD</code> and <code>AUTH_SECRET</code> in the server environment.
+        </div>
+      ) : signedIn ? (
+        <div class="space-y-3">
+          <p class="text-sm font-semibold">You are signed in.</p>
+          <a href={next} class="touch-target flex items-center justify-center px-4 py-3 rounded-xl bg-primary text-white font-bold">Continue</a>
+          <form method="post" action="/api/logout">
+            <button type="submit" class="touch-target w-full px-4 py-3 rounded-xl bg-primary/10 text-primary font-bold">Sign out</button>
+          </form>
+        </div>
+      ) : (
+        <form method="post" class="space-y-3">
+          <label for="password" class="block text-sm font-bold">Password</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            required
+            autocomplete="current-password"
+            maxlength="200"
+            class="w-full min-h-[44px] px-3 rounded-xl border border-primary/30 bg-white/70 text-base"
+          />
+          <button type="submit" class="touch-target w-full px-4 py-3 rounded-xl bg-primary text-white font-bold">Sign in</button>
+        </form>
+      )}
+    </section>
+  </main>
+  <Footer />
+</Layout>

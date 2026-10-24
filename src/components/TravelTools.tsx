@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { redirectIfSignedOut } from '../utils/authClient';
 import { useState } from 'preact/hooks';
 import LocationPicker from './LocationPicker';
 import PrayerTimesCard from './PrayerTimesCard';
@@ -31,6 +32,7 @@ export default function TravelTools({ tab, searchName, savedPlace, suggestion, d
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tab, place: p }),
       });
+      if (redirectIfSignedOut(res)) return;
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Could not save the location');
       setPlace(p);

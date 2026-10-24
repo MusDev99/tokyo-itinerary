@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { redirectIfSignedOut } from '../utils/authClient';
 import { useState, useMemo, useEffect, useRef } from 'preact/hooks';
 import { animate } from 'motion';
 import LocationPicker from './LocationPicker';
@@ -203,6 +204,7 @@ export default function AddItineraryForm({ countries, trips, initialCountry = ''
           activities,
         }),
       });
+      if (redirectIfSignedOut(res)) return;
       const data = await res.json();
       if (!res.ok) {
         setError(data.error || 'Something went wrong');

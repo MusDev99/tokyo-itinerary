@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { redirectIfSignedOut } from '../utils/authClient';
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { animate } from 'motion';
 import type { TimelineItem as TimelineItemType } from '../types/itinerary';
@@ -71,6 +72,7 @@ export default function TimelineItem(props: TimelineItemProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
+      if (redirectIfSignedOut(res)) return;
       const data = await res.json();
       if (!res.ok) {
         setActionError(data.error || 'Something went wrong');

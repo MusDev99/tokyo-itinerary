@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { findTabTitle, savePlace } from '../../utils/googleSheets';
 import { parsePlace } from '../../types/place';
+import { clientError } from '../../utils/security';
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
@@ -17,6 +18,6 @@ export const POST: APIRoute = async ({ request }) => {
     await savePlace(exact, place);
     return json({ ok: true });
   } catch (err: any) {
-    return json({ error: err?.message || 'Failed to save place' }, 500);
+    return json({ error: clientError(err, 'Failed to save place') }, 500);
   }
 };

@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { DayItinerary, TimelineItem } from '../types/itinerary';
 import type { Place } from '../types/place';
+import { UserError, safeHttpUrl, sheetText, youtubeEmbedUrl } from './security';
 
 export interface ServiceAccountCredentials {
   type: string;
@@ -376,8 +377,9 @@ export function rowsToDayItinerary(
     const priceNotes = getCell(idxPriceNotes);
     const resolvedTitle = activityTitle || locCell || dayTitle || 'Scheduled Activity';
     const locName = locCell || resolvedTitle;
+    // Only http(s) links are trusted from sheet cells (blocks javascript: URLs)
     const mapsUrl =
-      getCell(idxMapsUrl) ||
+      safeHttpUrl(getCell(idxMapsUrl)) ||
       `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locName)}`;
 
     const item: TimelineItem = {
@@ -405,10 +407,10 @@ export function rowsToDayItinerary(
     const cat = getCell(idxCategory);
     if (cat) item.category = cat as any;
 
-    const img = getCell(idxImages);
+    const img = safeHttpUrl(getCell(idxImages));
     if (img) item.images = img;
 
-    const yt = getCell(idxYoutube);
+    const yt = youtubeEmbedUrl(getCell(idxYoutube));
     if (yt) item.youtubeUrl = yt;
 
     dayMap.get(dayNum)!.items.push(item);
@@ -724,15 +726,16 @@ function recordToRow(headers: string[], record: Partial<Record<SheetColumn, stri
 function activityToRecord(a: ActivityInput, id?: string): Partial<Record<SheetColumn, string>> {
   return {
     date: a.date,
-    ...(a.day_title ? { day_title: a.day_title } : {}),
+    // sheetText() stops formula injection: values go in with USER_ENTERED
+    ...(a.day_title ? { day_title: sheetText(a.day_title) } : {}),
     time: a.time,
-    title: a.title,
-    description: a.description || '',
-    category: a.category || '',
-    location_name: a.location_name || '',
+    title: sheetText(a.title),
+    description: sheetText(a.description || ''),
+    category: sheetText(a.category || ''),
+    location_name: sheetText(a.location_name || ''),
     price_amount: a.price_amount != null && a.price_amount > 0 ? String(a.price_amount) : '',
     price_currency: a.price_currency || '',
-    price_notes: a.price_notes || '',
+    price_notes: sheetText(a.price_notes || ''),
     ...(id ? { id } : {}),
   };
 }
@@ -862,7 +865,7 @@ export async function updateActivity(tabName: string, ref: RowRef, a: ActivityIn
   const ctx = await writeContext();
   const tab = (await findTabTitle(tabName)) ?? tabName;
   const found = await locateRow(ctx, ctx.spreadsheetId, tab, ref);
-  if (!found) throw new Error('Activity not found — it may have been changed or removed. Refresh and try again.');
+  if (!found) throw new UserError('Activity not found — it may have been changed or removed. Refresh and try again.');
 
   const record = activityToRecord(a);
   const merged = found.headers.map((h, i) => {
@@ -887,9 +890,9 @@ export async function deleteActivity(tabName: string, ref: RowRef): Promise<void
   const ctx = await writeContext();
   const tabs = await listTabs(ctx, ctx.spreadsheetId);
   const match = tabs.find((t) => t.title.trim().toLowerCase() === tabName.trim().toLowerCase());
-  if (!match) throw new Error('Trip tab not found.');
+  if (!match) throw new UserError('Trip tab not found.');
   const found = await locateRow(ctx, ctx.spreadsheetId, match.title, ref);
-  if (!found) throw new Error('Activity not found — it may have been changed or removed. Refresh and try again.');
+  if (!found) throw new UserError('Activity not found — it may have been changed or removed. Refresh and try again.');
 
   await sheetsRequest(ctx, `${SHEETS_BASE}/${encodeURIComponent(ctx.spreadsheetId)}:batchUpdate`, {
     method: 'POST',
@@ -916,8 +919,8 @@ export async function deleteTrip(tabName: string): Promise<void> {
   const ctx = await writeContext();
   const tabs = await listTabs(ctx, ctx.spreadsheetId);
   const match = tabs.find((t) => t.title.trim().toLowerCase() === tabName.trim().toLowerCase());
-  if (!match) throw new Error('Trip tab not found.');
-  if (tabs.length <= 1) throw new Error("A spreadsheet needs at least one tab, so the last tab can't be deleted.");
+  if (!match) throw new UserError('Trip tab not found.');
+  if (tabs.length <= 1) throw new UserError("A spreadsheet needs at least one tab, so the last tab can't be deleted.");
   await sheetsRequest(ctx, `${SHEETS_BASE}/${encodeURIComponent(ctx.spreadsheetId)}:batchUpdate`, {
     method: 'POST',
     body: JSON.stringify({ requests: [{ deleteSheet: { sheetId: match.sheetId } }] }),
@@ -931,11 +934,11 @@ export async function renameTrip(tabName: string, newName: string): Promise<void
   const ctx = await writeContext();
   const tabs = await listTabs(ctx, ctx.spreadsheetId);
   const match = tabs.find((t) => t.title.trim().toLowerCase() === tabName.trim().toLowerCase());
-  if (!match) throw new Error('Trip tab not found.');
+  if (!match) throw new UserError('Trip tab not found.');
   const clash = tabs.find(
     (t) => t.sheetId !== match.sheetId && t.title.trim().toLowerCase() === newName.trim().toLowerCase()
   );
-  if (clash) throw new Error(`A trip named "${clash.title}" already exists.`);
+  if (clash) throw new UserError(`A trip named "${clash.title}" already exists.`);
   await sheetsRequest(ctx, `${SHEETS_BASE}/${encodeURIComponent(ctx.spreadsheetId)}:batchUpdate`, {
     method: 'POST',
     body: JSON.stringify({

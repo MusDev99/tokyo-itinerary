@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { redirectIfSignedOut } from '../utils/authClient';
 import { useState } from 'preact/hooks';
 import ConfirmDialog from './ConfirmDialog';
 import { inputClass } from './inputClass';
@@ -31,6 +32,7 @@ export default function TripActions({ tab, country, state, activityCount, afterD
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
+      if (redirectIfSignedOut(res)) return null;
       const data = await res.json();
       if (!res.ok) {
         setError(data.error || 'Something went wrong');

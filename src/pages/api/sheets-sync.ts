@@ -5,6 +5,7 @@ import {
   loadServiceAccountCredentials,
   SHEET_HEADERS,
 } from '../../utils/googleSheets';
+import { clientError } from '../../utils/security';
 
 export const GET: APIRoute = async () => {
   const spreadsheetId = resolveSpreadsheetId();
@@ -39,17 +40,14 @@ export const GET: APIRoute = async () => {
   });
 };
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async () => {
   try {
-    const body = await request.json().catch(() => ({}));
-    const overrideSheetId = typeof body.spreadsheetId === 'string' ? body.spreadsheetId : undefined;
-
+    // The target sheet is fixed server-side: a caller-supplied spreadsheetId would let a request
+    // point the service account at any sheet it can reach (OWASP A01/A10).
     // Clear in-memory cache so subsequent page loads fetch fresh Google Sheet tabs
     (globalThis as any).__TOKYO_SHEETS_CACHE__ = undefined;
 
-    const { result } = await pullCountriesFromGoogleSheets({
-      spreadsheetId: overrideSheetId,
-    });
+    const { result } = await pullCountriesFromGoogleSheets({});
     return new Response(JSON.stringify(result), {
       status: result.error ? 400 : 200,
       headers: { 'Content-Type': 'application/json' },
@@ -57,7 +55,7 @@ export const POST: APIRoute = async ({ request }) => {
   } catch (err: any) {
     return new Response(
       JSON.stringify({
-        error: err?.message || 'Unexpected error during Google Sheets refresh',
+        error: clientError(err, 'Unexpected error during Google Sheets refresh'),
       }),
       {
         status: 500,

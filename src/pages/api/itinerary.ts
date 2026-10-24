@@ -10,6 +10,7 @@ import {
 import { buildTabName, slugify, RESERVED_SLUGS } from '../../utils/countries';
 import { savePlace } from '../../utils/googleSheets';
 import { parsePlace } from '../../types/place';
+import { clientError } from '../../utils/security';
 
 const MAX_ACTIVITIES = 50;
 const TAB_FORBIDDEN = /[\[\]*?:\/\\'!]/;
@@ -127,7 +128,7 @@ export const POST: APIRoute = async ({ request }) => {
       href: `/${slugify(country)}/${slugify(state)}`,
     });
   } catch (err: any) {
-    return json({ error: err?.message || 'Failed to save itinerary' }, 500);
+    return json({ error: clientError(err, 'Failed to save itinerary') }, 500);
   }
 };
 
@@ -159,7 +160,7 @@ export const PATCH: APIRoute = async ({ request }) => {
       await renameTrip(tab, newTab);
       return json({ ok: true, tab: newTab, href: `/${slugify(country)}/${slugify(state)}` });
     } catch (err: any) {
-      return json({ error: err?.message || 'Failed to rename trip' }, 500);
+      return json({ error: clientError(err, 'Failed to rename trip') }, 500);
     }
   }
 
@@ -171,7 +172,7 @@ export const PATCH: APIRoute = async ({ request }) => {
     await updateActivity(tab, ref, parsed.value!);
     return json({ ok: true });
   } catch (err: any) {
-    return json({ error: err?.message || 'Failed to update activity' }, 500);
+    return json({ error: clientError(err, 'Failed to update activity') }, 500);
   }
 };
 
@@ -191,7 +192,7 @@ export const DELETE: APIRoute = async ({ request }) => {
     await deleteActivity(tab, ref);
     return json({ ok: true });
   } catch (err: any) {
-    return json({ error: err?.message || 'Failed to delete' }, 500);
+    return json({ error: clientError(err, 'Failed to delete') }, 500);
   }
 };
 
