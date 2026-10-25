@@ -21,7 +21,7 @@
 | 1 | Formula-injection + URL-scheme hardening | S | ✅ |
 | 1 | `.gitignore`, `npm audit fix` | S | ✅ |
 | 2 | `jspdf` 4 | S | ✅ |
-| 2 | Tailwind 3 -> 4 migration (blocks Astro 6/7: `@astrojs/tailwind` is Astro <= 5), then `astro` 7 + `@astrojs/vercel` 11 | L | ⬜ |
+| 2 | `astro` 7 + `@astrojs/vercel` 11; `@astrojs/tailwind` replaced by Tailwind 3 through `postcss.config.mjs` (no Tailwind 4 migration needed) | L | ✅ |
 | 2 | SEO: meta description, OG, canonical, robots.txt, sitemap | M | ✅ |
 | 2 | GitHub Actions CI | S | ✅ |
 | 3 | Per-user OAuth, distributed rate limit | L | ⬜ |

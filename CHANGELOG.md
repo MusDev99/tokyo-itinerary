@@ -3,6 +3,14 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-10-25 07:54 — Fix: dependency audit (Astro 7 upgrade)
+
+- **Security:** `npm audit --omit=dev` goes from 7 high + 1 critical to **0**. Upgraded `astro` 5 → 7.4.2, `@astrojs/vercel` 8 → 11 and `@astrojs/preact` 4 → 6; pinned patched `path-to-regexp` 6.3.0 and `zod` 4.6.7 inside `@vercel/*` with same-major npm `overrides`.
+- **Tailwind:** removed `@astrojs/tailwind` (Astro ≤ 5 only). Tailwind 3 now runs through the existing `postcss.config.mjs`, so no Tailwind 4 migration was needed; the built CSS has the same selectors.
+- **Astro 7 compiler:** an HTML comment can no longer start a `? : (...)` branch; moved it inside the element on the country page.
+- **CI:** the audit job is now blocking and fails on high or critical production advisories (it was advisory and critical-only).
+- **Known:** 3 moderate advisories remain in dev-only build tooling (Tailwind 3's PostCSS deps); tracked in `docs/audits`.
+- **Requires Node ≥ 22.23** (Astro 7); CI already uses Node 22.
 ## 2026-10-25 08:00 — Remove the unused Japanese dictionary component
 
 - Deleted `src/components/JapaneseDictionary.tsx` (no page imported it).
