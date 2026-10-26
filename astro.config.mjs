@@ -2,6 +2,7 @@
 import { defineConfig } from 'astro/config';
 import preact from '@astrojs/preact';
 import vercel from '@astrojs/vercel';
+import pwaAssets from './scripts/pwa-assets.mjs';
 
 // https://astro.build/config
 export default defineConfig({
@@ -17,6 +18,7 @@ export default defineConfig({
       compat: true,
       include: ['**/preact/*'],
     }),
+    pwaAssets(),
   ],
   // Tailwind 3 runs through postcss.config.mjs (Vite picks it up); @astrojs/tailwind only supports Astro <= 5.
 });

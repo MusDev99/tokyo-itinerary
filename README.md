@@ -34,6 +34,7 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 - **PDF Export**: Download printable country itineraries directly from the browser (`PDFDownload.tsx`).
 - **Animated Seasons**: Seven [Motion](https://motion.dev/)-animated themes (autumn, winter, spring, summer, rain, haze, starry night) chosen from a compact panel above the floating theme button (grouped into Seasons and Weather, with labels), each with its own short chime (Web Audio, no files; mute toggle remembered). Translucent glass cards. Honors `prefers-reduced-motion`.
 - **Mobile-first navigation**: slide-in drawer with collapsible country cards, 44px touch targets and a compact activity card.
+- **📲 Installable PWA with offline reading**: add PlanTravel to the home screen (Android/desktop install prompt, iOS *Share → Add to Home Screen*). A service worker (`public/sw.js`, production only) saves every trip page from `/sitemap.xml` plus the whole client bundle (`/sw-assets.json`, generated at build), so itineraries, timelines and analytics read with no signal. Pages are network-first with a 3s timeout, so fresh data wins when online. Offline, a pill links to `/offline`, which lists saved pages. Editing, sign-in and `/add` always need a connection; signing out deletes the saved pages. Data Saver skips the pre-download.
 
 ---
 
@@ -77,8 +78,13 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 ```text
 ├── .claude/skills/                    # AI-driven dev workflow: dev-workflow, feature-checklist, code-review-checklist, owasp-audit, release
 ├── docs/                              # features/ (feature.md), reviews/, audits/ (audit.md)
-├── tests/                             # node:test unit tests (auth, users, calendar, popover, season sound)
+├── tests/                             # node:test unit tests (auth, users, calendar, popover, season sound, service worker)
 ├── scripts/smoke.mjs                  # post-deploy auth/header smoke test
+├── scripts/pwa-assets.mjs             # build hook: writes /sw-assets.json (client bundle list for offline)
+├── public/
+│   ├── sw.js                          # Service worker: offline read access
+│   ├── manifest.webmanifest           # PWA manifest (name, colors, icons)
+│   └── icons/                         # PWA + Apple touch icons (from logo.svg)
 ├── credentials/
 │   └── keys.json                      # Local Google Service Account key (gitignored)
 ├── src/
@@ -98,6 +104,7 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 │   │   ├── SeasonBackground.tsx       # Motion-animated season scenes
 │   │   ├── ThemeSwitcher.tsx          # Floating theme button + Seasons/Weather panel
 │   │   ├── MobileNav.tsx              # Mobile slide-in navigation drawer
+│   │   ├── OfflineStatus.tsx          # Registers the service worker + offline pill
 │   │   ├── AddItineraryForm.tsx       # Two-tab add form (trip, then days & activities)
 │   │   ├── AnalogTimePicker.tsx       # Analog clock time picker
 │   │   ├── CalendarPicker.tsx         # Month-grid date picker (keyboard + touch)
@@ -118,6 +125,7 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 │   ├── pages/
 │   │   ├── index.astro                # Global portfolio dashboard & cross-country comparison
 │   │   ├── 404.astro                  # Custom 404 page
+│   │   ├── offline.astro              # Offline fallback: lists pages saved on this device
 │   │   ├── [country]/
 │   │   │   ├── index.astro            # Country overview, schedule summary & analytics
 │   │   │   ├── [state]/index.astro    # Single `Country - State` trip timeline
