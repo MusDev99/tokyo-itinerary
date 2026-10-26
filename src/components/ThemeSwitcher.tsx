@@ -2,7 +2,7 @@ import { h } from 'preact';
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { animate, stagger } from 'motion';
 import { SEASONS, readSavedSeason, type SeasonId } from '../utils/seasons';
-import { playChime, readSoundOn, saveSoundOn } from '../utils/seasonSound';
+import { pauseAmbient, playAmbient, readSoundOn, saveSoundOn, stopAmbient } from '../utils/seasonSound';
 import { prefersReducedMotion } from '../utils/motion';
 import { useDismiss } from './useDismiss';
 
@@ -42,6 +42,24 @@ const ThemeSwitcher = () => {
     document.documentElement.setAttribute('data-theme', saved);
   }, []);
 
+  // Ambient soundscape: browsers allow audio only after a gesture, so it starts on the first tap or key press
+  // anywhere, then follows the theme. Hidden tab = paused, so nothing plays in the device's background.
+  const themeRef = useRef(theme);
+  themeRef.current = theme;
+  useEffect(() => {
+    if (!soundOn) return stopAmbient();
+    const start = () => playAmbient(themeRef.current);
+    document.addEventListener('pointerdown', start, { once: true, capture: true });
+    document.addEventListener('keydown', start, { once: true, capture: true });
+    const onVisibility = () => pauseAmbient(document.hidden);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      document.removeEventListener('pointerdown', start, { capture: true });
+      document.removeEventListener('keydown', start, { capture: true });
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, [soundOn]);
+
   // Open: panel grows from the button, tiles stagger in; focus lands on the current theme
   useEffect(() => {
     if (!open || !panel.current) return;
@@ -67,7 +85,7 @@ const ThemeSwitcher = () => {
 
   // The panel stays open after a pick so themes can be compared; the page re-themes instantly (Doherty Threshold)
   const choose = (id: SeasonId, tile: HTMLElement) => {
-    if (soundOn) playChime(id);
+    if (soundOn) playAmbient(id); // crossfades to the new scene
     if (id === theme) return;
     setTheme(id);
     try {
@@ -86,7 +104,8 @@ const ThemeSwitcher = () => {
     const next = !soundOn;
     setSoundOn(next);
     saveSoundOn(next);
-    if (next) playChime(theme);
+    if (next) playAmbient(theme);
+    else stopAmbient();
   };
 
   // Arrow keys move through the tiles as a 4-column grid

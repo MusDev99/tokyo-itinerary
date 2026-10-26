@@ -15,8 +15,8 @@ Sound: on by default with a remembered mute switch (owner confirmed 2026-10-25).
 **Acceptance criteria**
 - AC-1 Tapping the theme button opens a panel above it; no quarter-circle is drawn; nothing overflows at 375px.
 - AC-2 The panel shows Seasons (4) and Weather (3) tiles with icons and names; the current theme is highlighted and focused.
-- AC-3 Picking a tile applies the theme instantly, saves it, and plays that theme's chime when sound is on.
-- AC-4 The Sound switch mutes/unmutes, is remembered, and plays the current chime when switched on.
+- AC-3 Picking a tile applies the theme instantly, saves it, and crossfades to that theme's ambient soundscape when sound is on (replaced the one-shot chime, see `docs/features/ambient-sound/feature.md`).
+- AC-4 The Sound switch mutes/unmutes, is remembered, and starts/stops the ambient soundscape.
 - AC-5 Outside tap, Escape and the button close the panel; Escape returns focus to the button.
 - AC-6 Arrow keys / Home / End move between tiles; Enter picks.
 - AC-7 Reduced motion: no panel / tile / icon animation (sound unaffected).
