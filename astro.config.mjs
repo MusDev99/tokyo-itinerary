@@ -3,6 +3,7 @@ import { defineConfig } from 'astro/config';
 import preact from '@astrojs/preact';
 import tailwind from '@astrojs/tailwind';
 import vercel from '@astrojs/vercel';
+import pwaAssets from './scripts/pwa-assets.mjs';
 
 // https://astro.build/config
 export default defineConfig({
@@ -14,5 +15,6 @@ export default defineConfig({
       include: ['**/preact/*'],
     }),
     tailwind(),
+    pwaAssets(),
   ],
 });

@@ -20,6 +20,7 @@ npm run smoke -- <url>   # post-deploy auth/header checks
 - **Routes**: `/[country]`, `/[country]/itinerary` (all states merged), `/[country]/[state]`, `/add`, `/api/itinerary` (POST/PATCH/DELETE), `/api/sheets-sync`.
 - **Auth**: viewing is public; any write needs Google sign-in by an `active` user in the hidden `_users` tab (`GOOGLE_CLIENT_ID/SECRET` + `AUTH_SECRET`, signed cookie), enforced by `src/middleware.ts` which also sets `Astro.locals.user`; `/login`, `/api/auth/google[/callback]`, `/api/logout`. Core in `src/utils/auth.ts`, user table helpers in `src/utils/userTable.ts` + `users.ts` (dependency-free, unit-tested). Edits are logged to the hidden `_audit` tab. Edit controls render only when `Astro.locals.user` is set.
 - **Writes** all go through `submitItinerary()` in `src/pages/api/itinerary.ts` (the seam for a future email-approval flow).
+- **PWA / offline read**: `public/sw.js` (registered by `OfflineStatus.tsx`, production only) caches pages network-first, `/_astro/*` cache-first (list from `/sw-assets.json`, written by `scripts/pwa-assets.mjs`) and pre-saves the pages in `/sitemap.xml`. It never caches non-GET, `/api/*` (except the read-only `READ_APIS`), `/login` or `/add` (`NO_STORE`). A new signed-in or per-user screen must be added to `NO_STORE`. Bump `VERSION` in `sw.js` when cache formats change. Strategy helpers are tested in `tests/sw.test.ts`.
 - Sheet columns are defined once in `SHEET_HEADERS` / `COLUMN_ALIASES` (`googleSheets.ts`); rows have a uuid `id` column used for edit/delete.
 
 ## Conventions

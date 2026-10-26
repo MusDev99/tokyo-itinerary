@@ -3,6 +3,14 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-10-26 08:27 — PWA: install to home screen + offline read access
+
+- **Installable:** `manifest.webmanifest`, 192/512 and maskable icons, an Apple touch icon and theme color, so Android and desktop offer *Install* and iOS can *Add to Home Screen*.
+- **Offline reading:** the new `public/sw.js` service worker saves every trip page listed in `/sitemap.xml` (re-saved at most every 6h) plus the whole client bundle, so itineraries, timelines and analytics open with no signal. Pages are network-first with a 3s timeout (fresh data when online, saved copy on slow or no network). Currency and prayer-times API responses are kept for offline use.
+- **Offline UX:** an "Offline · saved copy" pill (Motion, honors reduced motion) links to the new `/offline` page, which lists the pages saved on this device.
+- **Safety:** writes, `/api/*`, `/login` and `/add` are never cached. Signing out deletes the saved pages (shared devices). Data Saver skips the pre-download. No new dependencies or CSP hosts.
+- **Build:** the `scripts/pwa-assets.mjs` integration writes `/sw-assets.json`. **Tests:** `tests/sw.test.ts` (caching strategy, sitemap parsing, cacheable responses).
+
 ## 2026-10-24 19:24 — Fix: Google sign-in routes were never committed (404 in production)
 
 - **Fix:** `src/pages/api/auth/google/` (`/api/auth/google` and `/api/auth/google/callback`) was silently excluded from git by a global ignore rule for any path named `google`, so production returned 404 and sign-in could not start. The files are now committed and `.gitignore` explicitly un-ignores that folder so the rule on any machine can't hide it again.
