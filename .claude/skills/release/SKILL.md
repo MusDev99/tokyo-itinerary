@@ -8,7 +8,7 @@ description: Git strategy and release management (branching, Conventional Commit
 | Rule | Detail |
 |---|---|
 | Never commit to `main` | Work on a branch, merge by PR (squash or merge commit; no force-push to `main`) |
-| Branch names | `feat/<kebab>` · `fix/<kebab>` · `chore/<kebab>` · `docs/<kebab>` (cloud/agent sessions may be given a fixed branch: use it) |
+| Branch names | `feat/<feat-name>` for features · `fix/<fix-name>` for bug fixes (`chore/*`, `docs/*` only when neither applies). Agent sessions too: never push or open a PR from an auto-generated session branch (`claude/*`, `ccr-*`) |
 | Commit style | Conventional Commits: `feat(roster): ...`, `fix(auth): ...`, `docs:`, `chore:`, `test:`, `refactor:`; imperative, one logical change each |
 | Commit only when asked | Run `npm run verify` first; never `--no-verify`; never commit `.env*`, keys, `node_modules` |
 | Docs in the same commit | CHANGELOG/README (and CLAUDE.md when a rule changes). Add an entry at the top of `CHANGELOG.md` with `TZ=Asia/Kuala_Lumpur date "+%Y-%m-%d %H:%M"`. |

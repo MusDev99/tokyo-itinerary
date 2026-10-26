@@ -20,6 +20,7 @@ npm run smoke -- <url>   # post-deploy auth/header checks
 - **Routes**: `/[country]`, `/[country]/itinerary` (all states merged), `/[country]/[state]`, `/add`, `/api/itinerary` (POST/PATCH/DELETE), `/api/sheets-sync`.
 - **Auth**: viewing is public; any write needs Google sign-in by an `active` user in the hidden `_users` tab (`GOOGLE_CLIENT_ID/SECRET` + `AUTH_SECRET`, signed cookie), enforced by `src/middleware.ts` which also sets `Astro.locals.user`; `/login`, `/api/auth/google[/callback]`, `/api/logout`. Core in `src/utils/auth.ts`, user table helpers in `src/utils/userTable.ts` + `users.ts` (dependency-free, unit-tested). Edits are logged to the hidden `_audit` tab. Edit controls render only when `Astro.locals.user` is set.
 - **Writes** all go through `submitItinerary()` in `src/pages/api/itinerary.ts` (the seam for a future email-approval flow).
+- **PWA / offline read**: `public/sw.js` (registered by `OfflineStatus.tsx`, production only) caches pages network-first, `/_astro/*` cache-first (list from `/sw-assets.json`, written by `scripts/pwa-assets.mjs`) and pre-saves the pages in `/sitemap.xml`. It never caches non-GET, `/api/*` (except the read-only `READ_APIS`), `/login` or `/add` (`NO_STORE`). A new signed-in or per-user screen must be added to `NO_STORE`. Bump `VERSION` in `sw.js` when cache formats change. Strategy helpers are tested in `tests/sw.test.ts`.
 - Sheet columns are defined once in `SHEET_HEADERS` / `COLUMN_ALIASES` (`googleSheets.ts`); rows have a uuid `id` column used for edit/delete.
 
 ## Conventions
@@ -62,13 +63,14 @@ Gate commands: `npm run verify` (tests + build) · `npm test` · `npm run smoke 
 
 ## Git workflow (required)
 
-- **Never commit directly to `main`.** Create a branch first:
+- **Never commit directly to `main`.** Create a branch first. This is mandatory for every change, including agent/cloud sessions:
   - New feature → `feat/<feat-name>` (e.g. `feat/add-itinerary`)
-  - Bug fix → `fix/<bug-name>` (e.g. `fix/mobile-overflow`)
-  - Use short kebab-case names.
+  - Bug fix → `fix/<fix-name>` (e.g. `fix/mobile-overflow`)
+  - Use short kebab-case names. `chore/<name>` and `docs/<name>` are only for changes with no feature or fix.
+  - **Agent sessions:** an auto-generated session branch (e.g. `claude/*`, `ccr-*`) is never the branch to push or open a PR from. Create `feat/*` or `fix/*` from the latest `main` and push that instead.
 - Commit only when asked. Keep commits focused, with a clear imperative message.
 - Push the branch to `origin` and merge via pull request.
-- Run `npm run verify` (tests + build) before committing and make sure it passes. Commit messages follow Conventional Commits (`feat(auth): ...`); `chore/*` and `docs/*` branches are fine too; an agent session may be given a fixed branch: use it.
+- Run `npm run verify` (tests + build) before committing and make sure it passes. Commit messages follow Conventional Commits (`feat(auth): ...`), matching the branch type.
 - Releases, versioning and rollback: see the `release` skill.
 - **Always update `CHANGELOG.md` before every commit**: add an entry at the top with the date and time (`date "+%Y-%m-%d %H:%M"`) and a short list of what changed.
 - **Update `README.md` when needed** (new features, routes, env vars, scripts, sheet columns or project structure change) and include it in the same commit.

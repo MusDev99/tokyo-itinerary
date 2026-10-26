@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import ThemeSwitcher from '../components/ThemeSwitcher';
 import SeasonBackground from '../components/SeasonBackground';
+import OfflineStatus from '../components/OfflineStatus';
 
 interface Props {
   title: string;
@@ -27,6 +28,11 @@ const canonical = new URL(Astro.url.pathname, Astro.url.origin).toString();
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- PWA: installable, reads offline (public/sw.js) -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="PlanTravel" />
     <meta name="generator" content={Astro.generator} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     <title>{title}</title>
@@ -53,6 +59,9 @@ const canonical = new URL(Astro.url.pathname, Astro.url.origin).toString();
     <div class="fixed bottom-5 right-5 z-40">
       <ThemeSwitcher client:load />
     </div>
+
+    <!-- Offline pill + service worker registration -->
+    <OfflineStatus client:load />
 
     <!-- Animated season background (Motion) -->
     <SeasonBackground client:load />

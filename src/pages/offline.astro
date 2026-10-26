@@ -1,0 +1,75 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+// Precached by public/sw.js and shown for any page that was never saved while offline.
+---
+
+<Layout title="Offline | PlanTravel" noindex>
+  <Header />
+  <main class="w-full max-w-xl mx-auto px-4 py-10 flex-1">
+    <section class="glass-effect rounded-2xl p-6 space-y-4">
+      <h1 class="text-2xl font-extrabold text-text">You're offline</h1>
+      <p class="text-text/80">This page wasn't saved on this device yet. These pages are ready to read without a connection:</p>
+      <!-- Recognition over recall: list what is saved instead of asking people to guess URLs -->
+      <ul id="saved-pages" class="space-y-2"></ul>
+      <p id="saved-empty" class="hidden text-sm text-text/70">Nothing saved yet. Open the trip once while online and it will be kept for offline reading.</p>
+      <button
+        type="button"
+        id="retry"
+        class="touch-target w-full px-4 py-3 rounded-xl bg-primary text-white font-bold"
+      >Try again</button>
+    </section>
+  </main>
+  <Footer />
+</Layout>
+
+<script is:inline>
+  (function () {
+    var list = document.getElementById('saved-pages');
+    var empty = document.getElementById('saved-empty');
+    document.getElementById('retry').addEventListener('click', function () {
+      location.reload();
+    });
+    // "/japan/tokyo" -> "Japan › Tokyo"
+    function label(path) {
+      if (path === '/') return 'Home';
+      return path
+        .split('/')
+        .filter(Boolean)
+        .map(function (p) {
+          var w = decodeURIComponent(p).replace(/-/g, ' ');
+          return w.charAt(0).toUpperCase() + w.slice(1);
+        })
+        .join(' › ');
+    }
+    if (!('caches' in window)) return empty.classList.remove('hidden');
+    caches
+      .keys()
+      .then(function (names) {
+        var pages = names.filter(function (n) { return n.indexOf('pages-') === 0; });
+        return Promise.all(pages.map(function (n) { return caches.open(n).then(function (c) { return c.keys(); }); }));
+      })
+      .then(function (groups) {
+        var paths = [];
+        groups.forEach(function (keys) {
+          keys.forEach(function (req) {
+            var p = new URL(req.url).pathname;
+            if (paths.indexOf(p) === -1) paths.push(p);
+          });
+        });
+        paths.sort();
+        if (!paths.length) return empty.classList.remove('hidden');
+        paths.forEach(function (p) {
+          var li = document.createElement('li');
+          var a = document.createElement('a');
+          a.href = p;
+          a.textContent = label(p); // textContent: no HTML injection from cache keys
+          a.className = 'touch-target flex items-center px-4 py-3 rounded-xl bg-primary/10 text-primary font-semibold';
+          li.appendChild(a);
+          list.appendChild(li);
+        });
+      })
+      .catch(function () { empty.classList.remove('hidden'); });
+  })();
+</script>
