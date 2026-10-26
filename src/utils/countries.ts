@@ -1,4 +1,5 @@
 import type { DayItinerary } from '../types/itinerary';
+import { cacheState, timed, type Timed } from './swr';
 import {
   pullCountriesFromGoogleSheets,
   resolveSpreadsheetId,
@@ -390,14 +391,14 @@ function buildCountries(
   return result;
 }
 
-interface GlobalSheetsCache {
+interface GlobalSheetsCache extends Timed {
   countries: CountryMetadata[];
   syncResult: SheetSyncResult;
-  expiresAt: number;
 }
 
 const g = globalThis as unknown as {
   __TOKYO_SHEETS_CACHE__?: GlobalSheetsCache;
+  __TOKYO_SHEETS_GEN__?: number;
   __TOKYO_SHEETS_LAST_GOOD__?: {
     countries: CountryMetadata[];
     syncResult: SheetSyncResult;
@@ -416,18 +417,24 @@ export async function getAllCountriesWithSheets(forceRefresh = false): Promise<{
   countries: CountryMetadata[];
   syncResult: SheetSyncResult;
 }> {
-  const now = Date.now();
-  if (!forceRefresh && g.__TOKYO_SHEETS_CACHE__ && g.__TOKYO_SHEETS_CACHE__.expiresAt > now) {
-    return {
-      countries: g.__TOKYO_SHEETS_CACHE__.countries,
-      syncResult: g.__TOKYO_SHEETS_CACHE__.syncResult,
-    };
+  const cached = g.__TOKYO_SHEETS_CACHE__;
+  const state = forceRefresh ? 'miss' : cacheState(cached, Date.now());
+  if (cached && state !== 'miss') {
+    // Stale: answer now from memory and refresh once in the background (no click waits on Google)
+    if (state === 'stale' && !g.__TOKYO_SHEETS_INFLIGHT__) startSheetsFetch().catch(() => {});
+    return { countries: cached.countries, syncResult: cached.syncResult };
   }
 
   if (!forceRefresh && g.__TOKYO_SHEETS_INFLIGHT__) {
     return g.__TOKYO_SHEETS_INFLIGHT__;
   }
 
+  return startSheetsFetch();
+}
+
+function startSheetsFetch(): Promise<{ countries: CountryMetadata[]; syncResult: SheetSyncResult }> {
+  // A write bumps the generation (clearSheetsCache); a read that started before it must not re-cache old rows
+  const gen = g.__TOKYO_SHEETS_GEN__ ?? 0;
   const runFetch = async () => {
     const spreadsheetId = resolveSpreadsheetId();
     const creds = loadServiceAccountCredentials();
@@ -457,10 +464,11 @@ export async function getAllCountriesWithSheets(forceRefresh = false): Promise<{
       const sheetCountries = buildCountries(itineraries, tabTitles);
 
       const sorted = sortCountries(sheetCountries);
+      if (gen !== (g.__TOKYO_SHEETS_GEN__ ?? 0)) return { countries: sorted, syncResult: result };
       g.__TOKYO_SHEETS_CACHE__ = {
         countries: sorted,
         syncResult: result,
-        expiresAt: Date.now() + 3_000, // 3-second deduplication cache so every browser refresh gets live Sheet rows
+        ...timed(Date.now()), // writes clear this, so edits made in the app show up immediately
       };
       g.__TOKYO_SHEETS_LAST_GOOD__ = {
         countries: sorted,

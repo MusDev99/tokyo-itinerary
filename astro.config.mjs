@@ -13,6 +13,9 @@ export default defineConfig({
   // "Cross-site POST form submissions are forbidden". CSRF is enforced by our own isSameOrigin() instead
   // (src/middleware.ts for every write API, and src/pages/api/logout.ts), which uses Sec-Fetch-Site / Origin host.
   security: { checkOrigin: false },
+  // Opt-in prefetch (data-astro-prefetch on links): the next tab is fetched before the tap (Doherty Threshold).
+  // Not prefetchAll, so sign-in links (/api/auth/google starts OAuth) are never fetched ahead.
+  prefetch: { prefetchAll: false, defaultStrategy: 'hover' },
   integrations: [
     preact({
       compat: true,

@@ -3,6 +3,23 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-10-26 11:55 — Fix: tab switching took ~1.3s; background animations on the main thread
+
+Measured on a 375px phone profile with 4x CPU slowdown and ~300ms Google latency:
+
+| Metric | Before | After |
+|---|---|---|
+| Tab click → next page painted (median) | 1,320 ms | 416 ms |
+| Back button | 473 ms | 228 ms |
+| Google API calls (warm-up + 6 tab clicks) | 19 | 4 |
+| Main-thread work per page load | 732 ms | 512 ms |
+| Idle style recalcs per 2s (autumn/winter/spring) | 120 | 0 |
+
+- **Server cache:** Sheets reads (trips and trip locations) are stale-while-revalidate: fresh 30s, then served instantly for up to 10 min while one background read refreshes them (was a 3s cache, so almost every click waited on 2–3 sequential Google calls). Writes clear the cache, and a generation counter stops an older in-flight read from re-caching stale rows. Edits made directly in Google Sheets appear within ~30s; **Refresh from Google Sheets** still forces a live read.
+- **Prefetch + browser cache:** the Overview / Itinerary / Tools tabs are prefetched when visible (guests). Guest pages are now `private, max-age=30` (was `no-store`), so the prefetched page is used on tap and Back is instant; editors keep `no-store`, and HTML pages send `Vary: Cookie` so a cached guest copy is never shown after signing in.
+- **60fps background:** leaves, snow, petals and shooting stars were animated in JavaScript every frame (several animations per element, plus `repeatDelay`). They now run on the compositor via `compositorFrames()` (one wrapper per motion), and the blanket `will-change` on static shapes is gone.
+- **Tests:** `tests/perf-cache.test.ts` (cache timing, Cache-Control per role, transform folding).
+
 ## 2026-10-26 08:43 — Fix: `npm ci` failed (lockfile out of sync)
 
 - **Fix:** `package-lock.json` was missing the optional `@emnapi/core` and `@emnapi/runtime` packages after the Astro 7 upgrade, so `npm ci` refused to install ("package.json and package-lock.json are not in sync"). Regenerated with `npm install`; no dependency versions changed and `npm audit --omit=dev` stays at 0.

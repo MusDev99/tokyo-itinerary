@@ -60,7 +60,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   const res = response ?? (await next());
-  const headers = securityHeaders(production);
+  const headers: Record<string, string> = securityHeaders(production);
+  // Pages are cached per session: signing in or out changes the cookie, so a cached guest copy is never reused
+  if ((res.headers.get('content-type') || '').includes('text/html')) headers.Vary = 'Cookie';
   try {
     for (const [k, v] of Object.entries(headers)) res.headers.set(k, v);
     return res;
