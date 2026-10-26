@@ -2,7 +2,7 @@ import { h } from 'preact';
 import { useEffect, useRef } from 'preact/hooks';
 import { animate } from 'motion';
 import { readSavedSeason, isSeason, type SeasonId } from '../utils/seasons';
-import { prefersReducedMotion } from '../utils/motion';
+import { compositorFrames, prefersReducedMotion, type Frames } from '../utils/motion';
 
 type Controls = { stop: () => void; pause: () => void; play: () => void };
 
@@ -13,7 +13,8 @@ interface Ctx {
   motion: boolean;
   /** particle multiplier (fewer on small screens) */
   density: number;
-  anim: (el: Element, keyframes: any, options: any) => void;
+  /** `base`: a static transform the element already has (kept in every frame) */
+  anim: (el: Element, keyframes: Frames, options: any, base?: string) => void;
 }
 
 const rand = (a: number, b: number) => a + Math.random() * (b - a);
@@ -21,11 +22,13 @@ const count = (ctx: Ctx, n: number) => Math.max(4, Math.round(n * ctx.density));
 
 function node(parent: HTMLElement, style: Partial<CSSStyleDeclaration> | Record<string, string>, text?: string) {
   const el = document.createElement('div');
-  Object.assign(el.style, { position: 'absolute', willChange: 'transform, opacity' }, style);
+  // No blanket will-change: compositor animations promote their own layer; static shapes stay cheap
+  Object.assign(el.style, { position: 'absolute' }, style);
   if (text) el.textContent = text;
   parent.appendChild(el);
   return el;
 }
+
 
 /** Falling element that loops top → bottom with sideways sway (leaves, snow, petals). */
 function faller(ctx: Ctx, o: { emoji?: string; size: [number, number]; dur: [number, number]; sway: number; spin: number; css?: Record<string, string>; n: number }) {
@@ -33,9 +36,12 @@ function faller(ctx: Ctx, o: { emoji?: string; size: [number, number]; dur: [num
   for (let i = 0; i < count(ctx, o.n); i++) {
     const size = rand(o.size[0], o.size[1]);
     const dur = rand(o.dur[0], o.dur[1]);
-    const el = node(ctx.root, { left: `${rand(-2, 100)}%`, top: '0', fontSize: `${size}px`, lineHeight: '1', opacity: String(rand(0.55, 0.95)), ...(o.css || {}), ...(o.emoji ? {} : { width: `${size}px`, height: `${size}px` }) }, o.emoji);
-    ctx.anim(el, { y: ['-12vh', '112vh'] }, { duration: dur, repeat: Infinity, ease: 'linear', delay: -rand(0, dur) });
-    ctx.anim(el, { x: [-o.sway, o.sway] }, { duration: rand(3, 6), repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut', delay: -rand(0, 4) });
+    // One wrapper per motion (fall → sway → spin): each owns its transform, so all three stay on the compositor
+    const fall = node(ctx.root, { left: `${rand(-2, 100)}%`, top: '0', opacity: String(rand(0.55, 0.95)) });
+    const sway = node(fall, { left: '0', top: '0' });
+    const el = node(sway, { left: '0', top: '0', fontSize: `${size}px`, lineHeight: '1', ...(o.css || {}), ...(o.emoji ? {} : { width: `${size}px`, height: `${size}px` }) }, o.emoji);
+    ctx.anim(fall, { y: ['-12vh', '112vh'] }, { duration: dur, repeat: Infinity, ease: 'linear', delay: -rand(0, dur) });
+    ctx.anim(sway, { x: [-o.sway, o.sway] }, { duration: rand(3, 6), repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut', delay: -rand(0, 4) });
     if (o.spin) ctx.anim(el, { rotate: [0, o.spin * (Math.random() > 0.5 ? 1 : -1)] }, { duration: rand(5, 9), repeat: Infinity, ease: 'linear' });
   }
 }
@@ -112,7 +118,7 @@ const SCENES: Record<SeasonId, { bg: string; build: (ctx: Ctx) => void }> = {
           const len = rand(34, 90);
           const dur = rand(0.55, 1.1);
           const el = node(root, { left: `${rand(-5, 105)}%`, top: '0', width: '1.6px', height: `${len}px`, background: 'linear-gradient(180deg, rgba(220,235,255,0), rgba(220,235,255,.75))', transform: 'rotate(12deg)', opacity: String(rand(0.35, 0.85)) });
-          ctx.anim(el, { y: ['-15vh', '112vh'], x: ['0vw', '-6vw'] }, { duration: dur, repeat: Infinity, ease: 'linear', delay: -rand(0, dur) });
+          ctx.anim(el, { y: ['-15vh', '112vh'], x: ['0vw', '-6vw'] }, { duration: dur, repeat: Infinity, ease: 'linear', delay: -rand(0, dur) }, 'rotate(12deg)');
         }
         for (let i = 0; i < count(ctx, 10); i++) {
           const el = node(root, { left: `${rand(2, 96)}%`, bottom: `${rand(2, 16)}%`, width: '46px', height: '12px', borderRadius: '50%', border: '1.5px solid rgba(220,235,255,.65)' });
@@ -158,7 +164,14 @@ const SCENES: Record<SeasonId, { bg: string; build: (ctx: Ctx) => void }> = {
         for (let i = 0; i < 3; i++) {
           const s = node(root, { left: `${rand(10, 70)}%`, top: `${rand(2, 30)}%`, width: '140px', height: '2px', background: 'linear-gradient(90deg, rgba(255,255,255,0), #fff)', borderRadius: '2px', opacity: '0', transform: 'rotate(32deg)' });
           const gap = rand(6, 14);
-          ctx.anim(s, { x: ['0px', '320px'], y: ['0px', '200px'], opacity: [0, 1, 0] }, { duration: 1.1, repeat: Infinity, repeatDelay: gap, ease: 'easeIn', delay: rand(1, gap) });
+          // The pause between streaks lives in the keyframes (repeatDelay would force a main-thread loop)
+          const k = 1.1 / (1.1 + gap);
+          ctx.anim(
+            s,
+            { x: ['0px', '160px', '320px', '320px'], y: ['0px', '100px', '200px', '200px'], opacity: [0, 1, 0, 0] },
+            { duration: 1.1 + gap, times: [0, k / 2, k, 1], repeat: Infinity, ease: 'easeIn', delay: rand(1, gap) },
+            'rotate(32deg)'
+          );
         }
       }
     },
@@ -188,7 +201,7 @@ export default function SeasonBackground() {
         controls,
         motion: !reduced,
         density,
-        anim: (target, keyframes, options) => controls.push(animate(target, keyframes, options) as unknown as Controls),
+        anim: (target, keyframes, options, base) => controls.push(animate(target, compositorFrames(keyframes, base), options) as unknown as Controls),
       };
       def.build(ctx);
 

@@ -1,4 +1,5 @@
 ---
+import { pageCacheControl } from '../../utils/security';
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
@@ -10,7 +11,7 @@ import { tripIsoDates } from '../../utils/dates';
 import { topPlace } from '../../utils/geocode';
 import type { Place } from '../../types/place';
 
-Astro.response.headers.set('Cache-Control', 'no-store, max-age=0');
+Astro.response.headers.set('Cache-Control', pageCacheControl(Boolean(Astro.locals.user)));
 
 const { countries } = await getAllCountriesWithSheets();
 const country = countries.find((c) => c.slug === Astro.params.country?.toLowerCase());

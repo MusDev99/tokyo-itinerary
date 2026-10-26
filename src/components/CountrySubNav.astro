@@ -148,6 +148,7 @@ const stats = [
           return (
             <a
               href={tab.href}
+              data-astro-prefetch={isCurrent || Astro.locals.user ? 'false' : 'viewport'}
               class:list={[
                 'touch-target inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all duration-150',
                 isCurrent

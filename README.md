@@ -15,7 +15,8 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 - **Inline add / manage**: on a trip page, "Add new activity" opens the add form in place; rename and delete are icon buttons in the trip card. Activities in a day are collapsed to time + title with an Expand / Collapse all control.
 - **Add & edit from the website**: `/add` creates a new tab and day-by-day activities (date + day title, then activities) straight into the sheet; activities can be edited/deleted, and trips renamed/deleted, with a confirmation modal before any delete. The service account needs **Editor** access to the sheet.
 - **Zero-Dependency Service Account Client**: Authenticates with Google Sheets API v4 using an `RS256` OAuth 2.0 JWT signed via Node's built-in `node:crypto` (`src/utils/googleSheets.ts`)—no heavy SDKs or local `.json` data files required.
-- **Live Sync & Refresh**: Every page load (and the in-app **Refresh from Google Sheets** button via `/api/sheets-sync`) reads directly from Google Sheets with built-in request deduplication and rate-limit retry backoff.
+- **Live Sync & Refresh**: Sheets reads are kept in server memory with stale-while-revalidate (`src/utils/swr.ts`): fresh for 30s, then served instantly for up to 10 min while one background read refreshes them, so switching tabs never waits on Google. Every write from the app clears the cache (editors see their change on the next render), and the in-app **Refresh from Google Sheets** button (`/api/sheets-sync`) forces a live read. Edits made directly in Google Sheets show up within about 30s. Built-in request deduplication and rate-limit retry backoff.
+- **Fast tab switching**: the Overview / Itinerary / Tools tabs are prefetched as soon as they're visible (guests), and guest pages are `private, max-age=30` so the prefetched page is reused on tap and Back is instant. Editors' pages stay `no-store`.
 
 ### 2. Comprehensive Trip Analytics & Currency Exchange
 - **Global & Per-Country Analytics (`AnalyticsDashboard.tsx`)**: three tabs — Overview (category doughnut, biggest expenses, daily stacked spend), Currency and paginated Expenses.
@@ -78,7 +79,7 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 ```text
 ├── .claude/skills/                    # AI-driven dev workflow: dev-workflow, feature-checklist, code-review-checklist, owasp-audit, release
 ├── docs/                              # features/ (feature.md), reviews/, audits/ (audit.md)
-├── tests/                             # node:test unit tests (auth, users, calendar, popover, season sound, service worker)
+├── tests/                             # node:test unit tests (auth, users, calendar, popover, season sound, service worker, caching + animation perf)
 ├── scripts/smoke.mjs                  # post-deploy auth/header smoke test
 ├── scripts/pwa-assets.mjs             # build hook: writes /sw-assets.json (client bundle list for offline)
 ├── public/

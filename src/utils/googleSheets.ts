@@ -4,6 +4,7 @@ import path from 'node:path';
 import type { DayItinerary, TimelineItem } from '../types/itinerary';
 import type { Place } from '../types/place';
 import { UserError, safeHttpUrl, sheetText, youtubeEmbedUrl } from './security.ts';
+import { cacheState, timed, type Timed } from './swr.ts';
 
 export interface ServiceAccountCredentials {
   type: string;
@@ -656,7 +657,11 @@ function quoteTab(tab: string): string {
 }
 
 function clearSheetsCache() {
-  (globalThis as any).__TOKYO_SHEETS_CACHE__ = undefined;
+  const g = globalThis as any;
+  g.__TOKYO_SHEETS_CACHE__ = undefined;
+  g.__TOKYO_SHEETS_INFLIGHT__ = undefined; // a read started before this write must not answer after it
+  g.__TOKYO_SHEETS_GEN__ = (g.__TOKYO_SHEETS_GEN__ ?? 0) + 1;
+  placeRowsCache = null;
 }
 
 async function writeContext() {
@@ -996,11 +1001,33 @@ async function readPlaceRows(
   return data.values || [];
 }
 
+// Trip locations change only through savePlace/removePlace, which clear this (same timing as the trip cache)
+let placeRowsCache: (Timed & { rows: Promise<string[][] | null>; refreshing?: boolean }) | null = null;
+
 /** Saved place for a trip tab, or null when none was confirmed yet. */
 export async function getPlace(tab: string): Promise<Place | null> {
   try {
     const ctx = await writeContext();
-    const rows = await readPlaceRows(ctx, ctx.spreadsheetId);
+    const now = Date.now();
+    const state = cacheState(placeRowsCache, now);
+    if (state === 'miss') {
+      placeRowsCache = { ...timed(now), rows: readPlaceRows(ctx, ctx.spreadsheetId) };
+    } else if (state === 'stale' && !placeRowsCache!.refreshing) {
+      const base = placeRowsCache!;
+      base.refreshing = true;
+      readPlaceRows(ctx, ctx.spreadsheetId)
+        .then((r) => {
+          // Only replace the entry we refreshed: a save in the meantime cleared it and wins
+          if (r && placeRowsCache === base) placeRowsCache = { ...timed(Date.now()), rows: Promise.resolve(r) };
+        })
+        .catch(() => {})
+        .finally(() => (base.refreshing = false));
+    }
+    const pending = placeRowsCache!.rows;
+    const rows = await pending.catch((err) => {
+      if (placeRowsCache?.rows === pending) placeRowsCache = null; // don't keep a failed read
+      throw err;
+    });
     if (!rows) return null;
     const wanted = tab.trim().toLowerCase();
     const row = rows.slice(1).find((r) => String(r[0] || '').trim().toLowerCase() === wanted);
@@ -1012,6 +1039,7 @@ export async function getPlace(tab: string): Promise<Place | null> {
 
 /** Creates/updates the trip's place row (creating the hidden tab on first use). */
 export async function savePlace(tab: string, place: Place): Promise<void> {
+  placeRowsCache = null;
   const ctx = await writeContext();
   const { spreadsheetId } = ctx;
   let rows = await readPlaceRows(ctx, spreadsheetId);
@@ -1047,6 +1075,7 @@ export async function savePlace(tab: string, place: Place): Promise<void> {
 
 /** Blanks the place row of a deleted trip (rows are left in place; reader ignores empty tabs). */
 export async function removePlace(tab: string): Promise<void> {
+  placeRowsCache = null;
   const ctx = await writeContext();
   const rows = await readPlaceRows(ctx, ctx.spreadsheetId);
   if (!rows) return;

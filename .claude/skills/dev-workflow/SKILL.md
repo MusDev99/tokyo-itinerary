@@ -20,7 +20,8 @@ Keep chat output concise: tables, emoji status, roadmaps (owner preference).
 
 ## Gate 5 detail — verify
 **Performance**
-- Sheets reads are cached/deduped in `googleSheets.ts`; any new read must go through it (no per-request fan-out).
+- Sheets reads are cached/deduped (stale-while-revalidate, `utils/swr.ts`); any new read must go through it (no per-request fan-out) and any new write must call `clearSheetsCache()`.
+- Animations: compositor only (`transform`/`opacity` via `compositorFrames()`); check `document.getAnimations().length` > 0 and no idle style recalcs (CDP `Performance.getMetrics` `RecalcStyleCount`).
 - Heavy libs (`chart.js`, `jspdf`, `html2canvas`) must stay client-only and lazily loaded; compare the `dist/client/_astro` chunk sizes in the build output before/after.
 - Images: `loading="lazy"`, explicit width/height to avoid layout shift. Interaction budget: Doherty < 400ms.
 

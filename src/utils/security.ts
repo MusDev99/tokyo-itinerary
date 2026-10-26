@@ -44,6 +44,15 @@ export const CSP = [
   "frame-ancestors 'none'",
 ].join('; ');
 
+/**
+ * Cache-Control for public pages. Guests: `private, max-age=30` (never on a shared CDN; a prefetched tab is reused
+ * on tap and Back is instant; matches the 30s server-side Sheets freshness, and a reload always revalidates).
+ * Signed-in editors keep `no-store` so pressing Back after signing out can't bring an editor's page back (A01).
+ */
+export function pageCacheControl(signedIn: boolean): string {
+  return signedIn ? 'private, no-store' : 'private, max-age=30';
+}
+
 export function securityHeaders(production: boolean): Record<string, string> {
   return {
     // CSP is production-only so the dev server's HMR/inline tooling is never blocked
