@@ -18,6 +18,7 @@ Measured on a 375px phone profile with 4x CPU slowdown and ~300ms Google latency
 - **Server cache:** Sheets reads (trips and trip locations) are stale-while-revalidate: fresh 30s, then served instantly for up to 10 min while one background read refreshes them (was a 3s cache, so almost every click waited on 2–3 sequential Google calls). Writes clear the cache, and a generation counter stops an older in-flight read from re-caching stale rows. Edits made directly in Google Sheets appear within ~30s; **Refresh from Google Sheets** still forces a live read.
 - **Prefetch + browser cache:** the Overview / Itinerary / Tools tabs are prefetched when visible (guests). Guest pages are now `private, max-age=30` (was `no-store`), so the prefetched page is used on tap and Back is instant; editors keep `no-store`, and HTML pages send `Vary: Cookie` so a cached guest copy is never shown after signing in.
 - **60fps background:** leaves, snow, petals and shooting stars were animated in JavaScript every frame (several animations per element, plus `repeatDelay`). They now run on the compositor via `compositorFrames()` (one wrapper per motion), and the blanket `will-change` on static shapes is gone.
+- **CI:** `setup-node` now uses `check-latest: true`; the runner's cached Node 22.23.3 was below Astro 7's minimum (22.23.4), so the build step failed.
 - **Tests:** `tests/perf-cache.test.ts` (cache timing, Cache-Control per role, transform folding).
 
 ## 2026-10-26 08:43 — Fix: `npm ci` failed (lockfile out of sync)
