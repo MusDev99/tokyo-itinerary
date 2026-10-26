@@ -3,6 +3,13 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-10-26 19:12 — Ambient background sound per theme (replaces the one-shot chime)
+
+- **Feature:** each season/weather theme now has a looping soundscape instead of a short chime on click: 🍂 autumn wind + leaf rustles, ❄️ soft winter wind + glassy sparkles, 🌸 spring breeze + birds, ☀️ summer waves, 🌧️ rain + drops, 🌫️ hazy drone, 🌙 night crickets + pad.
+- **How it plays:** starts on the first tap or key press (browsers block audio before a gesture), crossfades (1.5s) when you pick another theme, pauses while the tab is hidden, and the existing **Sound on/off** switch (remembered) fades it out or back in.
+- **Light:** synthesised with Web Audio (noise + oscillators): no audio files, no new hosts, no CSP change; ~1ms main-thread per 3s while playing.
+- **Tests:** `tests/seasonSound.test.ts` covers scene volumes and frequencies, noise generators and event spacing.
+
 ## 2026-10-26 11:55 — Fix: tab switching took ~1.3s; background animations on the main thread
 
 Measured on a 375px phone profile with 4x CPU slowdown and ~300ms Google latency:
