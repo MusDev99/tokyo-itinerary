@@ -3,6 +3,10 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-10-26 08:43 — Fix: `npm ci` failed (lockfile out of sync)
+
+- **Fix:** `package-lock.json` was missing the optional `@emnapi/core` and `@emnapi/runtime` packages after the Astro 7 upgrade, so `npm ci` refused to install ("package.json and package-lock.json are not in sync"). Regenerated with `npm install`; no dependency versions changed and `npm audit --omit=dev` stays at 0.
+
 ## 2026-10-25 07:54 — Fix: dependency audit (Astro 7 upgrade)
 
 - **Security:** `npm audit --omit=dev` goes from 7 high + 1 critical to **0**. Upgraded `astro` 5 → 7.4.2, `@astrojs/vercel` 8 → 11 and `@astrojs/preact` 4 → 6; pinned patched `path-to-regexp` 6.3.0 and `zod` 4.6.7 inside `@vercel/*` with same-major npm `overrides`.
