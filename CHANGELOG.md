@@ -9,6 +9,7 @@ Each entry has a date and time (Malaysia time, UTC+8) and a short description of
 - **Offline reading:** the new `public/sw.js` service worker saves every trip page listed in `/sitemap.xml` (re-saved at most every 6h) plus the whole client bundle, so itineraries, timelines and analytics open with no signal. Pages are network-first with a 3s timeout (fresh data when online, saved copy on slow or no network). Currency and prayer-times API responses are kept for offline use.
 - **Offline UX:** an "Offline · saved copy" pill (Motion, honors reduced motion) links to the new `/offline` page, which lists the pages saved on this device.
 - **Safety:** writes, `/api/*`, `/login` and `/add` are never cached. Signing out deletes the saved pages (shared devices). Data Saver skips the pre-download. No new dependencies or CSP hosts.
+- **Process:** branch rule tightened in `CLAUDE.md` and the `release` skill: features go on `feat/<feat-name>` and fixes on `fix/<fix-name>`, agent sessions included (no pushing from auto-generated session branches).
 - **Build:** the `scripts/pwa-assets.mjs` integration writes `/sw-assets.json`. **Tests:** `tests/sw.test.ts` (caching strategy, sitemap parsing, cacheable responses).
 
 ## 2026-10-25 07:54 — Fix: dependency audit (Astro 7 upgrade)

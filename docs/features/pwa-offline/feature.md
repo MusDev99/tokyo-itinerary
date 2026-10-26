@@ -1,7 +1,7 @@
 # Feature: PWA with offline read access
 
 **Status:** ✅ verified
-**Owner:** Mustaqeem · **Branch:** `ccr-d95612f2-uugm03` (agent session branch) · **Target version:** next minor
+**Owner:** Mustaqeem · **Branch:** `feat/pwa-offline` · **Target version:** next minor
 
 ## 1. 🧠 Brainstorm
 **Problem:** travellers open the itinerary on planes, in the subway and on roaming data. Today the site is SSR-only, so no signal means a blank page right when it's needed most.
