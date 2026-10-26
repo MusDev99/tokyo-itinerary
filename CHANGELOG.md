@@ -3,6 +3,9 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-10-26 08:43 — Fix: `npm ci` failed (lockfile out of sync)
+
+- **Fix:** `package-lock.json` was missing the optional `@emnapi/core` and `@emnapi/runtime` packages after the Astro 7 upgrade, so `npm ci` refused to install ("package.json and package-lock.json are not in sync"). Regenerated with `npm install`; no dependency versions changed and `npm audit --omit=dev` stays at 0.
 ## 2026-10-26 08:27 — PWA: install to home screen + offline read access
 
 - **Installable:** `manifest.webmanifest`, 192/512 and maskable icons, an Apple touch icon and theme color, so Android and desktop offer *Install* and iOS can *Add to Home Screen*.
