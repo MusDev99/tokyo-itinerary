@@ -1,5 +1,6 @@
 import { h } from 'preact';
 import { useRef, useState } from 'preact/hooks';
+import { parseClockTime } from '../utils/calendar';
 import { PickerPopover, PickerTrigger, pickerButton, usePickerPopover } from './PickerPopover';
 
 interface Props {
@@ -15,22 +16,8 @@ const R_NUM = 88;
 const R_HAND = 74;
 const pad = (n: number) => String(n).padStart(2, '0');
 
-/** Accepts "HH:MM", "H:MM AM/PM"; returns 24h parts or null. */
-function parse(v: string): { h: number; m: number } | null {
-  const m = v.trim().match(/^(\d{1,2}):(\d{2})\s*(am|pm)?$/i);
-  if (!m) return null;
-  let h = parseInt(m[1], 10);
-  const min = parseInt(m[2], 10);
-  if (m[3]) {
-    const pm = m[3].toLowerCase() === 'pm';
-    h = (h % 12) + (pm ? 12 : 0);
-  }
-  if (h > 23 || min > 59) return null;
-  return { h, m: min };
-}
-
 export function formatTime12(v: string): string {
-  const p = parse(v);
+  const p = parseClockTime(v);
   if (!p) return '';
   const h12 = p.h % 12 || 12;
   return `${pad(h12)}:${pad(p.m)} ${p.h >= 12 ? 'PM' : 'AM'}`;
@@ -53,7 +40,7 @@ export default function AnalogTimePicker({ id, value, onChange, invalid }: Props
     width: 272,
     height: 430,
     onOpen: () => {
-      const p = parse(value) || { h: 9, m: 0 };
+      const p = parseClockTime(value) || { h: 9, m: 0 };
       setH12(p.h % 12 || 12);
       setMin(p.m);
       setPm(p.h >= 12);

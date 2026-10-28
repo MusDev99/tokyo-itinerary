@@ -198,7 +198,7 @@ export default function PDFDownload({ itinerary }: Props) {
   };
 
   return (
-    <div className="flex justify-center my-6 sm:my-8">
+    <div className="flex justify-center w-full sm:w-auto">
       <button
         onClick={generatePDF}
         disabled={isGenerating}

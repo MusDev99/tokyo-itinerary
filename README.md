@@ -9,7 +9,7 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 ## ✨ Key Features
 
 ### 1. Google Sheets as Single Source of Truth
-- **Tabs = Countries and States**: Add a destination by creating a worksheet tab. A plain tab (e.g., `Japan`) is a country; a tab named `Country - State` (e.g., `Japan - Tokyo`, `Japan - Osaka`) becomes a state/city of that country. Routes: `/[country]`, `/[country]/itinerary` (all states), `/[country]/[state]`.
+- **Tabs = Countries and States**: Add a destination by creating a worksheet tab. A plain tab (e.g., `Japan`) is a country; a tab named `Country - State` (e.g., `Japan - Tokyo`, `Japan - Osaka`) becomes a state/city of that country. Routes: `/[country]`, `/[country]/itinerary` (all states), `/[country]/[state]`, plus calendar feeds `/[country]/calendar.ics` and `/[country]/[state]/calendar.ics`.
 - **Prepare checklist** (`/[country]/[state]/prepare`, or `/[country]/prepare` for a plain country tab): a 4th trip tab with a checklist built from the trip itself (`src/utils/checklist.ts`): documents, money (trip currency + planned spend), phone & apps, packing (season + activities such as onsen, temples, hikes, beaches), prayer & food, and booking reminders for paid stays, tickets and transport. Items with a lead time show "Overdue / 3d left", and the 5 most urgent sit on top. Ticks and your own extra items are saved **on this device** (no sign-in, works offline).
 - **Travel tools** (`/[country]/[state]/tools`): prayer times for every trip date in the destination's local time with the local calculation method per country (AlAdhan API) plus Qibla direction, driven by the trip's confirmed location. No API keys needed.
 - **Trip locations**: each trip's real place (lat/lng, timezone) is confirmed when adding a trip and stored in a hidden `_trips` worksheet (columns `tab, place, admin1, country, country_code, lat, lng, timezone`) — don't delete it.
@@ -34,6 +34,8 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 - **Fitts's Law**: Touch-friendly interactive targets ($\ge 44\text{px}$), sticky day navigation pills, and quick action buttons.
 - **Doherty Threshold**: Instant client-side filtering, search, currency switching, and skeleton loaders.
 - **PDF Export**: Download printable country itineraries directly from the browser (`PDFDownload.tsx`).
+- **Add to calendar**: subscribe to a trip (Apple / Outlook via `webcal://`, Google Calendar) so it updates when the sheet changes, or download a `.ics`. Feeds: `/[country]/[state]/calendar.ics` and `/[country]/calendar.ics` (public, read-only; times use the trip's saved timezone from the Tools tab).
+- **Day route**: each day's **🗺️ Route** button opens Google Maps directions through that day's stops, in order (up to 11 stops).
 - **Animated Seasons**: Seven [Motion](https://motion.dev/)-animated themes (autumn, winter, spring, summer, rain, haze, starry night) chosen from a compact panel above the floating theme button (grouped into Seasons and Weather, with labels), each with its own **looping ambient soundscape** (autumn wind and leaves, winter wind and sparkles, spring birds, summer waves, rain, hazy drone, night crickets), synthesised with Web Audio (no audio files, no CSP change). It starts on the first tap (browsers block audio before a gesture), crossfades when the theme changes, pauses while the tab is hidden, and the Sound on/off switch in the theme panel is remembered. Translucent glass cards. Honors `prefers-reduced-motion`.
 - **Mobile-first navigation**: slide-in drawer with collapsible country cards, 44px touch targets and a compact activity card.
 - **📲 Installable PWA with offline reading**: add PlanTravel to the home screen (Android/desktop install prompt, iOS *Share → Add to Home Screen*). A service worker (`public/sw.js`, production only) saves every trip page from `/sitemap.xml` plus the whole client bundle (`/sw-assets.json`, generated at build), so itineraries, timelines and analytics read with no signal. Pages are network-first with a 3s timeout, so fresh data wins when online. Offline, a pill links to `/offline`, which lists saved pages. Editing, sign-in and `/add` always need a connection; signing out deletes the saved pages. Data Saver skips the pre-download.
@@ -115,6 +117,7 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 │   │   ├── FormField.tsx              # Label + control + error layout for forms
 │   │   ├── useDismiss.ts              # Close-on-outside-press / Escape hook
 │   │   ├── useMediaQuery.ts           # Live matchMedia hook
+│   │   ├── CalendarExport.tsx         # Add to calendar menu (subscribe / download .ics)
 │   │   ├── ConfirmDialog.tsx          # Confirmation modal for destructive actions
 │   │   ├── TripActions.tsx            # Add activities / rename / delete trip
 │   │   ├── AddActivityPanel.tsx       # Inline "Add new activity" panel on a trip page

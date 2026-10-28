@@ -119,3 +119,18 @@ export function dateForKey(key: string, iso: string, shiftKey = false, weekStart
     default: return null;
   }
 }
+
+/** Accepts "HH:MM", "H:MM AM/PM" or "11.00 AM" (sheet times); returns 24h parts or null. */
+export function parseClockTime(v: string): { h: number; m: number } | null {
+  const m = v.trim().match(/^(\d{1,2})[:.](\d{2})\s*(am|pm)?$/i);
+  if (!m) return null;
+  let h = parseInt(m[1], 10);
+  const min = parseInt(m[2], 10);
+  if (m[3]) {
+    const pm = m[3].toLowerCase() === 'pm';
+    if (h < 1 || h > 12) return null;
+    h = (h % 12) + (pm ? 12 : 0);
+  }
+  if (h > 23 || min > 59) return null;
+  return { h, m: min };
+}

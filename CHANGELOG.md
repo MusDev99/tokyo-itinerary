@@ -3,6 +3,15 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-10-28 23:04 — Add to calendar + day route in Google Maps
+
+- **Add to calendar:** next to "Download PDF Itinerary", a menu to subscribe to the trip in Apple / Outlook (`webcal://`) or Google Calendar, so it updates itself when the sheet changes, or to download a `.ics` file. New public read-only feeds `/[country]/[state]/calendar.ics` and `/[country]/calendar.ics` (whole country).
+- Times use the trip's saved timezone (Tools tab), converted to UTC; without one they are floating local times. Each event runs until the next activity (max 3h, last one 1h); stable UIDs so subscribed calendars update instead of duplicating.
+- **Day route:** the "📍 N Stops" pill in each day header is now **🗺️ Route**, opening Google Maps directions through the day's stops in order (duplicates merged, up to 11 stops). Short names are searched near the trip ("Senso-ji, Tokyo"); specific ones are left as they are.
+- Sheet times written as `11.00 AM` are now understood (calendar export and time picker).
+- No new dependencies or hosts. Tests: `tests/ics.test.ts`.
+- Known limitation: a departure from another city shows in the trip's timezone (no per-activity timezone in the sheet).
+
 ## 2026-10-28 22:02 — Fix: responsive Prepare checklist and trip edit/delete placement
 
 - **Prepare page, desktop:** uses the same width as the other trip tabs, so the trip header no longer squashes the title onto four lines or jumps when switching tabs. The checklist gets a sticky summary column (progress, "Do these soon", My items) beside the groups, two group columns from 1280px, and every group open.
