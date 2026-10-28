@@ -1,6 +1,6 @@
 # Code review — <branch / PR>
 
-**Reviewer:** <name or Claude> · **Date:** <YYYY-MM-DD> · **Base:** `main` · **Feature doc:** `docs/features/<slug>/feature.md`
+**Reviewer:** <name or Claude> · **Date:** <YYYY-MM-DD> · **Base:** `master` · **Feature doc:** `docs/features/<slug>/feature.md`
 **Verdict:** ✅ approve · 🔁 changes requested · ⛔ blocked
 
 ## Summary

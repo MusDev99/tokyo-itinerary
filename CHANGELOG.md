@@ -3,6 +3,10 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-10-28 23:40 — Chore: default branch is now `master`
+
+- **CI:** runs on pushes to `master` (it only listened to `main`, so merges to the renamed default branch skipped the tests and audit). Pull requests are unchanged.
+- CLAUDE.md, the release skill and the code-review checklist now name `master` as the base branch.
 ## 2026-10-28 23:34 — "Today" mode
 
 - **Home page:** during a trip, a **Today** card comes first: the day and trip, what's on **now**, the **next** activity with "in N min", **Directions** (its own Maps link) and today's **Route**, plus up to three later activities. After the last one: "That's everything planned for today" with a link to tomorrow. Uses the phone's own date and time and refreshes every 30s.
