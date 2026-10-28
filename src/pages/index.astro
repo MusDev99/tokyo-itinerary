@@ -4,6 +4,9 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
+import TodayCard from '../components/TodayCard';
+import type { TodayTrip } from '../utils/today';
+import type { DayItinerary } from '../types/itinerary';
 import { getAllCountriesWithSheets, getActiveItinerariesMap } from '../utils/countries';
 
 Astro.response.headers.set('Cache-Control', pageCacheControl(Boolean(Astro.locals.user)));
@@ -55,6 +58,36 @@ const trips = countries
     return (a.start?.getTime() ?? 0) - (b.start?.getTime() ?? 0);
   });
 
+// Today mode: trips with a day within ±1 day of the server's date (the card decides "today" from the
+// traveller's own clock). Dev sends every trip so `?today=` can preview any date.
+const nearToday = (first: string | null, last: string | null) => {
+  if (import.meta.env.DEV) return true;
+  const s = parse(first);
+  const e = parse(last) ?? s;
+  return Boolean(s && e && s.getTime() - DAY <= startOfToday.getTime() && startOfToday.getTime() <= e.getTime() + DAY);
+};
+const slimDays = (days: DayItinerary[]) =>
+  days.map((d) => ({
+    day: d.day,
+    title: d.title,
+    date: d.date,
+    items: d.items.map((i) => ({
+      time: i.time,
+      title: i.title,
+      place: i.location?.name && i.location.name !== i.title ? i.location.name : undefined,
+      mapsUrl: i.location?.mapsUrl || undefined,
+    })),
+  }));
+const todayTrips: TodayTrip[] = countries.flatMap((c) =>
+  c.states.length
+    ? c.states
+        .filter((st) => st.stats.hasItinerary && nearToday(st.stats.firstDate, st.stats.lastDate))
+        .map((st) => ({ name: `${st.name}, ${c.name}`, flag: c.flag, href: `/${c.slug}/${st.slug}`, region: st.name, days: slimDays(st.itinerary) }))
+    : c.stats.hasItinerary && nearToday(c.stats.firstDate, c.stats.lastDate)
+      ? [{ name: c.name, flag: c.flag, href: `/${c.slug}/itinerary`, region: c.name, days: slimDays(c.itinerary) }]
+      : [],
+);
+
 const upcomingCountries = countries.filter((c) => !c.stats.hasItinerary);
 const totalDays = trips.reduce((n, t) => n + t.c.stats.totalDays, 0);
 const totalActivities = trips.reduce((n, t) => n + t.c.stats.totalActivities, 0);
@@ -69,132 +102,136 @@ const statusStyle = {
 
 <Layout title="PlanTravel – Your Trips">
   <Header />
-  <div class="w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8 space-y-6 sm:space-y-8">
-    <!-- Hero: one title, one primary action, three numbers (Miller's Law). Everything else lives below. -->
-    <section data-reveal class="glass-effect rounded-2xl sm:rounded-3xl p-4 sm:p-7 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
-      <div class="space-y-1">
-        <h1 class="text-2xl sm:text-4xl font-extrabold text-text tracking-tight">Your trips</h1>
-        <p class="text-sm text-text/70">
-          {trips.length > 0
-            ? `${totalDays} days and ${totalActivities} activities planned across ${trips.length} ${trips.length === 1 ? 'country' : 'countries'}.`
-            : 'Nothing planned yet. Start with your first trip.'}
-        </p>
-      </div>
-      {Astro.locals.user ? (
-        <a
-          href="/add"
-          class="touch-target inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-primary text-white text-sm font-extrabold shadow-md hover:opacity-95 active:scale-[0.98] transition-all w-full md:w-auto"
-        >
-          <span aria-hidden="true">＋</span>
-          <span>New itinerary</span>
-        </a>
-      ) : (
-        <a
-          href="/login?next=/add"
-          class="touch-target inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-primary/10 text-primary text-sm font-extrabold hover:bg-primary/20 transition-colors w-full md:w-auto"
-        >
-          Sign in to edit
-        </a>
-      )}
-    </section>
+  <div class="w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8">
+    <!-- Outside the spacing group: when there is no trip day the card renders nothing and leaves no gap -->
+    {todayTrips.length > 0 && <TodayCard trips={todayTrips} client:load />}
+    <div class="space-y-6 sm:space-y-8">
+      <!-- Hero: one title, one primary action, three numbers (Miller's Law). Everything else lives below. -->
+      <section data-reveal class="glass-effect rounded-2xl sm:rounded-3xl p-4 sm:p-7 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
+        <div class="space-y-1">
+          <h1 class="text-2xl sm:text-4xl font-extrabold text-text tracking-tight">Your trips</h1>
+          <p class="text-sm text-text/70">
+            {trips.length > 0
+              ? `${totalDays} days and ${totalActivities} activities planned across ${trips.length} ${trips.length === 1 ? 'country' : 'countries'}.`
+              : 'Nothing planned yet. Start with your first trip.'}
+          </p>
+        </div>
+        {Astro.locals.user ? (
+          <a
+            href="/add"
+            class="touch-target inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-primary text-white text-sm font-extrabold shadow-md hover:opacity-95 active:scale-[0.98] transition-all w-full md:w-auto"
+          >
+            <span aria-hidden="true">＋</span>
+            <span>New itinerary</span>
+          </a>
+        ) : (
+          <a
+            href="/login?next=/add"
+            class="touch-target inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-primary/10 text-primary text-sm font-extrabold hover:bg-primary/20 transition-colors w-full md:w-auto"
+          >
+            Sign in to edit
+          </a>
+        )}
+      </section>
 
-    <!-- Trips: one tappable card each, soonest first (Von Restorff: status chip marks what's next) -->
-    {trips.length > 0 && (
-      <section aria-labelledby="trips-heading" class="space-y-3">
-        <h2 id="trips-heading" class="text-lg sm:text-xl font-extrabold text-text px-1">Destinations</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-          {trips.map(({ c, status, statusLabel, range }) => (
-            <article
-              data-reveal
-              data-card
-              class="relative glass-effect rounded-2xl p-4 sm:p-5 hover:border-primary/50 hover:shadow-lg transition-shadow duration-150 flex flex-col gap-3"
-            >
-              <div class="flex items-start justify-between gap-3">
-                <div class="flex items-center gap-3 min-w-0">
-                  <div class="w-12 h-12 rounded-2xl bg-primary/15 border border-primary/25 flex items-center justify-center text-2xl shrink-0">
-                    {c.flag}
+      <!-- Trips: one tappable card each, soonest first (Von Restorff: status chip marks what's next) -->
+      {trips.length > 0 && (
+        <section aria-labelledby="trips-heading" class="space-y-3">
+          <h2 id="trips-heading" class="text-lg sm:text-xl font-extrabold text-text px-1">Destinations</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            {trips.map(({ c, status, statusLabel, range }) => (
+              <article
+                data-reveal
+                data-card
+                class="relative glass-effect rounded-2xl p-4 sm:p-5 hover:border-primary/50 hover:shadow-lg transition-shadow duration-150 flex flex-col gap-3"
+              >
+                <div class="flex items-start justify-between gap-3">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-12 h-12 rounded-2xl bg-primary/15 border border-primary/25 flex items-center justify-center text-2xl shrink-0">
+                      {c.flag}
+                    </div>
+                    <div class="min-w-0">
+                      <h3 class="text-lg font-extrabold text-text leading-tight truncate">
+                        <!-- Stretched link: the whole card opens the trip -->
+                        <a href={`/${c.slug}`} class="after:absolute after:inset-0 after:content-[''] focus-ring rounded">
+                          {c.name}
+                        </a>
+                      </h3>
+                      <p class="text-xs text-text/65 mt-0.5">{range ?? `${c.stats.totalDays} days`}</p>
+                    </div>
                   </div>
-                  <div class="min-w-0">
-                    <h3 class="text-lg font-extrabold text-text leading-tight truncate">
-                      <!-- Stretched link: the whole card opens the trip -->
-                      <a href={`/${c.slug}`} class="after:absolute after:inset-0 after:content-[''] focus-ring rounded">
-                        {c.name}
-                      </a>
-                    </h3>
-                    <p class="text-xs text-text/65 mt-0.5">{range ?? `${c.stats.totalDays} days`}</p>
-                  </div>
+                  {statusLabel && (
+                    <span class:list={['px-2 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wide border shrink-0 whitespace-nowrap', statusStyle[status]]}>
+                      {statusLabel}
+                    </span>
+                  )}
                 </div>
-                {statusLabel && (
-                  <span class:list={['px-2 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wide border shrink-0 whitespace-nowrap', statusStyle[status]]}>
-                    {statusLabel}
+
+                <div class="flex items-center justify-between gap-3 text-sm">
+                  <span class="text-text/75">{c.stats.totalDays} {c.stats.totalDays === 1 ? 'day' : 'days'} · {c.stats.totalActivities} {c.stats.totalActivities === 1 ? 'activity' : 'activities'}</span>
+                  <span class="font-extrabold text-primary whitespace-nowrap">
+                    {c.stats.totalLocalCost > 0 ? `${Math.round(c.stats.totalLocalCost).toLocaleString()} ${c.currency}` : 'No costs'}
                   </span>
+                </div>
+
+                {c.states.length > 0 && (
+                  <ul class="relative z-10 flex flex-wrap gap-1.5" aria-label={`Places in ${c.name}`}>
+                    {c.states.map((s) => (
+                      <li>
+                        <a
+                          href={`/${c.slug}/${s.slug}`}
+                          class="touch-target inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/45 border border-primary/20 text-xs font-semibold text-text/80 hover:text-primary hover:border-primary/40 transition-colors"
+                        >
+                          <span aria-hidden="true">📍</span>{s.name}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
                 )}
-              </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
 
-              <div class="flex items-center justify-between gap-3 text-sm">
-                <span class="text-text/75">{c.stats.totalDays} {c.stats.totalDays === 1 ? 'day' : 'days'} · {c.stats.totalActivities} {c.stats.totalActivities === 1 ? 'activity' : 'activities'}</span>
-                <span class="font-extrabold text-primary whitespace-nowrap">
-                  {c.stats.totalLocalCost > 0 ? `${Math.round(c.stats.totalLocalCost).toLocaleString()} ${c.currency}` : 'No costs'}
-                </span>
-              </div>
-
-              {c.states.length > 0 && (
-                <ul class="relative z-10 flex flex-wrap gap-1.5" aria-label={`Places in ${c.name}`}>
-                  {c.states.map((s) => (
-                    <li>
-                      <a
-                        href={`/${c.slug}/${s.slug}`}
-                        class="touch-target inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/45 border border-primary/20 text-xs font-semibold text-text/80 hover:text-primary hover:border-primary/40 transition-colors"
-                      >
-                        <span aria-hidden="true">📍</span>{s.name}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </article>
-          ))}
-        </div>
-      </section>
-    )}
-
-    <!-- Analytics collapsed by default (Hick's Law: progressive disclosure) -->
-    {trips.length > 0 && (
-      <details data-reveal class="group glass-effect rounded-2xl sm:rounded-3xl overflow-hidden">
-        <summary class="cursor-pointer list-none p-4 sm:p-6 flex items-center justify-between gap-3 hover:bg-primary/5 transition-colors select-none">
-          <span class="flex items-center gap-3 min-w-0">
-            <span class="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center text-lg shrink-0" aria-hidden="true">📊</span>
-            <span class="min-w-0">
-              <span class="block text-base sm:text-lg font-extrabold text-text">Spending & currency</span>
-              <span class="block text-xs sm:text-sm text-text/70">Budget breakdown across countries and live exchange rates</span>
+      <!-- Analytics collapsed by default (Hick's Law: progressive disclosure) -->
+      {trips.length > 0 && (
+        <details data-reveal class="group glass-effect rounded-2xl sm:rounded-3xl overflow-hidden">
+          <summary class="cursor-pointer list-none p-4 sm:p-6 flex items-center justify-between gap-3 hover:bg-primary/5 transition-colors select-none">
+            <span class="flex items-center gap-3 min-w-0">
+              <span class="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center text-lg shrink-0" aria-hidden="true">📊</span>
+              <span class="min-w-0">
+                <span class="block text-base sm:text-lg font-extrabold text-text">Spending & currency</span>
+                <span class="block text-xs sm:text-sm text-text/70">Budget breakdown across countries and live exchange rates</span>
+              </span>
             </span>
-          </span>
-          <svg class="w-5 h-5 text-text/60 shrink-0 transition-transform duration-150 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-          </svg>
-        </summary>
-        <div class="p-3.5 sm:p-6 border-t border-primary/15">
-          <AnalyticsDashboard dataSources={allItineraries} currencies={trips.map((t) => t.c.currency)} client:visible />
-        </div>
-      </details>
-    )}
+            <svg class="w-5 h-5 text-text/60 shrink-0 transition-transform duration-150 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </summary>
+          <div class="p-3.5 sm:p-6 border-t border-primary/15">
+            <AnalyticsDashboard dataSources={allItineraries} currencies={trips.map((t) => t.c.currency)} client:visible />
+          </div>
+        </details>
+      )}
 
-    <!-- Wishlist: compact chips, secondary to real trips -->
-    {upcomingCountries.length > 0 && (
-      <section data-reveal aria-labelledby="wishlist-heading" class="space-y-2">
-        <h2 id="wishlist-heading" class="text-sm font-bold uppercase tracking-wider text-text/60 px-1">Wishlist (no activities yet)</h2>
-        <div class="flex flex-wrap gap-2">
-          {upcomingCountries.map((c) => (
-            <a
-              href={`/${c.slug}`}
-              class="touch-target inline-flex items-center gap-2 px-3.5 py-2 rounded-full glass-effect text-sm font-semibold text-text/85 hover:text-primary transition-colors"
-            >
-              <span aria-hidden="true">{c.flag}</span>{c.name}
-            </a>
-          ))}
-        </div>
-      </section>
-    )}
+      <!-- Wishlist: compact chips, secondary to real trips -->
+      {upcomingCountries.length > 0 && (
+        <section data-reveal aria-labelledby="wishlist-heading" class="space-y-2">
+          <h2 id="wishlist-heading" class="text-sm font-bold uppercase tracking-wider text-text/60 px-1">Wishlist (no activities yet)</h2>
+          <div class="flex flex-wrap gap-2">
+            {upcomingCountries.map((c) => (
+              <a
+                href={`/${c.slug}`}
+                class="touch-target inline-flex items-center gap-2 px-3.5 py-2 rounded-full glass-effect text-sm font-semibold text-text/85 hover:text-primary transition-colors"
+              >
+                <span aria-hidden="true">{c.flag}</span>{c.name}
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
   </div>
   <Footer />
 </Layout>
