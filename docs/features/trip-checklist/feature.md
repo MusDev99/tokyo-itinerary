@@ -30,6 +30,8 @@ Owner decisions (2026-10-28): ticks saved **per device**; AI later with a **dail
 | AC-4 | Ticks and custom items persist on this device only; bad storage never crashes | unit `parsed defensively` + e2e |
 | AC-5 | 375px: no horizontal scroll, rows ≥ 44px, keyboard Space ticks and keeps focus | e2e |
 | AC-6 | Country with states redirects `/[country]/prepare` to the first state | curl 302 |
+| AC-7 | Desktop (≥ 1024px): same width as the other trip tabs; sticky summary column (progress, do-soon, my items) beside the groups; 2 group columns from 1280px; all groups open | e2e 1024 / 1440 |
+| AC-8 | Phone: progress count + bar stay pinned under the header while scrolling; tablet shows 2 group columns | e2e 375 / 768 |
 
 ### OWASP
 | Risk | Mitigation |
@@ -47,7 +49,8 @@ Owner decisions (2026-10-28): ticks saved **per device**; AI later with a **dail
 | Goal-gradient | "N/M ready" + progress bar |
 | Fitts | Whole row is the tap target (≥ 44px; 60px on mobile) |
 | Serial position | Most urgent first |
-| Jakob | Standard checkboxes, familiar to-do pattern |
+| Jakob | Standard checkboxes, familiar to-do pattern; page width matches the other trip tabs so the header doesn't jump |
+| Proximity / Common Region | Desktop summary column groups progress + add-your-own; each group is its own card from tablet up |
 
 ### Out of scope
 AI, shared ticks, notifications/reminders.
@@ -55,4 +58,5 @@ AI, shared ticks, notifications/reminders.
 ## 6. ✅ Validation
 - [x] `npm run verify` green (53 tests)
 - [x] Chromium 375px + 1280px: tick, add custom, reload keeps 1/33, keyboard Space keeps focus, no overflow, no errors
+- [x] Responsive pass (2026-10-28): 375 / 768 / 1024 / 1440px, no horizontal scroll, sticky progress on phone, sticky summary column on desktop
 - [ ] Real trip data on the Vercel preview

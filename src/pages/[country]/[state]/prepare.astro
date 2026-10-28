@@ -42,7 +42,8 @@ const groups = buildChecklist({
 
 <Layout title={`${stateMeta.name} Trip Checklist - ${baseCountry.name}`} description={country.description}>
   <Header />
-  <div class="w-full max-w-3xl mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8">
+  <!-- Same container as the other trip tabs (Jakob's Law: the header doesn't jump or squash between tabs) -->
+  <div class="w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8">
     <CountrySubNav country={country} activeTab="prepare" state={{ slug: stateMeta.slug, name: stateMeta.name }} />
     <TripChecklist client:load tab={stateMeta.tabName} groups={groups} firstDate={stateMeta.stats.firstDate} />
   </div>

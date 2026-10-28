@@ -114,6 +114,7 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 │   │   ├── PickerPopover.tsx          # Shared trigger + popover for the date/time pickers
 │   │   ├── FormField.tsx              # Label + control + error layout for forms
 │   │   ├── useDismiss.ts              # Close-on-outside-press / Escape hook
+│   │   ├── useMediaQuery.ts           # Live matchMedia hook
 │   │   ├── ConfirmDialog.tsx          # Confirmation modal for destructive actions
 │   │   ├── TripActions.tsx            # Add activities / rename / delete trip
 │   │   ├── AddActivityPanel.tsx       # Inline "Add new activity" panel on a trip page

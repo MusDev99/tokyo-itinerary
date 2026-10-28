@@ -63,7 +63,8 @@ export default function TripActions({ tab, country, state, activityCount, afterD
   const icon = 'w-5 h-5';
 
   return (
-    <div className="inline-flex items-center gap-1 shrink-0" role="group" aria-label="Manage trip">
+    // Common Region: one quiet container so the two icons read as a single "manage" control
+    <div className="inline-flex items-center gap-0.5 shrink-0 self-start p-0.5 rounded-xl bg-white/45 border border-primary/15" role="group" aria-label="Manage trip">
       <button type="button" aria-label="Rename trip" title="Rename trip"
         onClick={() => { setNewCountry(country); setNewState(state); setMode('rename'); }}
         className={`${btn} text-primary hover:bg-primary/15`}>

@@ -3,6 +3,14 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-10-28 22:02 — Fix: responsive Prepare checklist and trip edit/delete placement
+
+- **Prepare page, desktop:** uses the same width as the other trip tabs, so the trip header no longer squashes the title onto four lines or jumps when switching tabs. The checklist gets a sticky summary column (progress, "Do these soon", My items) beside the groups, two group columns from 1280px, and every group open.
+- **Prepare page, phone/tablet:** the "N/M ready" count and progress bar stay pinned under the header while scrolling the long list; tablets show the groups in two columns; groups are separate cards from tablet up.
+- **Edit / delete trip buttons:** now sit right after the trip name (they were floating mid-card on desktop) inside one quiet grouped control; on phones they stay top-right beside the title.
+- New `useMediaQuery` hook.
+- Laws of UX: Jakob (consistent tab width), Goal-Gradient (progress always visible), Proximity and Common Region (actions beside the title; grouped summary), Fitts (44px targets kept), Hick (collapsed groups on phones).
+
 ## 2026-10-28 21:27 — Prepare tab: smart trip checklist (phase 1, no AI)
 
 - **Feature:** new **✅ Prepare** tab per trip (`/[country]/[state]/prepare`, `/[country]/prepare`) with a checklist built from the trip's own data: documents, money (trip currency + planned spend), phone & apps, packing (season + activity rules: onsen, temples/mosques, hikes, beaches, snow, theme parks, Shinkansen), prayer & food, and booking reminders for paid stays, tickets and transport (max 8). Japan extras: IC card, type A plugs, coin pouch, Visit Japan Web.
