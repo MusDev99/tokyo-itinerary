@@ -7,6 +7,12 @@ Each entry has a date and time (Malaysia time, UTC+8) and a short description of
 
 - **CI:** runs on pushes to `master` (it only listened to `main`, so merges to the renamed default branch skipped the tests and audit). Pull requests are unchanged.
 - CLAUDE.md, the release skill and the code-review checklist now name `master` as the base branch.
+## 2026-10-28 23:34 — "Today" mode
+
+- **Home page:** during a trip, a **Today** card comes first: the day and trip, what's on **now**, the **next** activity with "in N min", **Directions** (its own Maps link) and today's **Route**, plus up to three later activities. After the last one: "That's everything planned for today" with a link to tomorrow. Uses the phone's own date and time and refreshes every 30s.
+- **Trip pages** open on today's day tab during the trip (`?day=N` links still win).
+- Dev only: `?today=2026-10-18T10:30` previews any date on the home and trip pages.
+- Shared helpers: `formatTime12` moved to `utils/calendar.ts`, `placeSearchUrl` in `utils/mapsRoute.ts`. Tests: `tests/today.test.ts`.
 
 ## 2026-10-28 23:04 — Add to calendar + day route in Google Maps
 

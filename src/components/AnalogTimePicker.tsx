@@ -1,6 +1,6 @@
 import { h } from 'preact';
 import { useRef, useState } from 'preact/hooks';
-import { parseClockTime } from '../utils/calendar';
+import { formatTime12, parseClockTime } from '../utils/calendar';
 import { PickerPopover, PickerTrigger, pickerButton, usePickerPopover } from './PickerPopover';
 
 interface Props {
@@ -16,12 +16,6 @@ const R_NUM = 88;
 const R_HAND = 74;
 const pad = (n: number) => String(n).padStart(2, '0');
 
-export function formatTime12(v: string): string {
-  const p = parseClockTime(v);
-  if (!p) return '';
-  const h12 = p.h % 12 || 12;
-  return `${pad(h12)}:${pad(p.m)} ${p.h >= 12 ? 'PM' : 'AM'}`;
-}
 
 const polar = (angleDeg: number, r: number) => {
   const a = ((angleDeg - 90) * Math.PI) / 180;
