@@ -134,3 +134,11 @@ export function parseClockTime(v: string): { h: number; m: number } | null {
   if (h > 23 || min > 59) return null;
   return { h, m: min };
 }
+
+/** "14:50" / "2:50 pm" / "11.00 AM" -> "02:50 PM"; "" when unreadable. */
+export function formatTime12(v: string): string {
+  const p = parseClockTime(v);
+  if (!p) return '';
+  const pad2 = (n: number) => String(n).padStart(2, '0');
+  return `${pad2(p.h % 12 || 12)}:${pad2(p.m)} ${p.h >= 12 ? 'PM' : 'AM'}`;
+}
