@@ -1,0 +1,42 @@
+---
+import { pageCacheControl } from '../../utils/security';
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import CountrySubNav from '../../components/CountrySubNav.astro';
+import TripChecklist from '../../components/TripChecklist';
+import { getAllCountriesWithSheets } from '../../utils/countries';
+import { buildChecklist } from '../../utils/checklist';
+
+Astro.response.headers.set('Cache-Control', pageCacheControl(Boolean(Astro.locals.user)));
+
+const { countries } = await getAllCountriesWithSheets();
+const country = countries.find((c) => c.slug === Astro.params.country?.toLowerCase());
+
+if (!country) {
+  return Astro.redirect('/404');
+}
+// A country split into states has one checklist per state (trip)
+if (country.states.length > 0) {
+  return Astro.redirect(`/${country.slug}/${country.states[0].slug}/prepare`);
+}
+
+const groups = buildChecklist({
+  country: country.name,
+  currency: country.currency,
+  season: country.season,
+  itinerary: country.itinerary,
+  firstDate: country.stats.firstDate,
+  lastDate: country.stats.lastDate,
+  totalLocalCost: country.stats.totalLocalCost,
+});
+---
+
+<Layout title={`${country.name} Trip Checklist`} description={`What to prepare before your ${country.name} trip.`}>
+  <Header />
+  <div class="w-full max-w-3xl mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8">
+    <CountrySubNav country={country} activeTab="prepare" />
+    <TripChecklist client:load tab={country.tabName} groups={groups} firstDate={country.stats.firstDate} />
+  </div>
+  <Footer />
+</Layout>
