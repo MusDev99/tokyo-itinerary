@@ -4,7 +4,7 @@ description: Repo-specific code review (correctness, OWASP, Laws of UX, mobile, 
 ---
 # 🔍 code-review-checklist
 
-Scope: the diff against the base branch (`git diff main...HEAD`) plus the files it touches. Read the whole changed function, not just the hunk.
+Scope: the diff against the base branch (`git diff master...HEAD`) plus the files it touches. Read the whole changed function, not just the hunk.
 
 Steps
 1. Read `CLAUDE.md` and the branch's `docs/features/<slug>/feature.md` (the intent and ACs).

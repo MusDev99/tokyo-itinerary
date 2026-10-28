@@ -65,11 +65,11 @@ Gate commands: `npm run verify` (tests + build) · `npm test` · `npm run smoke 
 
 ## Git workflow (required)
 
-- **Never commit directly to `main`.** Create a branch first. This is mandatory for every change, including agent/cloud sessions:
+- **Never commit directly to `master`** (the default branch; it was `main` until 2026-10-28). Create a branch first. This is mandatory for every change, including agent/cloud sessions:
   - New feature → `feat/<feat-name>` (e.g. `feat/add-itinerary`)
   - Bug fix → `fix/<fix-name>` (e.g. `fix/mobile-overflow`)
   - Use short kebab-case names. `chore/<name>` and `docs/<name>` are only for changes with no feature or fix.
-  - **Agent sessions:** an auto-generated session branch (e.g. `claude/*`, `ccr-*`) is never the branch to push or open a PR from. Create `feat/*` or `fix/*` from the latest `main` and push that instead.
+  - **Agent sessions:** an auto-generated session branch (e.g. `claude/*`, `ccr-*`) is never the branch to push or open a PR from. Create `feat/*` or `fix/*` from the latest `master` and push that instead.
 - Commit only when asked. Keep commits focused, with a clear imperative message.
 - Push the branch to `origin` and merge via pull request.
 - Run `npm run verify` (tests + build) before committing and make sure it passes. Commit messages follow Conventional Commits (`feat(auth): ...`), matching the branch type.

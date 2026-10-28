@@ -3,6 +3,11 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-10-28 23:40 — Chore: default branch is now `master`
+
+- **CI:** runs on pushes to `master` (it only listened to `main`, so merges to the renamed default branch skipped the tests and audit). Pull requests are unchanged.
+- CLAUDE.md, the release skill and the code-review checklist now name `master` as the base branch.
+
 ## 2026-10-28 23:04 — Add to calendar + day route in Google Maps
 
 - **Add to calendar:** next to "Download PDF Itinerary", a menu to subscribe to the trip in Apple / Outlook (`webcal://`) or Google Calendar, so it updates itself when the sheet changes, or to download a `.ics` file. New public read-only feeds `/[country]/[state]/calendar.ics` and `/[country]/calendar.ics` (whole country).
