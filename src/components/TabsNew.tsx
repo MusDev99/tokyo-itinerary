@@ -3,6 +3,7 @@ import { useState, useEffect } from 'preact/hooks';
 import Timeline from './Timeline';
 import SearchFilter from './SearchFilter';
 import type { DayItinerary } from '../types/itinerary';
+import { localNow, todayIndex } from '../utils/today';
 
 interface Props {
   itinerary: DayItinerary[];
@@ -17,7 +18,7 @@ export default function Tabs({ itinerary, canEdit = false, region }: Props) {
   const [filteredItinerary, setFilteredItinerary] = useState(itinerary);
   const [showSearch, setShowSearch] = useState(false);
 
-  // Support deep linking via ?day=N query param
+  // Deep link ?day=N wins; otherwise, during the trip, open on today's day (Jakob's Law: start where you are)
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
@@ -26,8 +27,14 @@ export default function Tabs({ itinerary, canEdit = false, region }: Props) {
       const idx = itinerary.findIndex((d) => d.day === dayParam);
       if (idx >= 0) {
         setActiveTab(idx);
+        return;
       }
     }
+    // Dev only: `?today=2026-10-18T10:00` previews a trip day on any date
+    const forced = import.meta.env.DEV ? params.get('today') : null;
+    const now = forced && !isNaN(new Date(forced).getTime()) ? new Date(forced) : new Date();
+    const today = todayIndex(itinerary, localNow(now).iso);
+    if (today >= 0) setActiveTab(today);
   }, [itinerary]);
 
   const handleTabChange = (index: number) => {
