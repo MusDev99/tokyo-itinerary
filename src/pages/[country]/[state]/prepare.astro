@@ -1,0 +1,50 @@
+---
+import { pageCacheControl } from '../../../utils/security';
+import Layout from '../../../layouts/Layout.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import CountrySubNav from '../../../components/CountrySubNav.astro';
+import TripChecklist from '../../../components/TripChecklist';
+import { getAllCountriesWithSheets } from '../../../utils/countries';
+import { buildChecklist } from '../../../utils/checklist';
+
+Astro.response.headers.set('Cache-Control', pageCacheControl(Boolean(Astro.locals.user)));
+
+const { countries } = await getAllCountriesWithSheets();
+const baseCountry = countries.find((c) => c.slug === Astro.params.country?.toLowerCase());
+const stateMeta = baseCountry?.states.find((s) => s.slug === Astro.params.state?.toLowerCase());
+
+if (!baseCountry || !stateMeta) {
+  return Astro.redirect('/404');
+}
+
+const country = {
+  ...baseCountry,
+  title: `${baseCountry.name} – ${stateMeta.name} Checklist`,
+  description: `What to prepare before your ${stateMeta.name}, ${baseCountry.name} trip.`,
+  itinerary: stateMeta.itinerary,
+  currency: stateMeta.currency,
+  region: stateMeta.name,
+  stats: stateMeta.stats,
+  tabName: stateMeta.tabName,
+};
+
+const groups = buildChecklist({
+  country: baseCountry.name,
+  currency: stateMeta.currency,
+  season: baseCountry.season,
+  itinerary: stateMeta.itinerary,
+  firstDate: stateMeta.stats.firstDate,
+  lastDate: stateMeta.stats.lastDate,
+  totalLocalCost: stateMeta.stats.totalLocalCost,
+});
+---
+
+<Layout title={`${stateMeta.name} Trip Checklist - ${baseCountry.name}`} description={country.description}>
+  <Header />
+  <div class="w-full max-w-3xl mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8">
+    <CountrySubNav country={country} activeTab="prepare" state={{ slug: stateMeta.slug, name: stateMeta.name }} />
+    <TripChecklist client:load tab={stateMeta.tabName} groups={groups} firstDate={stateMeta.stats.firstDate} />
+  </div>
+  <Footer />
+</Layout>

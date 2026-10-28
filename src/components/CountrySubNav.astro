@@ -4,7 +4,7 @@ import TripActions from './TripActions';
 
 interface Props {
   country: CountryMetadata;
-  activeTab: 'overview' | 'itinerary' | 'tools';
+  activeTab: 'overview' | 'itinerary' | 'tools' | 'prepare';
   /** When set, the page shows a single "Country - State" trip. */
   state?: { slug: string; name: string };
   /** Shows rename / delete controls inside the card (editors only act on them; the API enforces auth) */
@@ -36,6 +36,14 @@ const tabs = [
     // Tools are per trip: a state page, or a plain country tab (a split country has one tools page per state)
     href: state ? `/${country.slug}/${state.slug}/tools` : `/${country.slug}/tools`,
     available: Boolean(state) || country.states.length === 0,
+  },
+  {
+    key: 'prepare',
+    label: 'Prepare',
+    icon: '✅',
+    // Same scope as Tools: one checklist per trip
+    href: state ? `/${country.slug}/${state.slug}/prepare` : `/${country.slug}/prepare`,
+    available: country.stats.hasItinerary && (Boolean(state) || country.states.length === 0),
   },
 ].filter((t) => t.available);
 
@@ -142,7 +150,7 @@ const stats = [
 
     <!-- Country Tool Switcher (Fitts's Law: Large 44px touch targets, full width on mobile) -->
     {tabs.length > 1 && (
-      <div class:list={['grid sm:flex items-center gap-1.5 p-1.5 rounded-xl bg-white/45 border border-primary/20 w-full sm:w-auto self-stretch sm:self-start lg:self-center shrink-0', tabs.length >= 3 ? 'grid-cols-3' : 'grid-cols-2']}>
+      <div class:list={['grid sm:flex items-center gap-1.5 p-1.5 rounded-xl bg-white/45 border border-primary/20 w-full sm:w-auto self-stretch sm:self-start lg:self-center shrink-0', tabs.length >= 4 ? 'grid-cols-4' : tabs.length === 3 ? 'grid-cols-3' : 'grid-cols-2']}>
         {tabs.map((tab) => {
           const isCurrent = activeTab === tab.key;
           return (

@@ -3,6 +3,14 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-10-28 21:27 — Prepare tab: smart trip checklist (phase 1, no AI)
+
+- **Feature:** new **✅ Prepare** tab per trip (`/[country]/[state]/prepare`, `/[country]/prepare`) with a checklist built from the trip's own data: documents, money (trip currency + planned spend), phone & apps, packing (season + activity rules: onsen, temples/mosques, hikes, beaches, snow, theme parks, Shinkansen), prayer & food, and booking reminders for paid stays, tickets and transport (max 8). Japan extras: IC card, type A plugs, coin pouch, Visit Japan Web.
+- **Timing:** items with a lead time count down to the first trip day ("Overdue", "3d left"); the 5 most urgent show on top in **Do these soon**.
+- **Per device:** ticks and your own extra items are saved in this browser (no sign-in, works offline); the progress bar fills as you get ready (Motion, reduced-motion aware).
+- **Offline:** the Prepare pages are in the sitemap, so the service worker saves them for offline reading.
+- **Tests:** `tests/checklist.test.ts` (personalisation, stable ids, due dates, defensive storage parsing, progress).
+
 ## 2026-10-26 19:12 — Ambient background sound per theme (replaces the one-shot chime)
 
 - **Feature:** each season/weather theme now has a looping soundscape instead of a short chime on click: 🍂 autumn wind + leaf rustles, ❄️ soft winter wind + glassy sparkles, 🌸 spring breeze + birds, ☀️ summer waves, 🌧️ rain + drops, 🌫️ hazy drone, 🌙 night crickets + pad.

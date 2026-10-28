@@ -10,6 +10,7 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 
 ### 1. Google Sheets as Single Source of Truth
 - **Tabs = Countries and States**: Add a destination by creating a worksheet tab. A plain tab (e.g., `Japan`) is a country; a tab named `Country - State` (e.g., `Japan - Tokyo`, `Japan - Osaka`) becomes a state/city of that country. Routes: `/[country]`, `/[country]/itinerary` (all states), `/[country]/[state]`.
+- **Prepare checklist** (`/[country]/[state]/prepare`, or `/[country]/prepare` for a plain country tab): a 4th trip tab with a checklist built from the trip itself (`src/utils/checklist.ts`): documents, money (trip currency + planned spend), phone & apps, packing (season + activities such as onsen, temples, hikes, beaches), prayer & food, and booking reminders for paid stays, tickets and transport. Items with a lead time show "Overdue / 3d left", and the 5 most urgent sit on top. Ticks and your own extra items are saved **on this device** (no sign-in, works offline).
 - **Travel tools** (`/[country]/[state]/tools`): prayer times for every trip date in the destination's local time with the local calculation method per country (AlAdhan API) plus Qibla direction, driven by the trip's confirmed location. No API keys needed.
 - **Trip locations**: each trip's real place (lat/lng, timezone) is confirmed when adding a trip and stored in a hidden `_trips` worksheet (columns `tab, place, admin1, country, country_code, lat, lng, timezone`) — don't delete it.
 - **Inline add / manage**: on a trip page, "Add new activity" opens the add form in place; rename and delete are icon buttons in the trip card. Activities in a day are collapsed to time + title with an Expand / Collapse all control.
@@ -106,6 +107,7 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 │   │   ├── ThemeSwitcher.tsx          # Floating theme button + Seasons/Weather panel
 │   │   ├── MobileNav.tsx              # Mobile slide-in navigation drawer
 │   │   ├── OfflineStatus.tsx          # Registers the service worker + offline pill
+│   │   ├── TripChecklist.tsx          # Prepare tab: per-device checklist with progress
 │   │   ├── AddItineraryForm.tsx       # Two-tab add form (trip, then days & activities)
 │   │   ├── AnalogTimePicker.tsx       # Analog clock time picker
 │   │   ├── CalendarPicker.tsx         # Month-grid date picker (keyboard + touch)
@@ -132,6 +134,7 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 │   │   │   ├── [state]/index.astro    # Single `Country - State` trip timeline
 │   │   │   ├── [state]/tools.astro    # Travel tools (location + prayer times) for a state
 │   │   │   ├── tools.astro            # Travel tools for a plain country tab
+│   │   │   ├── prepare.astro          # Prepare checklist (state pages: [state]/prepare.astro)
 │   │   │   └── itinerary.astro        # Interactive day-by-day country itinerary & PDF export
 │   │   ├── add.astro                  # Add-itinerary form (days & activities)
 │   │   └── api/

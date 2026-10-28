@@ -10,7 +10,11 @@ export const GET: APIRoute = async ({ url }) => {
     for (const c of countries) {
       paths.add(`/${c.slug}`);
       paths.add(`/${c.slug}/itinerary`);
-      for (const s of c.states) paths.add(`/${c.slug}/${s.slug}`);
+      if (c.states.length === 0 && c.stats.hasItinerary) paths.add(`/${c.slug}/prepare`);
+      for (const s of c.states) {
+        paths.add(`/${c.slug}/${s.slug}`);
+        if (s.stats.hasItinerary) paths.add(`/${c.slug}/${s.slug}/prepare`); // checklist reads offline too
+      }
     }
   } catch (err) {
     console.error('sitemap: could not read Google Sheets', err); // still serve a valid sitemap with the home page
