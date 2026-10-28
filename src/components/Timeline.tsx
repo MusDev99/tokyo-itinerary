@@ -4,15 +4,19 @@ import { animate } from 'motion';
 import TimelineItem from './TimelineItem';
 import type { DayItinerary } from '../types/itinerary';
 import { prefersReducedMotion } from '../utils/motion';
+import { dayRouteUrl } from '../utils/mapsRoute';
 
 interface Props {
   day: DayItinerary;
   canEdit?: boolean;
+  /** City or country of the trip; a merged country itinerary uses each day's own state */
+  region?: string;
 }
 
-export default function Timeline({ day, canEdit = false }: Props) {
+export default function Timeline({ day, canEdit = false, region }: Props) {
   const totalDayCost = day.items.reduce((sum, item) => sum + (item.price?.amount || 0), 0);
   const currency = day.items.find((item) => item.price?.currency)?.price.currency || '';
+  const route = dayRouteUrl(day.items, day.state || region);
 
   // All activities start collapsed (time + title only); the day header can expand or collapse them all
   const [open, setOpen] = useState<boolean[]>(() => day.items.map(() => false));
@@ -53,10 +57,27 @@ export default function Timeline({ day, canEdit = false }: Props) {
           </h2>
         </div>
 
-        <div className="flex flex-nowrap items-center gap-2 self-start lg:self-center whitespace-nowrap">
-          <div className="inline-flex items-center h-9 px-3 rounded-xl bg-white/45 border border-primary/15 text-xs font-bold text-text/80">
-            <span>📍 {day.items.length} Stops</span>
-          </div>
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 self-start lg:self-center whitespace-nowrap">
+          {/* The stop count opens the day's route in Google Maps: the info people check before heading out (Jakob's Law: a familiar Maps hand-off) */}
+          {route ? (
+            <a
+              href={route.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={route.skipped ? `Route through the first ${route.stops} stops (Google Maps limit)` : 'Open the day route in Google Maps'}
+              aria-label={`Open the day route in Google Maps, ${day.items.length} stops${route.skipped ? `, first ${route.stops} included` : ''}`}
+              className="relative inline-flex items-center gap-1 h-9 px-3 rounded-xl bg-white/45 border border-primary/25 text-xs font-bold text-primary hover:bg-primary/10 active:bg-primary/15 transition-colors after:absolute after:-inset-1.5 after:content-['']"
+            >
+              <span aria-hidden="true">🗺️</span> Route<span className="hidden sm:inline"> · {day.items.length} stops</span>
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M9 7h8v8" />
+              </svg>
+            </a>
+          ) : (
+            <div className="inline-flex items-center h-9 px-3 rounded-xl bg-white/45 border border-primary/15 text-xs font-bold text-text/80">
+              <span>📍 {day.items.length} Stops</span>
+            </div>
+          )}
           <div className="inline-flex items-center h-9 px-3 rounded-xl bg-primary/10 border border-primary/25 text-xs font-extrabold text-primary">
             <span>
               💰 {totalDayCost > 0 ? `${totalDayCost.toLocaleString()} ${currency}` : 'Free Day'}

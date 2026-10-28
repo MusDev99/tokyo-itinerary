@@ -6,6 +6,7 @@ import Footer from '../../../components/Footer.astro';
 import CountrySubNav from '../../../components/CountrySubNav.astro';
 import Tabs from '../../../components/TabsNew';
 import PDFDownload from '../../../components/PDFDownload';
+import CalendarExport from '../../../components/CalendarExport';
 import AddActivityPanel from '../../../components/AddActivityPanel';
 import AnalyticsDashboard from '../../../components/AnalyticsDashboard';
 import { getAllCountriesWithSheets } from '../../../utils/countries';
@@ -67,7 +68,7 @@ const countryDataSource = country.stats.hasItinerary
           aria-label="Interactive Daily Timeline"
           class="glass-effect rounded-2xl shadow-md border border-primary/20 overflow-hidden"
         >
-          <Tabs itinerary={country.itinerary} canEdit={Boolean(Astro.locals.user)} client:load />
+          <Tabs itinerary={country.itinerary} region={stateMeta.name} canEdit={Boolean(Astro.locals.user)} client:load />
         </section>
 
         <!-- Collapsible / Secondary Country Budget & Currency Analytics (Progressive Disclosure) -->
@@ -99,9 +100,10 @@ const countryDataSource = country.stats.hasItinerary
           </div>
         </details>
 
-        <!-- PDF Export Action -->
-        <div class="flex justify-center">
+        <!-- Export actions side by side (Law of Proximity): PDF is the primary, calendar the secondary -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 my-6 sm:my-8">
           <PDFDownload itinerary={country.itinerary} client:visible />
+          <CalendarExport feedPath={`/${baseCountry.slug}/${stateMeta.slug}/calendar.ics`} client:visible />
         </div>
       </div>
     ) : (
