@@ -105,11 +105,12 @@ const stats = [
   <div class="glass-effect rounded-2xl p-4 sm:p-6 border border-primary/20 shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-4">
     <div class="flex flex-col gap-3.5 min-w-0 flex-1">
       <!-- Identity row: flag + title + currency. Description sits below at full width so text isn't squeezed by the flag column. -->
+      <!-- Law of Proximity: rename/delete sit right after the trip name they act on, not at the far end of a wide row -->
       <div class="flex items-center gap-3 sm:gap-4 min-w-0">
         <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-primary/15 border border-primary/25 flex items-center justify-center text-2xl sm:text-4xl shadow-inner shrink-0">
           {country.flag}
         </div>
-        <div class="min-w-0 flex-1">
+        <div class:list={['min-w-0 flex-1', manage && 'lg:flex-initial']}>
           <h1 class="text-xl sm:text-3xl font-extrabold text-text tracking-tight leading-tight">
             {country.title}
           </h1>
