@@ -62,6 +62,8 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 | `owasp-audit` | `audit.md` security audit |
 | `release` | git strategy, SemVer, deploy preview, smoke test, rollback |
 
+`.agents/skills/code-review/SKILL.md` is the shared review checklist used in every MusDev99 repo; `code-review-checklist` adds this repo's rules and the report file.
+
 ---
 
 ## 🛠️ Tech Stack
@@ -81,6 +83,7 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 ## 📁 Project Structure
 
 ```text
+├── .agents/skills/code-review/        # Shared code-review checklist (all MusDev99 repos)
 ├── .claude/skills/                    # AI-driven dev workflow: dev-workflow, feature-checklist, code-review-checklist, owasp-audit, release
 ├── docs/                              # features/ (feature.md), reviews/, audits/ (audit.md)
 ├── tests/                             # node:test unit tests (auth, users, calendar, popover, season sound, service worker, caching + animation perf)

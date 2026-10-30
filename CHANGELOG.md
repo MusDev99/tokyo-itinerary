@@ -3,6 +3,10 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-10-30 12:30 — Chore: shared code-review skill
+
+- **Agents:** `.agents/skills/code-review/SKILL.md`, the same 7-area review checklist (intent, readability, tests, security, performance, style, docs) used in every repo, with findings by severity. `code-review-checklist` stays as the repo-specific layer.
+
 ## 2026-10-28 23:40 — Chore: default branch is now `master`
 
 - **CI:** runs on pushes to `master` (it only listened to `main`, so merges to the renamed default branch skipped the tests and audit). Pull requests are unchanged.
