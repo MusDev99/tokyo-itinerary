@@ -3,6 +3,12 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-10-31 22:02 — Timeline in time order + today's activity highlighted
+
+- **Fix:** a day's activities are now listed by time (9:30 before 22:00), not by sheet row order; unreadable times stay last in sheet order, and an activity dated the next day (red-eye) comes after the night before. Applies everywhere the itinerary is used (timeline, PDF, calendar feed, Today card).
+- **Today's day on the timeline:** the activity that's on now gets a green ring, dot and **Now** badge and opens automatically; the following one is marked **Next**. Check-ins from the Today card show as **✓ Done** (dimmed) or **Skipped** (struck through), and the "running late" shift is respected. Refreshes every 30s, uses the phone's own clock.
+- Dev `?today=` preview now lives in one helper (`components/deviceClock.ts`).
+
 ## 2026-10-31 15:15 — Branch policy and cleanup workflows
 
 - **`branch-policy.yml`**: fails a PR whose branch name or title breaks [BRANCHING.md](https://github.com/MusDev99/agentic-coding-style/blob/main/BRANCHING.md).

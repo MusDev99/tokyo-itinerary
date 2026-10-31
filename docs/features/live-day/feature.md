@@ -16,7 +16,8 @@ Decision: A with 3 delay presets (owner chose "Live day" 2026-10-31).
 |---|---|---|---|
 | 1 | `pickToday` takes a `LiveState`; `parseLive`, `itemKey`, `liveKey`, `formatMinutes` + tests | S | Item identity without row ids → `time|title` key |
 | 2 | Today card: progress, ✓ Done, ⏭ Skip, +15/+30/+60, On time, Undo | S | Row fits at 375px |
-| Later | Show check-ins on the trip timeline; share with companions (#5) | — | — |
+| 3 | Trip timeline: time order, Now / Next highlight, check-ins shown (`feat/timeline-now`) | S | ✅ |
+| Later | Share with companions (#5) | — | — |
 
 ## 3. 🔬 Analysis
 | ID | Given / When / Then | Test |
@@ -61,4 +62,5 @@ Decision: A with 3 delay presets (owner chose "Live day" 2026-10-31).
 | AC-5 | ✅ reload keeps 1 of 9 and +30; unit tests for bad JSON / clamping |
 | AC-6 | ✅ unit |
 | AC-7 | ✅ all controls 44px, scrollWidth 375, chips on one row (label above on phones, inline on desktop) |
+| AC-8 | ✅ Bali Oct 30 12:00: 9:30 before 22:00; 9:30 Now (ring, auto-open), 22:00 Next; Today-card check-in shows ✓ Done on the state page and the country itinerary |
 | — | [ ] On a real trip day, on a phone |

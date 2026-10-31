@@ -164,3 +164,24 @@ export function formatMinutes(total: number): string {
   const pad2 = (n: number) => String(n).padStart(2, '0');
   return `${pad2(h % 12 || 12)}:${pad2(m % 60)} ${h >= 12 ? 'PM' : 'AM'}`;
 }
+
+export type LiveTag = 'now' | 'next' | LiveStatus;
+
+/**
+ * Now / next / done / skipped per activity key for one itinerary day, or null when the day isn't today.
+ * Same rules as the Today card (it uses pickToday), so the timeline and the card always agree.
+ */
+export function dayLiveTags(
+  day: { date: string; items: Array<Pick<TodayItem, 'time' | 'title'>> },
+  iso: string,
+  minutes: number,
+  live: LiveState = EMPTY_LIVE,
+): Record<string, LiveTag> | null {
+  const view = pickToday([{ name: '', flag: '', href: '', region: '', days: [{ day: 0, title: '', ...day }] }], iso, minutes, live);
+  if (!view) return null;
+  const tags: Record<string, LiveTag> = {};
+  for (const it of view.all) if (it.status) tags[it.key] = it.status;
+  if (view.current) tags[view.current.key] = 'now';
+  if (view.next) tags[view.next.key] = 'next';
+  return tags;
+}

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { formatMinutes, formatUntil, itemKey, liveKey, localNow, MAX_DELAY, parseLive, pickToday, todayIndex, type TodayTrip } from '../src/utils/today.ts';
+import { dayLiveTags, formatMinutes, formatUntil, itemKey, liveKey, localNow, MAX_DELAY, parseLive, pickToday, todayIndex, type TodayTrip } from '../src/utils/today.ts';
 
 const trip: TodayTrip = {
   name: 'Tokyo, Japan',
@@ -133,4 +133,14 @@ test('formatMinutes', () => {
   assert.equal(formatMinutes(11 * 60 + 30), '11:30 AM');
   assert.equal(formatMinutes(0), '12:00 AM');
   assert.equal(formatMinutes(23 * 60 + 50 + 30), '12:20 AM', 'wraps past midnight');
+});
+
+test('dayLiveTags marks now / next / checked-in activities, only on the day itself', () => {
+  const d = trip.days[1];
+  assert.equal(dayLiveTags(d, '2026-10-19', 600), null, 'another day: no highlight');
+  const tags = dayLiveTags(d, '2026-10-18', 10 * 60 + 30, { delay: 0, status: { [key('13:00', 'Lunch')]: 'skipped' } })!;
+  assert.equal(tags[key('9:00 AM', 'Senso-ji')], 'now');
+  assert.equal(tags[key('11.00 AM', 'Skytree')], 'next');
+  assert.equal(tags[key('13:00', 'Lunch')], 'skipped');
+  assert.equal(tags[key('6:00 PM', 'Dinner')], undefined);
 });
