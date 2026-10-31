@@ -5,15 +5,19 @@ import TimelineItem from './TimelineItem';
 import type { DayItinerary } from '../types/itinerary';
 import { prefersReducedMotion } from '../utils/motion';
 import { dayRouteUrl } from '../utils/mapsRoute';
+import { dayLiveTags, itemKey, liveKey, localNow, parseLive, type LiveTag } from '../utils/today';
+import { deviceNow } from './deviceClock';
 
 interface Props {
   day: DayItinerary;
   canEdit?: boolean;
   /** City or country of the trip; a merged country itinerary uses each day's own state */
   region?: string;
+  /** Trip page the Today card saves check-ins under (e.g. "/japan/tokyo"), so the timeline shows the same state */
+  liveHref?: string;
 }
 
-export default function Timeline({ day, canEdit = false, region }: Props) {
+export default function Timeline({ day, canEdit = false, region, liveHref }: Props) {
   const totalDayCost = day.items.reduce((sum, item) => sum + (item.price?.amount || 0), 0);
   const currency = day.items.find((item) => item.price?.currency)?.price.currency || '';
   const route = dayRouteUrl(day.items, day.state || region);
@@ -22,6 +26,42 @@ export default function Timeline({ day, canEdit = false, region }: Props) {
   const [open, setOpen] = useState<boolean[]>(() => day.items.map(() => false));
   useEffect(() => setOpen(day.items.map(() => false)), [day.day, day.items.length]);
   const allOpen = open.length > 0 && open.every(Boolean);
+
+  // Today only: highlight what's on now / next and show check-ins from the Today card (device clock, refreshed every 30s)
+  const [tags, setTags] = useState<Record<string, LiveTag> | null>(null);
+  useEffect(() => {
+    const update = () => {
+      const { iso, minutes } = localNow(deviceNow());
+      let live;
+      try {
+        live = liveHref ? parseLive(localStorage.getItem(liveKey(liveHref, iso))) : undefined;
+      } catch {
+        live = undefined; // storage blocked: highlight by time only
+      }
+      setTags(dayLiveTags(day, iso, minutes, live));
+    };
+    update();
+    const timer = setInterval(update, 30_000);
+    const onVisible = () => document.visibilityState === 'visible' && update();
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
+  }, [day, liveHref]);
+
+  // Progressive disclosure: on today's day, open the activity that's on now (or next) once
+  const autoOpened = useRef<string>('');
+  useEffect(() => {
+    if (!tags) return;
+    const id = `${day.day}-${day.date}`;
+    if (autoOpened.current === id) return;
+    const idx = day.items.findIndex((it) => tags[itemKey(it)] === 'now');
+    const target = idx >= 0 ? idx : day.items.findIndex((it) => tags[itemKey(it)] === 'next');
+    if (target < 0) return;
+    autoOpened.current = id;
+    setOpen(day.items.map((_, i) => i === target));
+  }, [tags, day]);
   const setAll = (value: boolean) => setOpen(day.items.map(() => value));
 
   // The chevron flips to show the next action (Motion; instant for reduced motion)
@@ -110,6 +150,7 @@ export default function Timeline({ day, canEdit = false, region }: Props) {
             key={`${day.day}-${index}`}
             {...item}
             editable={canEdit}
+            liveTag={tags?.[itemKey(item)]}
             open={open[index] ?? false}
             onToggle={() => setOpen((prev) => prev.map((v, i) => (i === index ? !v : v)))}
             isLast={index === day.items.length - 1}

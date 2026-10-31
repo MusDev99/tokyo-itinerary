@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   addDays, addMonths, clampIso, dateForKey, formatLongDate, formatMonthYear, isOutOfRange,
-  monthGrid, parseIso, todayIso, toIso, toIsoDate, weekday, weekdayLabels,
+  monthGrid, parseIso, sortByTime, todayIso, toIso, toIsoDate, weekday, weekdayLabels,
 } from '../src/utils/calendar.ts';
 
 test('parseIso accepts real dates only', () => {
@@ -100,4 +100,24 @@ test('dateForKey follows the date-grid keyboard pattern', () => {
   assert.equal(dateForKey('PageUp', '2026-03-31'), '2026-02-28');
   assert.equal(dateForKey('PageDown', d, true), '2027-10-28');
   assert.equal(dateForKey('Tab', d), null);
+});
+
+test('sortByTime orders a day by clock time, not text, and keeps unreadable times last', () => {
+  const items = [
+    { time: '22:00', title: 'Kuta Beach' },
+    { time: 'later', title: 'Souvenirs' },
+    { time: '9:30', title: 'Arrive Denpasar' },
+    { time: '1:15 PM', title: 'Lunch' },
+    { time: '11.00 AM', title: 'Hotel' },
+    { time: '', title: 'Note' },
+  ];
+  assert.deepEqual(sortByTime(items, '2026-10-30').map((i) => i.title), ['Arrive Denpasar', 'Hotel', 'Lunch', 'Kuta Beach', 'Souvenirs', 'Note']);
+});
+
+test('sortByTime puts an activity dated the next day after the night before', () => {
+  const items = [
+    { time: '01:00', title: 'Red-eye', date: 'October 31, 2026' },
+    { time: '20:00', title: 'Dinner' },
+  ];
+  assert.deepEqual(sortByTime(items, '2026-10-30').map((i) => i.title), ['Dinner', 'Red-eye']);
 });

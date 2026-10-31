@@ -68,7 +68,7 @@ const countryDataSource = country.stats.hasItinerary
           aria-label="Interactive Daily Timeline"
           class="glass-effect rounded-2xl shadow-md border border-primary/20 overflow-hidden"
         >
-          <Tabs itinerary={country.itinerary} region={stateMeta.name} canEdit={Boolean(Astro.locals.user)} client:load />
+          <Tabs itinerary={country.itinerary} region={stateMeta.name} liveHref={`/${baseCountry.slug}/${stateMeta.slug}`} canEdit={Boolean(Astro.locals.user)} client:load />
         </section>
 
         <!-- Collapsible / Secondary Country Budget & Currency Analytics (Progressive Disclosure) -->

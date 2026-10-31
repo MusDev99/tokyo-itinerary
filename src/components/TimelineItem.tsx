@@ -7,6 +7,7 @@ import type { TimelineItem as TimelineItemType } from '../types/itinerary';
 import { CATEGORIES, detectCategory } from '../utils/analytics';
 import ConfirmDialog from './ConfirmDialog';
 import ActivityFields, { draftToPayload, type ActivityDraft } from './ActivityFields';
+import type { LiveTag } from '../utils/today';
 import { prefersReducedMotion } from '../utils/motion';
 
 interface TimelineItemProps extends TimelineItemType {
@@ -16,10 +17,25 @@ interface TimelineItemProps extends TimelineItemType {
   onToggle?: () => void;
   /** Only signed-in editors get the edit / delete menu */
   editable?: boolean;
+  /** Today only: on now / next, or checked in on the Today card */
+  liveTag?: LiveTag;
+}
+
+const LIVE_BADGE: Record<LiveTag, { text: string; className: string }> = {
+  now: { text: 'Now', className: 'bg-emerald-500 text-white' },
+  next: { text: 'Next', className: 'bg-primary/15 text-primary border border-primary/30' },
+  done: { text: '✓ Done', className: 'bg-emerald-500/15 text-emerald-900' },
+  skipped: { text: 'Skipped', className: 'bg-text/10 text-text/60' },
+};
+
+function LiveBadge({ tag }: { tag?: LiveTag }) {
+  if (!tag) return null;
+  const b = LIVE_BADGE[tag];
+  return <span className={`shrink-0 px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide ${b.className}`}>{b.text}</span>;
 }
 
 export default function TimelineItem(props: TimelineItemProps) {
-  const { open, onToggle, editable = false, id, tab, row, date, time, title, description, location, price, note, images, youtubeUrl, isLast } = props;
+  const { open, onToggle, editable = false, liveTag, id, tab, row, date, time, title, description, location, price, note, images, youtubeUrl, isLast } = props;
   const [showVideo, setShowVideo] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const canEdit = editable && Boolean(tab && (id || row));
@@ -117,7 +133,9 @@ export default function TimelineItem(props: TimelineItemProps) {
     <div className="relative pl-5 sm:pl-10 group">
       {/* Timeline Node & Vertical Connector */}
       <div
-        className="absolute left-0.5 sm:left-2 top-5 w-3 sm:w-3.5 h-3 sm:h-3.5 rounded-full bg-primary ring-4 ring-white shadow-sm z-10"
+        className={`absolute left-0.5 sm:left-2 top-5 w-3 sm:w-3.5 h-3 sm:h-3.5 rounded-full ring-4 shadow-sm z-10 ${
+          liveTag === 'now' ? 'bg-emerald-500 ring-emerald-500/25' : liveTag === 'done' ? 'bg-emerald-500/60 ring-white' : 'bg-primary ring-white'
+        }`}
         aria-hidden="true"
       />
       {!isLast && (
@@ -128,7 +146,15 @@ export default function TimelineItem(props: TimelineItemProps) {
       )}
 
       {/* Activity Card (Law of Common Region & Law of Proximity: Keep Time, Category, Price & Location scannable together) */}
-      <article className="bg-white/45 hover:bg-white/60 rounded-2xl border border-primary/15 hover:border-primary/35 shadow-sm transition-colors duration-150 p-3 sm:p-5">
+      {/* Von Restorff: on today's day the activity that's on now stands out; checked-in ones step back */}
+      <article
+        aria-current={liveTag === 'now' ? 'time' : undefined}
+        className={`rounded-2xl border shadow-sm transition-colors duration-150 p-3 sm:p-5 ${
+          liveTag === 'now'
+            ? 'bg-emerald-50/80 border-emerald-500 ring-2 ring-emerald-500/30'
+            : `bg-white/45 hover:bg-white/60 border-primary/15 hover:border-primary/35 ${liveTag === 'done' || liveTag === 'skipped' ? 'opacity-70' : ''}`
+        }`}
+      >
         {!shown && (
           <button
             type="button"
@@ -143,7 +169,8 @@ export default function TimelineItem(props: TimelineItemProps) {
               </svg>
               {time}
             </span>
-            <span className="flex-1 min-w-0 truncate text-sm sm:text-base font-bold text-text">{title}</span>
+            <LiveBadge tag={liveTag} />
+            <span className={`flex-1 min-w-0 truncate text-sm sm:text-base font-bold text-text ${liveTag === 'skipped' ? 'line-through' : ''}`}>{title}</span>
             <svg className="w-4 h-4 text-text/50 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
             </svg>
@@ -158,6 +185,7 @@ export default function TimelineItem(props: TimelineItemProps) {
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
             </svg>
             {time}
+            <LiveBadge tag={liveTag} />
           </span>
 
           <div className="flex items-center gap-1.5 shrink-0">
