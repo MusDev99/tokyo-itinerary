@@ -4,6 +4,7 @@ import Timeline from './Timeline';
 import SearchFilter from './SearchFilter';
 import type { DayItinerary } from '../types/itinerary';
 import { localNow, todayIndex } from '../utils/today';
+import { deviceNow } from './deviceClock';
 
 interface Props {
   itinerary: DayItinerary[];
@@ -11,9 +12,13 @@ interface Props {
   canEdit?: boolean;
   /** City or country the stops are in, so the day route searches near the trip */
   region?: string;
+  /** Trip page whose Today-card check-ins the timeline shows */
+  liveHref?: string;
+  /** Merged country itinerary: each state's trip page, by state name */
+  stateHrefs?: Record<string, string>;
 }
 
-export default function Tabs({ itinerary, canEdit = false, region }: Props) {
+export default function Tabs({ itinerary, canEdit = false, region, liveHref, stateHrefs }: Props) {
   const [activeTab, setActiveTab] = useState(0);
   const [filteredItinerary, setFilteredItinerary] = useState(itinerary);
   const [showSearch, setShowSearch] = useState(false);
@@ -30,10 +35,7 @@ export default function Tabs({ itinerary, canEdit = false, region }: Props) {
         return;
       }
     }
-    // Dev only: `?today=2026-10-18T10:00` previews a trip day on any date
-    const forced = import.meta.env.DEV ? params.get('today') : null;
-    const now = forced && !isNaN(new Date(forced).getTime()) ? new Date(forced) : new Date();
-    const today = todayIndex(itinerary, localNow(now).iso);
+    const today = todayIndex(itinerary, localNow(deviceNow()).iso);
     if (today >= 0) setActiveTab(today);
   }, [itinerary]);
 
@@ -169,7 +171,7 @@ export default function Tabs({ itinerary, canEdit = false, region }: Props) {
       <div className="rounded-2xl bg-white/45 border border-primary/15 p-2.5 sm:p-6">
         {currentDay ? (
           <div>
-            <Timeline day={currentDay} canEdit={canEdit} region={region} />
+            <Timeline day={currentDay} canEdit={canEdit} region={region} liveHref={(currentDay.state && stateHrefs?.[currentDay.state]) || liveHref} />
 
             {/* Bottom Day Stepper (Fitts's Law: Easy sequential progression at the end of reading a day) */}
             {filteredItinerary.length > 1 && (

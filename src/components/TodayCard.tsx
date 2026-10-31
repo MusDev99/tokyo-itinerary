@@ -2,6 +2,7 @@ import { h } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { animate } from 'motion';
 import { prefersReducedMotion } from '../utils/motion';
+import { deviceNow } from './deviceClock';
 import { dayRouteUrl, placeSearchUrl } from '../utils/mapsRoute';
 import {
   EMPTY_LIVE, MAX_DELAY, formatMinutes, formatUntil, liveKey, localNow, parseLive, pickToday,
@@ -10,15 +11,6 @@ import {
 
 interface Props {
   trips: TodayTrip[];
-}
-
-/** Dev only: `?today=2026-10-18T10:00` previews the card on any date. */
-function clock(): Date {
-  if (import.meta.env.DEV) {
-    const forced = new URLSearchParams(window.location.search).get('today');
-    if (forced && !isNaN(new Date(forced).getTime())) return new Date(forced);
-  }
-  return new Date();
 }
 
 const directions = (it: TimedItem, region: string) => it.mapsUrl || placeSearchUrl(it.place || it.title, region);
@@ -58,7 +50,7 @@ export default function TodayCard({ trips }: Props) {
   const toastTimer = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
-    const tick = () => setNow(localNow(clock()));
+    const tick = () => setNow(localNow(deviceNow()));
     tick();
     // Minute precision is enough; 30s keeps "in N min" honest without busy work
     const timer = setInterval(tick, 30_000);

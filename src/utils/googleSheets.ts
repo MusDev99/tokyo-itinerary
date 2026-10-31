@@ -5,6 +5,7 @@ import type { DayItinerary, TimelineItem } from '../types/itinerary';
 import type { Place } from '../types/place';
 import { UserError, safeHttpUrl, sheetText, youtubeEmbedUrl } from './security.ts';
 import { cacheState, timed, type Timed } from './swr.ts';
+import { sortByTime } from './calendar.ts';
 
 export interface ServiceAccountCredentials {
   type: string;
@@ -417,7 +418,10 @@ export function rowsToDayItinerary(
     dayMap.get(dayNum)!.items.push(item);
   }
 
-  return Array.from(dayMap.values()).sort((a, b) => a.day - b.day);
+  const days = Array.from(dayMap.values()).sort((a, b) => a.day - b.day);
+  // Sheet rows can be added in any order: show each day's activities by time (9:30 before 22:00)
+  for (const d of days) d.items = sortByTime(d.items, d.date);
+  return days;
 }
 
 const IGNORED_TAB_SLUGS = new Set([

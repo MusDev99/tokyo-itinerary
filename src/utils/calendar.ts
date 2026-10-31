@@ -142,3 +142,18 @@ export function formatTime12(v: string): string {
   const pad2 = (n: number) => String(n).padStart(2, '0');
   return `${pad2(p.h % 12 || 12)}:${pad2(p.m)} ${p.h >= 12 ? 'PM' : 'AM'}`;
 }
+
+/**
+ * Activities of one day in time order: by their own date (ISO or sheet style), then clock time.
+ * Unreadable times keep their sheet order after the timed ones (stable sort).
+ */
+export function sortByTime<T extends { time?: string; date?: string }>(items: T[], dayDate = ''): T[] {
+  const rank = (it: T) => {
+    const t = parseClockTime(it.time || '');
+    return { iso: toIsoDate(it.date || dayDate) || toIsoDate(dayDate), min: t ? t.h * 60 + t.m : Infinity };
+  };
+  return items
+    .map((it, i) => ({ it, i, r: rank(it) }))
+    .sort((a, b) => a.r.iso.localeCompare(b.r.iso) || a.r.min - b.r.min || a.i - b.i)
+    .map((x) => x.it);
+}
