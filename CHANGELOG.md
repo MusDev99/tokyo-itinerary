@@ -3,6 +3,12 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-10-31 15:15 — Branch policy and cleanup workflows
+
+- **`branch-policy.yml`**: fails a PR whose branch name or title breaks [BRANCHING.md](https://github.com/MusDev99/agentic-coding-style/blob/main/BRANCHING.md).
+- **`branch-cleanup.yml`**: deletes a PR's branch after it is merged (skips forks, `master`/`main`, stacked bases).
+- README: new 🌿 Branches section.
+
 ## 2026-10-31 12:47 — Live day: check-ins and "running late"
 
 - **Today card is now interactive:** ✓ Done on what's on now, ⏭ Skip on what's next, and a "N of M done" progress bar.

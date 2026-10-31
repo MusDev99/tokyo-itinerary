@@ -269,3 +269,14 @@ Because `credentials/keys.json` is gitignored for security, configure the follow
 | `npm test` | Unit tests (`node --test`, Node 22+) |
 | `npm run verify` | Tests + production build (run before every commit) |
 | `npm run smoke -- <url>` | Post-deploy security smoke test |
+
+## 🌿 Branches
+
+Follows [BRANCHING.md](https://github.com/MusDev99/agentic-coding-style/blob/main/BRANCHING.md): `feat/`, `fix/`, `chore/` or `docs/` branches, Conventional Commit PR titles, squash merge.
+
+| Workflow | What it does |
+|---|---|
+| `.github/workflows/branch-policy.yml` | Fails a PR whose branch name or title breaks the rules |
+| `.github/workflows/branch-cleanup.yml` | Deletes the PR's branch once it is merged (skips forks, the default branch and branches another open PR is based on) |
+
+Keep **Settings → General → Automatically delete head branches** on as well; the workflow is the backup.
