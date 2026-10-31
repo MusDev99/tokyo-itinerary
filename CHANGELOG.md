@@ -3,6 +3,14 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-10-31 12:47 — Live day: check-ins and "running late"
+
+- **Today card is now interactive:** ✓ Done on what's on now, ⏭ Skip on what's next, and a "N of M done" progress bar.
+- **Running late?** +15 / +30 / +60 min pushes back everything still left today (old time struck through, new time shown); "On time" resets it. The route button now covers only what's left.
+- **Undo** for 5 seconds after every action.
+- Saved on this device per trip day (`localStorage`, parsed defensively), works offline, no sign-in or backend.
+- Product backlog with the next ideas in `docs/product/backlog.md`. Tests: live-day cases in `tests/today.test.ts`.
+
 ## 2026-10-30 12:30 — Chore: shared code-review skill
 
 - **Agents:** `.agents/skills/code-review/SKILL.md`, the same 7-area review checklist (intent, readability, tests, security, performance, style, docs) used in every repo, with findings by severity. `code-review-checklist` stays as the repo-specific layer.

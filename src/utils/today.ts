@@ -33,8 +33,48 @@ export interface TodayTrip {
 }
 
 export interface TimedItem extends TodayItem {
-  /** Minutes after midnight */
+  /** Minutes after midnight, after any "running late" shift */
   start: number;
+  /** Minutes after midnight as planned in the sheet */
+  planned: number;
+  /** Stable per-day key for check-ins */
+  key: string;
+  status?: LiveStatus;
+}
+
+// ---- Live day: check-ins and "running late", saved per device and trip day ----
+
+export type LiveStatus = 'done' | 'skipped';
+
+export interface LiveState {
+  /** Minutes every activity still left today is pushed back */
+  delay: number;
+  status: Record<string, LiveStatus>;
+}
+
+export const EMPTY_LIVE: LiveState = { delay: 0, status: {} };
+export const MAX_DELAY = 6 * 60;
+
+export const liveKey = (tripHref: string, iso: string) => `live:${tripHref.toLowerCase()}:${iso}`;
+
+/** Same activity -> same key on every render and reload (no row id needed). */
+export const itemKey = (it: Pick<TodayItem, 'time' | 'title'>) => `${it.time.trim()}|${it.title.trim()}`.slice(0, 160);
+
+/** Parses saved state defensively: storage is per device and may hold anything. */
+export function parseLive(raw: string | null): LiveState {
+  try {
+    const v = raw ? JSON.parse(raw) : null;
+    const delay = Number.isFinite(v?.delay) ? Math.max(0, Math.min(MAX_DELAY, Math.round(v.delay))) : 0;
+    const status: Record<string, LiveStatus> = {};
+    if (v?.status && typeof v.status === 'object') {
+      for (const [k, val] of Object.entries(v.status).slice(0, 200)) {
+        if (val === 'done' || val === 'skipped') status[k.slice(0, 160)] = val;
+      }
+    }
+    return { delay, status };
+  } catch {
+    return { delay: 0, status: {} };
+  }
 }
 
 export interface TodayView {
@@ -46,8 +86,12 @@ export interface TodayView {
   minutesUntilNext: number | null;
   /** Up to 3 activities after `next` (Miller's Law) */
   later: TimedItem[];
-  /** All of today's activities, in time order (for the day route) */
+  /** All of today's activities, in planned time order, with their check-in status */
   all: TimedItem[];
+  /** Activities not yet done or skipped (for the route of what's left) */
+  remaining: TimedItem[];
+  done: number;
+  delay: number;
   /** Set once today's last activity has started: the trip's next day, if any */
   tomorrow: TodayDay | null;
 }
@@ -70,7 +114,7 @@ export function todayIndex(days: Array<Pick<DayItinerary, 'date'>>, iso: string)
 }
 
 /** Today's plan across all trips: the first trip with a day dated today wins. */
-export function pickToday(trips: TodayTrip[], iso: string, minutes: number): TodayView | null {
+export function pickToday(trips: TodayTrip[], iso: string, minutes: number, live: LiveState = EMPTY_LIVE): TodayView | null {
   for (const trip of trips) {
     const i = todayIndex(trip.days, iso);
     if (i < 0) continue;
@@ -78,19 +122,28 @@ export function pickToday(trips: TodayTrip[], iso: string, minutes: number): Tod
     const all = day.items
       .map((it) => {
         const t = parseClockTime(it.time);
-        return t ? { ...it, start: t.h * 60 + t.m } : null;
+        if (!t) return null;
+        const planned = t.h * 60 + t.m;
+        const key = itemKey(it);
+        const status = live.status[key];
+        // Done / skipped keep their planned time; only what's left moves when running late
+        return { ...it, planned, key, status, start: status ? planned : planned + live.delay };
       })
       .filter((x): x is TimedItem => x !== null)
-      .sort((a, b) => a.start - b.start);
+      .sort((a, b) => a.planned - b.planned);
 
-    const nextIdx = all.findIndex((it) => it.start > minutes);
-    const next = nextIdx >= 0 ? all[nextIdx] : null;
-    const prev = (nextIdx >= 0 ? all.slice(0, nextIdx) : all).at(-1) ?? null;
+    const remaining = all.filter((it) => !it.status);
+    const nextIdx = remaining.findIndex((it) => it.start > minutes);
+    const next = nextIdx >= 0 ? remaining[nextIdx] : null;
+    const prev = (nextIdx >= 0 ? remaining.slice(0, nextIdx) : remaining).at(-1) ?? null;
     const slotEnd = prev ? Math.min(next ? next.start : Infinity, prev.start + CURRENT_MAX) : 0;
     const current = prev && minutes < slotEnd ? prev : null;
-    const later = nextIdx >= 0 ? all.slice(nextIdx + 1, nextIdx + 1 + LATER_MAX) : [];
+    const later = nextIdx >= 0 ? remaining.slice(nextIdx + 1, nextIdx + 1 + LATER_MAX) : [];
     const tomorrow = next ? null : trip.days[i + 1] ?? null;
-    return { trip, day, current, next, minutesUntilNext: next ? next.start - minutes : null, later, all, tomorrow };
+    const done = all.filter((it) => it.status === 'done').length;
+    return {
+      trip, day, current, next, minutesUntilNext: next ? next.start - minutes : null, later, all, remaining, done, delay: live.delay, tomorrow,
+    };
   }
   return null;
 }
@@ -102,4 +155,12 @@ export function formatUntil(minutes: number): string {
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
   return m ? `in ${h} h ${m} min` : `in ${h} h`;
+}
+
+/** Minutes after midnight -> "11:30 AM" (for shifted times). */
+export function formatMinutes(total: number): string {
+  const m = ((total % 1440) + 1440) % 1440;
+  const h = Math.floor(m / 60);
+  const pad2 = (n: number) => String(n).padStart(2, '0');
+  return `${pad2(h % 12 || 12)}:${pad2(m % 60)} ${h >= 12 ? 'PM' : 'AM'}`;
 }
