@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { formatUntil, localNow, pickToday, todayIndex, type TodayTrip } from '../src/utils/today.ts';
+import { formatMinutes, formatUntil, itemKey, liveKey, localNow, MAX_DELAY, parseLive, pickToday, todayIndex, type TodayTrip } from '../src/utils/today.ts';
 
 const trip: TodayTrip = {
   name: 'Tokyo, Japan',
@@ -79,4 +79,58 @@ test('formatUntil', () => {
   assert.equal(formatUntil(25), 'in 25 min');
   assert.equal(formatUntil(60), 'in 1 h');
   assert.equal(formatUntil(65), 'in 1 h 5 min');
+});
+
+// ---- Live day ----
+const key = (time: string, title: string) => itemKey({ time, title });
+
+test('done and skipped activities leave now / next / later and count towards progress', () => {
+  const live = { delay: 0, status: { [key('9:00 AM', 'Senso-ji')]: 'done' as const, [key('11.00 AM', 'Skytree')]: 'skipped' as const } };
+  const v = pickToday([trip], '2026-10-18', 10 * 60 + 30, live)!;
+  assert.equal(v.current, null, 'a done activity is no longer "now"');
+  assert.equal(v.next?.title, 'Lunch', 'skipped Skytree is jumped over');
+  assert.equal(v.done, 1);
+  assert.equal(v.remaining.length, 4);
+  assert.equal(v.all.find((i) => i.title === 'Skytree')?.status, 'skipped');
+});
+
+test('running late shifts only what is left, and keeps the planned time', () => {
+  const live = { delay: 30, status: { [key('9:00 AM', 'Senso-ji')]: 'done' as const } };
+  const v = pickToday([trip], '2026-10-18', 10 * 60 + 40, live)!;
+  assert.equal(v.next?.title, 'Skytree');
+  assert.equal(v.next?.planned, 11 * 60);
+  assert.equal(v.next?.start, 11 * 60 + 30);
+  assert.equal(v.minutesUntilNext, 50);
+  assert.equal(v.all.find((i) => i.title === 'Senso-ji')?.start, 9 * 60, 'done activity keeps its planned time');
+  assert.equal(v.delay, 30);
+});
+
+test('running late can keep the current activity going', () => {
+  // 11:10 with Skytree pushed to 11:30: Senso-ji (now 9:30) is still the current one
+  const v = pickToday([trip], '2026-10-18', 11 * 60 + 10, { delay: 30, status: {} })!;
+  assert.equal(v.current?.title, 'Senso-ji');
+  assert.equal(v.next?.title, 'Skytree');
+});
+
+test('when everything is checked in, the day is done and tomorrow is offered', () => {
+  const status = Object.fromEntries(trip.days[1].items.map((i) => [itemKey(i), 'done' as const]));
+  const v = pickToday([trip], '2026-10-18', 8 * 60, { delay: 0, status })!;
+  assert.equal(v.next, null);
+  assert.equal(v.current, null);
+  assert.equal(v.tomorrow?.title, 'Shibuya');
+  assert.equal(v.done, 6, 'only timed activities count');
+});
+
+test('saved live state is parsed defensively', () => {
+  assert.deepEqual(parseLive(null), { delay: 0, status: {} });
+  assert.deepEqual(parseLive('not json'), { delay: 0, status: {} });
+  assert.deepEqual(parseLive(JSON.stringify({ delay: 99999, status: { a: 'done', b: 'nope', c: 'skipped' } })), { delay: MAX_DELAY, status: { a: 'done', c: 'skipped' } });
+  assert.equal(parseLive(JSON.stringify({ delay: -5 })).delay, 0);
+  assert.equal(liveKey('/Japan/Tokyo', '2026-10-18'), 'live:/japan/tokyo:2026-10-18');
+});
+
+test('formatMinutes', () => {
+  assert.equal(formatMinutes(11 * 60 + 30), '11:30 AM');
+  assert.equal(formatMinutes(0), '12:00 AM');
+  assert.equal(formatMinutes(23 * 60 + 50 + 30), '12:20 AM', 'wraps past midnight');
 });
