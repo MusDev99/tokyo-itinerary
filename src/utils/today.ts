@@ -185,3 +185,18 @@ export function dayLiveTags(
   if (view.next) tags[view.next.key] = 'next';
   return tags;
 }
+
+/** A trip's days slimmed to what the Today card needs (keeps the page payload small). */
+export function slimDays(days: DayItinerary[]): TodayDay[] {
+  return days.map((d) => ({
+    day: d.day,
+    title: d.title,
+    date: d.date,
+    items: d.items.map((i) => ({
+      time: i.time,
+      title: i.title,
+      place: i.location?.name && i.location.name !== i.title ? i.location.name : undefined,
+      mapsUrl: i.location?.mapsUrl || undefined,
+    })),
+  }));
+}

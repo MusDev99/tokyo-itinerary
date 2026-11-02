@@ -10,10 +10,17 @@ export const GET: APIRoute = async ({ url }) => {
     for (const c of countries) {
       paths.add(`/${c.slug}`);
       paths.add(`/${c.slug}/itinerary`);
-      if (c.states.length === 0 && c.stats.hasItinerary) paths.add(`/${c.slug}/prepare`);
+      if (c.states.length === 0 && c.stats.hasItinerary) {
+        paths.add(`/${c.slug}/prepare`);
+        paths.add(`/${c.slug}/analysis`);
+      }
       for (const s of c.states) {
         paths.add(`/${c.slug}/${s.slug}`);
-        if (s.stats.hasItinerary) paths.add(`/${c.slug}/${s.slug}/prepare`); // checklist reads offline too
+        paths.add(`/${c.slug}/${s.slug}/overview`); // the trip tabs read offline too
+        if (s.stats.hasItinerary) {
+          paths.add(`/${c.slug}/${s.slug}/prepare`);
+          paths.add(`/${c.slug}/${s.slug}/analysis`);
+        }
       }
     }
   } catch (err) {

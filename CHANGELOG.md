@@ -3,6 +3,14 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-02 12:52 — Trip tabs: bottom tab bar + Overview and Analysis pages
+
+- **Bottom tab bar on trips (phones and tablets):** every trip page has a fixed bar with **Overview | Analysis | Itinerary | Tools | Prepare**, 64px thumb-zone targets, safe-area aware. Desktop keeps the tabs in the trip header (now the same five). Home and country hubs (countries split into states) have no bar.
+- **New Overview tab** (`/[country]/[state]/overview`; plain countries use `/[country]`): the Today card for this trip, day cards linking into the timeline, and PDF / calendar export. The itinerary keeps `/[country]/[state]`, so existing links still work.
+- **New Analysis tab** (`/[country]/[state]/analysis`, `/[country]/analysis`): the budget & currency dashboard, open. It no longer sits collapsed under the trip itinerary.
+- The theme button and offline pill move above the bar; the page gets bottom padding so the footer isn't hidden.
+- One tab definition (`utils/tripTabs.ts`, tested) for the header and the bar; shared `DaysOverview`, `TripOverview`, `TripAnalysis` components and a `stateTrip()` helper. New pages are in the sitemap for offline reading.
+
 ## 2026-10-31 22:02 — Timeline in time order + today's activity highlighted
 
 - **Fix:** a day's activities are now listed by time (9:30 before 22:00), not by sheet row order; unreadable times stay last in sheet order, and an activity dated the next day (red-eye) comes after the night before. Applies everywhere the itinerary is used (timeline, PDF, calendar feed, Today card).

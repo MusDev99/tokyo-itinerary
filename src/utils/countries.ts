@@ -502,3 +502,24 @@ export function getActiveItinerariesMap(countriesList: CountryMetadata[]): Recor
   }
   return map;
 }
+
+/**
+ * One `Country - State` trip presented as its own destination (the shape CountrySubNav and the trip pages use),
+ * or null when either slug is unknown.
+ */
+export function stateTrip(countries: CountryMetadata[], countrySlug?: string, stateSlug?: string, page = 'Itinerary') {
+  const baseCountry = countries.find((c) => c.slug === countrySlug?.toLowerCase());
+  const stateMeta = baseCountry?.states.find((s) => s.slug === stateSlug?.toLowerCase());
+  if (!baseCountry || !stateMeta) return null;
+  const country: CountryMetadata = {
+    ...baseCountry,
+    title: `${baseCountry.name} – ${stateMeta.name} ${page}`,
+    description: `Day-by-day plan, budget analytics, and local insights for ${stateMeta.name}, ${baseCountry.name}.`,
+    itinerary: stateMeta.itinerary,
+    currency: stateMeta.currency,
+    region: stateMeta.name,
+    stats: stateMeta.stats,
+    tabName: stateMeta.tabName,
+  };
+  return { baseCountry, stateMeta, country };
+}

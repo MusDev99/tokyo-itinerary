@@ -10,6 +10,7 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 
 ### 1. Google Sheets as Single Source of Truth
 - **Tabs = Countries and States**: Add a destination by creating a worksheet tab. A plain tab (e.g., `Japan`) is a country; a tab named `Country - State` (e.g., `Japan - Tokyo`, `Japan - Osaka`) becomes a state/city of that country. Routes: `/[country]`, `/[country]/itinerary` (all states), `/[country]/[state]`, plus calendar feeds `/[country]/calendar.ics` and `/[country]/[state]/calendar.ics`.
+- **Trip tabs**: every trip (a `Country - State` tab, or a country without states) has five tabs, **Overview | Analysis | Itinerary | Tools | Prepare**: in the trip header on desktop and as a fixed bottom tab bar on phones and tablets. Overview = Today card for the trip, day cards and exports (`/[country]/[state]/overview`); Analysis = the budget & currency dashboard (`/[country]/[state]/analysis`, `/[country]/analysis`).
 - **Prepare checklist** (`/[country]/[state]/prepare`, or `/[country]/prepare` for a plain country tab): a 4th trip tab with a checklist built from the trip itself (`src/utils/checklist.ts`): documents, money (trip currency + planned spend), phone & apps, packing (season + activities such as onsen, temples, hikes, beaches), prayer & food, and booking reminders for paid stays, tickets and transport. Items with a lead time show "Overdue / 3d left", and the 5 most urgent sit on top. Ticks and your own extra items are saved **on this device** (no sign-in, works offline).
 - **Travel tools** (`/[country]/[state]/tools`): prayer times for every trip date in the destination's local time with the local calculation method per country (AlAdhan API) plus Qibla direction, driven by the trip's confirmed location. No API keys needed.
 - **Trip locations**: each trip's real place (lat/lng, timezone) is confirmed when adding a trip and stored in a hidden `_trips` worksheet (columns `tab, place, admin1, country, country_code, lat, lng, timezone`) — don't delete it.
@@ -102,7 +103,11 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 │   │   ├── AnalyticsDashboard.tsx     # Multi-country & single-country financial analytics
 │   │   ├── Banner.tsx                 # Dynamic trip status banner
 │   │   ├── Countdown.tsx              # Next trip countdown widget
-│   │   ├── CountrySubNav.astro        # Sub-navigation between Overview & Timeline
+│   │   ├── CountrySubNav.astro        # Trip header + desktop tabs (from utils/tripTabs.ts)
+│   │   ├── TripBottomNav.astro        # Fixed bottom tab bar for a trip (phones / tablets)
+│   │   ├── TripOverview.astro         # Trip Overview tab (Today card, day cards, exports)
+│   │   ├── TripAnalysis.astro         # Trip Analysis tab (dashboard)
+│   │   ├── DaysOverview.astro         # Day cards grid
 │   │   ├── CurrencyExchangeGraph.tsx  # Historical exchange rate chart & converter
 │   │   ├── Footer.astro               # Site-wide footer
 │   │   ├── Header.astro               # Dynamic country switcher & theme controls

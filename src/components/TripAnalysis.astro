@@ -1,0 +1,31 @@
+---
+import AnalyticsDashboard from './AnalyticsDashboard';
+import type { DayItinerary } from '../types/itinerary';
+
+interface Props {
+  /** e.g. "Tokyo, Japan" */
+  name: string;
+  /** Data source key for the dashboard */
+  dataKey: string;
+  days: DayItinerary[];
+  currency: string;
+}
+
+const { name, dataKey, days, currency } = Astro.props;
+---
+
+<!-- A trip's Analysis tab: the dashboard is the page, so it is open, not collapsed behind a toggle -->
+{days.length > 0 ? (
+  <section aria-labelledby="analysis-title" class="glass-effect rounded-2xl p-3.5 sm:p-6 border border-primary/20 shadow-md">
+    <div class="mb-4 pb-3 border-b border-primary/15">
+      <h2 id="analysis-title" class="text-lg sm:text-xl font-extrabold text-text">{name}: budget &amp; currency</h2>
+      <p class="text-xs sm:text-sm text-text/70">Spending by category, daily totals, the biggest expenses and live {currency} rates</p>
+    </div>
+    <AnalyticsDashboard dataSources={{ [dataKey]: days }} currencies={[currency]} client:load />
+  </section>
+) : (
+  <div class="glass-effect rounded-2xl p-8 text-center border border-primary/20">
+    <p class="text-lg font-bold text-text">No activities to analyse yet.</p>
+    <p class="text-sm text-text/70 mt-1">Add activities with prices to see the budget breakdown.</p>
+  </div>
+)}

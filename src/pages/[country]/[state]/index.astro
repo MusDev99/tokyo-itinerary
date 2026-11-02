@@ -8,7 +8,6 @@ import Tabs from '../../../components/TabsNew';
 import PDFDownload from '../../../components/PDFDownload';
 import CalendarExport from '../../../components/CalendarExport';
 import AddActivityPanel from '../../../components/AddActivityPanel';
-import AnalyticsDashboard from '../../../components/AnalyticsDashboard';
 import { getAllCountriesWithSheets } from '../../../utils/countries';
 
 Astro.response.headers.set('Cache-Control', pageCacheControl(Boolean(Astro.locals.user)));
@@ -33,9 +32,6 @@ const country = {
   tabName: stateMeta.tabName,
 };
 
-const countryDataSource = country.stats.hasItinerary
-  ? { [`${baseCountry.slug}-${stateMeta.slug}`]: country.itinerary }
-  : {};
 ---
 
 <Layout title={`${country.title} - Interactive Timeline`}>
@@ -70,35 +66,6 @@ const countryDataSource = country.stats.hasItinerary
         >
           <Tabs itinerary={country.itinerary} region={stateMeta.name} liveHref={`/${baseCountry.slug}/${stateMeta.slug}`} canEdit={Boolean(Astro.locals.user)} client:load />
         </section>
-
-        <!-- Collapsible / Secondary Country Budget & Currency Analytics (Progressive Disclosure) -->
-        <details class="group glass-effect rounded-2xl shadow-md border border-primary/20 overflow-hidden">
-          <summary class="cursor-pointer list-none p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 hover:bg-primary/5 transition-colors select-none">
-            <div class="flex items-start sm:items-center gap-3">
-              <span class="w-10 h-10 rounded-xl bg-primary/15 text-primary flex items-center justify-center text-lg shrink-0">
-                📊
-              </span>
-              <div class="min-w-0">
-                <h2 class="text-base sm:text-xl font-extrabold text-text">
-                  {country.name} Trip Analytics & Live {country.currency} Converter
-                </h2>
-                <p class="text-xs sm:text-sm text-text/70 mt-0.5">
-                  Click to expand budget breakdown, category spending, and historical exchange rates
-                </p>
-              </div>
-            </div>
-            <span class="px-3 py-2 sm:py-1.5 rounded-xl bg-primary/10 text-primary text-xs font-bold flex items-center justify-center gap-1.5 shrink-0 w-full sm:w-auto">
-              <span class="group-open:hidden">Show Analytics</span>
-              <span class="hidden group-open:inline">Hide Analytics</span>
-              <svg class="w-4 h-4 transition-transform duration-150 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </span>
-          </summary>
-          <div class="p-3.5 sm:p-6 pt-3 sm:pt-4 border-t border-primary/15">
-            <AnalyticsDashboard dataSources={countryDataSource} currencies={[country.currency]} client:visible />
-          </div>
-        </details>
 
         <!-- Export actions side by side (Law of Proximity): PDF is the primary, calendar the secondary -->
         <div class="flex flex-col sm:flex-row items-center justify-center gap-3 my-6 sm:my-8">
