@@ -2,6 +2,7 @@
 import type { CountryMetadata } from '../utils/countries';
 import TripActions from './TripActions';
 import TripBottomNav from './TripBottomNav.astro';
+import TabSkeleton from './TabSkeleton.astro';
 import { tripTabs, type TabKey } from '../utils/tripTabs';
 
 interface Props {
@@ -49,7 +50,7 @@ const stats = [
 ].filter(Boolean) as Array<{ icon: string; value: string; label: string }>;
 ---
 
-<div class="flex flex-col gap-3 sm:gap-4 mb-5 sm:mb-6">
+<div data-trip-header class="flex flex-col gap-3 sm:gap-4 mb-5 sm:mb-6">
   <!-- Jakob's Law: Familiar Breadcrumb Navigation -->
   <nav aria-label="Breadcrumb" class="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-text/60">
     <a href="/" class="hover:text-primary transition-colors flex items-center gap-1">
@@ -136,6 +137,8 @@ const stats = [
           return (
             <a
               href={tab.href}
+              data-nav-tab
+              data-nav-label={tab.label}
               data-astro-prefetch={isCurrent || Astro.locals.user ? 'false' : 'viewport'}
               class:list={[
                 'touch-target inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all duration-150',
@@ -164,5 +167,7 @@ const stats = [
     )}
   </div>
 </div>
+
+<TabSkeleton />
 
 {isTrip && tabs.length > 1 && <TripBottomNav tabs={tabs} active={activeTab} />}

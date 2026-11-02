@@ -193,3 +193,27 @@
     bottom: calc(4rem + 0.75rem + env(safe-area-inset-bottom));
   }
 }
+
+/* Page loading (NavProgress): <html data-nav="pending"> right after a tap, "slow" past 400ms */
+a[data-pending] {
+  color: var(--color-primary);
+}
+[data-tab-skeleton],
+#nav-spinner {
+  display: none;
+}
+html[data-nav="slow"] #nav-spinner {
+  display: flex;
+}
+/* A trip tab switch: the trip header stays, the old tab's content gives way to the skeleton */
+html[data-nav="slow"][data-nav-tab] [data-trip-header] ~ :not([data-tab-skeleton]):not(#trip-bottom-nav) {
+  display: none;
+}
+html[data-nav="slow"][data-nav-tab] [data-tab-skeleton] {
+  display: block;
+}
+/* Any other page: dim the old page so it reads as leaving */
+html[data-nav="slow"]:not([data-nav-tab]) #page-content {
+  opacity: 0.6;
+  transition: opacity 0.2s ease-out;
+}
