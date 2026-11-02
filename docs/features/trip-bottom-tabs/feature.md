@@ -44,7 +44,8 @@ Read-only pages over the same public data; no endpoint, host or dependency. New 
 |---|---|
 | AC-1 | ✅ 375px `/japan/tokyo`: 5 tabs 75×64px, Itinerary current, header tabs hidden, scrollWidth 375 |
 | AC-2 | ✅ `/`, `/japan`, `/japan/itinerary`, `/china`, `/indonesia`: no bar |
-| AC-3 | ✅ 1024 / 1440: bar hidden, header shows the 5 tabs; title 1 line at 1440 (2 at 1024) |
+| AC-3 | ✅ 1024 / 1280 / 1440 / 1920: bar hidden; tabs in one row under the trip details; title 1 line, stats 1 row, same card height at every width |
+| AC-8 | ✅ Handoff exactly at 1024: 640 / 768 / 1023 bar only, 1024+ header tabs only (never both) |
 | AC-4 | ✅ body padding 64px; theme button 11px above the bar |
 | AC-5 | ✅ 7 day cards → `/japan/tokyo?day=N`, PDF + calendar; Today card on Oct 18 preview |
 | AC-6 | ✅ dashboard with Overview/Currency/Expenses + charts; `/japan/analysis` → `/japan` |

@@ -3,6 +3,11 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-02 12:58 — Fix: trip header responsive on desktop
+
+- **Desktop / laptop:** the five trip tabs now sit in a row under the trip details instead of beside them, so the title, description and stats keep the full card width. At 1024px the title no longer wraps and the stats stay on one row; the header looks the same from 1024 to 1920px.
+- **Tablets (640–1023px):** the header tabs were showing together with the bottom bar (`sm:flex` beat `max-lg:hidden`); now only the bottom bar shows below 1024px and only the header tabs from 1024px.
+
 ## 2026-11-02 12:52 — Trip tabs: bottom tab bar + Overview and Analysis pages
 
 - **Bottom tab bar on trips (phones and tablets):** every trip page has a fixed bar with **Overview | Analysis | Itinerary | Tools | Prepare**, 64px thumb-zone targets, safe-area aware. Desktop keeps the tabs in the trip header (now the same five). Home and country hubs (countries split into states) have no bar.
