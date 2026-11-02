@@ -74,8 +74,10 @@ const stats = [
     )}
   </nav>
 
-  <!-- Hero Header + Sub-navigation Switcher (Law of Common Region & Fitts's Law) -->
-  <div class="glass-effect rounded-2xl p-4 sm:p-6 border border-primary/20 shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+  <!-- Hero Header + Sub-navigation Switcher (Law of Common Region & Fitts's Law). Tabs sit in a row under the trip
+       details at every width (Jakob's Law: page tabs under the title), so the title, description and stats keep the
+       full card width on laptops instead of sharing it with five tabs -->
+  <div class="glass-effect rounded-2xl p-4 sm:p-6 border border-primary/20 shadow-md flex flex-col gap-4">
     <div class="flex flex-col gap-3.5 min-w-0 flex-1">
       <!-- Identity row: flag + title + currency. Description sits below at full width so text isn't squeezed by the flag column. -->
       <!-- Law of Proximity: rename/delete sit right after the trip name they act on, not at the far end of a wide row -->
@@ -124,7 +126,11 @@ const stats = [
 
     <!-- Tab switcher (Fitts's Law: 44px targets). On a trip, phones and tablets use the bottom tab bar instead -->
     {tabs.length > 1 && (
-      <div class:list={['grid sm:flex items-center gap-1.5 p-1.5 rounded-xl bg-white/45 border border-primary/20 w-full sm:w-auto self-stretch sm:self-start lg:self-center shrink-0', isTrip && 'max-lg:hidden', GRID_COLS[Math.min(tabs.length, 5)]]}>
+      <div class:list={[
+        'items-center gap-1.5 p-1.5 rounded-xl bg-white/45 border border-primary/20 w-full sm:w-auto self-stretch sm:self-start shrink-0',
+        // A trip shows these only from lg (below it the bottom bar takes over); `max-lg:hidden` would lose to `sm:flex`
+        isTrip ? 'hidden lg:flex' : ['grid sm:flex', GRID_COLS[Math.min(tabs.length, 5)]],
+      ]}>
         {tabs.map((tab) => {
           const isCurrent = activeTab === tab.key;
           return (
