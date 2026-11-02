@@ -1,0 +1,124 @@
+---
+// Page-load feedback for this multi-page app: every page is a full server render, so without this a tap shows
+// nothing until the next page arrives. States live on <html data-nav="pending|slow"> (styled in global.css).
+---
+
+<!-- Jakob's Law: the thin top loading bar browsers and most web apps use -->
+<div
+  id="nav-progress"
+  aria-hidden="true"
+  class="fixed top-0 inset-x-0 z-[60] h-[3px] bg-primary origin-left pointer-events-none opacity-0"
+  style="transform: scaleX(0)"
+></div>
+
+<!--
+  Past 400ms a spinning pill names what is loading (Doherty Threshold: the wait is acknowledged; Jakob's Law: the
+  familiar spinner). Top centre, clear of the bottom bar and the thumb zone. Shown by global.css on data-nav="slow".
+-->
+<div
+  id="nav-spinner"
+  role="status"
+  class="fixed top-3 left-1/2 -translate-x-1/2 z-[60] items-center gap-2 pl-2.5 pr-3.5 h-9 rounded-full bg-[color-mix(in_srgb,var(--surface-solid)_94%,transparent)] backdrop-blur-md border border-primary/25 shadow-lg text-xs font-bold text-text pointer-events-none"
+>
+  <span data-spin class="block w-[18px] h-[18px]" aria-hidden="true">
+    <svg viewBox="0 0 24 24" class="block w-full h-full text-primary" fill="none">
+      <circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-opacity="0.2" stroke-width="3" />
+      <path d="M12 2.5a9.5 9.5 0 0 1 9.5 9.5" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+    </svg>
+  </span>
+  <span data-spinner-label>Loading…</span>
+</div>
+
+<script>
+  import { animate } from 'motion';
+  import { startsPageLoad } from '../utils/navLoading';
+  import { prefersReducedMotion } from '../utils/motion';
+
+  const root = document.documentElement;
+  const content = document.getElementById('page-content');
+  const bar = document.getElementById('nav-progress');
+  const spinner = document.getElementById('nav-spinner');
+  const spin = spinner?.querySelector<HTMLElement>('[data-spin]');
+  const spinnerLabel = spinner?.querySelector<HTMLElement>('[data-spinner-label]');
+  let timers: number[] = [];
+  let barAnim: { stop: () => void } | null = null;
+  let spinAnim: { stop: () => void } | null = null;
+
+  function reset() {
+    timers.forEach((t) => clearTimeout(t));
+    timers = [];
+    barAnim?.stop();
+    barAnim = null;
+    spinAnim?.stop();
+    spinAnim = null;
+    delete root.dataset.nav;
+    delete root.dataset.navTab;
+    content?.removeAttribute('aria-busy');
+    if (bar) {
+      bar.style.opacity = '0';
+      bar.style.transform = 'scaleX(0)';
+    }
+    document.querySelectorAll<HTMLElement>('a[data-pending]').forEach((a) => {
+      delete a.dataset.pending;
+      a.removeAttribute('aria-busy');
+    });
+  }
+
+  function start(link: HTMLAnchorElement) {
+    reset();
+    // Doherty Threshold: the tapped link answers at once; the bar and skeleton wait so fast loads don't flicker
+    root.dataset.nav = 'pending';
+    if (link.hasAttribute('data-nav-tab')) root.dataset.navTab = '';
+    link.dataset.pending = '';
+    if (spinnerLabel) spinnerLabel.textContent = link.dataset.navLabel ? `Loading ${link.dataset.navLabel}…` : 'Loading…';
+    link.setAttribute('aria-busy', 'true');
+    content?.setAttribute('aria-busy', 'true');
+    timers.push(
+      window.setTimeout(() => {
+        if (!bar) return;
+        if (prefersReducedMotion()) {
+          bar.style.opacity = '1';
+          bar.style.transform = 'scaleX(0.6)';
+          return;
+        }
+        // Transform + opacity only (compositor): races to 40%, then creeps towards 90% and waits for the page
+        barAnim = animate(
+          bar,
+          { opacity: [0, 1, 1, 1], transform: ['scaleX(0.04)', 'scaleX(0.4)', 'scaleX(0.75)', 'scaleX(0.9)'] },
+          { duration: 8, times: [0, 0.06, 0.35, 1], ease: 'easeOut' }
+        );
+      }, 120),
+      window.setTimeout(() => {
+        root.dataset.nav = 'slow';
+        if (!spinner || !spin || prefersReducedMotion()) return;
+        // One wrapper per motion: the pill fades in, the ring inside it spins (rotate on the compositor)
+        animate(spinner, { opacity: [0, 1] }, { duration: 0.2, ease: 'easeOut' });
+        spinAnim = animate(spin, { transform: ['rotate(0deg)', 'rotate(360deg)'] }, { duration: 0.8, ease: 'linear', repeat: Infinity });
+      }, 400),
+      // The load was stopped (Esc / stop button) or failed silently: give the page back
+      window.setTimeout(reset, 15000)
+    );
+  }
+
+  document.addEventListener('click', (e) => {
+    const link = (e.target as Element | null)?.closest?.('a[href]');
+    if (!(link instanceof HTMLAnchorElement)) return;
+    const go = startsPageLoad(
+      {
+        href: link.href,
+        target: link.getAttribute('target'),
+        download: link.hasAttribute('download'),
+        button: e.button,
+        modifier: e.metaKey || e.ctrlKey || e.shiftKey || e.altKey,
+        handled: e.defaultPrevented,
+      },
+      location.href
+    );
+    if (go) start(link);
+  });
+
+  // Back / Forward restores a frozen copy of this page (bfcache), still showing the loading state: clear it
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted) reset();
+  });
+</script>

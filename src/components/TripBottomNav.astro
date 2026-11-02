@@ -27,6 +27,8 @@ const { tabs, active } = Astro.props;
         <li>
           <a
             href={tab.href}
+            data-nav-tab
+            data-nav-label={tab.label}
             aria-current={current ? 'page' : undefined}
             data-astro-prefetch={current || Astro.locals.user ? 'false' : 'viewport'}
             class:list={[

@@ -3,6 +3,7 @@ import '../styles/global.css';
 import ThemeSwitcher from '../components/ThemeSwitcher';
 import SeasonBackground from '../components/SeasonBackground';
 import OfflineStatus from '../components/OfflineStatus';
+import NavProgress from '../components/NavProgress.astro';
 
 interface Props {
   title: string;
@@ -60,6 +61,9 @@ const canonical = new URL(Astro.url.pathname, Astro.url.origin).toString();
       <ThemeSwitcher client:load />
     </div>
 
+    <!-- Loading bar + tab skeleton while the next page loads -->
+    <NavProgress />
+
     <!-- Offline pill + service worker registration -->
     <OfflineStatus client:load />
 
@@ -67,7 +71,7 @@ const canonical = new URL(Astro.url.pathname, Astro.url.origin).toString();
     <SeasonBackground client:load />
 
     <!-- Main Content -->
-    <div class="relative z-10 flex-1 flex flex-col">
+    <div id="page-content" class="relative z-10 flex-1 flex flex-col">
       <slot />
     </div>
 

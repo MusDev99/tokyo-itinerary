@@ -3,6 +3,14 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-02 19:14 — Feature: loading state between pages and tabs
+
+- A thin top loading bar (Motion, compositor only) starts when you tap a link to another page; the tapped link highlights at once.
+- Past 400ms a spinning pill at the top names what is loading ("Loading Analysis…"); the ring spins with Motion and stays still for reduced motion.
+- Switching trip tabs (header tabs or bottom bar) swaps the old tab's content for a skeleton after 400ms; other links dim the page.
+- New tabs, downloads (`.ics`), API routes and in-page anchors are ignored; Back/Forward restores a clean page.
+- `startsPageLoad()` in `src/utils/navLoading.ts` with unit tests.
+
 ## 2026-11-02 12:58 — Fix: trip header responsive on desktop
 
 - **Desktop / laptop:** the five trip tabs now sit in a row under the trip details instead of beside them, so the title, description and stats keep the full card width. At 1024px the title no longer wraps and the stats stay on one row; the header looks the same from 1024 to 1920px.
