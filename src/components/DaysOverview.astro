@@ -1,0 +1,52 @@
+---
+import type { DayItinerary } from '../types/itinerary';
+
+interface Props {
+  days: DayItinerary[];
+  currency: string;
+  /** The trip's itinerary page; each day links to `${itineraryHref}?day=N` */
+  itineraryHref: string;
+}
+
+const { days, currency, itineraryHref } = Astro.props;
+---
+
+<!-- Quick Day Preview Grid (Miller's Law: chunked daily overview; each card jumps into the timeline) -->
+<section aria-label="Days Overview" class="glass-effect rounded-2xl p-4 sm:p-6 border border-primary/20 shadow-md">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-5 pb-3 border-b border-primary/15">
+    <div>
+      <h2 class="text-lg sm:text-xl font-extrabold text-text">Daily Schedule Summary</h2>
+      <p class="text-xs sm:text-sm text-text/70">Select any day to jump directly into the interactive timeline</p>
+    </div>
+    <a
+      href={itineraryHref}
+      class="touch-target inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-primary text-white text-xs sm:text-sm font-bold shadow-sm hover:opacity-95 transition-opacity w-full sm:w-auto"
+    >
+      <span>Open Full {days.length}-Day Timeline</span>
+      <span>→</span>
+    </a>
+  </div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+    {days.map((day) => {
+      const dayTotal = day.items.reduce((acc, item) => acc + (item.price?.amount || 0), 0);
+      return (
+        <a
+          href={`${itineraryHref}?day=${day.day}`}
+          class="group bg-white/45 hover:bg-white rounded-xl p-4 border border-primary/15 hover:border-primary/40 shadow-xs hover:shadow-md transition-all duration-150 flex flex-col justify-between"
+        >
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="px-2.5 py-0.5 rounded-lg text-xs font-extrabold bg-primary text-white">Day {day.day}</span>
+              <span class="text-xs font-medium text-text/60">{day.date}</span>
+            </div>
+            <h3 class="text-base font-bold text-text group-hover:text-primary transition-colors line-clamp-2">{day.title}</h3>
+          </div>
+          <div class="mt-4 pt-3 border-t border-primary/10 flex items-center justify-between text-xs text-text/75">
+            <span>{day.items.length} activities</span>
+            <span class="font-bold text-primary">{dayTotal > 0 ? `${dayTotal.toLocaleString()} ${currency}` : 'Free'}</span>
+          </div>
+        </a>
+      );
+    })}
+  </div>
+</section>

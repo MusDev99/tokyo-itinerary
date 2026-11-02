@@ -34,7 +34,7 @@ export default function OfflineStatus() {
   }, [offline]);
 
   return (
-    <div role="status" aria-live="polite" className="fixed bottom-5 left-4 z-40 pointer-events-none mobile-safe-area">
+    <div role="status" aria-live="polite" className="above-tabbar fixed bottom-5 left-4 z-40 pointer-events-none mobile-safe-area">
       {offline && (
         // Jakob's Law: familiar "you're offline" pill; Fitts's Law: 44px target in the thumb zone, clear of the header and theme switcher
         <a

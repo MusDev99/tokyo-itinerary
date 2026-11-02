@@ -1,0 +1,50 @@
+---
+import type { TabKey, TripTab } from '../utils/tripTabs';
+
+interface Props {
+  tabs: TripTab[];
+  active: TabKey;
+}
+
+const { tabs, active } = Astro.props;
+---
+
+<!--
+  Trip tab bar, phones and tablets only (desktop keeps the tabs in the trip header).
+  Jakob's Law: the bottom tab bar every travel / map app uses. Fitts's Law: full-height thumb-zone targets.
+  Miller's Law: five labelled destinations at most. `#trip-bottom-nav` lifts the floating buttons and pads the page (global.css).
+-->
+<nav
+  id="trip-bottom-nav"
+  aria-label="Trip sections"
+  class="lg:hidden fixed inset-x-0 bottom-0 z-40 bg-[color-mix(in_srgb,var(--surface-solid)_94%,transparent)] backdrop-blur-md border-t border-primary/20 shadow-[0_-4px_16px_rgb(0_0_0/0.08)]"
+  style="padding-bottom: env(safe-area-inset-bottom)"
+>
+  <ul class="max-w-xl mx-auto grid" style={`grid-template-columns: repeat(${tabs.length}, minmax(0, 1fr))`}>
+    {tabs.map((tab) => {
+      const current = tab.key === active;
+      return (
+        <li>
+          <a
+            href={tab.href}
+            aria-current={current ? 'page' : undefined}
+            data-astro-prefetch={current || Astro.locals.user ? 'false' : 'viewport'}
+            class:list={[
+              'relative flex flex-col items-center justify-center gap-0.5 h-16 px-1 text-[11px] font-bold transition-colors focus-ring',
+              current ? 'text-primary' : 'text-text/60 hover:text-text',
+            ]}
+          >
+            {current && <span class="absolute top-0 inset-x-3 h-[3px] rounded-b-full bg-primary" aria-hidden="true" />}
+            <span class:list={['text-xl leading-none transition-transform', current && 'scale-110']} aria-hidden="true">{tab.icon}</span>
+            <span class="truncate max-w-full">{tab.label}</span>
+            {tab.badge && (
+              <span class="absolute top-1.5 right-1/2 translate-x-[150%] px-1 rounded-full text-[9px] font-extrabold bg-primary/15 text-primary">
+                {tab.badge}
+              </span>
+            )}
+          </a>
+        </li>
+      );
+    })}
+  </ul>
+</nav>

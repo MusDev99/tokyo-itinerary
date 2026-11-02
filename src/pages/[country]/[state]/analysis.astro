@@ -1,0 +1,30 @@
+---
+import { pageCacheControl } from '../../../utils/security';
+import Layout from '../../../layouts/Layout.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import CountrySubNav from '../../../components/CountrySubNav.astro';
+import TripAnalysis from '../../../components/TripAnalysis.astro';
+import { getAllCountriesWithSheets, stateTrip } from '../../../utils/countries';
+
+Astro.response.headers.set('Cache-Control', pageCacheControl(Boolean(Astro.locals.user)));
+
+const { countries } = await getAllCountriesWithSheets();
+const trip = stateTrip(countries, Astro.params.country, Astro.params.state, 'Analysis');
+if (!trip) return Astro.redirect('/404');
+const { baseCountry, stateMeta, country } = trip;
+---
+
+<Layout title={`${stateMeta.name} Trip Budget & Analysis - ${baseCountry.name}`} description={`Spending by category, daily budget and live ${stateMeta.currency} rates for your ${stateMeta.name}, ${baseCountry.name} trip.`}>
+  <Header />
+  <div class="w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8">
+    <CountrySubNav country={country} activeTab="analysis" state={{ slug: stateMeta.slug, name: stateMeta.name }} />
+    <TripAnalysis
+      name={`${stateMeta.name}, ${baseCountry.name}`}
+      dataKey={`${baseCountry.slug}-${stateMeta.slug}`}
+      days={stateMeta.itinerary}
+      currency={stateMeta.currency}
+    />
+  </div>
+  <Footer />
+</Layout>

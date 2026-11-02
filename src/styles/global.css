@@ -183,3 +183,13 @@
 [data-theme="night"] .text-white {
   color: #fff;
 }
+
+/* Trip bottom tab bar (TripBottomNav, below lg): keep the footer and the floating buttons clear of it */
+@media (max-width: 1023.98px) {
+  body:has(#trip-bottom-nav) {
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+  }
+  body:has(#trip-bottom-nav) .above-tabbar {
+    bottom: calc(4rem + 0.75rem + env(safe-area-inset-bottom));
+  }
+}

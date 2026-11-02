@@ -1,0 +1,36 @@
+---
+import DaysOverview from './DaysOverview.astro';
+import TodayCard from './TodayCard';
+import PDFDownload from './PDFDownload';
+import CalendarExport from './CalendarExport';
+import { slimDays } from '../utils/today';
+import type { DayItinerary } from '../types/itinerary';
+
+interface Props {
+  /** e.g. "Tokyo, Japan" */
+  name: string;
+  flag: string;
+  region: string;
+  currency: string;
+  days: DayItinerary[];
+  /** The trip's itinerary page (state: /japan/tokyo, plain country: /korea/itinerary); also where check-ins are saved */
+  itineraryHref: string;
+  feedPath: string;
+}
+
+const { name, flag, region, currency, days, itineraryHref, feedPath } = Astro.props;
+---
+
+<!--
+  A trip's Overview tab, in the order a traveller needs it (Serial Position Effect): what's on today (only on a
+  trip day), the days at a glance, then the take-away actions. The Today card sits outside the spacing group so it
+  leaves no gap on other days (it renders nothing then; it has its own bottom margin).
+-->
+<TodayCard trips={[{ name, flag, href: itineraryHref, region, days: slimDays(days) }]} client:load />
+<div class="space-y-6 sm:space-y-8">
+  <DaysOverview days={days} currency={currency} itineraryHref={itineraryHref} />
+  <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+    <PDFDownload itinerary={days} client:visible />
+    <CalendarExport feedPath={feedPath} client:visible />
+  </div>
+</div>

@@ -5,8 +5,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import TodayCard from '../components/TodayCard';
-import type { TodayTrip } from '../utils/today';
-import type { DayItinerary } from '../types/itinerary';
+import { slimDays, type TodayTrip } from '../utils/today';
 import { getAllCountriesWithSheets, getActiveItinerariesMap } from '../utils/countries';
 
 Astro.response.headers.set('Cache-Control', pageCacheControl(Boolean(Astro.locals.user)));
@@ -66,18 +65,6 @@ const nearToday = (first: string | null, last: string | null) => {
   const e = parse(last) ?? s;
   return Boolean(s && e && s.getTime() - DAY <= startOfToday.getTime() && startOfToday.getTime() <= e.getTime() + DAY);
 };
-const slimDays = (days: DayItinerary[]) =>
-  days.map((d) => ({
-    day: d.day,
-    title: d.title,
-    date: d.date,
-    items: d.items.map((i) => ({
-      time: i.time,
-      title: i.title,
-      place: i.location?.name && i.location.name !== i.title ? i.location.name : undefined,
-      mapsUrl: i.location?.mapsUrl || undefined,
-    })),
-  }));
 const todayTrips: TodayTrip[] = countries.flatMap((c) =>
   c.states.length
     ? c.states
