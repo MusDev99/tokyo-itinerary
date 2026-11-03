@@ -21,10 +21,10 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 - **Fast tab switching**: the Overview / Itinerary / Tools tabs are prefetched as soon as they're visible (guests), and guest pages are `private, max-age=30` so the prefetched page is reused on tap and Back is instant. Editors' pages stay `no-store`.
 
 ### 2. Comprehensive Trip Analytics & Currency Exchange
-- **Global & Per-Country Analytics (`AnalyticsDashboard.tsx`)**: three tabs — Overview (category doughnut, biggest expenses, daily stacked spend), Currency and paginated Expenses.
+- **Global & Per-Country Analytics (`AnalyticsDashboard.tsx`)**: three tabs — Overview (a slim interactive category donut and a day-by-day spending history), Currency and paginated Expenses.
   - Total trip cost, daily average burn rate, cost per activity, and paid vs. free activity ratios.
   - **6-Category Spending Breakdown**: Automatically classifies activities into `Transport`, `Food`, `Lodging`, `Attraction`, `Shopping`, and `Other` using explicit `category` cells or keyword heuristics.
-  - **Daily Spending Profile & Peak Spend Alerts**: Visualizes highest-cost days and top individual expenses.
+  - **Daily spending history**: every payment grouped by day like a bank statement (date, day total, round category icon, title, note, amount in your home currency, time and the original amount); tap a day bar to collapse it.
 - **Live Multi-Currency Exchange (`CurrencyExchangeGraph.tsx` & `/api/currency-exchange`)**:
   - Instant conversion for **MYR, USD and every currency used by a country with an itinerary** (no fixed list; the hub grows with your trips).
   - Interactive historical exchange rate trend chart with 30-day high/low/average statistics powered by Frankfurter & Open ER-API.
