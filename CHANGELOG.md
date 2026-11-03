@@ -3,6 +3,11 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-03 21:14 — Removed: season sound (Web Audio)
+
+- The ambient soundscape and the **Sound on / off** switch in the theme panel are gone (it was not working reliably). Themes are visual only; nothing plays and no audio code ships.
+- Deleted `src/utils/seasonSound.ts`, its test and the ambient-sound feature doc. A leftover `theme-sound` value in a browser's localStorage is simply ignored.
+
 ## 2026-11-03 21:11 — Feature: interactive world map
 
 - **World map** on `/welcome` ("The world so far") and on the home page, above Destinations: one land shape plus a pin per country. Tap a pin to see that country (days, activities, **Open →**); a second tap goes in. Planned trips have a breathing pin, wishlist countries a quiet one.
