@@ -4,6 +4,7 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
+import WorldMap from '../components/WorldMap.astro';
 import TodayCard from '../components/TodayCard';
 import { slimDays, type TodayTrip } from '../utils/today';
 import { WELCOME_COOKIE, shouldShowWelcome } from '../utils/welcome';
@@ -136,6 +137,14 @@ const statusStyle = {
           </a>
         )}
       </section>
+
+      <!-- World map: look first, open second. Collapsed on phones would hide the best guest entry, so it stays open (Hick: one card, chips below). -->
+      {countries.length > 0 && (
+        <section data-reveal aria-labelledby="map-heading" class="space-y-3">
+          <h2 id="map-heading" class="text-lg sm:text-xl font-extrabold text-text px-1">World map</h2>
+          <div class="glass-effect rounded-2xl sm:rounded-3xl p-3 sm:p-5"><WorldMap countries={countries} /></div>
+        </section>
+      )}
 
       <!-- Trips: one tappable card each, soonest first (Von Restorff: status chip marks what's next) -->
       {trips.length > 0 && (

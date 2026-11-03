@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import WelcomeStory from '../components/WelcomeStory.astro';
+import WorldMap from '../components/WorldMap.astro';
 import { authConfig } from '../utils/authEnv';
 import { getAllCountriesWithSheets } from '../utils/countries';
 import { WELCOME_COOKIE, WELCOME_MAX_AGE, WELCOME_STEPS, worldTotals } from '../utils/welcome';
@@ -150,21 +151,7 @@ const FEATURES = [
               </div>
             ))}
           </dl>
-          <ul class="mt-5 flex flex-wrap gap-2" aria-label="Destinations">
-            {places.map((p) => (
-              <li>
-                <a
-                  href={`/${p.slug}`}
-                  class:list={[
-                    'touch-target focus-ring inline-flex items-center gap-2 rounded-full border px-3.5 text-sm font-semibold transition-colors active:scale-[0.97]',
-                    p.planned ? 'border-primary/30 bg-white/45 text-text hover:border-primary hover:text-primary' : 'border-primary/15 bg-white/25 text-text/60 hover:text-primary',
-                  ]}
-                >
-                  <span aria-hidden="true">{p.flag}</span>{p.name}
-                </a>
-              </li>
-            ))}
-          </ul>
+          <div class="mt-5"><WorldMap countries={countries} /></div>
         </div>
       </section>
     )}

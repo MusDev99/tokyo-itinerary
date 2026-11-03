@@ -18,7 +18,7 @@ Animation: Motion (repo rule) with `compositorFrames` so every loop is transform
 | 1 | `shouldShowWelcome` + `worldTotals` + steps (pure, tested) | ✅ |
 | 2 | `/welcome`: 9s story, hero, Google + guest, world-so-far, how-it-works tabs | ✅ |
 | 3 | `/` redirects first-time guests; footer "How it works" replay; SW `NO_STORE`; smoke checks | ✅ |
-| 4 (later) | Interactive world map of destinations (one SVG, pins only, no tiles) | ⬜ |
+| 4 | Interactive world map (one SVG, pins only, no tiles) on welcome and home | ✅ |
 | 5 (later) | Guided first-trip tour for new editors (3 coach marks on `/add`) | ⬜ |
 
 ## 3. 🔬 Analysis
@@ -31,6 +31,7 @@ Animation: Motion (repo rule) with `compositorFrames` so every loop is transform
 | AC-5 | Story loops only while on screen and the tab is visible; all animations are transform/opacity | browser (22 WAAPI, 0 non-compositor) |
 | AC-6 | Reduced motion: 0 animations, finished scene, everything visible | browser |
 | AC-7 | How-it-works tabs: arrow/Home/End keys, auto-play stops at the first touch | browser |
+| AC-9 | Tapping a pin shows only that country's card; countries without coordinates stay reachable as chips; 375px page has no horizontal scroll (the map pans inside its box) | browser + `tests/worldMap.test.ts` |
 | AC-8 | A broken sheet hides "The world so far" but never blocks the page | code path (try/catch) |
 
 ### OWASP

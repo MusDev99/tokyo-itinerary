@@ -1,0 +1,132 @@
+---
+// Interactive world map: one static land shape (public/world-map.svg, painted with CSS mask so it follows the
+// season colours and is cached by the service worker) plus a pin per country. Tapping a pin shows that country in
+// a card under the map; a second tap on "Open" goes in (Hick's Law: look first, commit second). No tiles, no
+// map library, no network: pins are plain buttons placed in percent. Only planned trips pulse, and the pulse
+// runs on the compositor and pauses off screen.
+import { placePins, MAP_W, MAP_H, type MapCountry } from '../utils/worldMap';
+
+interface Props {
+  countries: MapCountry[];
+}
+const { countries } = Astro.props;
+const { pins, unplaced } = placePins(countries);
+const mask = 'url(/world-map.svg) center / 100% 100% no-repeat';
+---
+
+{countries.length > 0 && (
+  <div data-world-map class="space-y-3">
+    <!-- Phones scroll the map sideways inside this box (so pins stay tappable); from sm it fits the width -->
+    <div data-scroller class="min-w-0 max-w-full -mx-1 overflow-x-auto overscroll-x-contain scrollbar-hide rounded-2xl">
+      <div class="relative mx-1 w-[640px] sm:w-auto" style={`aspect-ratio:${MAP_W}/${MAP_H}`}>
+        <div aria-hidden="true" class="absolute inset-0 bg-primary/30" style={`-webkit-mask:${mask};mask:${mask}`}></div>
+        {pins.map((p, i) => (
+          <button
+            type="button"
+            data-pin={p.slug}
+            data-planned={p.planned ? '' : undefined}
+            aria-pressed={i === 0 ? 'true' : 'false'}
+            aria-label={`${p.name}${p.planned ? `, ${p.days} days planned` : ', wishlist'}`}
+            class="focus-ring group absolute grid size-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full"
+            style={`left:${p.left}%;top:${p.top}%`}
+          >
+            <span data-pulse aria-hidden="true" class:list={['absolute size-4 rounded-full', p.planned ? 'bg-primary/40' : 'hidden']}></span>
+            <span
+              aria-hidden="true"
+              class:list={[
+                'relative block rounded-full border-2 border-white shadow transition-transform duration-150 group-aria-pressed:scale-150 group-active:scale-90',
+                p.planned ? 'size-3 bg-primary' : 'size-2.5 bg-text/40',
+              ]}
+            ></span>
+          </button>
+        ))}
+      </div>
+    </div>
+
+    {pins.length > 0 && (
+      <div aria-live="polite" class="glass-effect rounded-2xl p-3.5 sm:p-4">
+        {pins.map((p, i) => (
+          <div data-card={p.slug} hidden={i !== 0}>
+           <div class="flex items-center gap-3">
+            <span class="grid size-12 shrink-0 place-items-center rounded-2xl border border-primary/25 bg-primary/15 text-2xl" aria-hidden="true">{p.flag}</span>
+            <div class="min-w-0 flex-1">
+              <p class="truncate text-base font-extrabold">{p.name}</p>
+              <p class="text-xs text-text/70">
+                {p.planned ? `${p.days} ${p.days === 1 ? 'day' : 'days'} · ${p.activities} ${p.activities === 1 ? 'activity' : 'activities'}` : 'Wishlist · no activities yet'}
+              </p>
+            </div>
+            <a href={`/${p.slug}`} class="touch-target focus-ring inline-flex items-center gap-1 rounded-xl bg-primary px-4 text-sm font-extrabold text-white active:scale-[0.97] transition-transform">
+              Open <span aria-hidden="true">→</span>
+            </a>
+           </div>
+          </div>
+        ))}
+      </div>
+    )}
+
+    <!-- The 44px alternative to the small pins (Fitts's Law), and the way in for countries without a pin -->
+    <ul class="flex flex-wrap gap-2" aria-label="All destinations">
+      {[...pins, ...unplaced.map((c) => ({ slug: c.slug, name: c.name, flag: c.flag, planned: c.stats.hasItinerary }))].map((c) => (
+        <li>
+          <a
+            href={`/${c.slug}`}
+            data-chip={c.slug}
+            class:list={[
+              'touch-target focus-ring inline-flex items-center gap-2 rounded-full border px-3.5 text-sm font-semibold transition-colors active:scale-[0.97]',
+              c.planned ? 'border-primary/30 bg-white/45 text-text hover:border-primary hover:text-primary' : 'border-primary/15 bg-white/25 text-text/60 hover:text-primary',
+            ]}
+          >
+            <span aria-hidden="true">{c.flag}</span>{c.name}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+)}
+
+<script>
+  import { animate } from 'motion';
+  import { compositorFrames, prefersReducedMotion } from '../utils/motion';
+
+  const root = document.querySelector<HTMLElement>('[data-world-map]');
+  if (root) {
+    const pins = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-pin]'));
+    const cards = Array.from(root.querySelectorAll<HTMLElement>('[data-card]'));
+    const scroller = root.querySelector<HTMLElement>('[data-scroller]');
+    const reduced = prefersReducedMotion();
+
+    const center = (pin: HTMLElement) => {
+      if (!scroller || scroller.scrollWidth <= scroller.clientWidth) return;
+      scroller.scrollTo({ left: pin.offsetLeft - scroller.clientWidth / 2, behavior: reduced ? 'auto' : 'smooth' });
+    };
+
+    const select = (slug: string, pan: boolean) => {
+      pins.forEach((p) => p.setAttribute('aria-pressed', String(p.dataset.pin === slug)));
+      cards.forEach((c) => {
+        const on = c.dataset.card === slug;
+        const was = !c.hidden;
+        c.hidden = !on;
+        if (on && !was && !reduced) animate(c, compositorFrames({ y: [8, 0], opacity: [0, 1] }), { duration: 0.22, ease: 'easeOut' });
+      });
+      const pin = pins.find((p) => p.dataset.pin === slug);
+      if (pin && pan) center(pin);
+    };
+    pins.forEach((p) => p.addEventListener('click', () => select(p.dataset.pin ?? '', true)));
+    if (pins[0]) requestAnimationFrame(() => center(pins[0]));
+
+    /* Planned trips breathe: scale + opacity only, staggered, paused while off screen or in a background tab */
+    if (!reduced) {
+      const loops = Array.from(root.querySelectorAll<HTMLElement>('[data-planned] [data-pulse]')).map((el, i) =>
+        animate(el, compositorFrames({ scale: [1, 2.6], opacity: [0.7, 0] }), { duration: 2.4, repeat: Infinity, ease: 'easeOut', delay: -((i * 0.7) % 2.4) }),
+      );
+      let onScreen = false;
+      const sync = () => loops.forEach((l) => (onScreen && !document.hidden ? l.play() : l.pause()));
+      new IntersectionObserver((entries) => {
+        onScreen = entries[entries.length - 1].isIntersecting;
+        sync();
+      }).observe(root);
+      document.addEventListener('visibilitychange', sync);
+      sync();
+    }
+  }
+</script>
