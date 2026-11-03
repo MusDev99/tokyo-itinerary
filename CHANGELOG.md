@@ -3,6 +3,13 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-03 21:36 — Fix: Expenses tab on phones
+
+- **No more sideways scroll / clipped amounts:** the expense rows sat in a grid cell that grew to fit long titles, pushing "MYR …" off the right edge. The list now uses a shrinkable column, titles wrap to two lines, and the amount never wraps or leaves the screen.
+- **Filters:** search on its own row, category on a full row (its names are long), country and sort share the next one; every field is 44px tall with 16px text on phones (no iOS zoom-in).
+- **Readability on dark themes:** category labels are mixed with the theme text colour so the blue "Transport & Transit" is legible at night.
+- Analysis tab subtitle updated to match the new Overview.
+
 ## 2026-11-03 21:24 — Overview: slim interactive donut + daily history list
 
 - **Donut redesigned:** a slim SVG ring with rounded, gradient slices, a soft shadow and gaps between slices (replaces the flat canvas doughnut). Tap or hover a slice, or a row in the list: the pick grows, the others dim and the centre shows that category (amount, share, items). Tap again to clear. Entrance animation is transform/opacity only and stays still for reduced motion.

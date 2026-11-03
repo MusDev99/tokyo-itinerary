@@ -202,10 +202,11 @@ export const AnalyticsDashboard: React.FC<Props> = ({ dataSources, currencies = 
   }, [pageCount, current]);
 
   const card = 'rounded-2xl bg-white/40 border border-primary/20 p-4 sm:p-5';
-  const field = 'bg-white/70 text-text text-sm rounded-lg px-3 py-2 border border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/40';
+  // 44px tall and 16px text on phones (Fitts: thumb target; 16px stops iOS zooming into the field); min-w-0 lets a select shrink inside its grid cell
+  const field = 'min-w-0 min-h-[44px] sm:min-h-0 bg-white/70 text-text text-base sm:text-sm rounded-lg px-3 py-2 border border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/40';
 
   return (
-    <div className="w-full flex flex-col gap-4 sm:gap-5">
+    <div className="w-full min-w-0 flex flex-col gap-4 sm:gap-5">
       {/* Header: title, live status, home currency */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
@@ -345,22 +346,23 @@ export const AnalyticsDashboard: React.FC<Props> = ({ dataSources, currencies = 
 
       {/* ---------------- EXPENSES (paginated) ---------------- */}
       {tab === 'expenses' && (
-        <div className="flex flex-col gap-3" ref={listTop}>
+        <div className="flex min-w-0 flex-col gap-3" ref={listTop}>
           <div className="flex flex-col lg:flex-row gap-2.5 p-3 rounded-xl bg-white/40 border border-primary/20">
             <input type="search" value={query} onChange={(e) => setQuery(e.currentTarget.value)} placeholder="Search activities…"
               className={`${field} w-full lg:flex-1`} aria-label="Search expenses" />
+            {/* Phones: category gets the full row (its labels are long), country and sort share the next one */}
             <div className="grid grid-cols-2 sm:flex gap-2">
-              <select value={catFilter} onChange={(e) => setCatFilter(e.currentTarget.value)} className={field} aria-label="Category">
+              <select value={catFilter} onChange={(e) => setCatFilter(e.currentTarget.value)} className={`${field} col-span-2 w-full sm:w-auto`} aria-label="Category">
                 <option value="all">All categories</option>
                 {Object.values(CATEGORIES).map((c) => <option key={c.key} value={c.key}>{c.emoji} {c.label}</option>)}
               </select>
               {multiCountry && (
-                <select value={countryFilter} onChange={(e) => setCountryFilter(e.currentTarget.value)} className={field} aria-label="Country">
+                <select value={countryFilter} onChange={(e) => setCountryFilter(e.currentTarget.value)} className={`${field} w-full sm:w-auto`} aria-label="Country">
                   <option value="all">All countries</option>
                   {Object.keys(dataSources).map((c) => <option key={c} value={c}>{slugLabel(c)}</option>)}
                 </select>
               )}
-              <select value={sort} onChange={(e) => setSort(e.currentTarget.value as any)} className={field} aria-label="Sort">
+              <select value={sort} onChange={(e) => setSort(e.currentTarget.value as any)} className={`${field} w-full sm:w-auto ${multiCountry ? '' : 'col-span-2'}`} aria-label="Sort">
                 <option value="trip">Trip order</option>
                 <option value="cost">Highest cost</option>
               </select>
@@ -377,20 +379,20 @@ export const AnalyticsDashboard: React.FC<Props> = ({ dataSources, currencies = 
           {pageItems.length === 0 ? (
             <div className="p-6 text-center text-sm text-text/60 rounded-xl border border-primary/20 bg-white/30">No activities match your filters.</div>
           ) : (
-            <ul className="grid gap-2">
+            <ul className="grid grid-cols-[minmax(0,1fr)] gap-2">
               {pageItems.map((i) => (
-                <li key={i.id} className="rounded-xl border border-primary/20 bg-white/45 p-3 sm:px-4 sm:py-3 flex items-start sm:items-center justify-between gap-3">
-                  <div className="min-w-0">
+                <li key={i.id} className="min-w-0 rounded-xl border border-primary/20 bg-white/45 p-3 sm:px-4 sm:py-3 flex items-start sm:items-center justify-between gap-3">
+                  <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-1.5 mb-1">
                       <span className="px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[11px] font-bold">
                         {multiCountry ? `${slugLabel(i.country)} · ` : ''}Day {i.day}
                       </span>
-                      <span className="text-[11px] font-semibold" style={{ color: i.category.color }}>{i.category.emoji} {i.category.label}</span>
+                      <span className="text-[11px] font-semibold" style={{ color: `color-mix(in srgb, ${i.category.color} 65%, var(--color-text))` }}>{i.category.emoji} {i.category.label}</span>
                     </div>
-                    <div className="font-semibold text-sm text-text truncate">{i.title}</div>
+                    <div className="font-semibold text-sm text-text line-clamp-2 sm:line-clamp-1 break-words">{i.title}</div>
                     {i.description && <div className="text-xs text-text/60 line-clamp-1">{i.description}</div>}
                   </div>
-                  <div className="text-right shrink-0">
+                  <div className="text-right shrink-0 whitespace-nowrap">
                     {i.amount > 0 ? (
                       <>
                         <div className="text-sm font-extrabold text-text">{money(i.converted)}</div>
