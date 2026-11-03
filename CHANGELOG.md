@@ -3,6 +3,29 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-03 21:14 — Removed: season sound (Web Audio)
+
+- The ambient soundscape and the **Sound on / off** switch in the theme panel are gone (it was not working reliably). Themes are visual only; nothing plays and no audio code ships.
+- Deleted `src/utils/seasonSound.ts`, its test and the ambient-sound feature doc. A leftover `theme-sound` value in a browser's localStorage is simply ignored.
+
+## 2026-11-03 21:11 — Feature: interactive world map
+
+- **World map** on `/welcome` ("The world so far") and on the home page, above Destinations: one land shape plus a pin per country. Tap a pin to see that country (days, activities, **Open →**); a second tap goes in. Planned trips have a breathing pin, wishlist countries a quiet one.
+- Phones pan the map sideways inside its own box so pins stay tappable; the chip list underneath is the 44px alternative and the way in for countries without a pin.
+- **Light:** no map library or tiles. The land is `public/world-map.svg` (30 KB, one path, cached by the service worker) painted with a CSS mask, so it follows the season colours. The pulse is transform/opacity only and pauses off screen.
+- Pin positions: `PIN_COORDS` in `src/utils/worldMap.ts` (keyed by country slug; add a line for a new country, otherwise it shows as a chip). Pure and tested (`tests/worldMap.test.ts`).
+- `npm run` is not needed to use it; `node scripts/build-world-map.mjs` regenerates the SVG (dev dependencies `world-atlas`, `topojson-client`).
+
+## 2026-11-03 21:06 — Feature: animated welcome landing
+
+- **New `/welcome` page** for first-time visitors: a looping product story (ideas drop into Day 1–3, the budget grows, "Day 2 planned", a clock sweeps, "Synced to Google Sheets"), the pitch "Plan the trip. Live the day.", and two clear choices: **Continue with Google** or **Continue as guest**.
+- **The world so far:** live trip, day and activity counts from the sheet (counting up) and a chip per destination, so a guest's first tap is a real trip.
+- **How it works:** three tabs (Browse, Plan, Go) that play themselves until you touch them; arrow keys, Home and End work.
+- **First visit only:** a guest with no cookie opening `/` is sent to `/welcome` once (`pt_welcome`, 1 year). Signed-in users, returning guests, search bots, link previews and prefetches are never redirected. Replay it from the footer ("How it works").
+- **Light on rendering:** Motion with transform/opacity only (compositor), the story and tab autoplay pause off screen and in background tabs, the season background is not mounted on this page, reduced motion shows the finished scene with no animation.
+- Google button only shows when sign-in is configured. `/welcome` is never cached by the service worker. Smoke test covers the welcome and the first-visit redirect.
+- `shouldShowWelcome` / `worldTotals` in `src/utils/welcome.ts` with unit tests; `Layout` gets `seasonBackground`.
+
 ## 2026-11-02 19:14 — Feature: loading state between pages and tabs
 
 - A thin top loading bar (Motion, compositor only) starts when you tap a link to another page; the tapped link highlights at once.

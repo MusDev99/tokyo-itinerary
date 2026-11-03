@@ -2,7 +2,6 @@ import { h } from 'preact';
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { animate, stagger } from 'motion';
 import { SEASONS, readSavedSeason, type SeasonId } from '../utils/seasons';
-import { pauseAmbient, playAmbient, readSoundOn, saveSoundOn, stopAmbient } from '../utils/seasonSound';
 import { prefersReducedMotion } from '../utils/motion';
 import { useDismiss } from './useDismiss';
 
@@ -16,19 +15,9 @@ const GROUPS = [
 
 const spring = { type: 'spring', stiffness: 380, damping: 28 } as const;
 
-function SpeakerIcon({ on }: { on: boolean }) {
-  return (
-    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M11 5L6 9H3v6h3l5 4V5z" />
-      {on ? <path d="M15.5 8.5a5 5 0 010 7M18.5 5.5a9 9 0 010 13" /> : <path d="M22 9l-6 6M16 9l6 6" />}
-    </svg>
-  );
-}
-
 const ThemeSwitcher = () => {
   const [theme, setTheme] = useState<SeasonId>('autumn');
   const [open, setOpen] = useState(false);
-  const [soundOn, setSoundOn] = useState(true);
   const root = useRef<HTMLDivElement>(null);
   const panel = useRef<HTMLDivElement>(null);
   const fab = useRef<HTMLButtonElement>(null);
@@ -38,27 +27,8 @@ const ThemeSwitcher = () => {
   useEffect(() => {
     const saved = readSavedSeason();
     setTheme(saved);
-    setSoundOn(readSoundOn());
     document.documentElement.setAttribute('data-theme', saved);
   }, []);
-
-  // Ambient soundscape: browsers allow audio only after a gesture, so it starts on the first tap or key press
-  // anywhere, then follows the theme. Hidden tab = paused, so nothing plays in the device's background.
-  const themeRef = useRef(theme);
-  themeRef.current = theme;
-  useEffect(() => {
-    if (!soundOn) return stopAmbient();
-    const start = () => playAmbient(themeRef.current);
-    document.addEventListener('pointerdown', start, { once: true, capture: true });
-    document.addEventListener('keydown', start, { once: true, capture: true });
-    const onVisibility = () => pauseAmbient(document.hidden);
-    document.addEventListener('visibilitychange', onVisibility);
-    return () => {
-      document.removeEventListener('pointerdown', start, { capture: true });
-      document.removeEventListener('keydown', start, { capture: true });
-      document.removeEventListener('visibilitychange', onVisibility);
-    };
-  }, [soundOn]);
 
   // Open: panel grows from the button, tiles stagger in; focus lands on the current theme
   useEffect(() => {
@@ -85,7 +55,6 @@ const ThemeSwitcher = () => {
 
   // The panel stays open after a pick so themes can be compared; the page re-themes instantly (Doherty Threshold)
   const choose = (id: SeasonId, tile: HTMLElement) => {
-    if (soundOn) playAmbient(id); // crossfades to the new scene
     if (id === theme) return;
     setTheme(id);
     try {
@@ -98,14 +67,6 @@ const ThemeSwitcher = () => {
     if (prefersReducedMotion()) return;
     animate(tile, { scale: [0.9, 1.06, 1] }, { duration: 0.3, ease: 'easeOut' });
     if (fabIcon.current) animate(fabIcon.current, { rotate: [0, 360], scale: [0.6, 1.15, 1] }, { duration: 0.6, ease: 'easeOut' });
-  };
-
-  const toggleSound = () => {
-    const next = !soundOn;
-    setSoundOn(next);
-    saveSoundOn(next);
-    if (next) playAmbient(theme);
-    else stopAmbient();
   };
 
   // Arrow keys move through the tiles as a 4-column grid
@@ -140,18 +101,8 @@ const ThemeSwitcher = () => {
           className="absolute right-0 rounded-2xl bg-surface-solid border border-primary/25 shadow-2xl p-3"
           style={{ bottom: `${FAB + 12}px`, width: 'min(304px, calc(100vw - 40px))', transformOrigin: 'bottom right' }}
         >
-          <div className="flex items-center justify-between mb-2 pl-1">
+          <div className="mb-2 pl-1">
             <span className="text-sm font-extrabold text-text">Theme</span>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={soundOn}
-              onClick={toggleSound}
-              className="touch-target inline-flex items-center gap-1.5 h-11 px-3 rounded-xl text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 transition-colors"
-            >
-              <SpeakerIcon on={soundOn} />
-              {soundOn ? 'Sound on' : 'Sound off'}
-            </button>
           </div>
 
           {/* Two labelled chunks instead of one long fan (Miller's Law); visible labels, no hover-only captions (Hick's Law) */}

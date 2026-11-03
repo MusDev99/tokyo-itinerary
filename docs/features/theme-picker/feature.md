@@ -1,4 +1,4 @@
-# Feature: Theme picker redesign + selection sound
+# Feature: Theme picker redesign (selection sound removed 2026-11-03)
 
 Status: implemented (working tree on `feat/calendar-picker`) · Replaces: quarter-circle season wheel in `ThemeSwitcher.tsx`
 

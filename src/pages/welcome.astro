@@ -1,0 +1,399 @@
+---
+import Layout from '../layouts/Layout.astro';
+import WelcomeStory from '../components/WelcomeStory.astro';
+import WorldMap from '../components/WorldMap.astro';
+import { authConfig } from '../utils/authEnv';
+import { getAllCountriesWithSheets } from '../utils/countries';
+import { WELCOME_COOKIE, WELCOME_MAX_AGE, WELCOME_STEPS, worldTotals } from '../utils/welcome';
+
+// Opening this page counts as "seen": the first-visit redirect on the home page stops. The page itself is always
+// reachable again from the footer ("How it works"). Per-viewer, so never cached.
+Astro.response.headers.set('Cache-Control', 'private, no-store');
+Astro.cookies.set(WELCOME_COOKIE, '1', {
+  path: '/',
+  maxAge: WELCOME_MAX_AGE,
+  sameSite: 'lax',
+  httpOnly: true,
+  secure: import.meta.env.PROD,
+});
+
+const user = Astro.locals.user;
+const canSignIn = authConfig().configured;
+const googleHref = '/api/auth/google?next=%2F';
+
+// The world so far, from the sheet. A slow or broken sheet must never block the landing page.
+let countries: Awaited<ReturnType<typeof getAllCountriesWithSheets>>['countries'] = [];
+try {
+  countries = (await getAllCountriesWithSheets()).countries;
+} catch (err) {
+  console.error('welcome: could not read Google Sheets', err instanceof Error ? err.message : err);
+}
+const totals = worldTotals(countries);
+const places = countries.map((c) => ({ slug: c.slug, name: c.name, flag: c.flag, planned: c.stats.hasItinerary }));
+
+const FEATURES = [
+  { icon: '🌏', title: 'Every destination', text: 'Countries, cities, one tap away' },
+  { icon: '🗓️', title: 'Day by day', text: 'Timeline, maps and Today mode' },
+  { icon: '💱', title: 'Budget & currency', text: 'Live rates, spend per day' },
+  { icon: '📴', title: 'Works offline', text: 'Saved trips read without signal' },
+];
+---
+
+<Layout
+  title="PlanTravel – Plan the trip. Live the day."
+  description="Browse trips around the world, plan them day by day with costs and maps, and keep everything in your Google Sheet. Free to look around as a guest."
+  seasonBackground={false}
+>
+  <!-- Set before the first paint of the sections below, so hidden-until-revealed never flashes (see data-reveal) -->
+  <script is:inline>
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.setAttribute('data-motion', '');
+  </script>
+  <noscript><style>[data-reveal]{opacity:1 !important}</style></noscript>
+
+  <!-- Backdrop: static colour fields (two drift on the compositor), no per-frame repaint -->
+  <div aria-hidden="true" class="pointer-events-none fixed inset-0 overflow-hidden">
+    <div data-drift class="absolute -top-40 -left-32 size-[30rem] rounded-full bg-primary/25 blur-3xl"></div>
+    <div data-drift class="absolute top-1/4 -right-40 size-[28rem] rounded-full bg-accent/20 blur-3xl"></div>
+    <div class="absolute -bottom-48 left-1/4 size-[32rem] rounded-full bg-secondary/40 blur-3xl"></div>
+  </div>
+
+  <main class="relative mx-auto w-full max-w-6xl px-5 pt-[max(16px,env(safe-area-inset-top))] pb-16 sm:px-8">
+    <!-- Top bar: brand + a skip in the corner (Fitts's Law; no one is trapped on an ad) -->
+    <div class="flex items-center justify-between py-2">
+      <a href="/" class="focus-ring flex items-center gap-2.5 rounded-lg" aria-label="PlanTravel home">
+        <img src="/logo.svg" alt="" width="40" height="40" class="size-10 rounded-xl shadow-lg" />
+        <span class="text-xl font-extrabold tracking-tight">Plan<span class="text-primary">Travel</span></span>
+      </a>
+      <a href="/" class="touch-target focus-ring inline-flex items-center rounded-full px-4 text-sm font-semibold text-text/70 hover:text-primary">Skip →</a>
+    </div>
+
+    <!-- Hero: story on top for phones (shows the product at once), one clear action under the pitch (Von Restorff) -->
+    <section class="grid items-center gap-8 pt-4 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:pt-10">
+      <div class="order-first flex h-[236px] items-center justify-center sm:h-[312px] lg:order-last lg:h-[360px]" data-reveal>
+        <WelcomeStory />
+      </div>
+
+      <div class="mx-auto flex w-full max-w-md flex-col lg:mx-0">
+        <h1 data-reveal class="text-[2.25rem] font-extrabold leading-[1.05] tracking-tight sm:text-5xl">
+          Plan the trip.
+          <span class="gradient-text block">Live the day.</span>
+        </h1>
+        <p data-reveal class="mt-4 max-w-sm leading-6 text-text/70">
+          Browse trips around the world, plan them day by day with costs and maps, and keep it all in your Google Sheet.
+        </p>
+
+        <!-- Phones: the action follows the pitch (thumb reach); the feature list follows the action. -->
+        <ul data-reveal class="order-last mt-7 grid grid-cols-2 gap-2.5 lg:order-none">
+          {FEATURES.map((f) => (
+            <li class="glass-effect flex items-start gap-2.5 rounded-2xl p-3">
+              <span class="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/15 text-base" aria-hidden="true">{f.icon}</span>
+              <span class="min-w-0">
+                <span class="block text-sm font-bold">{f.title}</span>
+                <span class="block text-xs leading-4 text-text/65">{f.text}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+
+        <div data-reveal class="mt-7 flex flex-col gap-3">
+          {user ? (
+            <a href="/" class="touch-target focus-ring flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-primary px-6 text-base font-extrabold text-white shadow-lg active:scale-[0.98] transition-transform">
+              Continue as {user.name || user.email}<span aria-hidden="true">→</span>
+            </a>
+          ) : (
+            <>
+              {canSignIn && (
+                <a
+                  href={googleHref}
+                  class="group touch-target focus-ring flex min-h-14 items-center justify-center gap-3 rounded-2xl border border-primary/30 bg-white px-6 text-base font-bold text-gray-800 shadow-lg transition-all hover:shadow-xl active:scale-[0.98]"
+                >
+                  <svg class="size-5" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z" /><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.2 5.5-4.7 7.2l7.3 5.7c4.3-4 6.7-9.8 6.7-17.4z" /><path fill="#FBBC05" d="M10.5 28.7A14.5 14.5 0 019.5 24c0-1.6.3-3.2.8-4.7l-7.9-6.1A24 24 0 000 24c0 3.9.9 7.5 2.6 10.8l7.9-6.1z" /><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.3-5.7c-2 1.4-4.7 2.3-8.6 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z" /></svg>
+                  Continue with Google
+                  <span aria-hidden="true" class="transition-transform duration-200 group-hover:translate-x-1">→</span>
+                </a>
+              )}
+              <a
+                href="/"
+                class:list={[
+                  'touch-target focus-ring flex min-h-14 items-center justify-center gap-2 rounded-2xl px-6 text-base font-extrabold transition-transform active:scale-[0.98]',
+                  canSignIn ? 'bg-primary/10 text-primary hover:bg-primary/20' : 'bg-primary text-white shadow-lg',
+                ]}
+              >
+                <span aria-hidden="true">🌏</span> Continue as guest
+              </a>
+            </>
+          )}
+        </div>
+        <p data-reveal class="mt-4 text-center text-xs leading-5 text-text/65">
+          {user
+            ? 'You are signed in, so you can add and edit trips.'
+            : canSignIn
+              ? 'Guests can read every trip. Signing in lets you add and edit; your name and email go to the Users sheet.'
+              : 'Everyone can read every trip. Editing is switched off on this site.'}
+        </p>
+      </div>
+    </section>
+
+    <!-- The world so far: real numbers and real places from the sheet; each chip is a guest's first tap -->
+    {places.length > 0 && (
+      <section data-reveal aria-labelledby="world-heading" class="mt-14 sm:mt-20">
+        <div class="glass-effect rounded-3xl p-5 sm:p-8">
+          <h2 id="world-heading" class="text-lg font-extrabold sm:text-xl">The world so far</h2>
+          <dl class="mt-4 grid grid-cols-3 gap-2 text-center sm:gap-4">
+            {[
+              ['Trips', totals.trips],
+              ['Days', totals.days],
+              ['Activities', totals.activities],
+            ].map(([label, n]) => (
+              <div class="rounded-2xl bg-primary/10 px-2 py-3">
+                <dd class="text-2xl font-extrabold tabular-nums text-primary sm:text-3xl" data-count={n}>{Number(n).toLocaleString('en-US')}</dd>
+                <dt class="text-xs font-semibold text-text/65">{label}</dt>
+              </div>
+            ))}
+          </dl>
+          <div class="mt-5"><WorldMap countries={countries} /></div>
+        </div>
+      </section>
+    )}
+
+    <!-- How it works: three steps, one open at a time (Hick's Law, Miller's Law); plays itself until you touch it -->
+    <section data-reveal aria-labelledby="how-heading" class="mt-14 sm:mt-20">
+      <h2 id="how-heading" class="text-center text-2xl font-extrabold tracking-tight sm:text-3xl">How it works</h2>
+      <p class="mt-1 text-center text-sm text-text/65">Three taps from curious to ready.</p>
+
+      <div class="glass-effect mx-auto mt-6 max-w-2xl overflow-hidden rounded-3xl">
+        <div role="tablist" aria-label="How PlanTravel works" class="grid grid-cols-3 border-b border-primary/15" data-steps>
+          {WELCOME_STEPS.map((s, i) => (
+            <button
+              type="button"
+              role="tab"
+              id={`step-tab-${s.id}`}
+              aria-controls={`step-${s.id}`}
+              aria-selected={i === 0 ? 'true' : 'false'}
+              tabindex={i === 0 ? 0 : -1}
+              data-step={i}
+              class="touch-target focus-ring relative flex min-h-16 flex-col items-center justify-center gap-0.5 px-2 py-2 text-xs font-bold text-text/60 transition-colors aria-selected:text-primary sm:text-sm"
+            >
+              <span class="text-lg" aria-hidden="true">{s.icon}</span>
+              <span>{i + 1}. {s.title}</span>
+              <span data-progress aria-hidden="true" class="absolute bottom-0 left-0 h-[3px] w-full origin-left bg-primary" style="transform:scaleX(0)"></span>
+            </button>
+          ))}
+        </div>
+
+        {WELCOME_STEPS.map((s, i) => (
+          <div role="tabpanel" id={`step-${s.id}`} aria-labelledby={`step-tab-${s.id}`} hidden={i !== 0} tabindex="0" data-panel class="focus-ring space-y-4 p-5 sm:p-7">
+            <p class="text-base leading-6 sm:text-lg">{s.text}</p>
+
+            {s.id === 'browse' && (
+              <div class="flex flex-wrap gap-2" aria-label="Some destinations">
+                {(places.length ? places.slice(0, 5) : [{ slug: '', name: 'Japan', flag: '🇯🇵' }]).map((p) => (
+                  <a href={p.slug ? `/${p.slug}` : '/'} class="touch-target focus-ring inline-flex items-center gap-2 rounded-full border border-primary/25 bg-white/45 px-3.5 text-sm font-semibold hover:border-primary hover:text-primary">
+                    <span aria-hidden="true">{p.flag}</span>{p.name}
+                  </a>
+                ))}
+              </div>
+            )}
+
+            {s.id === 'plan' && (
+              <ul class="space-y-2 text-sm">
+                {[
+                  ['09:00', '⛩️', 'Senso-ji', '¥0'],
+                  ['12:30', '🍜', 'Ramen Street', '¥1,200'],
+                  ['18:00', '🌆', 'Shibuya Sky', '¥2,200'],
+                ].map(([t, e, n, c]) => (
+                  <li class="flex items-center gap-3 rounded-xl bg-primary/10 px-3 py-2.5">
+                    <span class="w-12 shrink-0 font-bold tabular-nums text-primary">{t}</span>
+                    <span aria-hidden="true">{e}</span>
+                    <span class="min-w-0 flex-1 truncate font-semibold">{n}</span>
+                    <span class="tabular-nums text-text/70">{c}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {s.id === 'go' && (
+              <ul class="space-y-2 text-sm">
+                <li class="flex items-center gap-3 rounded-xl bg-emerald-500/15 px-3 py-2.5">
+                  <span class="rounded-full bg-emerald-500 px-2 py-0.5 text-[10px] font-extrabold uppercase text-white">Now</span>
+                  <span class="font-semibold">Senso-ji</span>
+                </li>
+                <li class="flex items-center gap-3 rounded-xl bg-primary/10 px-3 py-2.5">
+                  <span class="rounded-full bg-primary px-2 py-0.5 text-[10px] font-extrabold uppercase text-white">Next</span>
+                  <span class="font-semibold">Ramen Street · 12:30</span>
+                </li>
+                <li class="flex items-center gap-2 px-1 pt-1 text-xs font-semibold text-text/65"><span aria-hidden="true">📴</span> Saved on your phone for when the signal drops</li>
+              </ul>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- Closing action: the same two choices again, after the story (Peak-End Rule) -->
+    <section data-reveal class="mt-14 text-center sm:mt-20">
+      <h2 class="text-2xl font-extrabold tracking-tight sm:text-3xl">Ready when you are.</h2>
+      <div class="mx-auto mt-5 flex max-w-sm flex-col gap-3">
+        {user ? (
+          <a href="/" class="touch-target focus-ring flex min-h-14 items-center justify-center rounded-2xl bg-primary px-6 font-extrabold text-white shadow-lg active:scale-[0.98] transition-transform">Open my trips</a>
+        ) : (
+          <>
+            {canSignIn && (
+              <a href={googleHref} class="touch-target focus-ring flex min-h-14 items-center justify-center rounded-2xl bg-primary px-6 font-extrabold text-white shadow-lg active:scale-[0.98] transition-transform">Sign in with Google</a>
+            )}
+            <a href="/" class="touch-target focus-ring flex min-h-14 items-center justify-center rounded-2xl bg-primary/10 px-6 font-extrabold text-primary hover:bg-primary/20 active:scale-[0.98] transition-transform">Just look around as a guest</a>
+          </>
+        )}
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<style is:global>
+  /* Hidden until revealed, only when motion is on (the inline script above sets data-motion) */
+  html[data-motion] [data-reveal] { opacity: 0; }
+</style>
+
+<script>
+  import { animate } from 'motion';
+  import { compositorFrames, prefersReducedMotion } from '../utils/motion';
+
+  const reduced = prefersReducedMotion();
+  const $$ = <T extends HTMLElement>(sel: string, root: ParentNode = document) => Array.from(root.querySelectorAll<T>(sel));
+
+  type Loop = { pause: () => void; play: () => void; stop: () => void };
+  const loops: Loop[] = [];
+  const loop = (el: Element, frames: Record<string, Array<string | number>>, options: Record<string, unknown>) =>
+    loops.push(animate(el, compositorFrames(frames), options as never) as unknown as Loop);
+
+  if (!reduced) {
+    /* Backdrop drift: two blobs, transform only */
+    $$('[data-drift]').forEach((el, i) => loop(el, { x: [0, 40, 0], y: [0, 30, 0] }, { duration: 22, repeat: Infinity, ease: 'easeInOut', delay: -i * 9 }));
+
+    /* The 9s product story. Every list ends where it began (hidden), so the loop restarts without a jump. */
+    const story = document.querySelector<HTMLElement>('[data-story]');
+    if (story) {
+      const T = 9;
+      $$('[data-card]', story).forEach((el) => {
+        const tx = Number(el.dataset.tx);
+        const ty = Number(el.dataset.ty);
+        const order = Number(el.dataset.order);
+        loop(
+          el,
+          { x: [0, 0, tx, tx, tx, 0], y: [0, 0, ty, ty, ty, 0], scale: [0.9, 1, 1, 1, 1, 0.9], opacity: [0, 1, 1, 1, 0, 0] },
+          { duration: T, times: [0, 0.05, 0.22, 0.88, 0.96, 1], delay: order * 0.45, repeat: Infinity, ease: 'easeInOut' },
+        );
+      });
+      $$('[data-bar]', story).forEach((el) => {
+        const d = Number(el.dataset.i) * 0.03;
+        loop(el, { scaleY: [0, 0, 1, 1, 0, 0] }, { duration: T, times: [0, 0.3 + d, 0.42 + d, 0.9, 0.97, 1], repeat: Infinity, ease: 'easeOut' });
+      });
+      $$('[data-badge]', story).forEach((el) =>
+        loop(el, { scale: [0.6, 0.6, 1.12, 1, 1, 0.6], opacity: [0, 0, 1, 1, 1, 0] }, { duration: T, times: [0, 0.52, 0.58, 0.62, 0.92, 1], repeat: Infinity, ease: 'easeOut' }),
+      );
+      $$('[data-sweep]', story).forEach((el) => loop(el, { rotate: [0, 360] }, { duration: 3, repeat: Infinity, ease: 'linear' }));
+      $$('[data-bob]', story).forEach((el, i) => loop(el, { y: [0, -5, 0] }, { duration: 6, repeat: Infinity, ease: 'easeInOut', delay: -i * 2 }));
+
+      // Minimise rendering: nothing animates while the story is off screen or the tab is in the background
+      let onScreen = true;
+      const sync = () => loops.forEach((l) => (onScreen && !document.hidden ? l.play() : l.pause()));
+      new IntersectionObserver((entries) => {
+        onScreen = entries[entries.length - 1].isIntersecting;
+        sync();
+      }).observe(story);
+      document.addEventListener('visibilitychange', sync);
+    }
+  }
+
+  /* Reveal on scroll, once each. Elements that arrive together are staggered. */
+  const reveal = $$('[data-reveal]');
+  const countUp = (root: HTMLElement) =>
+    $$('[data-count]', root).forEach((el) => {
+      const n = Number(el.dataset.count);
+      if (!reduced && n > 0) animate(0, n, { duration: 1.1, ease: 'easeOut', onUpdate: (v: number) => (el.textContent = Math.round(v).toLocaleString('en-US')) });
+    });
+  if (reduced || !('IntersectionObserver' in window)) {
+    reveal.forEach((el) => (el.style.opacity = '1'));
+  } else {
+    const io = new IntersectionObserver(
+      (entries) => {
+        const shown = entries.filter((e) => e.isIntersecting);
+        shown.forEach((e, i) => {
+          const el = e.target as HTMLElement;
+          io.unobserve(el);
+          animate(el, compositorFrames({ y: [18, 0], opacity: [0, 1] }), { duration: 0.5, delay: i * 0.07, ease: [0.22, 1, 0.36, 1] });
+          countUp(el);
+        });
+      },
+      { rootMargin: '0px 0px -8% 0px', threshold: 0.1 },
+    );
+    reveal.forEach((el) => io.observe(el));
+  }
+
+  /* How it works: tabs that play themselves until you touch them (a tap or key stops the autoplay for good) */
+  const tabs = $$<HTMLButtonElement>('[role="tab"][data-step]');
+  const panels = tabs.map((t) => document.getElementById(t.getAttribute('aria-controls') ?? '') as HTMLElement);
+  if (tabs.length && panels.every(Boolean)) {
+    const STEP_MS = 4500;
+    let current = 0;
+    let auto = !reduced;
+    let token = 0;
+    let bar: Loop | null = null;
+    let visible = false;
+
+    const run = () => {
+      bar?.stop();
+      const el = tabs[current].querySelector<HTMLElement>('[data-progress]');
+      if (!auto || !el) return;
+      const mine = ++token;
+      const a = animate(el, { transform: ['scaleX(0)', 'scaleX(1)'] }, { duration: STEP_MS / 1000, ease: 'linear' });
+      bar = a as unknown as Loop;
+      if (!visible) bar.pause();
+      a.then(() => {
+        if (mine === token && auto) select((current + 1) % tabs.length, false);
+      });
+    };
+
+    const select = (i: number, byUser: boolean) => {
+      if (byUser && auto) {
+        auto = false;
+        token++;
+        bar?.stop();
+        tabs.forEach((t) => (t.querySelector<HTMLElement>('[data-progress]')!.style.transform = 'scaleX(0)'));
+      }
+      tabs.forEach((t, k) => {
+        t.setAttribute('aria-selected', String(k === i));
+        t.tabIndex = k === i ? 0 : -1;
+        panels[k].hidden = k !== i;
+      });
+      current = i;
+      if (!reduced) animate(panels[i], compositorFrames({ x: [16, 0], opacity: [0, 1] }), { duration: 0.28, ease: 'easeOut' });
+      run();
+    };
+
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', () => select(i, true));
+      t.addEventListener('keydown', (e) => {
+        const move = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 }[e.key as 'ArrowRight'];
+        if (move === undefined) return;
+        e.preventDefault();
+        const next = (move + tabs.length) % tabs.length;
+        tabs[next].focus();
+        select(next, true);
+      });
+    });
+
+    // Autoplay only while the section is on screen and the tab is in front
+    const section = tabs[0].closest('section');
+    if (section && !reduced) {
+      new IntersectionObserver((entries) => {
+        visible = entries[entries.length - 1].isIntersecting;
+        if (!bar) return;
+        if (visible && !document.hidden) bar.play();
+        else bar.pause();
+      }).observe(section);
+      document.addEventListener('visibilitychange', () => (visible && !document.hidden ? bar?.play() : bar?.pause()));
+      run();
+    }
+  }
+</script>

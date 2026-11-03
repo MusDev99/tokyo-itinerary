@@ -11,11 +11,13 @@ interface Props {
   description?: string;
   /** Admin-only screens (login, add) stay out of search results. */
   noindex?: boolean;
+  /** false: the page paints its own backdrop (the welcome page), so the animated season layer is not mounted. */
+  seasonBackground?: boolean;
 }
 
 const DEFAULT_DESCRIPTION =
   'Day-by-day travel itineraries with maps, budget analytics, currency conversion and travel tools for every trip.';
-const { title, description = DEFAULT_DESCRIPTION, noindex = false } = Astro.props;
+const { title, description = DEFAULT_DESCRIPTION, noindex = false, seasonBackground = true } = Astro.props;
 // Canonical drops the query string so ?country=... variants don't compete with the clean URL
 const canonical = new URL(Astro.url.pathname, Astro.url.origin).toString();
 ---
@@ -68,7 +70,7 @@ const canonical = new URL(Astro.url.pathname, Astro.url.origin).toString();
     <OfflineStatus client:load />
 
     <!-- Animated season background (Motion) -->
-    <SeasonBackground client:load />
+    {seasonBackground && <SeasonBackground client:load />}
 
     <!-- Main Content -->
     <div id="page-content" class="relative z-10 flex-1 flex flex-col">
