@@ -2,37 +2,10 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import type { DayItinerary } from '../types/itinerary';
 import { CATEGORIES, detectCategory, fetchLiveRates, type CategoryInfo } from '../utils/analytics';
 import { buildHubCurrencies, currencySymbol, formatMoney } from '../utils/currencyInfo';
-import { useThemeColors } from './useThemeColors';
 import CurrencyExchangeGraph from './CurrencyExchangeGraph';
-import {
-  Chart as ChartJS,
-  ArcElement,
-  BarElement,
-  BarController,
-  DoughnutController,
-  LineController,
-  LineElement,
-  PointElement,
-  CategoryScale,
-  LinearScale,
-  Tooltip,
-  Legend,
-} from 'chart.js';
-import { Doughnut, Chart } from 'react-chartjs-2';
-
-ChartJS.register(
-  ArcElement,
-  BarElement,
-  BarController,
-  DoughnutController,
-  LineController,
-  LineElement,
-  PointElement,
-  CategoryScale,
-  LinearScale,
-  Tooltip,
-  Legend
-);
+import SpendDonut from './SpendDonut';
+import SpendHistory from './SpendHistory';
+import { groupSpendByDay, type SpendLine } from '../utils/spendHistory';
 
 interface Props {
   dataSources: { [country: string]: DayItinerary[] };
@@ -48,6 +21,9 @@ interface Item {
   title: string;
   description: string;
   note?: string;
+  date: string;
+  time: string;
+  state?: string;
   amount: number;
   currency: string;
   category: CategoryInfo;
@@ -57,17 +33,9 @@ interface Item {
 type Tab = 'overview' | 'currency' | 'expenses';
 const PAGE_SIZES = [10, 25, 50] as const;
 
-/** Chart.js components can't be server-rendered under Preact, so render them only in the browser. */
-function ClientOnly({ children }: { children: React.ReactNode }) {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  return mounted ? <>{children}</> : null;
-}
-
 const slugLabel = (s: string) => s.split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
 export const AnalyticsDashboard: React.FC<Props> = ({ dataSources, currencies = [] }) => {
-  const colors = useThemeColors();
   const hub = useMemo(() => buildHubCurrencies(currencies), [currencies.join('|')]);
 
   const [tab, setTab] = useState<Tab>('overview');
@@ -133,6 +101,9 @@ export const AnalyticsDashboard: React.FC<Props> = ({ dataSources, currencies = 
             title: it.title,
             description: it.description,
             note: it.note,
+            date: d.date,
+            time: it.time,
+            state: d.state,
             amount: amountN,
             currency: cur,
             category: detectCategory(it),
@@ -167,99 +138,22 @@ export const AnalyticsDashboard: React.FC<Props> = ({ dataSources, currencies = 
     return [...m.values()].sort((a, b) => b.total - a.total);
   }, [paid]);
 
-  // Per-day totals split by category (feeds the stacked chart + peak day)
-  const daily = useMemo(() => {
-    const m = new Map<string, { label: string; total: number; byCat: Record<string, number>; order: number }>();
-    let order = 0;
-    items.forEach((i) => {
-      let d = m.get(i.dayKey);
-      if (!d) {
-        const prefix = multiCountry ? `${slugLabel(i.country).slice(0, 3).toUpperCase()} ` : '';
-        d = { label: `${prefix}D${i.day}`, total: 0, byCat: {}, order: order++ };
-        m.set(i.dayKey, d);
-      }
-      d.total += i.converted;
-      d.byCat[i.category.key] = (d.byCat[i.category.key] || 0) + i.converted;
-    });
-    return [...m.values()].sort((a, b) => a.order - b.order);
-  }, [items, multiCountry]);
-
-  const peakDay = useMemo(() => [...daily].sort((a, b) => b.total - a.total)[0], [daily]);
-  const topItems = useMemo(() => [...paid].sort((a, b) => b.converted - a.converted).slice(0, 6), [paid]);
+  // Daily spending history: paid lines grouped by trip day (the list under the donut)
+  const dayGroups = useMemo(
+    () =>
+      groupSpendByDay(
+        items.map<SpendLine>((i) => ({
+          id: i.id, dayKey: i.dayKey, day: i.day, country: i.country, state: i.state, date: i.date, time: i.time,
+          title: i.title, description: i.description, note: i.note, converted: i.converted, currency: i.currency, amount: i.amount,
+          categoryKey: i.category.key,
+        }))
+      ),
+    [items]
+  );
+  const categoryLook = useMemo(() => Object.fromEntries(Object.values(CATEGORIES).map((c) => [c.key, { emoji: c.emoji, color: c.color }])), []);
   const avgPerDay = total / totalDays;
 
   const money = (v: number, c = base) => formatMoney(v, c);
-  const tick = { color: colors.text + 'b3', font: { size: 11 } };
-  const grid = { color: colors.text + '1a' };
-
-  // ---- Charts -----------------------------------------------------------
-  const doughnutData = {
-    labels: categoryStats.map((c) => `${c.cat.emoji} ${c.cat.label}`),
-    datasets: [
-      {
-        data: categoryStats.map((c) => Math.round(c.total)),
-        backgroundColor: categoryStats.map((c) => c.cat.color),
-        borderWidth: 2,
-        borderColor: 'rgba(255,255,255,0.6)',
-        hoverOffset: 6,
-      },
-    ],
-  };
-  // Total in the middle of the doughnut (closure over the current total/colors)
-  const centerPlugin = {
-    id: 'centerText',
-    afterDraw(chart: any) {
-      const { ctx, chartArea } = chart;
-      if (!chartArea) return;
-      const cx = (chartArea.left + chartArea.right) / 2;
-      const cy = (chartArea.top + chartArea.bottom) / 2;
-      ctx.save();
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = colors.text;
-      ctx.font = '700 15px Inter, sans-serif';
-      ctx.fillText(money(total), cx, cy - 8);
-      ctx.fillStyle = colors.text + '99';
-      ctx.font = '500 11px Inter, sans-serif';
-      ctx.fillText('total spend', cx, cy + 10);
-      ctx.restore();
-    },
-  };
-
-  const stackedData: any = {
-    labels: daily.map((d) => d.label),
-    datasets: [
-      ...categoryStats.map((c) => ({
-        type: 'bar' as const,
-        label: c.cat.label,
-        data: daily.map((d) => Math.round(d.byCat[c.cat.key] || 0)),
-        backgroundColor: c.cat.color,
-        stack: 'spend',
-        borderRadius: 3,
-      })),
-      {
-        type: 'line' as const,
-        label: `Average / day`,
-        data: daily.map(() => Math.round(avgPerDay)),
-        borderColor: colors.text,
-        borderDash: [6, 5],
-        borderWidth: 1.5,
-        pointRadius: 0,
-        fill: false,
-      },
-    ],
-  };
-
-  const topData = {
-    labels: topItems.map((i) => (i.title.length > 26 ? `${i.title.slice(0, 25)}…` : i.title)),
-    datasets: [
-      {
-        data: topItems.map((i) => Math.round(i.converted)),
-        backgroundColor: topItems.map((i) => i.category.color),
-        borderRadius: 6,
-      },
-    ],
-  };
 
   // ---- Converter -------------------------------------------------------
   const converted = useMemo(() => {
@@ -378,102 +272,21 @@ export const AnalyticsDashboard: React.FC<Props> = ({ dataSources, currencies = 
             <div className={`${card} text-center text-sm text-text/60`}>No costs recorded yet. Add amounts to your activities to see charts.</div>
           ) : (
             <>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
-                <section className={card} aria-label="Spending by category">
-                  <h3 className="text-sm font-extrabold text-text">Where the money goes</h3>
-                  <p className="text-xs text-text/60 mb-3">Share of spend by category</p>
-                  <div className="relative h-64 w-full">
-                    <ClientOnly>
-                    <Doughnut
-                      data={doughnutData}
-                      plugins={[centerPlugin]}
-                      options={{
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        cutout: '62%',
-                        plugins: {
-                          legend: { display: false },
-                          tooltip: { callbacks: { label: (c: any) => ` ${c.label}: ${money(c.raw)}` } },
-                        },
-                      }}
-                    />
-                    </ClientOnly>
-                  </div>
-                  <ul className="mt-3 space-y-1.5">
-                    {categoryStats.map((c) => (
-                      <li key={c.cat.key} className="flex items-center justify-between gap-3 text-xs">
-                        <span className="flex items-center gap-2 text-text/80 min-w-0">
-                          <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: c.cat.color }} />
-                          <span className="truncate">{c.cat.emoji} {c.cat.label}</span>
-                        </span>
-                        <span className="font-semibold text-text whitespace-nowrap">
-                          {money(c.total)} <span className="text-text/50">({total > 0 ? Math.round((c.total / total) * 100) : 0}%)</span>
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
+              <section className={card} aria-label="Spending by category">
+                <h3 className="text-sm font-extrabold text-text">Where the money goes</h3>
+                <p className="text-xs text-text/60 mb-4">Tap a slice or a row to look closer</p>
+                <SpendDonut
+                  slices={categoryStats.map((c) => ({ key: c.cat.key, label: c.cat.label, emoji: c.cat.emoji, color: c.cat.color, total: c.total, count: c.count }))}
+                  total={total}
+                  money={money}
+                  title={`Spend by category, total ${money(total)}`}
+                />
+              </section>
 
-                <section className={card} aria-label="Top expenses">
-                  <h3 className="text-sm font-extrabold text-text">Biggest expenses</h3>
-                  <p className="text-xs text-text/60 mb-3">Top {topItems.length} activities in {base}</p>
-                  <div className="relative" style={{ height: `${Math.max(200, topItems.length * 42)}px` }}>
-                    <ClientOnly>
-                    <Chart
-                      type="bar"
-                      data={topData as any}
-                      options={{
-                        indexAxis: 'y',
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                          legend: { display: false },
-                          tooltip: { callbacks: { label: (c: any) => ` ${money(c.raw)}` } },
-                        },
-                        scales: {
-                          x: { ticks: tick, grid },
-                          y: { ticks: { ...tick, font: { size: 11 } }, grid: { display: false } },
-                        },
-                      } as any}
-                    />
-                    </ClientOnly>
-                  </div>
-                </section>
-              </div>
-
-              <section className={card} aria-label="Daily spending">
-                <div className="flex flex-wrap items-end justify-between gap-2 mb-3">
-                  <div>
-                    <h3 className="text-sm font-extrabold text-text">Daily spending</h3>
-                    <p className="text-xs text-text/60">Each bar is one day, split by category. Dashed line = daily average.</p>
-                  </div>
-                  {peakDay && (
-                    <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-primary/10 text-primary">
-                      Peak: {peakDay.label} · {money(peakDay.total)}
-                    </span>
-                  )}
-                </div>
-                <div className="relative h-64 sm:h-72 w-full">
-                  <ClientOnly>
-                  <Chart
-                    type="bar"
-                    data={stackedData}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      interaction: { mode: 'index', intersect: false },
-                      plugins: {
-                        legend: { position: 'bottom', labels: { color: colors.text + 'cc', boxWidth: 10, font: { size: 11 } } },
-                        tooltip: { callbacks: { label: (c: any) => ` ${c.dataset.label}: ${money(c.raw)}` } },
-                      },
-                      scales: {
-                        x: { stacked: true, ticks: tick, grid: { display: false } },
-                        y: { stacked: true, ticks: tick, grid },
-                      },
-                    } as any}
-                  />
-                  </ClientOnly>
-                </div>
+              <section aria-label="Daily spending">
+                <h3 className="text-sm font-extrabold text-text">Daily spending</h3>
+                <p className="text-xs text-text/60 mb-3">Every payment, grouped by day</p>
+                <SpendHistory groups={dayGroups} categories={categoryLook} money={money} countryLabel={multiCountry ? slugLabel : undefined} />
               </section>
             </>
           )}

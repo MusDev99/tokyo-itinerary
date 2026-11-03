@@ -3,6 +3,13 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-03 21:24 — Overview: slim interactive donut + daily history list
+
+- **Donut redesigned:** a slim SVG ring with rounded, gradient slices, a soft shadow and gaps between slices (replaces the flat canvas doughnut). Tap or hover a slice, or a row in the list: the pick grows, the others dim and the centre shows that category (amount, share, items). Tap again to clear. Entrance animation is transform/opacity only and stays still for reduced motion.
+- **Daily spending is now a history list** grouped by day, like a bank statement: a "Details / Amount" header, a bar per day (date + day total, tap to collapse), then rows with a round category icon, title, note, the amount in red and the time with the original-currency amount. Free activities and days without spend are left out.
+- **Removed:** the "Biggest expenses" chart and the stacked daily bar chart (Chart.js is now used only by the currency tab).
+- `src/utils/spendHistory.ts` (donut geometry, day grouping) with unit tests; new `SpendDonut.tsx` and `SpendHistory.tsx`.
+
 ## 2026-11-03 21:14 — Removed: season sound (Web Audio)
 
 - The ambient soundscape and the **Sound on / off** switch in the theme panel are gone (it was not working reliably). Themes are visual only; nothing plays and no audio code ships.
