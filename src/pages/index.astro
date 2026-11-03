@@ -6,7 +6,23 @@ import Footer from '../components/Footer.astro';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import TodayCard from '../components/TodayCard';
 import { slimDays, type TodayTrip } from '../utils/today';
+import { WELCOME_COOKIE, shouldShowWelcome } from '../utils/welcome';
 import { getAllCountriesWithSheets, getActiveItinerariesMap } from '../utils/countries';
+
+// First visit as a guest: show what PlanTravel is before the trip list. Never cached (the answer changes with the cookie).
+const h = Astro.request.headers;
+if (
+  shouldShowWelcome({
+    method: Astro.request.method,
+    signedIn: Boolean(Astro.locals.user),
+    seen: Astro.cookies.get(WELCOME_COOKIE)?.value,
+    accept: h.get('accept'),
+    userAgent: h.get('user-agent'),
+    purpose: h.get('sec-purpose') ?? h.get('purpose'),
+  })
+) {
+  return new Response(null, { status: 302, headers: { Location: '/welcome', 'Cache-Control': 'private, no-store' } });
+}
 
 Astro.response.headers.set('Cache-Control', pageCacheControl(Boolean(Astro.locals.user)));
 

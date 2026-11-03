@@ -1,0 +1,118 @@
+---
+// The animated product story on the welcome page: ideas get dropped into days, the budget grows, a day is
+// planned, the clock sweeps, it syncs. Markup only: the loop lives in the page script (Motion, transform/opacity
+// only). Every element's CSS is the SETTLED picture, so reduced motion (or no JS) shows a finished scene.
+// Aesthetic-Usability: the same glass cards and tokens as the real app, so the ad looks like the product.
+
+const DAYS = [
+  { name: 'Day 1', x: 10 },
+  { name: 'Day 2', x: 113 },
+  { name: 'Day 3', x: 216 },
+];
+
+// Cards start in the Ideas tray (top 40) and settle into a day slot: tx / ty are the distance travelled.
+const CARDS = [
+  { text: 'Senso-ji', icon: '⛩️', x: 14, tx: 103, ty: 50, order: 0 },
+  { text: 'Ramen Street', icon: '🍜', x: 117, tx: -103, ty: 74, order: 1 },
+  { text: 'Shibuya Sky', icon: '🌆', x: 220, tx: 0, ty: 50, order: 2 },
+];
+
+// Already-planned cards, so the days never look empty
+const STATIC = [
+  { text: 'Tsukiji Market', icon: '🍣', x: 14, y: 90 },
+  { text: 'Tokyo Tower', icon: '🗼', x: 220, y: 114 },
+];
+
+const BARS = [32, 54, 41, 70, 48, 84, 100];
+---
+
+<div aria-hidden="true" class="relative h-[312px] w-[340px] shrink-0 origin-center scale-[0.74] select-none sm:scale-100 lg:scale-110" data-story>
+  <div
+    data-bob
+    class="absolute top-[28px] left-[10px] h-[240px] w-[320px] overflow-hidden rounded-2xl border border-primary/25 bg-[color-mix(in_srgb,var(--surface-solid)_88%,transparent)] shadow-2xl shadow-black/20"
+  >
+    <div class="flex h-[26px] items-center gap-1.5 border-b border-primary/15 px-3">
+      <span class="size-2 rounded-full bg-rose-400"></span>
+      <span class="size-2 rounded-full bg-amber-400"></span>
+      <span class="size-2 rounded-full bg-emerald-400"></span>
+      <span class="ml-2 text-[10px] font-semibold text-text/70">PlanTravel · Japan – Tokyo</span>
+    </div>
+
+    <div class="absolute top-[34px] right-[10px] left-[10px] h-[28px] rounded-lg border border-dashed border-primary/30"></div>
+    <span class="absolute top-[24px] right-[14px] text-[8px] font-semibold text-text/50">Ideas</span>
+
+    {DAYS.map((d) => (
+      <div class="absolute top-[70px] h-[96px] w-[94px] rounded-lg bg-primary/10" style={`left:${d.x}px`}>
+        <span class="absolute top-1 left-1.5 text-[8px] font-extrabold uppercase tracking-wide text-primary">{d.name}</span>
+      </div>
+    ))}
+
+    {STATIC.map((c) => (
+      <div
+        class="absolute flex h-[20px] w-[86px] items-center gap-1 rounded-md bg-[color-mix(in_srgb,var(--surface-solid)_96%,transparent)] px-1.5 text-[9px] font-medium text-text shadow-sm"
+        style={`left:${c.x}px;top:${c.y}px`}
+      >
+        <span>{c.icon}</span><span class="truncate">{c.text}</span>
+      </div>
+    ))}
+
+    {CARDS.map((c) => (
+      <div
+        data-card
+        data-order={c.order}
+        data-tx={c.tx}
+        data-ty={c.ty}
+        class="absolute top-[40px] flex h-[20px] w-[86px] items-center gap-1 rounded-md bg-[color-mix(in_srgb,var(--surface-solid)_96%,transparent)] px-1.5 text-[9px] font-semibold text-text shadow-md ring-1 ring-primary/30"
+        style={`left:${c.x}px;transform:translate(${c.tx}px,${c.ty}px)`}
+      >
+        <span>{c.icon}</span><span class="truncate">{c.text}</span>
+      </div>
+    ))}
+
+    <div class="absolute right-[12px] bottom-[10px] left-[12px] flex h-[52px] items-end gap-2">
+      {BARS.map((h, i) => (
+        <span
+          data-bar
+          data-i={i}
+          class:list={['flex-1 origin-bottom rounded-t-[3px]', i === BARS.length - 1 ? 'bg-emerald-500' : 'bg-primary/55']}
+          style={`height:${h}%`}
+        ></span>
+      ))}
+    </div>
+  </div>
+
+  <!-- Now / next: the arc sweeps like a clock hand -->
+  <div
+    data-bob
+    class="absolute bottom-[4px] -left-[6px] flex items-center gap-2.5 rounded-2xl border border-primary/25 bg-[color-mix(in_srgb,var(--surface-solid)_95%,transparent)] py-2 pr-3.5 pl-2 shadow-xl"
+  >
+    <!-- The arc is its own HTML box so the turn runs on the compositor (an SVG <g> would repaint) -->
+    <span class="relative block size-11">
+      <svg viewBox="0 0 44 44" class="absolute inset-0 size-11">
+        <circle cx="22" cy="22" r="18" fill="none" stroke-width="4" class="stroke-primary/20"></circle>
+      </svg>
+      <span data-sweep class="absolute inset-0 block">
+        <svg viewBox="0 0 44 44" class="size-11">
+          <circle cx="22" cy="22" r="18" fill="none" stroke-width="4" stroke-linecap="round" stroke-dasharray="30 84" class="stroke-primary"></circle>
+        </svg>
+      </span>
+    </span>
+    <span>
+      <span class="block text-sm font-bold tabular-nums text-text">14:30</span>
+      <span class="block text-[10px] text-text/65">Now · Senso-ji</span>
+    </span>
+  </div>
+
+  <div data-badge class="absolute top-[6px] right-[2px] flex items-center gap-1 rounded-full bg-emerald-500 px-3 py-1 text-xs font-bold text-white shadow-lg">
+    <svg viewBox="0 0 24 24" class="size-3.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"></path></svg>
+    Day 2 planned
+  </div>
+
+  <div
+    data-bob
+    class="absolute right-[-4px] bottom-[22px] flex items-center gap-1.5 rounded-full border border-primary/25 bg-[color-mix(in_srgb,var(--surface-solid)_95%,transparent)] px-3 py-1.5 text-[11px] font-medium text-text shadow-xl"
+  >
+    <svg viewBox="0 0 24 24" class="size-4 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4 4 0 010-8 5.5 5.5 0 0110.6 1.2A3.5 3.5 0 0117 18H7z"></path><path d="M9.5 13.5l2 2 3.5-3.5"></path></svg>
+    Synced to Google Sheets
+  </div>
+</div>

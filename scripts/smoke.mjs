@@ -14,6 +14,13 @@ for (const h of ['x-content-type-options', 'x-frame-options', 'referrer-policy']
 if (base.startsWith('https://')) check('header strict-transport-security', home.headers.has('strict-transport-security'));
 check('CSP present (production only)', !base.startsWith('https://') || home.headers.has('content-security-policy'));
 
+const welcome = await req('/welcome');
+check('/welcome is reachable and never cached', welcome.status === 200 && /no-store/.test(welcome.headers.get('cache-control') ?? ''), `HTTP ${welcome.status}`);
+const first = await req('/', { headers: { accept: 'text/html', 'user-agent': 'Mozilla/5.0 smoke' } });
+check('first visit to / goes to /welcome', first.status === 302 && (first.headers.get('location') ?? '').endsWith('/welcome'), `HTTP ${first.status}`);
+const seen = await req('/', { headers: { accept: 'text/html', 'user-agent': 'Mozilla/5.0 smoke', cookie: 'pt_welcome=1' } });
+check('a returning guest gets the trips', seen.status === 200, `HTTP ${seen.status}`);
+
 const login = await req('/login');
 check('/login is reachable', login.status === 200, `HTTP ${login.status}`);
 

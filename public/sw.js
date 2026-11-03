@@ -21,7 +21,7 @@ const LIMITS = { [PAGES]: 80, [RUNTIME]: 60 };
 const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 const READ_APIS = ['/api/currency-exchange', '/api/prayer-times'];
 // Signed-in or per-session screens: always live, never saved
-const NO_STORE = ['/login', '/add', '/api', '/__pwa'];
+const NO_STORE = ['/login', '/add', '/welcome', '/api', '/__pwa'];
 
 // Same prefix rule as src/middleware.ts: the path itself or anything below it
 const startsWithAny = (path, list) => list.some((p) => path === p || path.startsWith(`${p}/`));

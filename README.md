@@ -41,6 +41,7 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 - **Live day**: on the Today card, tick the current activity **✓ Done**, **⏭ Skip** the next one, or say you're **running late** (+15 / +30 / +60 min) to push the rest of today back; every action has a 5-second **Undo**. Saved on this device per trip day, works offline.
 - **Timeline order & now**: each day's activities are listed by time; on today's day the activity that's on now is highlighted and opened, the next one is marked, and Today-card check-ins show as Done / Skipped.
 - **Animated Seasons**: Seven [Motion](https://motion.dev/)-animated themes (autumn, winter, spring, summer, rain, haze, starry night) chosen from a compact panel above the floating theme button (grouped into Seasons and Weather, with labels), each with its own **looping ambient soundscape** (autumn wind and leaves, winter wind and sparkles, spring birds, summer waves, rain, hazy drone, night crickets), synthesised with Web Audio (no audio files, no CSP change). It starts on the first tap (browsers block audio before a gesture), crossfades when the theme changes, pauses while the tab is hidden, and the Sound on/off switch in the theme panel is remembered. Translucent glass cards. Honors `prefers-reduced-motion`.
+- **Welcome landing (`/welcome`)**: first-time guests see an animated product story, live "world so far" numbers, a self-playing 3-step "How it works" and two choices (Continue with Google, Continue as guest). Shown once per browser (`pt_welcome` cookie; replay from the footer). Motion on the compositor only, paused off screen, still scene for reduced motion. Never cached by the service worker.
 - **Mobile-first navigation**: slide-in drawer with collapsible country cards, 44px touch targets and a compact activity card.
 - **📲 Installable PWA with offline reading**: add PlanTravel to the home screen (Android/desktop install prompt, iOS *Share → Add to Home Screen*). A service worker (`public/sw.js`, production only) saves every trip page from `/sitemap.xml` plus the whole client bundle (`/sw-assets.json`, generated at build), so itineraries, timelines and analytics read with no signal. Pages are network-first with a 3s timeout, so fresh data wins when online. Offline, a pill links to `/offline`, which lists saved pages. Editing, sign-in and `/add` always need a connection; signing out deletes the saved pages. Data Saver skips the pre-download.
 
@@ -90,7 +91,7 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 ├── .claude/skills/                    # AI-driven dev workflow: dev-workflow, feature-checklist, code-review-checklist, owasp-audit, release
 ├── docs/                              # features/ (feature.md), reviews/, audits/ (audit.md)
 ├── tests/                             # node:test unit tests (auth, users, calendar, popover, season sound, service worker, caching + animation perf)
-├── scripts/smoke.mjs                  # post-deploy auth/header smoke test
+├── scripts/smoke.mjs                  # post-deploy auth/header/welcome smoke test
 ├── scripts/pwa-assets.mjs             # build hook: writes /sw-assets.json (client bundle list for offline)
 ├── public/
 │   ├── sw.js                          # Service worker: offline read access

@@ -33,6 +33,7 @@ test('writes, auth and admin screens are never cached (A01: no stale editor scre
   assert.equal(strategyFor('GET', `${O}/api/auth/google/callback?code=x`, O, 'navigate'), 'bypass');
   assert.equal(strategyFor('GET', `${O}/login`, O, 'navigate'), 'bypass');
   assert.equal(strategyFor('GET', `${O}/add`, O, 'navigate'), 'bypass');
+  assert.equal(strategyFor('GET', `${O}/welcome`, O, 'navigate'), 'bypass', 'the welcome sets a cookie per viewer');
   assert.equal(strategyFor('GET', `${O}/add/extra`, O, 'navigate'), 'bypass');
   assert.equal(strategyFor('GET', `${O}/addresses`, O, 'navigate'), 'page', 'prefix match is per path segment');
   assert.equal(strategyFor('GET', 'https://evil.test/x', O, 'navigate'), 'bypass', 'other origins pass through');
