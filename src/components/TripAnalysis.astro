@@ -19,7 +19,7 @@ const { name, dataKey, days, currency } = Astro.props;
   <section aria-labelledby="analysis-title" class="glass-effect rounded-2xl p-3.5 sm:p-6 border border-primary/20 shadow-md">
     <div class="mb-4 pb-3 border-b border-primary/15">
       <h2 id="analysis-title" class="text-lg sm:text-xl font-extrabold text-text">{name}: budget &amp; currency</h2>
-      <p class="text-xs sm:text-sm text-text/70">Spending by category, daily totals, the biggest expenses and live {currency} rates</p>
+      <p class="text-xs sm:text-sm text-text/70">Spending by category, a day-by-day history and live {currency} rates</p>
     </div>
     <AnalyticsDashboard dataSources={{ [dataKey]: days }} currencies={[currency]} client:load />
   </section>
