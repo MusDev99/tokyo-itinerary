@@ -2,7 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import AddItineraryForm from '../components/AddItineraryForm';
+import TripWizard from '../components/TripWizard';
 import { getAllCountriesWithSheets, getCountryOptions } from '../utils/countries';
 
 Astro.response.headers.set('Cache-Control', 'no-store, max-age=0');
@@ -27,16 +27,16 @@ for (const c of countries) {
 }
 ---
 
-<Layout title="Add New Itinerary - Travel Planner" noindex>
+<Layout title="New Trip - Travel Planner" noindex>
   <Header />
   <div class="w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8">
-    <div class="max-w-3xl mx-auto mb-5 sm:mb-6">
-      <h1 class="text-2xl sm:text-3xl font-extrabold text-text tracking-tight">Add new itinerary</h1>
+    <div class="w-full max-w-xl mx-auto mb-5 sm:mb-6">
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-text tracking-tight">Plan a new trip</h1>
       <p class="text-sm text-text/70 mt-1">
-        Pick a country and state/city, then add your activities.
+        Three quick steps, then add places day by day.
       </p>
     </div>
-    <AddItineraryForm countries={options} trips={trips} initialCountry={initialCountry} initialState={initialState} client:load />
+    <TripWizard countries={options} trips={trips} initialCountry={initialCountry} initialState={initialState} client:load />
   </div>
   <Footer />
 </Layout>

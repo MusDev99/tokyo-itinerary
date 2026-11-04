@@ -56,7 +56,7 @@ export default function ActivityFields({ value, errors = {}, onChange, idPrefix,
             onChange={(date) => onChange({ date })} />
         </FormField>
       )}
-      <FormField label="Time" required error={errors.time} htmlFor={id('time')} className={hideDate ? 'sm:col-span-3' : 'sm:col-span-2'}>
+      <FormField label="Time" error={errors.time} htmlFor={id('time')} className={hideDate ? 'sm:col-span-3' : 'sm:col-span-2'}>
         <AnalogTimePicker id={id('time')} value={value.time} invalid={!!errors.time}
           onChange={(time) => onChange({ time })} />
       </FormField>
@@ -94,6 +94,41 @@ export default function ActivityFields({ value, errors = {}, onChange, idPrefix,
         </select>
       </FormField>
       <FormField label="Price notes" htmlFor={id('notes')} className="sm:col-span-2">
+        <input id={id('notes')} type="text" maxLength={200} className={inputClass} placeholder="e.g. per person"
+          value={value.price_notes} onInput={(e) => onChange({ price_notes: (e.target as HTMLInputElement).value })} />
+      </FormField>
+    </div>
+  );
+}
+
+/**
+ * The optional half of an activity (description, price). Shown behind a "More details"
+ * disclosure in the quick Add place sheet (Hick's Law: only the essentials up front).
+ */
+export function MoreFields({ value, errors = {}, onChange, idPrefix }: Omit<Props, 'hideDate'>) {
+  const id = (k: string) => `${idPrefix}-${k}`;
+  const cur = POPULAR_CURRENCIES.some((c) => c.code === value.price_currency) || !value.price_currency
+    ? POPULAR_CURRENCIES
+    : [{ code: value.price_currency, name: value.price_currency, symbol: '', flag: '' }, ...POPULAR_CURRENCIES];
+  return (
+    <div className="grid grid-cols-2 gap-3">
+      <FormField label="Description" htmlFor={id('description')} className="col-span-2">
+        <textarea id={id('description')} rows={2} maxLength={2000} className={inputClass}
+          value={value.description} onInput={(e) => onChange({ description: (e.target as HTMLTextAreaElement).value })} />
+      </FormField>
+      <FormField label="Amount" error={errors.price_amount} htmlFor={id('amount')}>
+        <input id={id('amount')} type="number" inputMode="decimal" min="0" step="any" className={inputClass}
+          value={value.price_amount} onInput={(e) => onChange({ price_amount: (e.target as HTMLInputElement).value })} />
+      </FormField>
+      <FormField label="Currency" error={errors.price_currency} htmlFor={id('currency')}>
+        <select id={id('currency')} className={inputClass} value={value.price_currency}
+          onChange={(e) => onChange({ price_currency: (e.target as HTMLSelectElement).value, currencyTouched: true })}>
+          {cur.map((c) => (
+            <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
+          ))}
+        </select>
+      </FormField>
+      <FormField label="Price notes" htmlFor={id('notes')} className="col-span-2">
         <input id={id('notes')} type="text" maxLength={200} className={inputClass} placeholder="e.g. per person"
           value={value.price_notes} onInput={(e) => onChange({ price_notes: (e.target as HTMLInputElement).value })} />
       </FormField>

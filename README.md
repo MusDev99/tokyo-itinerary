@@ -13,9 +13,9 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 - **Trip tabs**: every trip (a `Country - State` tab, or a country without states) has five tabs, **Overview | Analysis | Itinerary | Tools | Prepare**: in the trip header on desktop and as a fixed bottom tab bar on phones and tablets. Overview = Today card for the trip, day cards and exports (`/[country]/[state]/overview`); Analysis = the budget & currency dashboard (`/[country]/[state]/analysis`, `/[country]/analysis`).
 - **Prepare checklist** (`/[country]/[state]/prepare`, or `/[country]/prepare` for a plain country tab): a 4th trip tab with a checklist built from the trip itself (`src/utils/checklist.ts`): documents, money (trip currency + planned spend), phone & apps, packing (season + activities such as onsen, temples, hikes, beaches), prayer & food, and booking reminders for paid stays, tickets and transport. Items with a lead time show "Overdue / 3d left", and the 5 most urgent sit on top. Ticks and your own extra items are saved **on this device** (no sign-in, works offline).
 - **Travel tools** (`/[country]/[state]/tools`): prayer times for every trip date in the destination's local time with the local calculation method per country (AlAdhan API) plus Qibla direction, driven by the trip's confirmed location. No API keys needed.
-- **Trip locations**: each trip's real place (lat/lng, timezone) is confirmed when adding a trip and stored in a hidden `_trips` worksheet (columns `tab, place, admin1, country, country_code, lat, lng, timezone`) — don't delete it.
+- **Trip locations**: each trip's real place (lat/lng, timezone) is confirmed when adding a trip and stored in a hidden `_trips` worksheet (columns `tab, place, admin1, country, country_code, lat, lng, timezone, start_date, end_date`) — don't delete it.
 - **Inline add / manage**: on a trip page, "Add new activity" opens the add form in place; rename and delete are icon buttons in the trip card. Activities in a day are collapsed to time + title with an Expand / Collapse all control.
-- **Add & edit from the website**: `/add` creates a new tab and day-by-day activities (date + day title, then activities) straight into the sheet; activities can be edited/deleted, and trips renamed/deleted, with a confirmation modal before any delete. The service account needs **Editor** access to the sheet.
+- **Add & edit from the website**: `/add` is a 3-step wizard (destination, dates, review) that creates the trip tab; places are then added day by day from the **Add place** sheet on the trip page (time and day title are optional); activities can be edited/deleted, and trips renamed/deleted, with a confirmation modal before any delete. The service account needs **Editor** access to the sheet.
 - **Zero-Dependency Service Account Client**: Authenticates with Google Sheets API v4 using an `RS256` OAuth 2.0 JWT signed via Node's built-in `node:crypto` (`src/utils/googleSheets.ts`)—no heavy SDKs or local `.json` data files required.
 - **Live Sync & Refresh**: Sheets reads are kept in server memory with stale-while-revalidate (`src/utils/swr.ts`): fresh for 30s, then served instantly for up to 10 min while one background read refreshes them, so switching tabs never waits on Google. Every write from the app clears the cache (editors see their change on the next render), and the in-app **Refresh from Google Sheets** button (`/api/sheets-sync`) forces a live read. Edits made directly in Google Sheets show up within about 30s. Built-in request deduplication and rate-limit retry backoff.
 - **Fast tab switching**: the Overview / Itinerary / Tools tabs are prefetched as soon as they're visible (guests), and guest pages are `private, max-age=30` so the prefetched page is reused on tap and Back is instant. Editors' pages stay `no-store`.
@@ -123,7 +123,7 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 │   │   ├── MobileNav.tsx              # Mobile slide-in navigation drawer
 │   │   ├── OfflineStatus.tsx          # Registers the service worker + offline pill
 │   │   ├── TripChecklist.tsx          # Prepare tab: per-device checklist with progress
-│   │   ├── AddItineraryForm.tsx       # Two-tab add form (trip, then days & activities)
+│   │   ├── TripWizard.tsx             # /add wizard: Where → When → Review (draft kept on device)
 │   │   ├── AnalogTimePicker.tsx       # Analog clock time picker
 │   │   ├── CalendarPicker.tsx         # Month-grid date picker (keyboard + touch)
 │   │   ├── PickerPopover.tsx          # Shared trigger + popover for the date/time pickers
@@ -134,7 +134,7 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 │   │   ├── TodayCard.tsx              # Home "Today" card during a trip
 │   │   ├── ConfirmDialog.tsx          # Confirmation modal for destructive actions
 │   │   ├── TripActions.tsx            # Add activities / rename / delete trip
-│   │   ├── AddActivityPanel.tsx       # Inline "Add new activity" panel on a trip page
+│   │   ├── TripBuilder.tsx            # Day-first "Add place" sheet on a trip page
 │   │   ├── BackButton.tsx             # Universal header back button
 │   │   ├── TravelTools.tsx            # Travel tools tab (location + prayer times)
 │   │   ├── LocationPicker.tsx         # Search & pick a trip's real place
