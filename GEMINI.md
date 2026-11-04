@@ -38,7 +38,7 @@ Reusable UI components built with Preact (`.tsx`) or Astro (`.astro`):
 *   `SkeletonLoader.tsx`: Placeholder component displayed while async content loads.
 *   `TabsNew.tsx`: Day-by-day navigation and container component coordinating filters, currency selection, and timeline rendering.
 *   `TechStack.tsx`: Displays the technologies and architecture used in the project.
-*   `ThemeSwitcher.tsx`: Toggles light/dark mode and seasonal themes.
+*   `ThemePicker.tsx`: Seasonal themes, shown inside the header account menu (`UserMenu.tsx`).
 *   `Timeline.tsx`: Container rendering a day's sequence of activities.
 *   `TimelineItem.tsx`: Individual activity card implementing progressive disclosure for notes, locations, and media.
 

@@ -10,15 +10,16 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 
 ### 1. Google Sheets as Single Source of Truth
 - **Tabs = Countries and States**: Add a destination by creating a worksheet tab. A plain tab (e.g., `Japan`) is a country; a tab named `Country - State` (e.g., `Japan - Tokyo`, `Japan - Osaka`) becomes a state/city of that country. Routes: `/[country]`, `/[country]/itinerary` (all states), `/[country]/[state]`, plus calendar feeds `/[country]/calendar.ics` and `/[country]/[state]/calendar.ics`.
-- **Trip tabs**: every trip (a `Country - State` tab, or a country without states) has five tabs, **Overview | Analysis | Itinerary | Tools | Prepare**: in the trip header on desktop and as a fixed bottom tab bar on phones and tablets. Overview = Today card for the trip, day cards and exports (`/[country]/[state]/overview`); Analysis = the budget & currency dashboard (`/[country]/[state]/analysis`, `/[country]/analysis`).
-- **Prepare checklist** (`/[country]/[state]/prepare`, or `/[country]/prepare` for a plain country tab): a 4th trip tab with a checklist built from the trip itself (`src/utils/checklist.ts`): documents, money (trip currency + planned spend), phone & apps, packing (season + activities such as onsen, temples, hikes, beaches), prayer & food, and booking reminders for paid stays, tickets and transport. Items with a lead time show "Overdue / 3d left", and the 5 most urgent sit on top. Ticks and your own extra items are saved **on this device** (no sign-in, works offline).
-- **Travel tools** (`/[country]/[state]/tools`): prayer times for every trip date in the destination's local time with the local calculation method per country (AlAdhan API) plus Qibla direction, driven by the trip's confirmed location. No API keys needed.
+- **Trip tabs**: every trip (a `Country - State` tab, or a country without states) has four tabs, **Overview | Analysis | Itinerary | Pocket**: in the trip header on desktop and as a fixed bottom tab bar on phones and tablets. Overview = Today card for the trip, day cards and exports (`/[country]/[state]/overview`); Analysis = the budget & currency dashboard (`/[country]/[state]/analysis`, `/[country]/analysis`).
+- **Pocket** (`/[country]/[state]/pocket`, or `/[country]/pocket`): one tab for everything you carry. **Bookings & docs** (flights, stays, visas/insurance, links to tickets kept in Drive/Photos) and **Notes** (codes, to-dos) are private: they need sign-in, live in the hidden `_pocket` worksheet (`id, trip_tab, kind, title, start_date, start_time, end_date, end_time, from, to, ref, notes, url, colour, done, details, created_by, created_at`) and load through `/api/pocket` (never in the page HTML). Flights and stays also show as read-only cards on their itinerary day. Below them sit the checklist and the travel tools. The old `/tools` and `/prepare` URLs redirect here. There is no file upload: attach a link instead.
+- **Checklist** (inside Pocket): a checklist built from the trip itself (`src/utils/checklist.ts`): documents, money (trip currency + planned spend), phone & apps, packing (season + activities such as onsen, temples, hikes, beaches), prayer & food, and booking reminders for paid stays, tickets and transport. Items with a lead time show "Overdue / 3d left", and the 5 most urgent sit on top. Ticks and your own extra items are saved **on this device** (no sign-in, works offline).
+- **Travel tools** (inside Pocket): prayer times for every trip date in the destination's local time with the local calculation method per country (AlAdhan API) plus Qibla direction, driven by the trip's confirmed location. No API keys needed.
 - **Trip locations**: each trip's real place (lat/lng, timezone) is confirmed when adding a trip and stored in a hidden `_trips` worksheet (columns `tab, place, admin1, country, country_code, lat, lng, timezone, start_date, end_date`) — don't delete it.
 - **Inline add / manage**: on a trip page, "Add new activity" opens the add form in place; rename and delete are icon buttons in the trip card. Activities in a day are collapsed to time + title with an Expand / Collapse all control.
 - **Add & edit from the website**: `/add` is a 3-step wizard (destination, dates, review) that creates the trip tab; places are then added day by day from the **Add place** sheet on the trip page (time and day title are optional); activities can be edited/deleted, and trips renamed/deleted, with a confirmation modal before any delete. The service account needs **Editor** access to the sheet.
 - **Zero-Dependency Service Account Client**: Authenticates with Google Sheets API v4 using an `RS256` OAuth 2.0 JWT signed via Node's built-in `node:crypto` (`src/utils/googleSheets.ts`)—no heavy SDKs or local `.json` data files required.
 - **Live Sync & Refresh**: Sheets reads are kept in server memory with stale-while-revalidate (`src/utils/swr.ts`): fresh for 30s, then served instantly for up to 10 min while one background read refreshes them, so switching tabs never waits on Google. Every write from the app clears the cache (editors see their change on the next render), and the in-app **Refresh from Google Sheets** button (`/api/sheets-sync`) forces a live read. Edits made directly in Google Sheets show up within about 30s. Built-in request deduplication and rate-limit retry backoff.
-- **Fast tab switching**: the Overview / Itinerary / Tools tabs are prefetched as soon as they're visible (guests), and guest pages are `private, max-age=30` so the prefetched page is reused on tap and Back is instant. Editors' pages stay `no-store`.
+- **Fast tab switching**: the Overview / Itinerary / Pocket tabs are prefetched as soon as they're visible (guests), and guest pages are `private, max-age=30` so the prefetched page is reused on tap and Back is instant. Editors' pages stay `no-store`.
 
 ### 2. Comprehensive Trip Analytics & Currency Exchange
 - **Global & Per-Country Analytics (`AnalyticsDashboard.tsx`)**: three tabs — Overview (a slim interactive category donut and a day-by-day spending history), Currency and paginated Expenses.
@@ -40,7 +41,7 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 - **Today mode**: during a trip the home page starts with a **Today** card (what's on now, the next activity with a countdown, **Directions** and today's **Route**, and what's later), using your phone's own date and time. Trip pages open on today's day. In dev, preview any date with `?today=2026-10-18T10:30`.
 - **Live day**: on the Today card, tick the current activity **✓ Done**, **⏭ Skip** the next one, or say you're **running late** (+15 / +30 / +60 min) to push the rest of today back; every action has a 5-second **Undo**. Saved on this device per trip day, works offline.
 - **Timeline order & now**: each day's activities are listed by time; on today's day the activity that's on now is highlighted and opened, the next one is marked, and Today-card check-ins show as Done / Skipped.
-- **Animated Seasons**: Seven [Motion](https://motion.dev/)-animated themes (autumn, winter, spring, summer, rain, haze, starry night) chosen from a compact panel above the floating theme button (grouped into Seasons and Weather, with labels), no sound. Translucent glass cards. Honors `prefers-reduced-motion`.
+- **Animated Seasons**: Seven [Motion](https://motion.dev/)-animated themes (autumn, winter, spring, summer, rain, haze, starry night) chosen from the account menu in the header (guests get a theme button next to Sign in; grouped into Seasons and Weather, with labels), no sound. Translucent glass cards. Honors `prefers-reduced-motion`.
 - **Welcome landing (`/welcome`)**: first-time guests see an animated product story, live "world so far" numbers, a self-playing 3-step "How it works" and two choices (Continue with Google, Continue as guest). Shown once per browser (`pt_welcome` cookie; replay from the footer). Motion on the compositor only, paused off screen, still scene for reduced motion. Never cached by the service worker.
 - **World map**: a pin per country on one cached SVG land shape (no map library, no tiles); tap a pin for a summary card, then **Open**. Pin coordinates live in `PIN_COORDS` (`src/utils/worldMap.ts`); countries without one appear as chips. Regenerate the shape with `node scripts/build-world-map.mjs`.
 - **Mobile-first navigation**: slide-in drawer with collapsible country cards, 44px touch targets and a compact activity card.
@@ -49,7 +50,7 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 ---
 
 ### 4. Security (OWASP Top 10) & editor access
-- **Viewing is public; editing needs Google sign-in by a registered user.** `POST/PATCH/DELETE /api/itinerary`, `POST /api/place`, `/api/sheets-sync` and the `/add` page require a session (`/login` → Google, 7-day signed `HttpOnly` cookie) **and** an `active` row in the hidden `_users` worksheet. Guests see a read-only site with no edit controls. Without the Google env vars editing is **disabled (503)**, never open.
+- **Viewing is public; editing needs Google sign-in by a registered user.** `POST/PATCH/DELETE /api/itinerary`, `POST /api/place`, `/api/sheets-sync`, every `/api/pocket` call (reads too) and the `/add` page require a session (`/login` → Google, 7-day signed `HttpOnly` cookie) **and** an `active` row in the hidden `_users` worksheet. Guests see a read-only site with no edit controls. Without the Google env vars editing is **disabled (503)**, never open.
 - **First-time setup:** `npm run sheets:setup -- you@gmail.com` creates the hidden `_users` and `_audit` tabs and registers you as the first active editor (omit the email to just create the tabs). Show hidden tabs in Google Sheets via the *All sheets* menu.
 - **Registering editors:** add a row to the hidden `_users` tab with the person's Google `email` and `status` = `active` (columns: `google_id, email, name, picture_url, status, created_at, last_login`). Their first sign-in fills `google_id`, name and profile picture; set `status` to `disabled` to revoke (takes effect within ~1 minute). Unregistered people see an **Ask the admin on WhatsApp** button (`ADMIN_WHATSAPP`).
 - **Audit trail:** every sign-in and change is appended to the hidden `_audit` tab (`time, email, action, tab, target`).
@@ -119,10 +120,13 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 │   │   ├── TabsNew.tsx                # Day-by-day tabbed itinerary viewer
 │   │   ├── TechStack.tsx              # Technology stack showcase modal/drawer
 │   │   ├── SeasonBackground.tsx       # Motion-animated season scenes
-│   │   ├── ThemeSwitcher.tsx          # Floating theme button + Seasons/Weather panel
+│   │   ├── ThemePicker.tsx            # Seasons/Weather tiles + useTheme hook (used by UserMenu)
 │   │   ├── MobileNav.tsx              # Mobile slide-in navigation drawer
 │   │   ├── OfflineStatus.tsx          # Registers the service worker + offline pill
-│   │   ├── TripChecklist.tsx          # Prepare tab: per-device checklist with progress
+│   │   ├── PocketHome.tsx             # Pocket tab: bookings, notes, checklist, tools
+│   │   ├── PocketSheet.tsx            # "Put it in Pocket" sheet (flight, stay, doc, note)
+│   │   ├── DayBookings.tsx            # Read-only flight/stay cards on an itinerary day
+│   │   ├── TripChecklist.tsx          # Checklist (in Pocket): per-device ticks with progress
 │   │   ├── TripWizard.tsx             # /add wizard: Where → When → Review (draft kept on device)
 │   │   ├── AnalogTimePicker.tsx       # Analog clock time picker
 │   │   ├── CalendarPicker.tsx         # Month-grid date picker (keyboard + touch)
@@ -150,9 +154,8 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 │   │   ├── [country]/
 │   │   │   ├── index.astro            # Country overview, schedule summary & analytics
 │   │   │   ├── [state]/index.astro    # Single `Country - State` trip timeline
-│   │   │   ├── [state]/tools.astro    # Travel tools (location + prayer times) for a state
-│   │   │   ├── tools.astro            # Travel tools for a plain country tab
-│   │   │   ├── prepare.astro          # Prepare checklist (state pages: [state]/prepare.astro)
+│   │   │   ├── [state]/pocket.astro   # Pocket for a state trip ([state]/tools and /prepare redirect here)
+│   │   │   ├── pocket.astro           # Pocket for a plain country tab (tools/prepare redirect here)
 │   │   │   └── itinerary.astro        # Interactive day-by-day country itinerary & PDF export
 │   │   ├── add.astro                  # Add-itinerary form (days & activities)
 │   │   └── api/

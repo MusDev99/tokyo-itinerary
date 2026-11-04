@@ -8,6 +8,8 @@ interface Props {
   value: string; // "HH:MM" (24h) or ""
   onChange: (value: string) => void;
   invalid?: boolean;
+  /** Shown while no time is set (default "Select time") */
+  placeholder?: string;
 }
 
 const SIZE = 232;
@@ -22,7 +24,7 @@ const polar = (angleDeg: number, r: number) => {
   return { x: C + r * Math.cos(a), y: C + r * Math.sin(a) };
 };
 
-export default function AnalogTimePicker({ id, value, onChange, invalid }: Props) {
+export default function AnalogTimePicker({ id, value, onChange, invalid, placeholder = 'Select time' }: Props) {
   const [mode, setMode] = useState<'hour' | 'minute'>('hour');
   const [h12, setH12] = useState(12);
   const [min, setMin] = useState(0);
@@ -83,7 +85,7 @@ export default function AnalogTimePicker({ id, value, onChange, invalid }: Props
 
   return (
     <>
-      <PickerTrigger picker={picker} id={id} invalid={invalid} display={formatTime12(value)} placeholder="Select time"
+      <PickerTrigger picker={picker} id={id} invalid={invalid} display={formatTime12(value)} placeholder={placeholder}
         icon={<><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" strokeLinecap="round" strokeLinejoin="round" /></>} />
 
       <PickerPopover picker={picker} aria-label="Pick a time" className="p-4">

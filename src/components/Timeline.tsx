@@ -7,6 +7,9 @@ import { prefersReducedMotion } from '../utils/motion';
 import { dayRouteUrl } from '../utils/mapsRoute';
 import { dayLiveTags, itemKey, liveKey, localNow, parseLive, type LiveTag } from '../utils/today';
 import { deviceNow } from './deviceClock';
+import { formatLongDate, toIsoDate } from '../utils/calendar';
+import DayBookings from './DayBookings';
+import type { DayCard } from '../utils/pocket';
 
 interface Props {
   day: DayItinerary;
@@ -15,9 +18,15 @@ interface Props {
   region?: string;
   /** Trip page the Today card saves check-ins under (e.g. "/japan/tokyo"), so the timeline shows the same state */
   liveHref?: string;
+  /** Flights and stays from the Pocket that fall on this day (signed-in editors only) */
+  bookings?: DayCard[];
+  pocketHref?: string;
+  /** Trip date range: edits can only move an activity to a day inside it */
+  dateMin?: string;
+  dateMax?: string;
 }
 
-export default function Timeline({ day, canEdit = false, region, liveHref }: Props) {
+export default function Timeline({ day, canEdit = false, region, liveHref, bookings = [], pocketHref = '', dateMin = '', dateMax = '' }: Props) {
   const totalDayCost = day.items.reduce((sum, item) => sum + (item.price?.amount || 0), 0);
   const currency = day.items.find((item) => item.price?.currency)?.price.currency || '';
   const route = dayRouteUrl(day.items, day.state || region);
@@ -89,7 +98,7 @@ export default function Timeline({ day, canEdit = false, region, liveHref }: Pro
               </span>
             )}
             <span className="text-xs sm:text-sm font-semibold text-text/70">
-              📅 {day.date}
+              📅 {formatLongDate(toIsoDate(day.date)) || day.date}
             </span>
           </div>
           <h2 className="text-xl sm:text-2xl font-extrabold text-text tracking-tight">
@@ -143,6 +152,8 @@ export default function Timeline({ day, canEdit = false, region, liveHref }: Pro
         </div>
       </div>
 
+      {bookings.length > 0 && <DayBookings cards={bookings} pocketHref={pocketHref} />}
+
       {/* Activity Timeline */}
       <div className="relative space-y-5">
         {day.items.map((item, index) => (
@@ -150,6 +161,8 @@ export default function Timeline({ day, canEdit = false, region, liveHref }: Pro
             key={`${day.day}-${index}`}
             {...item}
             editable={canEdit}
+            dateMin={dateMin}
+            dateMax={dateMax}
             liveTag={tags?.[itemKey(item)]}
             open={open[index] ?? false}
             onToggle={() => setOpen((prev) => prev.map((v, i) => (i === index ? !v : v)))}

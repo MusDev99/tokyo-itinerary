@@ -6,7 +6,10 @@ import { useDismiss } from './useDismiss';
 import type { TimelineItem as TimelineItemType } from '../types/itinerary';
 import { CATEGORIES, detectCategory } from '../utils/analytics';
 import ConfirmDialog from './ConfirmDialog';
-import ActivityFields, { draftToPayload, type ActivityDraft } from './ActivityFields';
+import { toIsoDate } from '../utils/calendar';
+import ActivitySheet from './ActivitySheet';
+import { draftToPayload, type ActivityDraft } from './ActivityFields';
+import { buildDays } from '../utils/tripDraft';
 import type { LiveTag } from '../utils/today';
 import { prefersReducedMotion } from '../utils/motion';
 
@@ -19,7 +22,13 @@ interface TimelineItemProps extends TimelineItemType {
   editable?: boolean;
   /** Today only: on now / next, or checked in on the Today card */
   liveTag?: LiveTag;
+  /** Trip dates an edit may move this activity to (ISO; empty = unbounded) */
+  dateMin?: string;
+  dateMax?: string;
 }
+
+/** Shown when an activity has no time set */
+const NO_TIME = '--:--';
 
 const LIVE_BADGE: Record<LiveTag, { text: string; className: string }> = {
   now: { text: 'Now', className: 'bg-emerald-500 text-white' },
@@ -54,15 +63,15 @@ export default function TimelineItem(props: TimelineItemProps) {
   const rowRef = id ? { id } : { row, expectTitle: title };
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<ActivityDraft | null>(null);
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState('');
 
   const startEdit = () => {
     setDraft({
-      date: date || '',
+      // Sheet dates come in many shapes (ISO, "Nov 30", serial numbers): the picker needs ISO
+      date: toIsoDate(date || ''),
       title,
-      time,
+      time: time || '',
       description: description || '',
       category: props.category || '',
       location_name: location?.name === title ? '' : location?.name || '',
@@ -70,7 +79,6 @@ export default function TimelineItem(props: TimelineItemProps) {
       price_currency: price?.currency || '',
       price_notes: price?.notes || '',
     });
-    setFieldErrors({});
     setActionError('');
     setEditing(true);
   };
@@ -88,7 +96,6 @@ export default function TimelineItem(props: TimelineItemProps) {
       const data = await res.json();
       if (!res.ok) {
         setActionError(data.error || 'Something went wrong');
-        setFieldErrors(data.rowErrors?.[0] || {});
         return;
       }
       window.location.reload();
@@ -99,7 +106,27 @@ export default function TimelineItem(props: TimelineItemProps) {
     }
   };
 
-  const saveEdit = () => draft && callApi('PATCH', { tab, ...rowRef, activity: draftToPayload(draft) });
+  // Trip days an edit can move this activity to (the activity's own, possibly legacy, date is always allowed)
+  const editDays = (own: string) => {
+    const set = new Set<string>(props.dateMin && props.dateMax ? buildDays(props.dateMin, props.dateMax) : []);
+    if (own) set.add(own);
+    return [...set].sort();
+  };
+
+  const saveEdit = async (d: ActivityDraft): Promise<Record<string, string> | void> => {
+    try {
+      const res = await fetch('/api/itinerary', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tab, ...rowRef, activity: draftToPayload(d) }),
+      });
+      if (redirectIfSignedOut(res)) return { _: 'Please sign in again.' };
+      const data = await res.json();
+      if (!res.ok) return { ...(data.rowErrors?.[0] || {}), _: data.error || 'Something went wrong' };
+    } catch {
+      return { _: 'Network error. Please try again.' };
+    }
+  };
   const remove = () => callApi('DELETE', { tab, ...rowRef, title });
 
   // Collapsed cards show only time + title (Hick's Law: scan first, open what you need)
@@ -167,7 +194,7 @@ export default function TimelineItem(props: TimelineItemProps) {
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
               </svg>
-              {time}
+              {time || NO_TIME}
             </span>
             <LiveBadge tag={liveTag} />
             <span className={`flex-1 min-w-0 truncate text-sm sm:text-base font-bold text-text ${liveTag === 'skipped' ? 'line-through' : ''}`}>{title}</span>
@@ -184,7 +211,7 @@ export default function TimelineItem(props: TimelineItemProps) {
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
             </svg>
-            {time}
+            {time || NO_TIME}
             <LiveBadge tag={liveTag} />
           </span>
 
@@ -327,31 +354,16 @@ export default function TimelineItem(props: TimelineItemProps) {
         )}
 
         {editing && draft && (
-          <div className="mt-3 pt-3 border-t border-primary/10 space-y-3">
-            <ActivityFields
-              idPrefix={`edit-${id || row}`}
-              value={draft}
-              errors={fieldErrors}
-              onChange={(patch) => setDraft({ ...draft, ...patch })}
-            />
-            {actionError && (
-              <div role="alert" className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-xs font-semibold text-red-800">
-                {actionError}
-              </div>
-            )}
-            <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
-              <button type="button" onClick={() => setEditing(false)} disabled={busy}
-                className="touch-target px-4 py-2 rounded-xl bg-primary/10 text-primary text-xs font-bold">
-                Cancel
-              </button>
-              <button type="button" onClick={saveEdit} disabled={busy}
-                className="touch-target px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold disabled:opacity-60">
-                {busy ? 'Saving…' : 'Save changes'}
-              </button>
-            </div>
-          </div>
+          <ActivitySheet
+            mode="edit"
+            initial={draft}
+            days={editDays(draft.date)}
+            plannedDays={[]}
+            onSave={saveEdit}
+            onClose={(saved) => (saved > 0 ? window.location.reload() : setEditing(false))}
+          />
         )}
-        {!editing && actionError && (
+        {actionError && (
           <div role="alert" className="mt-3 p-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-xs font-semibold text-red-800">
             {actionError}
           </div>

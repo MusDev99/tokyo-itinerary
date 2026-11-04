@@ -5,7 +5,11 @@ import type { DayItinerary, TimelineItem } from '../types/itinerary';
 import type { Place } from '../types/place';
 import { UserError, safeHttpUrl, sheetText, youtubeEmbedUrl } from './security.ts';
 import { cacheState, timed, type Timed } from './swr.ts';
-import { sortByTime } from './calendar.ts';
+import { sortByTime, normalizeSheetDate, normalizeSheetTime } from './calendar.ts';
+import {
+  POCKET_TAB, POCKET_HEADERS, POCKET_LAST_COL, MAX_POCKET_ITEMS, parsePocketRows, itemToRow,
+  type PocketItem, type PocketInput,
+} from './pocket.ts';
 
 export interface ServiceAccountCredentials {
   type: string;
@@ -320,7 +324,7 @@ export function rowsToDayItinerary(
   const blankDayDates = new Set<string>();
   for (let r = 1; r < rows.length; r++) {
     const row = rows[r] || [];
-    const date = cellAt(row, idxDate);
+    const date = normalizeSheetDate(cellAt(row, idxDate));
     if (!date) continue;
     const explicit = parseInt(cellAt(row, idxDay), 10);
     if (explicit) {
@@ -347,7 +351,7 @@ export function rowsToDayItinerary(
     const getCell = (idx: number): string =>
       idx >= 0 && idx < row.length ? String(row[idx] ?? '').trim() : '';
 
-    const dateStr = getCell(idxDate);
+    const dateStr = normalizeSheetDate(getCell(idxDate));
     const dayNum = parseInt(getCell(idxDay), 10) || dateToDay.get(dateStr) || 1;
     const dayTitle = getCell(idxDayTitle);
     const activityTitle = getCell(idxTitle);
@@ -386,7 +390,8 @@ export function rowsToDayItinerary(
 
     const item: TimelineItem = {
       date: dateStr,
-      time: getCell(idxTime) || '09:00',
+      // An unset time stays empty (shown as --:--); numeric day fractions from "Number" cells become HH:MM
+      time: normalizeSheetTime(getCell(idxTime)),
       title: resolvedTitle,
       description: descStr,
       location: {
@@ -938,6 +943,7 @@ export async function deleteTrip(tabName: string): Promise<void> {
     body: JSON.stringify({ requests: [{ deleteSheet: { sheetId: match.sheetId } }] }),
   });
   await removePlace(match.title).catch(() => {});
+  await clearPocketTrip(match.title).catch(() => {});
   clearSheetsCache();
 }
 
@@ -965,6 +971,7 @@ export async function renameTrip(tabName: string, newName: string): Promise<void
     }),
   });
   await renamePlaceTab(match.title, newName).catch(() => {});
+  await renamePocketTrip(match.title, newName).catch(() => {});
   clearSheetsCache();
 }
 
@@ -1248,4 +1255,53 @@ if (isDirectCli) {
       }
     }
   })();
+}
+
+// ---------------------------------------------------------------------------
+// Pocket: per-trip bookings, docs and notes in the hidden "_pocket" worksheet.
+// Values are written RAW (never evaluated as formulas), so sheetText() is not needed here.
+// Only signed-in editors reach these functions (see /api/pocket and the middleware).
+// ---------------------------------------------------------------------------
+
+export async function listPocket(tab: string): Promise<Array<PocketItem & { rowNumber: number }>> {
+  const rows = await readSheetRows(POCKET_TAB, POCKET_LAST_COL);
+  return parsePocketRows(rows, tab);
+}
+
+export async function addPocket(tab: string, input: PocketInput, createdBy: string): Promise<PocketItem> {
+  await ensureHiddenTab(POCKET_TAB, POCKET_HEADERS);
+  const existing = await listPocket(tab);
+  if (existing.length >= MAX_POCKET_ITEMS) throw new UserError(`A Pocket holds at most ${MAX_POCKET_ITEMS} items`);
+  const item: PocketItem = { ...input, id: crypto.randomUUID(), createdBy, createdAt: new Date().toISOString() };
+  await appendSheetRow(POCKET_TAB, itemToRow(tab, item));
+  return item;
+}
+
+export async function updatePocket(tab: string, id: string, input: PocketInput): Promise<boolean> {
+  const current = (await listPocket(tab)).find((i) => i.id === id);
+  if (!current) return false;
+  const { rowNumber, ...rest } = current;
+  await updateSheetRow(POCKET_TAB, rowNumber, itemToRow(tab, { ...rest, ...input, id, createdBy: current.createdBy, createdAt: current.createdAt }));
+  return true;
+}
+
+/** Blanks the row (the sheet keeps no row-delete helper); readers skip blank rows. */
+export async function deletePocket(tab: string, id: string): Promise<boolean> {
+  const current = (await listPocket(tab)).find((i) => i.id === id);
+  if (!current) return false;
+  await updateSheetRow(POCKET_TAB, current.rowNumber, new Array(POCKET_HEADERS.length).fill(''));
+  return true;
+}
+
+async function clearPocketTrip(tab: string): Promise<void> {
+  for (const item of await listPocket(tab)) {
+    await updateSheetRow(POCKET_TAB, item.rowNumber, new Array(POCKET_HEADERS.length).fill(''));
+  }
+}
+
+async function renamePocketTrip(oldTab: string, newTab: string): Promise<void> {
+  for (const item of await listPocket(oldTab)) {
+    const { rowNumber, ...rest } = item;
+    await updateSheetRow(POCKET_TAB, rowNumber, itemToRow(newTab, rest));
+  }
 }

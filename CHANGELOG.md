@@ -3,6 +3,54 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-04 20:10 — Release 0.1.0: trip wizard, Pocket and a leaner itinerary flow
+
+One release of everything below (newest first), shipped as a single PR.
+
+- **New:** 3-step trip wizard · Pocket tab (bookings, docs, notes, checklist, tools; replaces Tools + Prepare) · one lean sheet to add and edit a place · floating phone tab bar · theme picker inside the profile menu.
+- **Fixed:** edit form could not read dates/times stored as numbers; edit date limited to trip days; `--:--` for no time; sheets trapped under the header on phones.
+- **Data:** new hidden `_pocket` worksheet; `_trips` gains `start_date` / `end_date` (older sheets upgrade on first save). Backward compatible, no env changes.
+- **Docs:** `CLAUDE.md` updated for the four tabs, Pocket, the shared activity sheet and the theme menu.
+- **Release notes:** `docs/releases/v0.1.0.md`.
+- **Rollback:** revert the merge commit; `_pocket` and the new `_trips` columns are ignored by older code.
+
+## 2026-11-04 20:00 — Change: one lean sheet to add and edit a place
+
+- **Editing an activity now opens the same bottom sheet as Add place** instead of a long inline form. Day chips (trip days only), place, time and type up front; location, price and notes under "More details" (opened automatically when the activity has them).
+- **Leaner:** type is one scrolling row, the selected day and type scroll into view, actions stay pinned at the bottom, and Save stays off until something changes.
+- Time shows `--:--` when unset and can be cleared with ✕. A new place only pre-fills a time when the day already has activities.
+
+## 2026-11-04 19:40 — Fix: editing an activity (date, time, trip days)
+
+- **Dates and times that came through as numbers** (a day showing "46357", a time showing "0.375", and an empty date in the edit form) are now read correctly. Cells formatted as Number in the sheet store dates as day counts and times as day fractions; they now become real dates and HH:MM, so the edit form is pre-filled.
+- **Edit date is limited to the trip:** the date picker only allows days inside the trip (the dates saved by the wizard, else the span of the planned days), and the server rejects other dates.
+- **No time set shows `--:--`** instead of a made-up 09:00. A time can be cleared again with "Clear time". Activities without a time sort after the timed ones; the PDF shows `--:--` too.
+- The day header shows a readable date.
+## 2026-11-04 19:25 — Change: theme picker moved into the profile menu
+
+- The floating sun button is gone. The theme tiles (Seasons and Weather) now open from the **profile avatar** in the header, between your account details and Sign out.
+- Guests have no profile, so they get a theme button (current season icon) beside **Sign in** in the same spot.
+- The phone screen no longer has a floating button competing with the tab bar and sheets; the theme still applies instantly and is remembered on this device.
+
+## 2026-11-04 19:15 — Feat: floating trip tab bar
+
+- **Modern dock:** the phone tab bar is now a rounded, blurred bar floating above the screen edge, with line icons instead of emoji and a filled pill on the current tab (not colour alone). Taps press in slightly; reduced motion is respected.
+- Badge (e.g. "1d") moved onto the icon corner; page padding and the floating buttons were re-spaced so nothing hides behind the dock.
+- Night theme: dark text on the amber pill for readable contrast.
+
+## 2026-11-04 19:05 — Fix: Add place and Pocket sheets on phones
+
+- The sheets now render in a portal above the header and bottom tab bar. Before, the Add place sheet was trapped inside a glass card (the page's blur effect), so it floated mid-screen under the header with the page showing through, and its labels were centred.
+- Dark backdrop, page scroll locked behind the sheet, and room for the phone's home bar.
+
+## 2026-11-04 18:41 — Feat: Pocket tab
+
+- **One Pocket tab replaces Tools + Prepare** (four trip tabs now). Sections: Bookings & docs, Notes, Checklist, Location & prayer times. Old `/tools` and `/prepare` links redirect.
+- **"Put it in Pocket"** sheet for flights (route, times, seat, gate, terminal), stays (check-in/out, address), docs (visa, insurance, booking...) and notes/to-dos. Required fields first, the rest under "More details". Tickets are attached as a link (no upload).
+- **Private by design:** items are stored in the hidden `_pocket` worksheet and served only by `/api/pocket`, which needs a signed-in editor for every call. Nothing private is in the page HTML, and the audit log keeps only type + title.
+- **Itinerary link:** flights (departure, and arrival when it lands on a later day) and stays (check-in, check-out) appear as read-only cards on their day for signed-in editors, linking back to Pocket. They are not sheet rows, so budget, calendar and PDF are unchanged.
+- Renaming a trip moves its Pocket rows; deleting a trip clears them. "pocket", "tools" and "prepare" are now reserved trip names.
+
 ## 2026-11-04 18:25 — Feat: trip wizard + day-first "Add place"
 
 - **New `/add` wizard (Where → When → Review):** one decision per screen, a progress bar, a live day count, and a ticket-style review card. Dates are saved with the trip, and an unfinished draft is restored on this device.

@@ -1,10 +1,10 @@
 /**
  * The tabs of a destination page, defined once for the header tabs (desktop) and the bottom tab bar (phones).
- * A "trip" is one `Country - State` tab or a country without states: it gets all five tabs. A country split into
+ * A "trip" is one `Country - State` tab or a country without states: it gets four tabs (Pocket holds the bookings, docs, checklist and travel tools). A country split into
  * states is a hub (its trips are the states), so it only has Overview + the merged Itinerary.
  */
 
-export type TabKey = 'overview' | 'analysis' | 'itinerary' | 'tools' | 'prepare';
+export type TabKey = 'overview' | 'analysis' | 'itinerary' | 'pocket';
 
 export interface TripTab {
   key: TabKey;
@@ -41,8 +41,7 @@ export function tripTabs(country: TabSource, state?: { slug: string }): { isTrip
     { key: 'overview', label: 'Overview', icon: '🧭', href: state ? `${base}/overview` : base, show: true },
     { key: 'analysis', label: 'Analysis', icon: '📊', href: `${base}/analysis`, show: planned },
     { key: 'itinerary', label: 'Itinerary', icon: '🗓️', href: state ? base : `${base}/itinerary`, badge: days, show: planned },
-    { key: 'tools', label: 'Tools', icon: '🕌', href: `${base}/tools`, show: true },
-    { key: 'prepare', label: 'Prepare', icon: '✅', href: `${base}/prepare`, show: planned },
+    { key: 'pocket', label: 'Pocket', icon: '🎒', href: `${base}/pocket`, show: true },
   ];
   return { isTrip, tabs: all.filter((t) => t.show).map(({ show, ...t }) => t) };
 }

@@ -125,7 +125,7 @@ export default function PDFDownload({ itinerary }: Props) {
           pdf.setFontSize(11);
           pdf.setFont('NotoSansJP', 'bold');
           pdf.setTextColor(primaryColor);
-          pdf.text(`${item.time} - ${item.title}`, margin, yPosition);
+          pdf.text(`${item.time || '--:--'} - ${item.title}`, margin, yPosition);
           yPosition += 6;
 
           pdf.setFontSize(9);

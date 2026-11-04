@@ -10,15 +10,15 @@ export const GET: APIRoute = async ({ url }) => {
     for (const c of countries) {
       paths.add(`/${c.slug}`);
       paths.add(`/${c.slug}/itinerary`);
+      if (c.states.length === 0) paths.add(`/${c.slug}/pocket`); // no private data in the page: bookings load from the API
       if (c.states.length === 0 && c.stats.hasItinerary) {
-        paths.add(`/${c.slug}/prepare`);
         paths.add(`/${c.slug}/analysis`);
       }
       for (const s of c.states) {
         paths.add(`/${c.slug}/${s.slug}`);
         paths.add(`/${c.slug}/${s.slug}/overview`); // the trip tabs read offline too
+        paths.add(`/${c.slug}/${s.slug}/pocket`);
         if (s.stats.hasItinerary) {
-          paths.add(`/${c.slug}/${s.slug}/prepare`);
           paths.add(`/${c.slug}/${s.slug}/analysis`);
         }
       }

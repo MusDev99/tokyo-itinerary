@@ -6,6 +6,9 @@ import type { DayItinerary } from '../types/itinerary';
 import { localNow, todayIndex } from '../utils/today';
 import { deviceNow } from './deviceClock';
 
+import { itemsForDay, type PocketItem } from '../utils/pocket';
+import { toIsoDate } from '../utils/calendar';
+
 interface Props {
   itinerary: DayItinerary[];
   /** Signed-in editors see edit / delete controls on activities */
@@ -16,9 +19,31 @@ interface Props {
   liveHref?: string;
   /** Merged country itinerary: each state's trip page, by state name */
   stateHrefs?: Record<string, string>;
+  /** Trip tab whose Pocket flights/stays appear on their day (signed-in editors, single-trip pages only) */
+  pocketTab?: string;
+  /** Trip date range (ISO). Defaults to the span of the itinerary's own days */
+  tripRange?: { start: string; end: string } | null;
 }
 
-export default function Tabs({ itinerary, canEdit = false, region, liveHref, stateHrefs }: Props) {
+export default function Tabs({ itinerary, canEdit = false, region, liveHref, stateHrefs, pocketTab, tripRange }: Props) {
+  // Edits may only move an activity to a day of the trip: the saved range, else the days already planned
+  const range = (() => {
+    if (tripRange?.start && tripRange?.end) return tripRange;
+    const isos = itinerary.map((d) => toIsoDate(d.date)).filter(Boolean).sort();
+    return isos.length ? { start: isos[0], end: isos[isos.length - 1] } : null;
+  })();
+  // Private bookings are fetched client-side after sign-in, so cached/guest pages never contain them
+  const [pocket, setPocket] = useState<PocketItem[]>([]);
+  useEffect(() => {
+    if (!canEdit || !pocketTab) return;
+    let live = true;
+    fetch(`/api/pocket?tab=${encodeURIComponent(pocketTab)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => live && d?.items && setPocket(d.items as PocketItem[]))
+      .catch(() => {});
+    return () => { live = false; };
+  }, [canEdit, pocketTab]);
+
   const [activeTab, setActiveTab] = useState(0);
   const [filteredItinerary, setFilteredItinerary] = useState(itinerary);
   const [showSearch, setShowSearch] = useState(false);
@@ -171,7 +196,11 @@ export default function Tabs({ itinerary, canEdit = false, region, liveHref, sta
       <div className="rounded-2xl bg-white/45 border border-primary/15 p-2.5 sm:p-6">
         {currentDay ? (
           <div>
-            <Timeline day={currentDay} canEdit={canEdit} region={region} liveHref={(currentDay.state && stateHrefs?.[currentDay.state]) || liveHref} />
+            <Timeline day={currentDay} canEdit={canEdit} region={region} liveHref={(currentDay.state && stateHrefs?.[currentDay.state]) || liveHref}
+              dateMin={range?.start || ''}
+              dateMax={range?.end || ''}
+              bookings={pocket.length ? itemsForDay(pocket, toIsoDate(currentDay.date)) : []}
+              pocketHref={`${(liveHref || '').replace(/\/itinerary$/, '')}/pocket`} />
 
             {/* Bottom Day Stepper (Fitts's Law: Easy sequential progression at the end of reading a day) */}
             {filteredItinerary.length > 1 && (

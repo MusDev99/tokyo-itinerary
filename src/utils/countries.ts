@@ -289,7 +289,7 @@ function sortCountries(countries: CountryMetadata[]): CountryMetadata[] {
 
 
 export const TAB_SEPARATOR = ' - ';
-export const RESERVED_SLUGS = new Set(['itinerary', 'add', 'api', '404', 'tools']);
+export const RESERVED_SLUGS = new Set(['itinerary', 'add', 'api', '404', 'tools', 'prepare', 'pocket']);
 
 export function slugify(value: string): string {
   return value

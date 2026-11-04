@@ -1,6 +1,5 @@
 ---
 import '../styles/global.css';
-import ThemeSwitcher from '../components/ThemeSwitcher';
 import SeasonBackground from '../components/SeasonBackground';
 import OfflineStatus from '../components/OfflineStatus';
 import NavProgress from '../components/NavProgress.astro';
@@ -58,11 +57,6 @@ const canonical = new URL(Astro.url.pathname, Astro.url.origin).toString();
     </script>
   </head>
   <body class="min-h-screen flex flex-col bg-transparent touch-manipulation mobile-safe-area">
-    <!-- Theme Switcher Component (Fitts's Law: Accessible floating trigger in thumb zone) -->
-    <div class="above-tabbar fixed bottom-5 right-5 z-40">
-      <ThemeSwitcher client:load />
-    </div>
-
     <!-- Loading bar + tab skeleton while the next page loads -->
     <NavProgress />
 
