@@ -186,12 +186,18 @@
 
 /* Trip bottom tab bar (TripBottomNav, below lg): keep the footer and the floating buttons clear of it */
 @media (max-width: 1023.98px) {
+  /* The dock is 5rem tall (56px tabs + padding) and floats 0.75rem above the edge */
   body:has(#trip-bottom-nav) {
-    padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+    padding-bottom: calc(5.75rem + env(safe-area-inset-bottom));
   }
   body:has(#trip-bottom-nav) .above-tabbar {
-    bottom: calc(4rem + 0.75rem + env(safe-area-inset-bottom));
+    bottom: calc(5.75rem + 0.75rem + env(safe-area-inset-bottom));
   }
+}
+
+/* Night's primary is amber: white text on it fails contrast, so the active dock pill uses dark ink there */
+[data-theme="night"] #trip-bottom-nav a[aria-current="page"] {
+  color: #1e1b4b;
 }
 
 /* Page loading (NavProgress): <html data-nav="pending"> right after a tap, "slow" past 400ms */

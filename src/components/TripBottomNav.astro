@@ -7,22 +7,48 @@ interface Props {
 }
 
 const { tabs, active } = Astro.props;
+
+// Line icons (24px grid, currentColor) so they follow the theme and stay crisp; emoji only as a fallback.
+// Plain data rendered as elements: no set:html anywhere (OWASP A03 rule of this repo).
+type Shape = { tag: 'path' | 'rect' | 'circle'; attrs: Record<string, string | number> };
+const ICONS: Record<TabKey, Shape[]> = {
+  overview: [
+    { tag: 'circle', attrs: { cx: 12, cy: 12, r: 9 } },
+    { tag: 'path', attrs: { d: 'm15.5 8.5-2 5-5 2 2-5z' } },
+  ],
+  analysis: [{ tag: 'path', attrs: { d: 'M4 20V10M10 20V4M16 20v-7M22 20H2' } }],
+  itinerary: [
+    { tag: 'rect', attrs: { x: 3.5, y: 5, width: 17, height: 15.5, rx: 3 } },
+    { tag: 'path', attrs: { d: 'M8 3v4M16 3v4M3.5 10h17' } },
+  ],
+  pocket: [
+    { tag: 'path', attrs: { d: 'M8 7V6a4 4 0 0 1 8 0v1' } },
+    { tag: 'rect', attrs: { x: 4, y: 7, width: 16, height: 13.5, rx: 4 } },
+    { tag: 'path', attrs: { d: 'M4 13h16M10 13v1.5h4V13' } },
+  ],
+};
 ---
 
 <!--
   Trip tab bar, phones and tablets only (desktop keeps the tabs in the trip header).
-  Jakob's Law: the bottom tab bar every travel / map app uses. Fitts's Law: full-height thumb-zone targets.
-  Miller's Law: five labelled destinations at most. `#trip-bottom-nav` lifts the floating buttons and pads the page (global.css).
+  A floating dock: rounded, blurred, lifted off the screen edge so it reads as a control and never as page content.
+  Jakob's Law: still the bottom tab bar every travel / map app uses, with icon + label. Fitts's Law: 56px-tall
+  targets in the thumb zone. Miller's Law: four destinations. The current tab is a filled pill (not colour alone).
+  `#trip-bottom-nav` lifts the floating buttons and pads the page (global.css).
 -->
 <nav
   id="trip-bottom-nav"
   aria-label="Trip sections"
-  class="lg:hidden fixed inset-x-0 bottom-0 z-40 bg-[color-mix(in_srgb,var(--surface-solid)_94%,transparent)] backdrop-blur-md border-t border-primary/20 shadow-[0_-4px_16px_rgb(0_0_0/0.08)]"
-  style="padding-bottom: env(safe-area-inset-bottom)"
+  class="lg:hidden fixed inset-x-3 z-40 mx-auto max-w-md"
+  style="bottom: calc(0.75rem + env(safe-area-inset-bottom))"
 >
-  <ul class="max-w-xl mx-auto grid" style={`grid-template-columns: repeat(${tabs.length}, minmax(0, 1fr))`}>
+  <ul
+    class="grid gap-1 p-1.5 rounded-[1.75rem] border border-primary/15 bg-[color-mix(in_srgb,var(--surface-solid)_88%,transparent)] backdrop-blur-xl backdrop-saturate-150 shadow-[0_10px_30px_rgb(0_0_0/0.18),0_2px_6px_rgb(0_0_0/0.08)]"
+    style={`grid-template-columns: repeat(${tabs.length}, minmax(0, 1fr))`}
+  >
     {tabs.map((tab) => {
       const current = tab.key === active;
+      const icon = ICONS[tab.key];
       return (
         <li>
           <a
@@ -32,15 +58,37 @@ const { tabs, active } = Astro.props;
             aria-current={current ? 'page' : undefined}
             data-astro-prefetch={current || Astro.locals.user ? 'false' : 'viewport'}
             class:list={[
-              'relative flex flex-col items-center justify-center gap-0.5 h-16 px-1 text-[11px] font-bold transition-colors focus-ring',
-              current ? 'text-primary' : 'text-text/60 hover:text-text',
+              'group relative flex flex-col items-center justify-center gap-0.5 h-14 px-1 rounded-[1.35rem] text-[11px] font-bold leading-none focus-ring',
+              'transition-[background-color,color,transform] duration-200 motion-reduce:transition-none active:scale-95',
+              current
+                ? 'bg-primary text-white shadow-[0_4px_12px_color-mix(in_srgb,var(--color-primary)_45%,transparent)]'
+                : 'text-text/65 hover:text-text hover:bg-primary/10',
             ]}
           >
-            {current && <span class="absolute top-0 inset-x-3 h-[3px] rounded-b-full bg-primary" aria-hidden="true" />}
-            <span class:list={['text-xl leading-none transition-transform', current && 'scale-110']} aria-hidden="true">{tab.icon}</span>
+            {icon ? (
+              <svg
+                class:list={['w-[22px] h-[22px] transition-transform duration-200 motion-reduce:transition-none', current && '-translate-y-px']}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width={current ? 2.25 : 1.9}
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                {icon.map(({ tag: Tag, attrs }) => <Tag {...attrs} />)}
+              </svg>
+            ) : (
+              <span class="text-xl leading-none" aria-hidden="true">{tab.icon}</span>
+            )}
             <span class="truncate max-w-full">{tab.label}</span>
             {tab.badge && (
-              <span class="absolute top-1.5 right-1/2 translate-x-[150%] px-1 rounded-full text-[9px] font-extrabold bg-primary/15 text-primary">
+              <span
+                class:list={[
+                  'absolute top-1.5 left-1/2 ml-2.5 px-1.5 py-0.5 rounded-full text-[9px] font-extrabold leading-none',
+                  current ? 'bg-white text-primary' : 'bg-primary text-white',
+                ]}
+              >
                 {tab.badge}
               </span>
             )}

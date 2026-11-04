@@ -15,6 +15,11 @@ Each entry has a date and time (Malaysia time, UTC+8) and a short description of
 - **Edit date is limited to the trip:** the date picker only allows days inside the trip (the dates saved by the wizard, else the span of the planned days), and the server rejects other dates.
 - **No time set shows `--:--`** instead of a made-up 09:00. A time can be cleared again with "Clear time". Activities without a time sort after the timed ones; the PDF shows `--:--` too.
 - The day header shows a readable date.
+## 2026-11-04 19:15 — Feat: floating trip tab bar
+
+- **Modern dock:** the phone tab bar is now a rounded, blurred bar floating above the screen edge, with line icons instead of emoji and a filled pill on the current tab (not colour alone). Taps press in slightly; reduced motion is respected.
+- Badge (e.g. "1d") moved onto the icon corner; page padding and the floating buttons were re-spaced so nothing hides behind the dock.
+- Night theme: dark text on the amber pill for readable contrast.
 
 ## 2026-11-04 19:05 — Fix: Add place and Pocket sheets on phones
 
