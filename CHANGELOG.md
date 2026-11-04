@@ -3,6 +3,12 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-04 20:00 — Change: one lean sheet to add and edit a place
+
+- **Editing an activity now opens the same bottom sheet as Add place** instead of a long inline form. Day chips (trip days only), place, time and type up front; location, price and notes under "More details" (opened automatically when the activity has them).
+- **Leaner:** type is one scrolling row, the selected day and type scroll into view, actions stay pinned at the bottom, and Save stays off until something changes.
+- Time shows `--:--` when unset and can be cleared with ✕. A new place only pre-fills a time when the day already has activities.
+
 ## 2026-11-04 19:40 — Fix: editing an activity (date, time, trip days)
 
 - **Dates and times that came through as numbers** (a day showing "46357", a time showing "0.375", and an empty date in the edit form) are now read correctly. Cells formatted as Number in the sheet store dates as day counts and times as day fractions; they now become real dates and HH:MM, so the edit form is pre-filled.

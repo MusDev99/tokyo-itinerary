@@ -7,7 +7,9 @@ import type { TimelineItem as TimelineItemType } from '../types/itinerary';
 import { CATEGORIES, detectCategory } from '../utils/analytics';
 import ConfirmDialog from './ConfirmDialog';
 import { toIsoDate } from '../utils/calendar';
-import ActivityFields, { draftToPayload, type ActivityDraft } from './ActivityFields';
+import ActivitySheet from './ActivitySheet';
+import { draftToPayload, type ActivityDraft } from './ActivityFields';
+import { buildDays } from '../utils/tripDraft';
 import type { LiveTag } from '../utils/today';
 import { prefersReducedMotion } from '../utils/motion';
 
@@ -61,7 +63,6 @@ export default function TimelineItem(props: TimelineItemProps) {
   const rowRef = id ? { id } : { row, expectTitle: title };
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<ActivityDraft | null>(null);
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState('');
 
@@ -78,7 +79,6 @@ export default function TimelineItem(props: TimelineItemProps) {
       price_currency: price?.currency || '',
       price_notes: price?.notes || '',
     });
-    setFieldErrors({});
     setActionError('');
     setEditing(true);
   };
@@ -96,7 +96,6 @@ export default function TimelineItem(props: TimelineItemProps) {
       const data = await res.json();
       if (!res.ok) {
         setActionError(data.error || 'Something went wrong');
-        setFieldErrors(data.rowErrors?.[0] || {});
         return;
       }
       window.location.reload();
@@ -107,7 +106,27 @@ export default function TimelineItem(props: TimelineItemProps) {
     }
   };
 
-  const saveEdit = () => draft && callApi('PATCH', { tab, ...rowRef, activity: draftToPayload(draft) });
+  // Trip days an edit can move this activity to (the activity's own, possibly legacy, date is always allowed)
+  const editDays = (own: string) => {
+    const set = new Set<string>(props.dateMin && props.dateMax ? buildDays(props.dateMin, props.dateMax) : []);
+    if (own) set.add(own);
+    return [...set].sort();
+  };
+
+  const saveEdit = async (d: ActivityDraft): Promise<Record<string, string> | void> => {
+    try {
+      const res = await fetch('/api/itinerary', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tab, ...rowRef, activity: draftToPayload(d) }),
+      });
+      if (redirectIfSignedOut(res)) return { _: 'Please sign in again.' };
+      const data = await res.json();
+      if (!res.ok) return { ...(data.rowErrors?.[0] || {}), _: data.error || 'Something went wrong' };
+    } catch {
+      return { _: 'Network error. Please try again.' };
+    }
+  };
   const remove = () => callApi('DELETE', { tab, ...rowRef, title });
 
   // Collapsed cards show only time + title (Hick's Law: scan first, open what you need)
@@ -335,34 +354,16 @@ export default function TimelineItem(props: TimelineItemProps) {
         )}
 
         {editing && draft && (
-          <div className="mt-3 pt-3 border-t border-primary/10 space-y-3">
-            <ActivityFields
-              idPrefix={`edit-${id || row}`}
-              value={draft}
-              errors={fieldErrors}
-              onChange={(patch) => setDraft({ ...draft, ...patch })}
-              // Only trip days, but never lock out the activity's own (possibly legacy) date
-              dateMin={props.dateMin ? ([props.dateMin, draft.date].filter(Boolean).sort()[0]) : ''}
-              dateMax={props.dateMax ? ([props.dateMax, draft.date].filter(Boolean).sort().pop() as string) : ''}
-            />
-            {actionError && (
-              <div role="alert" className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-xs font-semibold text-red-800">
-                {actionError}
-              </div>
-            )}
-            <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
-              <button type="button" onClick={() => setEditing(false)} disabled={busy}
-                className="touch-target px-4 py-2 rounded-xl bg-primary/10 text-primary text-xs font-bold">
-                Cancel
-              </button>
-              <button type="button" onClick={saveEdit} disabled={busy}
-                className="touch-target px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold disabled:opacity-60">
-                {busy ? 'Saving…' : 'Save changes'}
-              </button>
-            </div>
-          </div>
+          <ActivitySheet
+            mode="edit"
+            initial={draft}
+            days={editDays(draft.date)}
+            plannedDays={[]}
+            onSave={saveEdit}
+            onClose={(saved) => (saved > 0 ? window.location.reload() : setEditing(false))}
+          />
         )}
-        {!editing && actionError && (
+        {actionError && (
           <div role="alert" className="mt-3 p-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-xs font-semibold text-red-800">
             {actionError}
           </div>
