@@ -1,6 +1,7 @@
 import { h } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { animate } from 'motion';
+import { createPortal } from 'preact/compat';
 import { prefersReducedMotion } from '../utils/motion';
 import { DOC_KINDS, NOTE_COLOURS, type PocketItem, type PocketKind } from '../utils/pocket';
 import { useDismiss } from './useDismiss';
@@ -57,6 +58,12 @@ export default function PocketSheet({ kind: initialKind, item, defaultDate = '',
   useDismiss(true, [sheet], (reason) => reason === 'escape' && onClose());
 
   useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, []);
+
+  useEffect(() => {
     const el = sheet.current;
     if (el && !prefersReducedMotion()) animate(el, { opacity: [0, 1], y: [32, 0] }, { duration: 0.3, ease: [0.22, 1, 0.36, 1] });
   }, []);
@@ -86,11 +93,12 @@ export default function PocketSheet({ kind: initialKind, item, defaultDate = '',
   const titleLabel = kind === 'flight' ? 'Flight number' : kind === 'stay' ? 'Place name' : kind === 'doc' ? 'Name' : 'Title';
   const titlePlaceholder = kind === 'flight' ? 'e.g. GA 874' : kind === 'stay' ? 'e.g. Hotel Gracery Shinjuku' : kind === 'doc' ? 'e.g. Japan eVisa' : 'e.g. Wifi & door codes';
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 sm:p-4" role="presentation"
+  // Portal to <body> so glass/backdrop-filter ancestors can't trap the fixed overlay; z-90 is above header/tab bar, below the pickers (100)
+  return createPortal(
+    <div className="fixed inset-0 z-[90] flex items-end sm:items-center justify-center bg-black/50 sm:p-4 text-left" role="presentation"
       onPointerDown={(e) => e.target === e.currentTarget && onClose()}>
       <div ref={sheet} role="dialog" aria-modal="true" aria-labelledby="pk-title"
-        className="w-full sm:max-w-lg max-h-[92dvh] overflow-y-auto rounded-t-3xl sm:rounded-3xl bg-white p-4 sm:p-6 shadow-2xl">
+        className="w-full sm:max-w-lg max-h-[92dvh] overflow-y-auto overscroll-contain rounded-t-3xl sm:rounded-3xl bg-[var(--surface-solid)] text-text p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-6 shadow-2xl">
         <div className="flex items-center justify-between gap-3 mb-3">
           <h2 id="pk-title" className="text-lg font-extrabold text-text">
             {!kind ? 'Put it in Pocket' : `${item ? 'Edit' : 'New'} ${KIND_META[kind].label.toLowerCase()}`}
@@ -248,6 +256,7 @@ export default function PocketSheet({ kind: initialKind, item, defaultDate = '',
           </form>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
