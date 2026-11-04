@@ -3,6 +3,15 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-04 20:10 — Release 0.1.0: trip wizard, Pocket and a leaner itinerary flow
+
+One release of everything below (newest first), shipped as a single PR.
+
+- **New:** 3-step trip wizard · Pocket tab (bookings, docs, notes, checklist, tools; replaces Tools + Prepare) · one lean sheet to add and edit a place · floating phone tab bar · theme picker inside the profile menu.
+- **Fixed:** edit form could not read dates/times stored as numbers; edit date limited to trip days; `--:--` for no time; sheets trapped under the header on phones.
+- **Data:** new hidden `_pocket` worksheet; `_trips` gains `start_date` / `end_date` (older sheets upgrade on first save). Backward compatible, no env changes.
+- **Rollback:** revert the merge commit; `_pocket` and the new `_trips` columns are ignored by older code.
+
 ## 2026-11-04 20:00 — Change: one lean sheet to add and edit a place
 
 - **Editing an activity now opens the same bottom sheet as Add place** instead of a long inline form. Day chips (trip days only), place, time and type up front; location, price and notes under "More details" (opened automatically when the activity has them).
