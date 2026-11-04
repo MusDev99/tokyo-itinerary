@@ -3,6 +3,11 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-04 19:05 — Fix: Add place and Pocket sheets on phones
+
+- The sheets now render in a portal above the header and bottom tab bar. Before, the Add place sheet was trapped inside a glass card (the page's blur effect), so it floated mid-screen under the header with the page showing through, and its labels were centred.
+- Dark backdrop, page scroll locked behind the sheet, and room for the phone's home bar.
+
 ## 2026-11-04 18:41 — Feat: Pocket tab
 
 - **One Pocket tab replaces Tools + Prepare** (four trip tabs now). Sections: Bookings & docs, Notes, Checklist, Location & prayer times. Old `/tools` and `/prepare` links redirect.

@@ -1,6 +1,7 @@
 import { h } from 'preact';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { animate } from 'motion';
+import { createPortal } from 'preact/compat';
 import { redirectIfSignedOut } from '../utils/authClient';
 import { prefersReducedMotion } from '../utils/motion';
 import { CATEGORIES } from '../utils/analytics';
@@ -90,6 +91,14 @@ export default function TripBuilder({ country, state, currency, dates, planned, 
 
   useDismiss(open, [sheet], (reason) => reason === 'escape' && close());
 
+  // Keep the page from scrolling behind the sheet
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, [open]);
+
   useEffect(() => {
     if (!open) return;
     titleInput.current?.focus();
@@ -171,11 +180,13 @@ export default function TripBuilder({ country, state, currency, dates, planned, 
         <span aria-hidden="true" className="text-lg leading-none">＋</span> Add place
       </button>
 
-      {open && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 p-0 sm:p-4" role="presentation"
+      {/* Portal to <body>: an ancestor with backdrop-filter (glass cards) would otherwise trap `fixed` inside it.
+          z-90 sits above the header (50) and tab bar (40) but below the date/time popovers (100). */}
+      {open && createPortal(
+        <div className="fixed inset-0 z-[90] flex items-end sm:items-center justify-center bg-black/50 p-0 sm:p-4 text-left" role="presentation"
           onPointerDown={(e) => e.target === e.currentTarget && close()}>
           <div ref={sheet} role="dialog" aria-modal="true" aria-labelledby="tb-title"
-            className="w-full sm:max-w-lg max-h-[92dvh] overflow-y-auto rounded-t-3xl sm:rounded-3xl bg-white p-4 sm:p-6 shadow-2xl">
+            className="w-full sm:max-w-lg max-h-[92dvh] overflow-y-auto overscroll-contain rounded-t-3xl sm:rounded-3xl bg-[var(--surface-solid)] text-text p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-6 shadow-2xl">
             <div className="flex items-center justify-between gap-3 mb-3">
               <h2 id="tb-title" className="text-lg font-extrabold text-text">Add place</h2>
               <button type="button" onClick={close} aria-label="Close"
@@ -262,7 +273,8 @@ export default function TripBuilder({ country, state, currency, dates, planned, 
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
