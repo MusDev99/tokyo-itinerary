@@ -7,7 +7,9 @@ import CountrySubNav from '../../../components/CountrySubNav.astro';
 import Tabs from '../../../components/TabsNew';
 import PDFDownload from '../../../components/PDFDownload';
 import CalendarExport from '../../../components/CalendarExport';
-import AddActivityPanel from '../../../components/AddActivityPanel';
+import TripBuilder from '../../../components/TripBuilder';
+import { getTripDates } from '../../../utils/googleSheets';
+import { toIsoDate } from '../../../utils/calendar';
 import { getAllCountriesWithSheets } from '../../../utils/countries';
 
 Astro.response.headers.set('Cache-Control', pageCacheControl(Boolean(Astro.locals.user)));
@@ -32,6 +34,15 @@ const country = {
   tabName: stateMeta.tabName,
 };
 
+// Builder data (signed-in editors only): saved trip range + which days already have activities
+const canEdit = Boolean(Astro.locals.user);
+const tripDates = canEdit ? await getTripDates(stateMeta.tabName) : null;
+const planned = canEdit
+  ? stateMeta.itinerary
+      .map((d) => ({ date: toIsoDate(d.date), title: d.title, lastTime: d.items[d.items.length - 1]?.time || '' }))
+      .filter((d) => d.date)
+  : [];
+
 ---
 
 <Layout title={`${country.title} - Interactive Timeline`}>
@@ -43,12 +54,13 @@ const country = {
     {country.stats.hasItinerary ? (
       <div class="space-y-6 sm:space-y-8">
         {Astro.locals.user ? (
-          <AddActivityPanel
+          <TripBuilder
             client:load
             country={baseCountry.name}
-            countrySlug={baseCountry.slug}
             state={stateMeta.name}
             currency={stateMeta.currency}
+            dates={tripDates}
+            planned={planned}
           />
         ) : (
           <a
@@ -75,10 +87,16 @@ const country = {
       </div>
     ) : (
       <div class="glass-effect rounded-2xl p-8 text-center border border-primary/20">
-        <p class="text-lg font-bold text-text">No itinerary entries found for {country.name} yet.</p>
+        <p class="text-lg font-bold text-text">Nothing planned for {stateMeta.name} yet.</p>
         <p class="text-sm text-text/70 mt-1">
-          Add activities to this trip to see the day-by-day timeline.
+          Add places to see the day-by-day timeline.
         </p>
+        {canEdit && (
+          <div class="mt-5 max-w-xs mx-auto">
+            <TripBuilder client:load empty country={baseCountry.name} state={stateMeta.name}
+              currency={stateMeta.currency} dates={tripDates} planned={planned} />
+          </div>
+        )}
       </div>
     )}
   </div>

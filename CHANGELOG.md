@@ -3,6 +3,14 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-04 18:25 — Feat: trip wizard + day-first "Add place"
+
+- **New `/add` wizard (Where → When → Review):** one decision per screen, a progress bar, a live day count, and a ticket-style review card. Dates are saved with the trip, and an unfinished draft is restored on this device.
+- **Add place sheet** on every trip page (bottom sheet on phones): pick the day chip, type the place, optionally a time and type, with price and description behind "More details". It stays open for the next place, continuing from the previous time.
+- **Lighter rules:** time and day title are now optional; the old 9-field form and inline panel are gone.
+- **Data:** the hidden `_trips` worksheet gains `start_date` and `end_date` (older sheets are upgraded on first save, renames carry the dates). `POST /api/itinerary` accepts `dates` and an empty `activities` list to create a trip.
+- Trip-name rules now live once in `src/utils/tripDraft.ts` (shared by browser and API, unit-tested).
+
 ## 2026-11-03 21:36 — Fix: Expenses tab on phones
 
 - **No more sideways scroll / clipped amounts:** the expense rows sat in a grid cell that grew to fit long titles, pushing "MYR …" off the right edge. The list now uses a shrinkable column, titles wrap to two lines, and the amount never wraps or leaves the screen.

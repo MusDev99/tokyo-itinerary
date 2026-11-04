@@ -7,14 +7,14 @@ import {
   renameTrip,
   type ActivityInput,
 } from '../../utils/googleSheets';
-import { buildTabName, slugify, RESERVED_SLUGS } from '../../utils/countries';
-import { savePlace } from '../../utils/googleSheets';
+import { buildTabName, slugify } from '../../utils/countries';
+import { savePlace, saveTripDates } from '../../utils/googleSheets';
+import { validateTripName, validateRange } from '../../utils/tripDraft';
 import { parsePlace } from '../../types/place';
 import { clientError } from '../../utils/security';
 import { recordAudit } from '../../utils/users';
 
 const MAX_ACTIVITIES = 50;
-const TAB_FORBIDDEN = /[\[\]*?:\/\\'!]/;
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -28,7 +28,7 @@ const who = (locals: App.Locals) => locals.user?.email ?? 'unknown';
 const str = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 
 /** Validates one activity; returns the clean record or a map of field errors. */
-function parseActivity(raw: any, requireDayTitle = false): { value?: ActivityInput; errors?: Record<string, string> } {
+function parseActivity(raw: any): { value?: ActivityInput; errors?: Record<string, string> } {
   const errors: Record<string, string> = {};
   const date = str(raw?.date, 20);
   const title = str(raw?.title, 200);
@@ -37,8 +37,6 @@ function parseActivity(raw: any, requireDayTitle = false): { value?: ActivityInp
 
   if (!date || isNaN(new Date(date).getTime())) errors.date = 'Valid date is required';
   if (!title) errors.title = 'Title is required';
-  if (!time) errors.time = 'Time is required';
-  if (requireDayTitle && !dayTitle) errors.day_title = 'Day title is required';
 
   let amount: number | null = null;
   if (raw?.price_amount !== undefined && raw?.price_amount !== null && raw?.price_amount !== '') {
@@ -68,18 +66,8 @@ function parseActivity(raw: any, requireDayTitle = false): { value?: ActivityInp
 }
 
 function validateTab(country: string, state: string): string | null {
-  if (!country) return 'Country is required';
-  if (!state) return 'State / city is required';
-  if (TAB_FORBIDDEN.test(country) || TAB_FORBIDDEN.test(state)) {
-    return "Country and state can't contain [ ] * ? : / \\ ' !";
-  }
-  if (country.includes(' - ') || state.includes(' - ')) return "Country and state can't contain ' - '";
-  if (buildTabName(country, state).length > 100) return 'Country + state is too long';
-  const cs = slugify(country);
-  const ss = slugify(state);
-  if (!cs || !ss) return 'Country and state need at least one letter or number';
-  if (RESERVED_SLUGS.has(cs) || RESERVED_SLUGS.has(ss)) return 'That name is reserved';
-  return null;
+  const e = validateTripName(country, state);
+  return e.country || e.state || null;
 }
 
 // Create a trip tab (if new) and/or append activities.
@@ -96,7 +84,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
   if (tabError) return json({ error: tabError, fieldErrors: { trip: tabError } }, 400);
 
   const rawActivities = Array.isArray(body.activities) ? body.activities : [];
-  if (rawActivities.length === 0) return json({ error: 'Add at least one activity' }, 400);
+  // Wizard "create trip": no activities yet, but a validated date range
+  const wantsDates = body.dates && typeof body.dates === 'object';
+  const dates = wantsDates ? { start: str(body.dates.start, 10), end: str(body.dates.end, 10) } : null;
+  if (dates) {
+    const rangeError = validateRange(dates.start, dates.end);
+    if (rangeError) return json({ error: rangeError, fieldErrors: { dates: rangeError } }, 400);
+  }
+  if (rawActivities.length === 0 && !dates) return json({ error: 'Add at least one activity' }, 400);
   if (rawActivities.length > MAX_ACTIVITIES) {
     return json({ error: `Max ${MAX_ACTIVITIES} activities per submit` }, 400);
   }
@@ -105,7 +100,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const rowErrors: Array<Record<string, string>> = [];
   let hasErrors = false;
   for (const raw of rawActivities) {
-    const parsed = parseActivity(raw, true);
+    const parsed = parseActivity(raw);
     rowErrors.push(parsed.errors || {});
     if (parsed.errors) hasErrors = true;
     else activities.push(parsed.value!);
@@ -115,6 +110,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const result = await submitItinerary(buildTabName(country, state), activities);
     await recordAudit({ email: who(locals), action: result.created ? 'create_trip' : 'add_activities', tab: result.tab, target: `${activities.length} activities` });
+    // Trip dates (best-effort, like the place: the tab itself is already written)
+    if (dates) {
+      try {
+        await saveTripDates(result.tab, dates);
+      } catch (err) {
+        console.error('saveTripDates failed', err instanceof Error ? err.message : 'unknown');
+      }
+    }
     // Save the confirmed location (best-effort: itinerary rows are already written)
     const place = parsePlace(body.place);
     let placeSaved = false;

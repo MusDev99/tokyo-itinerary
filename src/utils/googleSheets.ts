@@ -807,13 +807,16 @@ export async function appendActivities(
   const ids = activities.map(() => crypto.randomUUID());
   const rows = activities.map((a, i) => recordToRow(headers, activityToRecord(a, ids[i])));
 
-  await sheetsRequest(
-    ctx,
-    `${SHEETS_BASE}/${encodeURIComponent(spreadsheetId)}/values/${encodeURIComponent(
-      `${quoteTab(tab)}!A1`
-    )}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,
-    { method: 'POST', body: JSON.stringify({ values: rows }) }
-  );
+  // A wizard-created trip starts with headers only (no rows to append yet)
+  if (rows.length) {
+    await sheetsRequest(
+      ctx,
+      `${SHEETS_BASE}/${encodeURIComponent(spreadsheetId)}/values/${encodeURIComponent(
+        `${quoteTab(tab)}!A1`
+      )}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,
+      { method: 'POST', body: JSON.stringify({ values: rows }) }
+    );
+  }
 
   clearSheetsCache();
   return { tab, created, ids };
@@ -971,7 +974,8 @@ export async function renameTrip(tabName: string, newName: string): Promise<void
 // ---------------------------------------------------------------------------
 
 const PLACES_TAB = '_trips';
-const PLACE_HEADERS = ['tab', 'place', 'admin1', 'country', 'country_code', 'lat', 'lng', 'timezone'];
+// start_date / end_date (I:J) hold the trip's planned range (YYYY-MM-DD); older sheets lack them
+const PLACE_HEADERS = ['tab', 'place', 'admin1', 'country', 'country_code', 'lat', 'lng', 'timezone', 'start_date', 'end_date'];
 
 function placeToRow(tab: string, p: Place): string[] {
   return [tab, p.name, p.admin1 || '', p.country, p.country_code, String(p.lat), String(p.lng), p.timezone];
@@ -997,7 +1001,7 @@ async function readPlaceRows(
   spreadsheetId: string
 ): Promise<string[][] | null> {
   const res = await fetchSheetsApiWithRetry(
-    `${SHEETS_BASE}/${encodeURIComponent(spreadsheetId)}/values/${encodeURIComponent(`${PLACES_TAB}!A1:H1000`)}`,
+    `${SHEETS_BASE}/${encodeURIComponent(spreadsheetId)}/values/${encodeURIComponent(`${PLACES_TAB}!A1:J1000`)}`,
     { headers: { Authorization: `Bearer ${ctx.token}` } }
   );
   if (!res.ok) return null; // tab doesn't exist yet
@@ -1077,6 +1081,68 @@ export async function savePlace(tab: string, place: Place): Promise<void> {
   }
 }
 
+export interface TripDates {
+  start: string;
+  end: string;
+}
+
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+/** Planned date range of a trip (from `_trips`), or null when none was saved (legacy trips). */
+export async function getTripDates(tab: string): Promise<TripDates | null> {
+  try {
+    const ctx = await writeContext();
+    const rows = await readPlaceRows(ctx, ctx.spreadsheetId);
+    if (!rows) return null;
+    const wanted = tab.trim().toLowerCase();
+    const row = rows.slice(1).find((r) => String(r[0] || '').trim().toLowerCase() === wanted);
+    const start = String(row?.[8] || '').trim();
+    const end = String(row?.[9] || '').trim();
+    return ISO_DATE.test(start) && ISO_DATE.test(end) ? { start, end } : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Saves the trip's planned date range into its `_trips` row (creating the tab/row when needed). */
+export async function saveTripDates(tab: string, dates: TripDates): Promise<void> {
+  placeRowsCache = null;
+  const ctx = await writeContext();
+  const { spreadsheetId } = ctx;
+  let rows = await readPlaceRows(ctx, spreadsheetId);
+  if (!rows) {
+    await sheetsRequest(ctx, `${SHEETS_BASE}/${encodeURIComponent(spreadsheetId)}:batchUpdate`, {
+      method: 'POST',
+      body: JSON.stringify({ requests: [{ addSheet: { properties: { title: PLACES_TAB, hidden: true } } }] }),
+    });
+    rows = [];
+  }
+  // Older sheets were created with 8 columns: (re)write the header so I:J are named
+  if (!rows[0] || rows[0].length < PLACE_HEADERS.length) {
+    await sheetsRequest(
+      ctx,
+      `${SHEETS_BASE}/${encodeURIComponent(spreadsheetId)}/values/${encodeURIComponent(`${PLACES_TAB}!A1`)}?valueInputOption=RAW`,
+      { method: 'PUT', body: JSON.stringify({ values: [PLACE_HEADERS] }) }
+    );
+    rows = [PLACE_HEADERS, ...rows.slice(1)];
+  }
+  const wanted = tab.trim().toLowerCase();
+  const idx = rows.findIndex((r, i) => i > 0 && String(r[0] || '').trim().toLowerCase() === wanted);
+  if (idx > 0) {
+    await sheetsRequest(
+      ctx,
+      `${SHEETS_BASE}/${encodeURIComponent(spreadsheetId)}/values/${encodeURIComponent(`${PLACES_TAB}!I${idx + 1}:J${idx + 1}`)}?valueInputOption=RAW`,
+      { method: 'PUT', body: JSON.stringify({ values: [[dates.start, dates.end]] }) }
+    );
+  } else {
+    await sheetsRequest(
+      ctx,
+      `${SHEETS_BASE}/${encodeURIComponent(spreadsheetId)}/values/${encodeURIComponent(`${PLACES_TAB}!A1`)}:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`,
+      { method: 'POST', body: JSON.stringify({ values: [[tab, '', '', '', '', '', '', '', dates.start, dates.end]] }) }
+    );
+  }
+}
+
 /** Blanks the place row of a deleted trip (rows are left in place; reader ignores empty tabs). */
 export async function removePlace(tab: string): Promise<void> {
   placeRowsCache = null;
@@ -1088,16 +1154,18 @@ export async function removePlace(tab: string): Promise<void> {
   if (idx < 1) return;
   await sheetsRequest(
     ctx,
-    `${SHEETS_BASE}/${encodeURIComponent(ctx.spreadsheetId)}/values/${encodeURIComponent(`${PLACES_TAB}!A${idx + 1}:H${idx + 1}`)}:clear`,
+    `${SHEETS_BASE}/${encodeURIComponent(ctx.spreadsheetId)}/values/${encodeURIComponent(`${PLACES_TAB}!A${idx + 1}:J${idx + 1}`)}:clear`,
     { method: 'POST', body: '{}' }
   );
 }
 
 export async function renamePlaceTab(oldTab: string, newTab: string): Promise<void> {
   const place = await getPlace(oldTab);
-  if (!place) return;
+  const dates = await getTripDates(oldTab);
+  if (!place && !dates) return;
   await removePlace(oldTab);
-  await savePlace(newTab, place);
+  if (place) await savePlace(newTab, place);
+  if (dates) await saveTripDates(newTab, dates);
 }
 
 // ---------------------------------------------------------------------------
