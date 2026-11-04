@@ -10,6 +10,7 @@ One release of everything below (newest first), shipped as a single PR.
 - **New:** 3-step trip wizard · Pocket tab (bookings, docs, notes, checklist, tools; replaces Tools + Prepare) · one lean sheet to add and edit a place · floating phone tab bar · theme picker inside the profile menu.
 - **Fixed:** edit form could not read dates/times stored as numbers; edit date limited to trip days; `--:--` for no time; sheets trapped under the header on phones.
 - **Data:** new hidden `_pocket` worksheet; `_trips` gains `start_date` / `end_date` (older sheets upgrade on first save). Backward compatible, no env changes.
+- **Docs:** `CLAUDE.md` updated for the four tabs, Pocket, the shared activity sheet and the theme menu.
 - **Rollback:** revert the merge commit; `_pocket` and the new `_trips` columns are ignored by older code.
 
 ## 2026-11-04 20:00 — Change: one lean sheet to add and edit a place
