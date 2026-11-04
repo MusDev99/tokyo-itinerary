@@ -21,9 +21,17 @@ interface Props {
   stateHrefs?: Record<string, string>;
   /** Trip tab whose Pocket flights/stays appear on their day (signed-in editors, single-trip pages only) */
   pocketTab?: string;
+  /** Trip date range (ISO). Defaults to the span of the itinerary's own days */
+  tripRange?: { start: string; end: string } | null;
 }
 
-export default function Tabs({ itinerary, canEdit = false, region, liveHref, stateHrefs, pocketTab }: Props) {
+export default function Tabs({ itinerary, canEdit = false, region, liveHref, stateHrefs, pocketTab, tripRange }: Props) {
+  // Edits may only move an activity to a day of the trip: the saved range, else the days already planned
+  const range = (() => {
+    if (tripRange?.start && tripRange?.end) return tripRange;
+    const isos = itinerary.map((d) => toIsoDate(d.date)).filter(Boolean).sort();
+    return isos.length ? { start: isos[0], end: isos[isos.length - 1] } : null;
+  })();
   // Private bookings are fetched client-side after sign-in, so cached/guest pages never contain them
   const [pocket, setPocket] = useState<PocketItem[]>([]);
   useEffect(() => {
@@ -189,6 +197,8 @@ export default function Tabs({ itinerary, canEdit = false, region, liveHref, sta
         {currentDay ? (
           <div>
             <Timeline day={currentDay} canEdit={canEdit} region={region} liveHref={(currentDay.state && stateHrefs?.[currentDay.state]) || liveHref}
+              dateMin={range?.start || ''}
+              dateMax={range?.end || ''}
               bookings={pocket.length ? itemsForDay(pocket, toIsoDate(currentDay.date)) : []}
               pocketHref={`${(liveHref || '').replace(/\/itinerary$/, '')}/pocket`} />
 

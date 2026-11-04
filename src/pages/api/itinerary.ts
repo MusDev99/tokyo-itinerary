@@ -8,7 +8,9 @@ import {
   type ActivityInput,
 } from '../../utils/googleSheets';
 import { buildTabName, slugify } from '../../utils/countries';
-import { savePlace, saveTripDates } from '../../utils/googleSheets';
+import { savePlace, saveTripDates, getTripDates } from '../../utils/googleSheets';
+import { getAllCountriesWithSheets } from '../../utils/countries';
+import { toIsoDate } from '../../utils/calendar';
 import { validateTripName, validateRange } from '../../utils/tripDraft';
 import { parsePlace } from '../../types/place';
 import { clientError } from '../../utils/security';
@@ -178,6 +180,9 @@ export const PATCH: APIRoute = async ({ request, locals }) => {
   const parsed = parseActivity(body?.activity);
   if (parsed.errors) return json({ error: 'Please fix the highlighted fields', rowErrors: [parsed.errors] }, 400);
   try {
+    // An edit may only move an activity to a day of the trip: inside the saved range, or a day already planned
+    const dateError = await checkEditDate(tab, parsed.value!.date);
+    if (dateError) return json({ error: dateError, rowErrors: [{ date: dateError }] }, 400);
     await updateActivity(tab, ref, parsed.value!);
     await recordAudit({ email: who(locals), action: 'update_activity', tab, target: parsed.value!.title });
     return json({ ok: true });
@@ -185,6 +190,31 @@ export const PATCH: APIRoute = async ({ request, locals }) => {
     return json({ error: clientError(err, 'Failed to update activity') }, 500);
   }
 };
+
+/** Same rule as the edit form: inside the saved trip range, else inside the span of the days already planned. */
+async function checkEditDate(tab: string, date: string): Promise<string | null> {
+  const iso = toIsoDate(date);
+  if (!iso) return 'Pick a valid date';
+  const range = await getTripDates(tab);
+  if (range && iso >= range.start && iso <= range.end) return null;
+
+  const { countries } = await getAllCountriesWithSheets();
+  const wanted = tab.toLowerCase();
+  const planned: string[] = [];
+  for (const c of countries) {
+    const lists = [
+      ...(c.states.length === 0 && c.tabName?.toLowerCase() === wanted ? [c.itinerary] : []),
+      ...c.states.filter((s) => s.tabName.toLowerCase() === wanted).map((s) => s.itinerary),
+    ];
+    for (const days of lists) for (const d of days) { const x = toIsoDate(d.date); if (x) planned.push(x); }
+  }
+  planned.sort();
+  if (!range && planned.length === 0) return null; // nothing to compare with yet
+  if (!range && iso >= planned[0] && iso <= planned[planned.length - 1]) return null;
+  // A day already planned outside the saved range stays valid (older trips)
+  if (range && planned.includes(iso)) return null;
+  return range ? `Pick a day of the trip (${range.start} to ${range.end})` : "Pick one of the trip's days";
+}
 
 // Delete one activity, or a whole trip ({ tab, wholeTrip: true }).
 export const DELETE: APIRoute = async ({ request, locals }) => {

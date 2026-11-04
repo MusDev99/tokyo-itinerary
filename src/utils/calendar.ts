@@ -26,10 +26,44 @@ export function parseIso(value: string): { year: number; month: number; day: num
   return toIso(year, month, day) === m[0] ? { year, month, day } : null;
 }
 
+/**
+ * A cell formatted as "Number" shows a date as its serial day count (46357) and a time as a day fraction (0.375).
+ * Serial 0 is 1899-12-30; only plausible years (1954-2118) count as a date.
+ */
+const SERIAL = /^\d{1,6}(\.\d+)?$/;
+const serialDay = (v: string): number | null => {
+  const t = v.trim();
+  if (!SERIAL.test(t)) return null;
+  const n = Math.floor(Number(t));
+  return n >= 20000 && n <= 80000 ? n : null;
+};
+
+/** "46357" (or "46357.375") -> "2026-12-01"; anything else comes back unchanged. */
+export function normalizeSheetDate(value: string): string {
+  const n = serialDay(value || '');
+  if (n === null) return (value || '').trim();
+  const d = new Date(Date.UTC(1899, 11, 30 + n));
+  return toIso(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+}
+
+/** "0.375" -> "09:00", "46357.5" -> "12:00"; a real time such as "9:00 AM" or "" comes back unchanged. */
+export function normalizeSheetTime(value: string): string {
+  const t = (value || '').trim();
+  if (!SERIAL.test(t)) return t;
+  const n = Number(t);
+  const frac = n % 1;
+  // A whole number >= 1 is not a time of day (and a bare date serial is not one either)
+  if (n >= 1 && (frac === 0 || serialDay(t) === null)) return t;
+  const total = Math.round(frac * 1440) % 1440;
+  return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
+}
+
 /** ISO for an ISO string or a legacy sheet date like "October 17, 2026" (local parts, no UTC shift); "" otherwise. */
 export function toIsoDate(value: string): string {
   if (!value?.trim()) return '';
   if (parseIso(value)) return value.trim();
+  const serial = normalizeSheetDate(value);
+  if (serial !== value.trim() && parseIso(serial)) return serial;
   const d = new Date(value);
   return isNaN(d.getTime()) ? '' : toIso(d.getFullYear(), d.getMonth(), d.getDate());
 }

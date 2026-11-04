@@ -6,6 +6,7 @@ import { useDismiss } from './useDismiss';
 import type { TimelineItem as TimelineItemType } from '../types/itinerary';
 import { CATEGORIES, detectCategory } from '../utils/analytics';
 import ConfirmDialog from './ConfirmDialog';
+import { toIsoDate } from '../utils/calendar';
 import ActivityFields, { draftToPayload, type ActivityDraft } from './ActivityFields';
 import type { LiveTag } from '../utils/today';
 import { prefersReducedMotion } from '../utils/motion';
@@ -19,7 +20,13 @@ interface TimelineItemProps extends TimelineItemType {
   editable?: boolean;
   /** Today only: on now / next, or checked in on the Today card */
   liveTag?: LiveTag;
+  /** Trip dates an edit may move this activity to (ISO; empty = unbounded) */
+  dateMin?: string;
+  dateMax?: string;
 }
+
+/** Shown when an activity has no time set */
+const NO_TIME = '--:--';
 
 const LIVE_BADGE: Record<LiveTag, { text: string; className: string }> = {
   now: { text: 'Now', className: 'bg-emerald-500 text-white' },
@@ -60,9 +67,10 @@ export default function TimelineItem(props: TimelineItemProps) {
 
   const startEdit = () => {
     setDraft({
-      date: date || '',
+      // Sheet dates come in many shapes (ISO, "Nov 30", serial numbers): the picker needs ISO
+      date: toIsoDate(date || ''),
       title,
-      time,
+      time: time || '',
       description: description || '',
       category: props.category || '',
       location_name: location?.name === title ? '' : location?.name || '',
@@ -167,7 +175,7 @@ export default function TimelineItem(props: TimelineItemProps) {
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
               </svg>
-              {time}
+              {time || NO_TIME}
             </span>
             <LiveBadge tag={liveTag} />
             <span className={`flex-1 min-w-0 truncate text-sm sm:text-base font-bold text-text ${liveTag === 'skipped' ? 'line-through' : ''}`}>{title}</span>
@@ -184,7 +192,7 @@ export default function TimelineItem(props: TimelineItemProps) {
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
             </svg>
-            {time}
+            {time || NO_TIME}
             <LiveBadge tag={liveTag} />
           </span>
 
@@ -333,6 +341,9 @@ export default function TimelineItem(props: TimelineItemProps) {
               value={draft}
               errors={fieldErrors}
               onChange={(patch) => setDraft({ ...draft, ...patch })}
+              // Only trip days, but never lock out the activity's own (possibly legacy) date
+              dateMin={props.dateMin ? ([props.dateMin, draft.date].filter(Boolean).sort()[0]) : ''}
+              dateMax={props.dateMax ? ([props.dateMax, draft.date].filter(Boolean).sort().pop() as string) : ''}
             />
             {actionError && (
               <div role="alert" className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-xs font-semibold text-red-800">

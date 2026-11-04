@@ -5,7 +5,7 @@ import type { DayItinerary, TimelineItem } from '../types/itinerary';
 import type { Place } from '../types/place';
 import { UserError, safeHttpUrl, sheetText, youtubeEmbedUrl } from './security.ts';
 import { cacheState, timed, type Timed } from './swr.ts';
-import { sortByTime } from './calendar.ts';
+import { sortByTime, normalizeSheetDate, normalizeSheetTime } from './calendar.ts';
 import {
   POCKET_TAB, POCKET_HEADERS, POCKET_LAST_COL, MAX_POCKET_ITEMS, parsePocketRows, itemToRow,
   type PocketItem, type PocketInput,
@@ -324,7 +324,7 @@ export function rowsToDayItinerary(
   const blankDayDates = new Set<string>();
   for (let r = 1; r < rows.length; r++) {
     const row = rows[r] || [];
-    const date = cellAt(row, idxDate);
+    const date = normalizeSheetDate(cellAt(row, idxDate));
     if (!date) continue;
     const explicit = parseInt(cellAt(row, idxDay), 10);
     if (explicit) {
@@ -351,7 +351,7 @@ export function rowsToDayItinerary(
     const getCell = (idx: number): string =>
       idx >= 0 && idx < row.length ? String(row[idx] ?? '').trim() : '';
 
-    const dateStr = getCell(idxDate);
+    const dateStr = normalizeSheetDate(getCell(idxDate));
     const dayNum = parseInt(getCell(idxDay), 10) || dateToDay.get(dateStr) || 1;
     const dayTitle = getCell(idxDayTitle);
     const activityTitle = getCell(idxTitle);
@@ -390,7 +390,8 @@ export function rowsToDayItinerary(
 
     const item: TimelineItem = {
       date: dateStr,
-      time: getCell(idxTime) || '09:00',
+      // An unset time stays empty (shown as --:--); numeric day fractions from "Number" cells become HH:MM
+      time: normalizeSheetTime(getCell(idxTime)),
       title: resolvedTitle,
       description: descStr,
       location: {

@@ -40,9 +40,12 @@ interface Props {
   idPrefix: string;
   /** Hide the date field when the date is set by the surrounding day block */
   hideDate?: boolean;
+  /** Only dates inside the trip can be picked (ISO, empty = unbounded) */
+  dateMin?: string;
+  dateMax?: string;
 }
 
-export default function ActivityFields({ value, errors = {}, onChange, idPrefix, hideDate }: Props) {
+export default function ActivityFields({ value, errors = {}, onChange, idPrefix, hideDate, dateMin = '', dateMax = '' }: Props) {
   const id = (k: string) => `${idPrefix}-${k}`;
   const cur = POPULAR_CURRENCIES.some((c) => c.code === value.price_currency) || !value.price_currency
     ? POPULAR_CURRENCIES
@@ -52,13 +55,20 @@ export default function ActivityFields({ value, errors = {}, onChange, idPrefix,
     <div className="grid grid-cols-1 sm:grid-cols-6 gap-3">
       {!hideDate && (
         <FormField label="Date" required error={errors.date} htmlFor={id('date')} className="sm:col-span-2">
-          <CalendarPicker id={id('date')} value={value.date} invalid={!!errors.date}
+          <CalendarPicker id={id('date')} value={value.date} invalid={!!errors.date} min={dateMin} max={dateMax}
             onChange={(date) => onChange({ date })} />
+          {dateMin && dateMax && <span className="text-[11px] text-text/55">Trip days only</span>}
         </FormField>
       )}
       <FormField label="Time" error={errors.time} htmlFor={id('time')} className={hideDate ? 'sm:col-span-3' : 'sm:col-span-2'}>
         <AnalogTimePicker id={id('time')} value={value.time} invalid={!!errors.time}
           onChange={(time) => onChange({ time })} />
+        {value.time && (
+          <button type="button" onClick={() => onChange({ time: '' })}
+            className="self-start px-1 py-1 text-[11px] font-bold text-primary hover:underline">
+            Clear time (--:--)
+          </button>
+        )}
       </FormField>
       <FormField label="Category" htmlFor={id('category')} className={hideDate ? 'sm:col-span-3' : 'sm:col-span-2'}>
         <select id={id('category')} className={inputClass} value={value.category}

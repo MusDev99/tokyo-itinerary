@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   addDays, addMonths, clampIso, dateForKey, formatLongDate, formatMonthYear, isOutOfRange,
-  monthGrid, parseIso, sortByTime, todayIso, toIso, toIsoDate, weekday, weekdayLabels,
+  monthGrid, normalizeSheetDate, normalizeSheetTime, parseIso, sortByTime, todayIso, toIso, toIsoDate, weekday, weekdayLabels,
 } from '../src/utils/calendar.ts';
 
 test('parseIso accepts real dates only', () => {
@@ -120,4 +120,24 @@ test('sortByTime puts an activity dated the next day after the night before', ()
     { time: '20:00', title: 'Dinner' },
   ];
   assert.deepEqual(sortByTime(items, '2026-10-30').map((i) => i.title), ['Dinner', 'Red-eye']);
+});
+
+test('sheet serial dates (Number-formatted cells) become ISO dates', () => {
+  assert.equal(normalizeSheetDate('46023'), '2026-01-01');
+  assert.equal(normalizeSheetDate('46357'), '2026-12-01');
+  assert.equal(normalizeSheetDate('46357.375'), '2026-12-01');
+  assert.equal(normalizeSheetDate('2026-12-01'), '2026-12-01');
+  assert.equal(normalizeSheetDate('Nov 30'), 'Nov 30');
+  assert.equal(normalizeSheetDate('12'), '12'); // too small to be a serial
+  assert.equal(toIsoDate('46357'), '2026-12-01');
+});
+
+test('sheet day fractions become HH:MM and real times are left alone', () => {
+  assert.equal(normalizeSheetTime('0.375'), '09:00');
+  assert.equal(normalizeSheetTime('0.5'), '12:00');
+  assert.equal(normalizeSheetTime('0.999'), '23:59');
+  assert.equal(normalizeSheetTime('46357.5'), '12:00');
+  assert.equal(normalizeSheetTime('46357'), '46357'); // a date, not a time
+  assert.equal(normalizeSheetTime('9:00 AM'), '9:00 AM');
+  assert.equal(normalizeSheetTime(''), '');
 });
