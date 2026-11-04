@@ -3,6 +3,13 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-04 19:40 — Fix: editing an activity (date, time, trip days)
+
+- **Dates and times that came through as numbers** (a day showing "46357", a time showing "0.375", and an empty date in the edit form) are now read correctly. Cells formatted as Number in the sheet store dates as day counts and times as day fractions; they now become real dates and HH:MM, so the edit form is pre-filled.
+- **Edit date is limited to the trip:** the date picker only allows days inside the trip (the dates saved by the wizard, else the span of the planned days), and the server rejects other dates.
+- **No time set shows `--:--`** instead of a made-up 09:00. A time can be cleared again with "Clear time". Activities without a time sort after the timed ones; the PDF shows `--:--` too.
+- The day header shows a readable date.
+
 ## 2026-11-04 19:05 — Fix: Add place and Pocket sheets on phones
 
 - The sheets now render in a portal above the header and bottom tab bar. Before, the Add place sheet was trapped inside a glass card (the page's blur effect), so it floated mid-screen under the header with the page showing through, and its labels were centred.
