@@ -41,7 +41,7 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 - **Today mode**: during a trip the home page starts with a **Today** card (what's on now, the next activity with a countdown, **Directions** and today's **Route**, and what's later), using your phone's own date and time. Trip pages open on today's day. In dev, preview any date with `?today=2026-10-18T10:30`.
 - **Live day**: on the Today card, tick the current activity **✓ Done**, **⏭ Skip** the next one, or say you're **running late** (+15 / +30 / +60 min) to push the rest of today back; every action has a 5-second **Undo**. Saved on this device per trip day, works offline.
 - **Timeline order & now**: each day's activities are listed by time; on today's day the activity that's on now is highlighted and opened, the next one is marked, and Today-card check-ins show as Done / Skipped.
-- **Animated Seasons**: Seven [Motion](https://motion.dev/)-animated themes (autumn, winter, spring, summer, rain, haze, starry night) chosen from a compact panel above the floating theme button (grouped into Seasons and Weather, with labels), no sound. Translucent glass cards. Honors `prefers-reduced-motion`.
+- **Animated Seasons**: Seven [Motion](https://motion.dev/)-animated themes (autumn, winter, spring, summer, rain, haze, starry night) chosen from the account menu in the header (guests get a theme button next to Sign in; grouped into Seasons and Weather, with labels), no sound. Translucent glass cards. Honors `prefers-reduced-motion`.
 - **Welcome landing (`/welcome`)**: first-time guests see an animated product story, live "world so far" numbers, a self-playing 3-step "How it works" and two choices (Continue with Google, Continue as guest). Shown once per browser (`pt_welcome` cookie; replay from the footer). Motion on the compositor only, paused off screen, still scene for reduced motion. Never cached by the service worker.
 - **World map**: a pin per country on one cached SVG land shape (no map library, no tiles); tap a pin for a summary card, then **Open**. Pin coordinates live in `PIN_COORDS` (`src/utils/worldMap.ts`); countries without one appear as chips. Regenerate the shape with `node scripts/build-world-map.mjs`.
 - **Mobile-first navigation**: slide-in drawer with collapsible country cards, 44px touch targets and a compact activity card.
@@ -120,7 +120,7 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 │   │   ├── TabsNew.tsx                # Day-by-day tabbed itinerary viewer
 │   │   ├── TechStack.tsx              # Technology stack showcase modal/drawer
 │   │   ├── SeasonBackground.tsx       # Motion-animated season scenes
-│   │   ├── ThemeSwitcher.tsx          # Floating theme button + Seasons/Weather panel
+│   │   ├── ThemePicker.tsx            # Seasons/Weather tiles + useTheme hook (used by UserMenu)
 │   │   ├── MobileNav.tsx              # Mobile slide-in navigation drawer
 │   │   ├── OfflineStatus.tsx          # Registers the service worker + offline pill
 │   │   ├── PocketHome.tsx             # Pocket tab: bookings, notes, checklist, tools

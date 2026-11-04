@@ -3,6 +3,12 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-04 19:25 — Change: theme picker moved into the profile menu
+
+- The floating sun button is gone. The theme tiles (Seasons and Weather) now open from the **profile avatar** in the header, between your account details and Sign out.
+- Guests have no profile, so they get a theme button (current season icon) beside **Sign in** in the same spot.
+- The phone screen no longer has a floating button competing with the tab bar and sheets; the theme still applies instantly and is remembered on this device.
+
 ## 2026-11-04 19:15 — Feat: floating trip tab bar
 
 - **Modern dock:** the phone tab bar is now a rounded, blurred bar floating above the screen edge, with line icons instead of emoji and a filled pill on the current tab (not colour alone). Taps press in slightly; reduced motion is respected.
