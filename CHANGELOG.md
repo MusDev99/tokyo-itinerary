@@ -3,6 +3,14 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-04 18:41 — Feat: Pocket tab
+
+- **One Pocket tab replaces Tools + Prepare** (four trip tabs now). Sections: Bookings & docs, Notes, Checklist, Location & prayer times. Old `/tools` and `/prepare` links redirect.
+- **"Put it in Pocket"** sheet for flights (route, times, seat, gate, terminal), stays (check-in/out, address), docs (visa, insurance, booking...) and notes/to-dos. Required fields first, the rest under "More details". Tickets are attached as a link (no upload).
+- **Private by design:** items are stored in the hidden `_pocket` worksheet and served only by `/api/pocket`, which needs a signed-in editor for every call. Nothing private is in the page HTML, and the audit log keeps only type + title.
+- **Itinerary link:** flights (departure, and arrival when it lands on a later day) and stays (check-in, check-out) appear as read-only cards on their day for signed-in editors, linking back to Pocket. They are not sheet rows, so budget, calendar and PDF are unchanged.
+- Renaming a trip moves its Pocket rows; deleting a trip clears them. "pocket", "tools" and "prepare" are now reserved trip names.
+
 ## 2026-11-04 18:25 — Feat: trip wizard + day-first "Add place"
 
 - **New `/add` wizard (Where → When → Review):** one decision per screen, a progress bar, a live day count, and a ticket-style review card. Dates are saved with the trip, and an unfinished draft is restored on this device.

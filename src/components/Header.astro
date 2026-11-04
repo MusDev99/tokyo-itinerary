@@ -12,10 +12,10 @@ const navLinks = countries.map((country) => {
   ];
   for (const st of country.states) {
     sublinks.push({ href: `/${country.slug}/${st.slug}`, text: st.name, icon: '📍' });
-    sublinks.push({ href: `/${country.slug}/${st.slug}/tools`, text: `${st.name} tools`, icon: '🕌' });
+    sublinks.push({ href: `/${country.slug}/${st.slug}/pocket`, text: `${st.name} pocket`, icon: '🎒' });
   }
   if (country.states.length === 0) {
-    sublinks.push({ href: `/${country.slug}/tools`, text: 'Travel tools', icon: '🕌' });
+    sublinks.push({ href: `/${country.slug}/pocket`, text: 'Pocket', icon: '🎒' });
   }
 
   return {
@@ -41,8 +41,8 @@ const mobileCountries = countries.map((c) => ({
   days: c.stats.totalDays,
   hubHref: `/${c.slug}`,
   itineraryHref: c.stats.hasItinerary ? `/${c.slug}/itinerary` : null,
-  toolsHref: c.states.length === 0 ? `/${c.slug}/tools` : null,
-  states: c.states.map((st) => ({ name: st.name, href: `/${c.slug}/${st.slug}`, toolsHref: `/${c.slug}/${st.slug}/tools`, days: st.stats.totalDays })),
+  toolsHref: c.states.length === 0 ? `/${c.slug}/pocket` : null,
+  states: c.states.map((st) => ({ name: st.name, href: `/${c.slug}/${st.slug}`, toolsHref: `/${c.slug}/${st.slug}/pocket`, days: st.stats.totalDays })),
 }));
 ---
 

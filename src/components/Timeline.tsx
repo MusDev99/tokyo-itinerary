@@ -7,6 +7,8 @@ import { prefersReducedMotion } from '../utils/motion';
 import { dayRouteUrl } from '../utils/mapsRoute';
 import { dayLiveTags, itemKey, liveKey, localNow, parseLive, type LiveTag } from '../utils/today';
 import { deviceNow } from './deviceClock';
+import DayBookings from './DayBookings';
+import type { DayCard } from '../utils/pocket';
 
 interface Props {
   day: DayItinerary;
@@ -15,9 +17,12 @@ interface Props {
   region?: string;
   /** Trip page the Today card saves check-ins under (e.g. "/japan/tokyo"), so the timeline shows the same state */
   liveHref?: string;
+  /** Flights and stays from the Pocket that fall on this day (signed-in editors only) */
+  bookings?: DayCard[];
+  pocketHref?: string;
 }
 
-export default function Timeline({ day, canEdit = false, region, liveHref }: Props) {
+export default function Timeline({ day, canEdit = false, region, liveHref, bookings = [], pocketHref = '' }: Props) {
   const totalDayCost = day.items.reduce((sum, item) => sum + (item.price?.amount || 0), 0);
   const currency = day.items.find((item) => item.price?.currency)?.price.currency || '';
   const route = dayRouteUrl(day.items, day.state || region);
@@ -142,6 +147,8 @@ export default function Timeline({ day, canEdit = false, region, liveHref }: Pro
           )}
         </div>
       </div>
+
+      {bookings.length > 0 && <DayBookings cards={bookings} pocketHref={pocketHref} />}
 
       {/* Activity Timeline */}
       <div className="relative space-y-5">
