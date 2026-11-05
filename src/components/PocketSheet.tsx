@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { animate } from 'motion';
 import { createPortal } from 'preact/compat';
 import { prefersReducedMotion } from '../utils/motion';
+import { lockOverlay } from '../utils/overlay';
 import { DOC_KINDS, NOTE_COLOURS, type PocketItem, type PocketKind } from '../utils/pocket';
 import { useDismiss } from './useDismiss';
 import FormField from './FormField';
@@ -57,11 +58,7 @@ export default function PocketSheet({ kind: initialKind, item, defaultDate = '',
 
   useDismiss(true, [sheet], (reason) => reason === 'escape' && onClose());
 
-  useEffect(() => {
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = prev; };
-  }, []);
+  useEffect(() => lockOverlay(), []);
 
   useEffect(() => {
     const el = sheet.current;

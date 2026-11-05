@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { animate } from 'motion';
 import { SEASONS, readSavedSeason, type SeasonId } from '../utils/seasons';
 import { prefersReducedMotion } from '../utils/motion';
+import { MOTION_LEVELS, readDeviceHints, resolveMotionLevel, type MotionLevel } from '../utils/motionLevel';
 
 const COLS = 4;
 const GROUPS = [
@@ -36,6 +37,50 @@ export function useTheme() {
   };
 
   return { theme, setTheme, active: SEASONS.find((s) => s.id === theme) ?? SEASONS[0] };
+}
+
+/** Current background motion level (device default until the person picks one) and a setter that applies it at once. */
+export function useMotionLevel() {
+  const read = (): MotionLevel => {
+    let saved: string | null = null;
+    try { saved = localStorage.getItem('motion'); } catch { /* blocked */ }
+    return resolveMotionLevel(readDeviceHints(saved));
+  };
+  const [level, setLevel] = useState<MotionLevel>('lite'); // real value after mount (SSR has no device)
+  useEffect(() => setLevel(read()), []);
+  const choose = (next: MotionLevel) => {
+    try { localStorage.setItem('motion', next); } catch { /* stays for this page only */ }
+    setLevel(next === 'off' ? 'off' : read()); // reduced motion still wins
+    document.dispatchEvent(new CustomEvent('motion-changed'));
+  };
+  return { level, choose };
+}
+
+const MOTION_COPY: Record<MotionLevel, { label: string; hint: string }> = {
+  full: { label: 'Full', hint: 'All effects' },
+  lite: { label: 'Lite', hint: 'Fewer, lighter' },
+  off: { label: 'Off', hint: 'Still gradient' },
+};
+
+/** Background motion switch (Hick's Law: three plain choices; Doherty: the scene changes at once). */
+export function MotionPicker() {
+  const { level, choose } = useMotionLevel();
+  return (
+    <div role="group" aria-labelledby="motion-group" className="mt-2">
+      <p id="motion-group" className="px-1 pt-1 pb-1.5 text-[10px] font-extrabold uppercase tracking-wider text-text/55">Motion</p>
+      <div className="grid grid-cols-3 gap-1.5">
+        {MOTION_LEVELS.map((m) => (
+          <button key={m} type="button" aria-pressed={level === m} onClick={() => choose(m)}
+            className={`min-h-[48px] rounded-xl border px-1 text-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+              level === m ? 'bg-gradient-to-br from-primary to-accent text-white border-white/60 shadow-md' : 'bg-primary/5 text-text border-transparent hover:bg-primary/15'
+            }`}>
+            <span className="block text-xs font-extrabold leading-tight">{MOTION_COPY[m].label}</span>
+            <span className="block text-[10px] opacity-75 leading-tight">{MOTION_COPY[m].hint}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 /**
@@ -100,6 +145,7 @@ export default function ThemePicker({ theme, onPick }: { theme: SeasonId; onPick
           </div>
         </div>
       ))}
+      <MotionPicker />
     </div>
   );
 }
