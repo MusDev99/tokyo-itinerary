@@ -1,66 +1,11 @@
 ---
-import { pageCacheControl } from '../../utils/security';
-import Layout from '../../layouts/Layout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
-import CountrySubNav from '../../components/CountrySubNav.astro';
-import PocketHome from '../../components/PocketHome';
-import { getAllCountriesWithSheets } from '../../utils/countries';
-import { getPlace, getTripDates } from '../../utils/googleSheets';
-import { tripIsoDates } from '../../utils/dates';
-import { topPlace } from '../../utils/geocode';
-import { buildChecklist } from '../../utils/checklist';
-import type { Place } from '../../types/place';
-
-// No booking data is rendered here: bookings load from /api/pocket for signed-in editors only.
-Astro.response.headers.set('Cache-Control', pageCacheControl(Boolean(Astro.locals.user)));
+// Trips own these pages now (/trips/<slug>/...). A country that was a single plain tab goes straight to its trip;
+// any other country shows its trips.
+import { getAllCountriesWithSheets, plainCountryTrip } from '../../utils/countries';
 
 const { countries } = await getAllCountriesWithSheets();
 const country = countries.find((c) => c.slug === Astro.params.country?.toLowerCase());
-
-if (!country) {
-  return Astro.redirect('/404');
-}
-// A country split into states has one Pocket per state (trip)
-if (country.states.length > 0) {
-  return Astro.redirect(`/${country.slug}/${country.states[0].slug}/pocket`);
-}
-
-// Independent reads run together (the two `_trips` helpers share one cached read; the geocode is capped at 1.5 s)
-const [savedPlace, tripDates, geocoded] = await Promise.all([
-  getPlace(country.tabName),
-  getTripDates(country.tabName),
-  topPlace(country.name),
-]);
-const suggestion: Place | null = savedPlace ? null : geocoded;
-const groups = country.stats.hasItinerary
-  ? buildChecklist({
-      country: country.name,
-      currency: country.currency,
-      season: country.season,
-      itinerary: country.itinerary,
-      firstDate: country.stats.firstDate,
-      lastDate: country.stats.lastDate,
-      totalLocalCost: country.stats.totalLocalCost,
-    })
-  : [];
+if (!country) return Astro.redirect('/404');
+const plain = plainCountryTrip(country);
+return Astro.redirect(plain ? `/trips/${plain.slug}/pocket` : `/${country.slug}`, 301);
 ---
-
-<Layout title={`${country.name} Pocket`} noindex>
-  <Header />
-  <div class="w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8">
-    <CountrySubNav country={country} activeTab="pocket" />
-    <PocketHome
-      client:load
-      tab={country.tabName}
-      signedIn={Boolean(Astro.locals.user)}
-      loginHref={`/login?next=${encodeURIComponent(Astro.url.pathname)}`}
-      tripStart={tripDates?.start || ''}
-      hasItinerary={country.stats.hasItinerary}
-      groups={groups}
-      firstDate={country.stats.firstDate}
-      tools={{ searchName: country.name, savedPlace, suggestion, dates: tripIsoDates(country.itinerary) }}
-    />
-  </div>
-  <Footer />
-</Layout>

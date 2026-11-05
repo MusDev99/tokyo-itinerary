@@ -8,8 +8,8 @@ import { tripTabs, type TabKey } from '../utils/tripTabs';
 interface Props {
   country: CountryMetadata;
   activeTab: TabKey;
-  /** When set, the page shows a single "Country - State" trip. */
-  state?: { slug: string; name: string };
+  /** When set, the page shows one trip (its slug addresses /trips/<slug>). */
+  state?: { slug: string; name: string; title?: string; cities?: string[]; legacy?: boolean };
   /** Shows rename / delete controls inside the card (editors only act on them; the API enforces auth) */
   manage?: { tab: string; country: string; state: string; activityCount: number; afterDeleteHref: string };
 }
@@ -45,7 +45,9 @@ const summaryLine = [
   country.stats.totalActivities > 0 && `${country.stats.totalActivities} activities`,
 ].filter(Boolean).join(' · ');
 // One-line identity: the place itself (state or country); the tab name is in the dock, the country in the line below
-const heading = state ? state.name : country.name;
+// A titled trip shows its title and its cities; an old `Country - State` tab keeps the city as the heading
+const heading = state ? (state.legacy === false && state.title ? state.title : state.name) : country.name;
+const subline = state && state.legacy === false && state.cities?.length ? state.cities.join(' → ') : '';
 
 // Stat tiles (Miller's Law: 3-4 chunked facts). The destination tile is skipped on state pages,
 // where the breadcrumb and title already say it.
@@ -98,11 +100,11 @@ const stats = [
           {country.flag}
         </div>
         <div class:list={['min-w-0 flex-1', manage && 'lg:flex-initial']}>
-          <h1 class="text-lg sm:text-3xl font-extrabold text-text tracking-tight leading-tight truncate sm:whitespace-normal">
+          <h1 class="text-lg sm:text-3xl font-extrabold text-text tracking-tight leading-tight line-clamp-2 sm:line-clamp-none">
             {heading}
           </h1>
           <div class="flex items-center gap-2 mt-0.5 min-w-0">
-            {state && <span class="text-xs sm:text-sm font-semibold text-text/60 truncate">{country.name}</span>}
+            {state && <span class="text-xs sm:text-sm font-semibold text-text/60 truncate">{subline ? `${subline} · ${country.name}` : country.name}</span>}
             <span class="shrink-0 px-2 py-0.5 rounded-full text-[11px] sm:text-xs font-bold bg-primary/15 text-primary border border-primary/25">
               {country.currency}
             </span>

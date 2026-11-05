@@ -1,0 +1,60 @@
+---
+import { pageCacheControl } from '../../../utils/security';
+import Layout from '../../../layouts/Layout.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import CountrySubNav from '../../../components/CountrySubNav.astro';
+import PocketHome from '../../../components/PocketHome';
+import { getAllCountriesWithSheets, tripBySlug } from '../../../utils/countries';
+import { getPlace, getTripDates } from '../../../utils/googleSheets';
+import { tripIsoDates } from '../../../utils/dates';
+import { topPlace } from '../../../utils/geocode';
+import { buildChecklist } from '../../../utils/checklist';
+import type { Place } from '../../../types/place';
+
+// No booking data is rendered here: bookings load from /api/pocket for signed-in editors only.
+Astro.response.headers.set('Cache-Control', pageCacheControl(Boolean(Astro.locals.user)));
+
+const { countries } = await getAllCountriesWithSheets();
+const trip = tripBySlug(countries, Astro.params.slug, 'Pocket');
+if (!trip) return Astro.redirect('/404');
+const { baseCountry, stateMeta, country } = trip;
+
+// Independent reads run together (the two `_trips` helpers share one cached read; the geocode is capped at 1.5 s)
+const [savedPlace, tripDates, geocoded] = await Promise.all([
+  getPlace(stateMeta.tabName),
+  getTripDates(stateMeta.tabName),
+  topPlace(stateMeta.cities[0] || stateMeta.name),
+]);
+const suggestion: Place | null = savedPlace ? null : geocoded;
+const groups = stateMeta.stats.hasItinerary
+  ? buildChecklist({
+      country: baseCountry.name,
+      currency: stateMeta.currency,
+      season: baseCountry.season,
+      itinerary: stateMeta.itinerary,
+      firstDate: stateMeta.stats.firstDate,
+      lastDate: stateMeta.stats.lastDate,
+      totalLocalCost: stateMeta.stats.totalLocalCost,
+    })
+  : [];
+---
+
+<Layout title={`${stateMeta.name} Pocket - ${baseCountry.name}`} description={country.description} noindex>
+  <Header />
+  <div class="w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8">
+    <CountrySubNav country={country} activeTab="pocket" state={stateMeta} />
+    <PocketHome
+      client:load
+      tab={stateMeta.tabName}
+      signedIn={Boolean(Astro.locals.user)}
+      loginHref={`/login?next=${encodeURIComponent(Astro.url.pathname)}`}
+      tripStart={tripDates?.start || ''}
+      hasItinerary={stateMeta.stats.hasItinerary}
+      groups={groups}
+      firstDate={stateMeta.stats.firstDate}
+      tools={{ searchName: stateMeta.cities[0] || stateMeta.name, savedPlace, suggestion, dates: tripIsoDates(stateMeta.itinerary) }}
+    />
+  </div>
+  <Footer />
+</Layout>

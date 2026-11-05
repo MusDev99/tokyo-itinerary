@@ -1,26 +1,11 @@
 ---
-import { pageCacheControl } from '../../utils/security';
-import Layout from '../../layouts/Layout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
-import CountrySubNav from '../../components/CountrySubNav.astro';
-import TripAnalysis from '../../components/TripAnalysis.astro';
-import { getAllCountriesWithSheets } from '../../utils/countries';
-
-Astro.response.headers.set('Cache-Control', pageCacheControl(Boolean(Astro.locals.user)));
+// Trips own these pages now (/trips/<slug>/...). A country that was a single plain tab goes straight to its trip;
+// any other country shows its trips.
+import { getAllCountriesWithSheets, plainCountryTrip } from '../../utils/countries';
 
 const { countries } = await getAllCountriesWithSheets();
 const country = countries.find((c) => c.slug === Astro.params.country?.toLowerCase());
 if (!country) return Astro.redirect('/404');
-// A country split into states is a hub: its analytics live on its overview, each state has its own Analysis tab
-if (country.states.length > 0) return Astro.redirect(`/${country.slug}`);
+const plain = plainCountryTrip(country);
+return Astro.redirect(plain ? `/trips/${plain.slug}/analysis` : `/${country.slug}`, 301);
 ---
-
-<Layout title={`${country.name} Trip Budget & Analysis`} description={`Spending by category, daily budget and live ${country.currency} rates for your ${country.name} trip.`}>
-  <Header />
-  <div class="w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8">
-    <CountrySubNav country={country} activeTab="analysis" />
-    <TripAnalysis name={country.name} dataKey={country.slug} days={country.itinerary} currency={country.currency} />
-  </div>
-  <Footer />
-</Layout>

@@ -6,7 +6,8 @@ import type { Place } from '../types/place';
 import { UserError, safeHttpUrl, sheetText, youtubeEmbedUrl } from './security.ts';
 import { cacheState, timed, type Timed } from './swr.ts';
 import { chunk, mapPool } from './chunk.ts';
-import { fixtureTabs } from './fixture.ts';
+import { fixtureTabs, fixtureMetas } from './fixture.ts';
+import { TRIP_META_HEADERS, parseTripMetas, type TripMeta } from './trips.ts';
 import { sortByTime, normalizeSheetDate, normalizeSheetTime } from './calendar.ts';
 import {
   POCKET_TAB, POCKET_HEADERS, POCKET_LAST_COL, MAX_POCKET_ITEMS, parsePocketRows, itemToRow,
@@ -52,6 +53,8 @@ export const SHEET_HEADERS = [
   'note',
   'images',
   'youtube_url',
+  'city',
+  'country',
   'id',
 ] as const;
 
@@ -74,6 +77,8 @@ export const COLUMN_ALIASES: Record<SheetColumn, string[]> = {
   note: ['note', 'notes', 'tip', 'tips'],
   images: ['images', 'image', 'image_url', 'photo'],
   youtube_url: ['youtube_url', 'youtube', 'video_url'],
+  city: ['city', 'stop', 'town'],
+  country: ['country', 'trip_country'],
   id: ['id', 'row_id'],
 };
 
@@ -315,6 +320,8 @@ export function rowsToDayItinerary(
   const idxNote = colIndex(COLUMN_ALIASES.note);
   const idxImages = colIndex(COLUMN_ALIASES.images);
   const idxYoutube = colIndex(COLUMN_ALIASES.youtube_url);
+  const idxCity = colIndex(COLUMN_ALIASES.city);
+  const idxCountry = colIndex(COLUMN_ALIASES.country);
   const idxId = colIndex(COLUMN_ALIASES.id);
 
   const dayMap = new Map<number, DayItinerary>();
@@ -416,6 +423,11 @@ export function rowsToDayItinerary(
     const cat = getCell(idxCategory);
     if (cat) item.category = cat as any;
 
+    const cityCell = getCell(idxCity);
+    if (cityCell) item.city = cityCell;
+    const countryCell = getCell(idxCountry);
+    if (countryCell) item.country = countryCell;
+
     const img = safeHttpUrl(getCell(idxImages));
     if (img) item.images = img;
 
@@ -427,7 +439,11 @@ export function rowsToDayItinerary(
 
   const days = Array.from(dayMap.values()).sort((a, b) => a.day - b.day);
   // Sheet rows can be added in any order: show each day's activities by time (9:30 before 22:00)
-  for (const d of days) d.items = sortByTime(d.items, d.date);
+  for (const d of days) {
+    d.items = sortByTime(d.items, d.date);
+    const city = d.items.find((i) => i.city)?.city;
+    if (city) d.city = city;
+  }
   return days;
 }
 
@@ -1006,8 +1022,9 @@ export async function renameTrip(tabName: string, newName: string): Promise<void
 // ---------------------------------------------------------------------------
 
 const PLACES_TAB = '_trips';
-// start_date / end_date (I:J) hold the trip's planned range (YYYY-MM-DD); older sheets lack them
-const PLACE_HEADERS = ['tab', 'place', 'admin1', 'country', 'country_code', 'lat', 'lng', 'timezone', 'start_date', 'end_date'];
+// start_date / end_date (I:J) hold the trip's planned range (YYYY-MM-DD); K:Q is the trip registry (title, slug, country,
+// stops, created_by, created_at, copied_from, see utils/trips.ts); older sheets lack them and stay valid
+const PLACE_HEADERS = ['tab', 'place', 'admin1', 'country', 'country_code', 'lat', 'lng', 'timezone', 'start_date', 'end_date', ...TRIP_META_HEADERS];
 
 function placeToRow(tab: string, p: Place): string[] {
   return [tab, p.name, p.admin1 || '', p.country, p.country_code, String(p.lat), String(p.lng), p.timezone];
@@ -1033,7 +1050,7 @@ async function readPlaceRows(
   spreadsheetId: string
 ): Promise<string[][] | null> {
   const res = await fetchSheetsApiWithRetry(
-    `${SHEETS_BASE}/${encodeURIComponent(spreadsheetId)}/values/${encodeURIComponent(`${PLACES_TAB}!A1:J1000`)}`,
+    `${SHEETS_BASE}/${encodeURIComponent(spreadsheetId)}/values/${encodeURIComponent(`${PLACES_TAB}!A1:Q1000`)}`,
     { headers: { Authorization: `Bearer ${ctx.token}` } }
   );
   if (!res.ok) return null; // tab doesn't exist yet
@@ -1121,6 +1138,17 @@ export async function savePlace(tab: string, place: Place): Promise<void> {
   }
 }
 
+/** Titled-trip registry rows (title, slug, stops...). Dev fixture mode serves sample trips. */
+export async function getTripMetas(): Promise<TripMeta[]> {
+  const fixture = (import.meta as any).env?.DEV ? process.env.SHEETS_FIXTURE : undefined;
+  if (fixture) return fixtureMetas();
+  try {
+    return parseTripMetas(await cachedPlaceRows());
+  } catch {
+    return [];
+  }
+}
+
 export interface TripDates {
   start: string;
   end: string;
@@ -1193,7 +1221,7 @@ export async function removePlace(tab: string): Promise<void> {
   if (idx < 1) return;
   await sheetsRequest(
     ctx,
-    `${SHEETS_BASE}/${encodeURIComponent(ctx.spreadsheetId)}/values/${encodeURIComponent(`${PLACES_TAB}!A${idx + 1}:J${idx + 1}`)}:clear`,
+    `${SHEETS_BASE}/${encodeURIComponent(ctx.spreadsheetId)}/values/${encodeURIComponent(`${PLACES_TAB}!A${idx + 1}:Q${idx + 1}`)}:clear`,
     { method: 'POST', body: '{}' }
   );
 }
