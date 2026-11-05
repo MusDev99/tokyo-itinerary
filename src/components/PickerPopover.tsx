@@ -17,7 +17,7 @@ export const pickerButton = {
  * Open/close state for a field-style picker: positions the popover by its trigger, springs it in,
  * and closes on outside press or Escape (Escape and `close()` return focus to the trigger).
  */
-export function usePickerPopover(opts: { width: number; height: number; onOpen?: () => void }) {
+export function usePickerPopover(opts: { width: number; height: number; onOpen?: () => void; /** 'end' lines the popover's right edge up with the trigger's (menus on the right of a row) */ align?: 'start' | 'end' }) {
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<{ top: number; left: number; width: number; centered?: boolean }>({ top: 0, left: 0, width: opts.width });
   const trigger = useRef<HTMLButtonElement>(null);
@@ -26,7 +26,9 @@ export function usePickerPopover(opts: { width: number; height: number; onOpen?:
   const show = () => {
     opts.onOpen?.();
     const width = Math.min(opts.width, window.innerWidth - 16);
-    const at = anchorPosition(trigger.current!.getBoundingClientRect(), { width, height: opts.height },
+    const rect = trigger.current!.getBoundingClientRect();
+    const anchor = opts.align === 'end' ? { top: rect.top, bottom: rect.bottom, left: rect.right - width } : rect;
+    const at = anchorPosition(anchor, { width, height: opts.height },
       { width: window.innerWidth, height: window.innerHeight });
     setPos({ ...at, width });  // `centered`: no room beside the field, so the page is dimmed behind it
     setOpen(true);

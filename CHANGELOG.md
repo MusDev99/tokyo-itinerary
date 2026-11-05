@@ -3,6 +3,12 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-05 13:40 — Fix: country view dock, glass dock, ⋯ menus
+
+- **Country view has the tab dock too:** a country split into cities now shows the floating bottom bar (Overview, Itinerary) on phones and tablets, like every trip; its header tabs stay for desktop.
+- **A more transparent dock:** about half transparent with a strong blur, a bright edge and an inner highlight, readable text over the page, and a night-theme version.
+- **⋯ menus are never hidden:** the Pocket row menu and the timeline "Actions" menu open in a portal above everything, so the next section can no longer cover "Delete" (the Pocket bug) and a card edge can no longer clip it.
+
 ## 2026-11-05 13:10 — Perf: a faster, calmer app (soft navigation, lighter paint, less clutter)
 
 - **Tab taps no longer reload the page.** Soft navigation (Astro `ClientRouter`) keeps the header, tab dock and season background alive and swaps only the content. On a throttled Pixel 5 a tab switch went from about 1.1-1.9 s to about 0.3-0.5 s. `PUBLIC_SOFT_NAV=0` turns it off. Sign-in, sign-out and downloads stay real page loads.
