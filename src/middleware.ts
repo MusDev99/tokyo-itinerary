@@ -6,7 +6,7 @@ import { securityHeaders } from './utils/security';
 
 // Public site stays read-only for everyone. Anything that changes the sheet needs an editor session (OWASP A01).
 const PROTECTED_PAGES = ['/add'];
-const PROTECTED_API = ['/api/itinerary', '/api/place', '/api/sheets-sync', '/api/pocket'];
+const PROTECTED_API = ['/api/itinerary', '/api/place', '/api/sheets-sync', '/api/pocket', '/api/trips'];
 // Reads are protected too for these: sheets-sync leaks sheet metadata, pocket holds private bookings
 const PROTECT_READS = ['/api/sheets-sync', '/api/pocket'];
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);

@@ -25,6 +25,10 @@ interface Props {
   canExtend?: boolean;
   /** Add only: time to pre-fill when a day is picked ('' = leave unset) */
   suggestTime?: (iso: string) => string;
+  /** The trip's cities: with two or more, a City row appears (Hick's Law: nothing extra for one-city trips) */
+  cities?: string[];
+  /** City of a day (from the trip's stops), used when a day is picked */
+  cityForDate?: (iso: string) => string;
   /** Returns field errors (keys: title, date, time, price_amount, _ for a general message) or nothing on success */
   onSave: (draft: ActivityDraft) => Promise<SaveResult>;
   /** `saved` = number of places saved while the sheet was open */
@@ -49,7 +53,7 @@ const same = (a: ActivityDraft, b: ActivityDraft) =>
  *  - Doherty Threshold: Add stays open for the next place (toast in under 400ms); Save is off until something changed.
  *  - Jakob's Law: the familiar sheet + chips pattern from maps and booking apps.
  */
-export default function ActivitySheet({ mode, initial, days, plannedDays = [], canExtend = false, suggestTime, onSave, onClose }: Props) {
+export default function ActivitySheet({ mode, initial, days, plannedDays = [], canExtend = false, suggestTime, cities = [], cityForDate, onSave, onClose }: Props) {
   const [draft, setDraft] = useState<ActivityDraft>(initial);
   const [errs, setErrs] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
@@ -60,6 +64,7 @@ export default function ActivitySheet({ mode, initial, days, plannedDays = [], c
   const titleInput = useRef<HTMLInputElement>(null);
   const chips = useRef<HTMLDivElement>(null);
   const types = useRef<HTMLDivElement>(null);
+  const cityTouched = useRef(false);
 
   const planned = useMemo(() => new Set(plannedDays), [plannedDays]);
   const lastDay = days[days.length - 1];
@@ -103,7 +108,12 @@ export default function ActivitySheet({ mode, initial, days, plannedDays = [], c
   }, [toast]);
 
   const pickDay = (iso: string) => {
-    patch({ date: iso, ...(mode === 'add' && suggestTime ? { time: suggestTime(iso) } : {}) });
+    // Picking a day also picks its city (a trip moving from Tokyo to Osaka on day 5), unless the person chose one
+    patch({
+      date: iso,
+      ...(mode === 'add' && suggestTime ? { time: suggestTime(iso) } : {}),
+      ...(cities.length > 1 && cityForDate && !cityTouched.current ? { city: cityForDate(iso) } : {}),
+    });
     setErrs((e) => ({ ...e, date: '' }));
   };
 
@@ -180,6 +190,26 @@ export default function ActivitySheet({ mode, initial, days, plannedDays = [], c
               {errs.date && <span className="text-[11px] font-semibold text-red-600">{errs.date}</span>}
               {mode === 'edit' && <p className="text-[11px] text-text/55 mt-1">Trip days only</p>}
             </div>
+
+            {cities.length > 1 && (
+              <div>
+                <div className="text-xs font-bold text-text/80 mb-1.5" id="as-city">City</div>
+                <div role="radiogroup" aria-labelledby="as-city" className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+                  {cities.map((c) => {
+                    const on = draft.city.toLowerCase() === c.toLowerCase();
+                    return (
+                      <button key={c} type="button" role="radio" aria-checked={on}
+                        onClick={() => { cityTouched.current = true; patch({ city: c }); }}
+                        className={`touch-target shrink-0 px-3 h-11 rounded-full border-2 text-xs font-bold transition-colors ${
+                          on ? 'bg-primary text-white border-primary' : 'bg-white/60 border-primary/25 text-text hover:border-primary/60'
+                        }`}>
+                        📍 {c}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             <FormField label="Place" htmlFor="as-place" required error={errs.title}>
               <input id="as-place" ref={titleInput} type="text" maxLength={200} className={inputClass} autoComplete="off"

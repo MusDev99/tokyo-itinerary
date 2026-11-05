@@ -24,6 +24,9 @@ interface Props {
   /** Trip date range: edits can only move an activity to a day inside it */
   dateMin?: string;
   dateMax?: string;
+  /** Cities of a multi-city trip (the edit sheet shows a City row) */
+  tripCities?: string[];
+  cityForDate?: (iso: string) => string;
 }
 
 const sameTags = (a: Record<string, LiveTag>, b: Record<string, LiveTag>) => {
@@ -31,7 +34,7 @@ const sameTags = (a: Record<string, LiveTag>, b: Record<string, LiveTag>) => {
   return ka.length === Object.keys(b).length && ka.every((k) => a[k] === b[k]);
 };
 
-export default function Timeline({ day, canEdit = false, region, liveHref, bookings = [], pocketHref = '', dateMin = '', dateMax = '' }: Props) {
+export default function Timeline({ day, canEdit = false, region, liveHref, bookings = [], pocketHref = '', dateMin = '', dateMax = '', tripCities, cityForDate }: Props) {
   const totalDayCost = day.items.reduce((sum, item) => sum + (item.price?.amount || 0), 0);
   const currency = day.items.find((item) => item.price?.currency)?.price.currency || '';
   const route = dayRouteUrl(day.items, day.state || region);
@@ -171,6 +174,9 @@ export default function Timeline({ day, canEdit = false, region, liveHref, booki
             editable={canEdit}
             dateMin={dateMin}
             dateMax={dateMax}
+            tripCities={tripCities}
+            dayCity={day.city}
+            cityForDate={cityForDate}
             liveTag={tags?.[itemKey(item)]}
             open={open[index] ?? false}
             // Stable per item: TimelineItem is memoised and ignores the identity of this callback

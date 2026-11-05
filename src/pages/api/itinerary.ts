@@ -64,6 +64,7 @@ function parseActivity(raw: any): { value?: ActivityInput; errors?: Record<strin
       price_amount: amount,
       price_currency: currency,
       price_notes: str(raw?.price_notes, 200),
+      ...(typeof raw?.city === 'string' ? { city: str(raw.city, 80) } : {}),
     },
   };
 }
