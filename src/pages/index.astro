@@ -102,6 +102,7 @@ const statusStyle = {
   past: 'bg-text/10 text-text/60 border-text/15',
   undated: 'bg-text/10 text-text/60 border-text/15',
 } as const;
+import { COLLAPSE_AFTER } from '../utils/countryList';
 ---
 
 <Layout title="PlanTravel – Your Trips">
@@ -149,10 +150,25 @@ const statusStyle = {
       <!-- Trips: one tappable card each, soonest first (Von Restorff: status chip marks what's next) -->
       {trips.length > 0 && (
         <section aria-labelledby="trips-heading" class="space-y-3">
-          <h2 id="trips-heading" class="text-lg sm:text-xl font-extrabold text-text px-1">Destinations</h2>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          <div class="flex items-center justify-between gap-3 px-1 scroll-mt-20" id="destinations">
+            <h2 id="trips-heading" class="text-lg sm:text-xl font-extrabold text-text">Destinations <span class="text-sm font-bold text-text/50">({trips.length})</span></h2>
+          </div>
+          {trips.length > COLLAPSE_AFTER && (
+            <div>
+              <label for="trip-search" class="sr-only">Search destinations</label>
+              <input
+                id="trip-search" type="search" autocomplete="off" enterkeyhint="search"
+                placeholder="Search country or city"
+                class="w-full min-w-0 h-11 px-4 rounded-xl glass-effect text-base text-text placeholder:text-text/40 focus:outline-none focus:ring-2 focus:ring-primary/40"
+                data-filter-input
+              />
+            </div>
+          )}
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4" data-filter-root data-limit={COLLAPSE_AFTER}>
             {trips.map(({ c, status, statusLabel, range }) => (
               <article
+                data-filter-item
+                data-name={`${c.name} ${c.states.map((st) => st.name).join(' ')}`}
                 data-reveal
                 data-card
                 class="relative glass-effect rounded-2xl p-4 sm:p-5 hover:border-primary/50 hover:shadow-lg transition-shadow duration-150 flex flex-col gap-3"
@@ -203,6 +219,15 @@ const statusStyle = {
               </article>
             ))}
           </div>
+                  {trips.length > COLLAPSE_AFTER && (
+            <div class="space-y-2">
+              <p data-filter-empty style="display:none" role="status" class="px-3 py-6 text-center text-sm text-text/60">No destination matches your search.</p>
+              <button type="button" data-filter-more
+                class="touch-target w-full sm:w-auto sm:mx-auto sm:flex rounded-2xl border-2 border-dashed border-primary/35 px-5 py-3 text-sm font-bold text-primary hover:bg-primary/10 justify-center">
+                Show all {trips.length} destinations
+              </button>
+            </div>
+          )}
         </section>
       )}
 
@@ -247,6 +272,35 @@ const statusStyle = {
   </div>
   <Footer />
 </Layout>
+
+<script>
+  // Search + "Show all" for long destination lists (plain DOM: no hydration cost for 100+ cards).
+  // Same rules as utils/countryList.ts: a search shows every match; otherwise the first N until "Show all".
+  const root = document.querySelector<HTMLElement>('[data-filter-root]');
+  if (root) {
+    const limit = Number(root.dataset.limit) || 8;
+    const items = Array.from(root.querySelectorAll<HTMLElement>('[data-filter-item]'));
+    const input = document.querySelector<HTMLInputElement>('[data-filter-input]');
+    const more = document.querySelector<HTMLButtonElement>('[data-filter-more]');
+    const empty = document.querySelector<HTMLElement>('[data-filter-empty]');
+    const fold = (v: string) => v.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+    let showAll = items.length <= limit;
+    const render = () => {
+      const q = fold(input?.value || '');
+      let shown = 0;
+      items.forEach((el, i) => {
+        const hit = q ? fold(el.dataset.name || '').includes(q) : showAll || i < limit;
+        el.style.display = hit ? '' : 'none'; // not [hidden]: a Tailwind flex/grid class would override it
+        if (hit) shown++;
+      });
+      if (more) more.style.display = q || showAll ? 'none' : '';
+      if (empty) empty.style.display = shown > 0 ? 'none' : '';
+    };
+    input?.addEventListener('input', render);
+    more?.addEventListener('click', () => { showAll = true; render(); });
+    render();
+  }
+</script>
 
 <script>
   import { animate, stagger, hover } from 'motion';

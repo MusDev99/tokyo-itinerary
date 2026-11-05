@@ -19,12 +19,13 @@ Designed around the **[Laws of UX](https://lawsofux.com/)**, it uses **Google Sh
 - **Add & edit from the website**: `/add` is a 3-step wizard (destination, dates, review) that creates the trip tab; places are then added day by day from the **Add place** sheet on the trip page (time and day title are optional); activities can be edited/deleted, and trips renamed/deleted, with a confirmation modal before any delete. The service account needs **Editor** access to the sheet.
 - **Zero-Dependency Service Account Client**: Authenticates with Google Sheets API v4 using an `RS256` OAuth 2.0 JWT signed via Node's built-in `node:crypto` (`src/utils/googleSheets.ts`)—no heavy SDKs or local `.json` data files required.
 - **Live Sync & Refresh**: Sheets reads are kept in server memory with stale-while-revalidate (`src/utils/swr.ts`): fresh for 30s, then served instantly for up to 10 min while one background read refreshes them, so switching tabs never waits on Google. Every write from the app clears the cache (editors see their change on the next render), and the in-app **Refresh from Google Sheets** button (`/api/sheets-sync`) forces a live read. Edits made directly in Google Sheets show up within about 30s. Built-in request deduplication and rate-limit retry backoff.
+- **Built for 100+ destinations**: worksheets are read in chunks of 25 tabs, 4 requests at a time (one giant request breaks past a few dozen trips). The phone drawer, the header "More" menu and the home list show a short list with search, **Show all** and A-Z sections. Any country can be typed in the add form: about 150 have a built-in flag and default currency (`src/utils/worldCountries.ts`). Limits: 2000 rows per trip tab and 1000 trips in `_trips`.
 - **Fast tab switching**: the Overview / Itinerary / Pocket tabs are prefetched as soon as they're visible (guests), and guest pages are `private, max-age=30` so the prefetched page is reused on tap and Back is instant. Editors' pages stay `no-store`.
 
 ### 2. Comprehensive Trip Analytics & Currency Exchange
 - **Global & Per-Country Analytics (`AnalyticsDashboard.tsx`)**: three tabs — Overview (a slim interactive category donut and a day-by-day spending history), Currency and paginated Expenses.
   - Total trip cost, daily average burn rate, cost per activity, and paid vs. free activity ratios.
-  - **6-Category Spending Breakdown**: Automatically classifies activities into `Transport`, `Food`, `Lodging`, `Attraction`, `Shopping`, and `Other` using explicit `category` cells or keyword heuristics.
+  - **11-Category Spending Breakdown**: Automatically classifies activities into `Food`, `Transport`, `Sightseeing`, `Lodging`, `Shopping`, `Nature`, `Culture`, `Nightlife`, `Wellness`, `Adventure` and `General` using explicit `category` cells or keyword heuristics (the newer five only match after the original ones, so existing trips keep their categories).
   - **Daily spending history**: every payment grouped by day like a bank statement (date, day total, round category icon, title, note, amount in your home currency, time and the original amount); tap a day bar to collapse it.
 - **Live Multi-Currency Exchange (`CurrencyExchangeGraph.tsx` & `/api/currency-exchange`)**:
   - Instant conversion for **MYR, USD and every currency used by a country with an itinerary** (no fixed list; the hub grows with your trips).
@@ -236,7 +237,7 @@ Share your target Google Spreadsheet with your Service Account email (found in `
 | `D` | `time` | `09:30` | Activity time (`HH:MM`) |
 | `E` | `title` | `Sydney Opera House` | Activity title |
 | `F` | `description` | `Guided tour of the sails` | Activity description |
-| `G` | `category` | `Attraction` | Optional: `Transport`, `Food`, `Lodging`, `Attraction`, `Shopping`, `Other` |
+| `G` | `category` | `Attraction` | Optional: `food`, `transport`, `sightseeing`, `lodging`, `shopping`, `nature`, `culture`, `nightlife`, `wellness`, `adventure`, `general` |
 | `H` | `location_name` | `Bennelong Point` | Location display name |
 | `I` | `maps_url` | `https://maps.google.com/...` | Google Maps URL |
 | `J` | `price_amount` | `45` | Numeric cost |

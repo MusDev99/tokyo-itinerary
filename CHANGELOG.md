@@ -3,6 +3,13 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-05 12:28 — Fix: time picker, new trip start, more activity types, 100+ destinations
+
+- **Time picker:** the hour hand's knob now sits on its number (it covered the "12"), AM/PM and hour/minute buttons are 44px, and the popover no longer jams to the top of a short phone screen over the field you are editing: when it fits neither below nor above it is centred with the page dimmed. A stray `0` / `0:00` from a blank number-formatted cell now reads as "no time" instead of 0:00 (a real `00:00` midnight is kept).
+- **New trip starts clean:** the wizard always opens on "Where". An unfinished draft is offered ("Continue your unfinished trip? / Start fresh") instead of silently jumping to the Review step; drafts older than a week are dropped, a prefilled link ignores old drafts, and "Start over" is available on every step.
+- **More activity types:** Nature, Culture, Nightlife, Wellness and Adventure join the original six (11 in all), with their own colours in charts, filters and timelines. They match only after the original types, so existing trips keep their categories.
+- **100+ destinations:** sheets are read in chunks of 25 tabs (4 at a time) so a large spreadsheet no longer exceeds the request size; the phone drawer, header ("More" menu) and home list have search, a short list with **Show all**, and A-Z sections; about 150 countries now get their flag and default currency automatically.
+
 ## 2026-11-04 20:10 — Release 0.1.0: trip wizard, Pocket and a leaner itinerary flow
 
 One release of everything below (newest first), shipped as a single PR.

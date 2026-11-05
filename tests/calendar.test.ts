@@ -141,3 +141,11 @@ test('sheet day fractions become HH:MM and real times are left alone', () => {
   assert.equal(normalizeSheetTime('9:00 AM'), '9:00 AM');
   assert.equal(normalizeSheetTime(''), '');
 });
+
+test('a zero time from a formatted blank cell means "no time"; a real midnight is kept', () => {
+  assert.equal(normalizeSheetTime('0'), '');
+  assert.equal(normalizeSheetTime('0:00'), '');
+  assert.equal(normalizeSheetTime('0:00:00'), '');
+  assert.equal(normalizeSheetTime('00:00'), '00:00');
+  assert.equal(normalizeSheetTime('12:00 AM'), '12:00 AM');
+});

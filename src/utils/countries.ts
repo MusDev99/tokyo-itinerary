@@ -1,5 +1,6 @@
 import type { DayItinerary } from '../types/itinerary';
 import { cacheState, timed, type Timed } from './swr';
+import { WORLD_COUNTRIES, worldCountry } from './worldCountries';
 import {
   pullCountriesFromGoogleSheets,
   resolveSpreadsheetId,
@@ -216,7 +217,9 @@ function buildCountryMetadataFromTab(
   tabName: string,
   itinerary: DayItinerary[]
 ): CountryMetadata {
-  const defaults = COUNTRY_DEFAULTS[slug];
+  // Built-in defaults first (they carry descriptions); any other country gets its flag + currency from the world table
+  const world = worldCountry(slug);
+  const defaults = COUNTRY_DEFAULTS[slug] ?? (world ? { flag: world.flag, currency: world.currency, description: '' } : undefined);
   let detectedCurrency = defaults?.currency || 'USD';
   let totalActivities = 0;
   let totalLocalCost = 0;
@@ -313,12 +316,16 @@ export function buildTabName(country: string, state: string): string {
 
 /** Known countries (slug -> defaults) for the add-itinerary form. */
 export function getCountryOptions(): Array<{ name: string; slug: string; flag: string; currency: string }> {
-  return Object.entries(COUNTRY_DEFAULTS).map(([slug, d]) => ({
+  const known = Object.entries(COUNTRY_DEFAULTS).map(([slug, d]) => ({
     slug,
     name: formatTabNameToCountryName(slug),
     flag: d.flag,
     currency: d.currency,
   }));
+  // Plus the rest of the world (flag + currency), so any destination can be typed or picked
+  const have = new Set(known.map((k) => k.slug));
+  const rest = WORLD_COUNTRIES.filter((c) => !have.has(c.slug)).map((c) => ({ slug: c.slug, name: c.name, flag: c.flag, currency: c.currency }));
+  return [...known, ...rest].sort((a, b) => a.name.localeCompare(b.name));
 }
 
 function firstTime(days: DayItinerary[]): number {

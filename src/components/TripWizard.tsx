@@ -25,7 +25,10 @@ type Step = 1 | 2 | 3;
 const STEPS = ['Where', 'When', 'Review'] as const;
 const DRAFT_KEY = 'tripDraft:wizard';
 
-interface Draft { country: string; state: string; start: string; end: string; place: Place | null; step: Step }
+interface Draft { country: string; state: string; start: string; end: string; place: Place | null; step: Step; savedAt?: number }
+
+/** A draft older than this is dropped instead of offered (a trip planned last month is not "unfinished") */
+const DRAFT_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
 const readDraft = (): Draft | null => {
   try {
@@ -62,27 +65,46 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
   const [touched, setTouched] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  // An unfinished draft is OFFERED, never applied silently: the form always opens on a clean "Where" step
+  const [pending, setPending] = useState<Draft | null>(null);
+  const [checked, setChecked] = useState(false); // the draft lookup ran: only then may autosave touch storage
   const [restored, setRestored] = useState(false);
   const panel = useRef<HTMLDivElement>(null);
 
-  // Restore an unfinished draft once (the URL prefill wins when both exist)
+  // Look for an unfinished draft once. Nothing is applied until the person says "Continue" (no jump between steps)
   useEffect(() => {
-    if (initialCountry || initialState) return;
-    const d = readDraft();
-    if (!d || (!d.country && !d.state)) return;
-    setCountry(d.country);
-    setState(d.state);
-    setStart(d.start);
-    setEnd(d.end);
-    setPlace(d.place);
-    setStep(d.step);
-    setRestored(true);
+    if (initialCountry || initialState) {
+      writeDraft(null); // a prefilled link starts a new trip: the old draft would only confuse
+    } else {
+      const d = readDraft();
+      const fresh = d && (!d.savedAt || Date.now() - d.savedAt < DRAFT_MAX_AGE_MS);
+      if (d && fresh && (d.country || d.state)) setPending(d);
+      else writeDraft(null);
+    }
+    setChecked(true);
   }, []);
 
+  // Autosave only once there is no pending offer, so the offer can't be overwritten by the empty form
   useEffect(() => {
-    if (busy) return;
-    writeDraft(country || state || start ? { country, state, start, end, place, step } : null);
-  }, [country, state, start, end, place, step, busy]);
+    if (busy || pending || !checked) return;
+    writeDraft(country || state || start ? { country, state, start, end, place, step, savedAt: Date.now() } : null);
+  }, [country, state, start, end, place, step, busy, pending, checked]);
+
+  const resume = () => {
+    if (!pending) return;
+    setCountry(pending.country);
+    setState(pending.state);
+    setStart(pending.start);
+    setEnd(pending.end);
+    setPlace(pending.place);
+    setStep(pending.step);
+    setRestored(true);
+    setPending(null);
+  };
+  const discard = () => {
+    writeDraft(null);
+    setPending(null);
+  };
 
   useEffect(() => {
     const el = panel.current;
@@ -176,10 +198,23 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
   return (
     <div className="w-full max-w-xl mx-auto space-y-4">
       {progress}
-      {restored && (
-        <div className="flex items-center justify-between gap-3 rounded-xl bg-primary/10 px-3 py-2 text-xs font-semibold text-text/80">
-          <span>Picked up where you left off.</span>
-          <button type="button" className="font-bold text-primary px-2 py-1" onClick={startOver}>Start over</button>
+      {pending && (
+        <div role="region" aria-label="Unfinished trip" className="rounded-2xl border border-primary/25 bg-primary/10 p-3 space-y-2">
+          <p className="text-sm font-extrabold text-text">Continue your unfinished trip?</p>
+          <p className="text-xs text-text/75">
+            {[pending.state, pending.country].filter(Boolean).join(', ')}
+            {pending.start && pending.end ? ` · ${formatLongDate(pending.start)} → ${formatLongDate(pending.end)}` : ''}
+          </p>
+          <div className="flex gap-2">
+            <button type="button" onClick={resume} className="touch-target flex-1 px-4 py-2 rounded-xl bg-primary text-white text-sm font-extrabold">Continue</button>
+            <button type="button" onClick={discard} className="touch-target px-4 py-2 rounded-xl bg-white/60 text-primary text-sm font-bold">Start fresh</button>
+          </div>
+        </div>
+      )}
+      {!pending && (country || state || start || end) && (
+        <div className="flex items-center justify-between gap-3 text-xs text-text/70 px-1">
+          <span>{restored ? 'Picked up where you left off.' : 'Draft saved on this device.'}</span>
+          <button type="button" className="touch-target font-bold text-primary px-2" onClick={startOver}>Start over</button>
         </div>
       )}
 

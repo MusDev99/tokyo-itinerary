@@ -50,6 +50,46 @@ export const CATEGORIES: Record<string, CategoryInfo> = {
     bgClass: 'bg-pink-500/15 border-pink-500/30 text-pink-800',
     textClass: 'text-pink-700',
   },
+  nature: {
+    key: 'nature',
+    label: 'Nature & Outdoors',
+    emoji: '🌿',
+    color: '#65a30d',
+    bgClass: 'bg-lime-500/15 border-lime-500/30 text-lime-800',
+    textClass: 'text-lime-700',
+  },
+  culture: {
+    key: 'culture',
+    label: 'Culture & Events',
+    emoji: '🎭',
+    color: '#ca8a04',
+    bgClass: 'bg-yellow-500/15 border-yellow-500/30 text-yellow-800',
+    textClass: 'text-yellow-700',
+  },
+  nightlife: {
+    key: 'nightlife',
+    label: 'Nightlife & Drinks',
+    emoji: '🍸',
+    color: '#6366f1',
+    bgClass: 'bg-indigo-500/15 border-indigo-500/30 text-indigo-800',
+    textClass: 'text-indigo-700',
+  },
+  wellness: {
+    key: 'wellness',
+    label: 'Wellness & Spa',
+    emoji: '💆',
+    color: '#0d9488',
+    bgClass: 'bg-teal-500/15 border-teal-500/30 text-teal-800',
+    textClass: 'text-teal-700',
+  },
+  adventure: {
+    key: 'adventure',
+    label: 'Adventure & Sports',
+    emoji: '🧗',
+    color: '#dc2626',
+    bgClass: 'bg-red-500/15 border-red-500/30 text-red-800',
+    textClass: 'text-red-700',
+  },
   general: {
     key: 'general',
     label: 'General & Others',
@@ -92,6 +132,14 @@ const SIGHTSEEING_KEYWORDS = [
   'zoo', 'aquarium', 'sightseeing', 'lookout', 'canyon', 'walk', 'trail',
 ];
 
+// The newer types are matched after the original five, so existing trips keep their categories.
+// Only keywords the older lists do not already claim ('museum', 'onsen', 'park' stay Sightseeing).
+const NATURE_KEYWORDS = ['hike', 'hiking', 'beach', 'island', 'mountain', 'waterfall', 'national park', 'forest', 'snorkel', 'bush walk', 'lookout trail', 'sunrise', 'sunset', 'wildlife', 'safari'];
+const CULTURE_KEYWORDS = ['concert', 'festival', 'theatre', 'theater', 'opera', 'gallery', 'exhibition', 'performance', 'workshop', 'cultural', 'matsuri', 'live music', 'tea ceremony'];
+const NIGHTLIFE_KEYWORDS = ['bar', 'pub', 'nightclub', 'club', 'cocktail', 'karaoke', 'night market', 'rooftop', 'happy hour', 'brewery', 'wine tasting'];
+const WELLNESS_KEYWORDS = ['spa', 'massage', 'sauna', 'yoga', 'wellness', 'facial', 'reflexology'];
+const ADVENTURE_KEYWORDS = ['dive', 'diving', 'surf', 'surfing', 'kayak', 'ski', 'skiing', 'zipline', 'bungee', 'paraglid', 'rafting', 'climb', 'cycling', 'theme park', 'jet ski'];
+
 export function detectCategory(item: { title: string; description?: string; note?: string; category?: string }): CategoryInfo {
   if (item.category && CATEGORIES[item.category.toLowerCase()]) {
     return CATEGORIES[item.category.toLowerCase()];
@@ -106,6 +154,13 @@ export function detectCategory(item: { title: string; description?: string; note
   if (matchKeyword(LODGING_KEYWORDS)) return CATEGORIES.lodging;
   if (matchKeyword(SHOPPING_KEYWORDS)) return CATEGORIES.shopping;
   if (matchKeyword(SIGHTSEEING_KEYWORDS)) return CATEGORIES.sightseeing;
+  // Whole-word match for the short ones ('bar' must not match 'barn', 'ski' not 'skirt')
+  const word = (list: string[]) => list.some((k) => new RegExp(`(^|[^a-z])${k}([^a-z]|$)`).test(combined));
+  if (word(WELLNESS_KEYWORDS)) return CATEGORIES.wellness;
+  if (word(NIGHTLIFE_KEYWORDS)) return CATEGORIES.nightlife;
+  if (word(ADVENTURE_KEYWORDS)) return CATEGORIES.adventure;
+  if (word(NATURE_KEYWORDS)) return CATEGORIES.nature;
+  if (word(CULTURE_KEYWORDS)) return CATEGORIES.culture;
 
   return CATEGORIES.general;
 }

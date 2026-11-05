@@ -49,6 +49,9 @@ export function normalizeSheetDate(value: string): string {
 /** "0.375" -> "09:00", "46357.5" -> "12:00"; a real time such as "9:00 AM" or "" comes back unchanged. */
 export function normalizeSheetTime(value: string): string {
   const t = (value || '').trim();
+  // A Number/Time-formatted blank shows as 0 or 0:00 (single-digit hour): that is "no time", not midnight.
+  // Our own writes are always HH:MM and the picker's midnight is 00:00 / 12:00 AM, so a real midnight survives.
+  if (/^0(\.0+)?$|^0:00(:00)?$/.test(t)) return '';
   if (!SERIAL.test(t)) return t;
   const n = Number(t);
   const frac = n % 1;
