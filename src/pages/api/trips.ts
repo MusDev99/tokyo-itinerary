@@ -5,12 +5,16 @@ import { parsePlace } from '../../types/place';
 import { clientError } from '../../utils/security';
 import { recordAudit } from '../../utils/users';
 import { validateRange, buildDays } from '../../utils/tripDraft';
+import { parseActivity } from '../../utils/parseActivity';
+import { chunk } from '../../utils/chunk';
+import type { ActivityInput } from '../../utils/googleSheets';
 import { stopsFromParts, tabNameFromTitle, uniqueSlug, validateStops, legacyTripSlug, type Stop, type TripMeta } from '../../utils/trips';
 
 // Create and edit titled trips. Needs a signed-in, active editor (PROTECTED_API in src/middleware.ts).
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
 
+const MAX_START_ACTIVITIES = 150;
 const who = (locals: App.Locals) => locals.user?.email ?? 'unknown';
 const str = (v: unknown, max: number) => (typeof v === 'string' ? v.replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, max) : '');
 
@@ -44,6 +48,18 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const stopError = validateStops(stops, start, end);
   if (stopError) return json({ error: stopError }, 400);
 
+  // Optional starting activities (picked suggestions), already placed on dates inside the trip
+  const rawActivities = Array.isArray(body.activities) ? body.activities : [];
+  if (rawActivities.length > MAX_START_ACTIVITIES) return json({ error: `Start with at most ${MAX_START_ACTIVITIES} places` }, 400);
+  const activities: ActivityInput[] = [];
+  for (const raw of rawActivities) {
+    const parsed = parseActivity(raw);
+    if (parsed.errors || !parsed.value) return json({ error: 'One of the places has a problem', rowErrors: [parsed.errors] }, 400);
+    const d = parsed.value.date.slice(0, 10);
+    if (d < start || d > end) return json({ error: `“${parsed.value.title}” is outside the trip dates` }, 400);
+    activities.push(parsed.value);
+  }
+
   const year = start.slice(0, 4);
   const title = str(body.title, 100) || `${stops[0].city} trip ${year}`;
   if (title.length < 2) return json({ error: 'Give the trip a title', fieldErrors: { title: 'Give the trip a title' } }, 400);
@@ -58,6 +74,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     // Create the (empty) tab first; if a later step fails the half-made trip is removed again
     await appendActivities(tab, []);
     try {
+      for (const part of chunk(activities, 50)) await appendActivities(tab, part);
       await saveTripMeta(tab, { title, slug, country, stops, createdBy: who(locals), createdAt: new Date().toISOString(), copiedFrom: '' });
       await saveTripDates(tab, { start, end });
     } catch (err) {

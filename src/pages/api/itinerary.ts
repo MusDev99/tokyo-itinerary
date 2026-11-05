@@ -13,6 +13,7 @@ import { getAllCountriesWithSheets, findTripByTab } from '../../utils/countries'
 import { legacyTripSlug } from '../../utils/trips';
 import { toIsoDate } from '../../utils/calendar';
 import { validateTripName, validateRange } from '../../utils/tripDraft';
+import { parseActivity } from '../../utils/parseActivity';
 import { parsePlace } from '../../types/place';
 import { clientError } from '../../utils/security';
 import { recordAudit } from '../../utils/users';
@@ -29,45 +30,6 @@ const json = (body: unknown, status = 200) =>
 const who = (locals: App.Locals) => locals.user?.email ?? 'unknown';
 
 const str = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
-
-/** Validates one activity; returns the clean record or a map of field errors. */
-function parseActivity(raw: any): { value?: ActivityInput; errors?: Record<string, string> } {
-  const errors: Record<string, string> = {};
-  const date = str(raw?.date, 20);
-  const title = str(raw?.title, 200);
-  const time = str(raw?.time, 20);
-  const dayTitle = str(raw?.day_title, 200);
-
-  if (!date || isNaN(new Date(date).getTime())) errors.date = 'Valid date is required';
-  if (!title) errors.title = 'Title is required';
-
-  let amount: number | null = null;
-  if (raw?.price_amount !== undefined && raw?.price_amount !== null && raw?.price_amount !== '') {
-    amount = Number(raw.price_amount);
-    if (!Number.isFinite(amount) || amount < 0) errors.price_amount = 'Amount must be 0 or more';
-  }
-
-  const currency = str(raw?.price_currency, 3).toUpperCase();
-  if (currency && !/^[A-Z]{3}$/.test(currency)) errors.price_currency = 'Use a 3-letter currency code';
-
-  if (Object.keys(errors).length) return { errors };
-
-  return {
-    value: {
-      date,
-      title,
-      time,
-      ...(dayTitle ? { day_title: dayTitle } : {}),
-      description: str(raw?.description, 2000),
-      category: str(raw?.category, 40),
-      location_name: str(raw?.location_name, 200),
-      price_amount: amount,
-      price_currency: currency,
-      price_notes: str(raw?.price_notes, 200),
-      ...(typeof raw?.city === 'string' ? { city: str(raw.city, 80) } : {}),
-    },
-  };
-}
 
 function validateTab(country: string, state: string): string | null {
   const e = validateTripName(country, state);

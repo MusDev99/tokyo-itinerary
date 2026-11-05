@@ -7,7 +7,7 @@ Four PRs; this file tracks them.
 | 1 | Dock on country view, glass dock, portal ⋯ menus | PR #40 |
 | 2 | Trips read model: `city` column, `_trips` registry, `buildCountries` from trips, `/trips/<slug>` pages, legacy redirects | this branch |
 | 3 | Create and edit trips: title, stops, city on each place, rename title | this branch (stacked on PR 2) |
-| 4 | "Start from": copy a trip (whole or picked days) and suggestions mined from the sheet | next |
+| 4 | "Start from": copy a trip (whole or picked days) and suggestions mined from the sheet | done |
 
 ## Model (decided with the product owner)
 - One tab per trip + a `city` on each row; title, stable slug, primary country and stops live in the `_trips` registry (K:Q). URLs `/trips/<slug>`.
