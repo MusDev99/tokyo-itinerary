@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { useEffect, useMemo, useState } from 'preact/hooks';
 import { redirectIfSignedOut } from '../utils/authClient';
 import { sortItems, type PocketItem, type PocketKind } from '../utils/pocket';
 import { formatLongDate } from '../utils/calendar';
@@ -7,7 +7,7 @@ import type { CheckGroup } from '../utils/checklist';
 import type { Place } from '../types/place';
 import PocketSheet, { KIND_META, type PocketDraft } from './PocketSheet';
 import ConfirmDialog from './ConfirmDialog';
-import { useDismiss } from './useDismiss';
+import PortalMenu from './PortalMenu';
 import TripChecklist from './TripChecklist';
 import TravelTools from './TravelTools';
 
@@ -44,22 +44,15 @@ function RowSkeleton() {
 
 /** One ⋯ button per row instead of two always-visible icon buttons (Hick's Law: fewer options on screen). */
 function RowMenu({ label, onEdit, onDelete }: { label: string; onEdit: () => void; onDelete: () => void }) {
-  const [open, setOpen] = useState(false);
-  const root = useRef<HTMLDivElement>(null);
-  useDismiss(open, [root], () => setOpen(false));
   return (
-    <div ref={root} className="relative shrink-0">
-      <button type="button" aria-haspopup="menu" aria-expanded={open} aria-label={`Actions for ${label}`} onClick={() => setOpen((o) => !o)}
-        className="touch-target w-11 h-11 grid place-items-center rounded-full text-text/70 hover:bg-primary/10 text-lg font-bold">⋯</button>
-      {open && (
-        <div role="menu" className="absolute right-0 top-full z-20 mt-1 w-36 rounded-xl bg-surface-solid border border-primary/20 shadow-xl p-1">
-          <button type="button" role="menuitem" onClick={() => { setOpen(false); onEdit(); }}
-            className="touch-target w-full flex items-center gap-2 px-3 rounded-lg text-sm font-semibold text-text hover:bg-primary/10 text-left">✎ Edit</button>
-          <button type="button" role="menuitem" onClick={() => { setOpen(false); onDelete(); }}
-            className="touch-target w-full flex items-center gap-2 px-3 rounded-lg text-sm font-semibold text-red-700 hover:bg-red-500/10 text-left">🗑 Delete</button>
-        </div>
-      )}
-    </div>
+    <PortalMenu
+      className="shrink-0"
+      label={`Actions for ${label}`}
+      items={[
+        { label: <><span aria-hidden="true">✎</span> Edit</>, onSelect: onEdit },
+        { label: <><span aria-hidden="true">🗑</span> Delete</>, onSelect: onDelete, danger: true },
+      ]}
+    />
   );
 }
 
