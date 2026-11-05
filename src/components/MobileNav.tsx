@@ -3,6 +3,7 @@ import { createPortal } from 'preact/compat';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { animate, stagger } from 'motion';
 import { prefersReducedMotion } from '../utils/motion';
+import { lockOverlay } from '../utils/overlay';
 import { COLLAPSE_AFTER, groupByLetter, matchesQuery, visibleItems } from '../utils/countryList';
 
 export interface NavState {
@@ -108,8 +109,7 @@ export default function MobileNav({ countries, currentPath, canEdit = false }: P
   // Enter animation, scroll lock, Escape
   useEffect(() => {
     if (!mounted || !open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    const unlock = lockOverlay();
     const key = (e: KeyboardEvent) => e.key === 'Escape' && hide();
     document.addEventListener('keydown', key);
     if (!prefersReducedMotion() && panel.current && backdrop.current) {
@@ -118,7 +118,7 @@ export default function MobileNav({ countries, currentPath, canEdit = false }: P
       animate(panel.current.querySelectorAll('[data-item]'), { opacity: [0, 1], y: [14, 0] }, { delay: stagger(0.045, { startDelay: 0.12 }), duration: 0.35, ease: [0.22, 1, 0.36, 1] });
     }
     return () => {
-      document.body.style.overflow = prev;
+      unlock();
       document.removeEventListener('keydown', key);
     };
   }, [mounted, open]);

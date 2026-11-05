@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { animate } from 'motion';
 import { createPortal } from 'preact/compat';
 import { prefersReducedMotion } from '../utils/motion';
+import { lockOverlay } from '../utils/overlay';
 import { DOC_KINDS, NOTE_COLOURS, type PocketItem, type PocketKind } from '../utils/pocket';
 import { useDismiss } from './useDismiss';
 import FormField from './FormField';
@@ -57,11 +58,7 @@ export default function PocketSheet({ kind: initialKind, item, defaultDate = '',
 
   useDismiss(true, [sheet], (reason) => reason === 'escape' && onClose());
 
-  useEffect(() => {
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = prev; };
-  }, []);
+  useEffect(() => lockOverlay(), []);
 
   useEffect(() => {
     const el = sheet.current;
@@ -111,7 +108,7 @@ export default function PocketSheet({ kind: initialKind, item, defaultDate = '',
           <div className="grid grid-cols-2 gap-3">
             {(Object.keys(KIND_META) as PocketKind[]).map((k) => (
               <button key={k} type="button" onClick={() => choose(k)}
-                className="touch-target min-h-[88px] rounded-2xl border-2 border-primary/25 bg-white/60 p-3 text-left hover:border-primary/60 active:scale-[0.98] transition-all">
+                className="touch-target min-h-[88px] rounded-2xl border-2 border-primary/25 bg-white/60 p-3 text-left hover:border-primary/60 active:scale-[0.98] transition-[color,background-color,border-color,box-shadow,opacity,transform]">
                 <span className="text-2xl" aria-hidden="true">{KIND_META[k].icon}</span>
                 <span className="block text-sm font-extrabold text-text">{KIND_META[k].label}</span>
                 <span className="block text-[11px] text-text/60">{KIND_META[k].hint}</span>

@@ -36,6 +36,17 @@ const dateRange = validRange
   : fmt(country.stats.firstDate, { month: 'short', day: 'numeric' });
 const dateYear = validRange ? first!.getFullYear() : null;
 
+// Stat tiles only where they are the point (Overview, country hubs). Elsewhere one quiet line says the same in a
+// tenth of the space (Law of Common Region: one surface, no repeated hero on every tab).
+const showTiles = activeTab === 'overview' || !isTrip;
+const summaryLine = [
+  country.stats.totalDays > 0 && `${country.stats.totalDays} ${country.stats.totalDays === 1 ? 'day' : 'days'}`,
+  dateRange && (dateYear ? `${dateRange}, ${dateYear}` : dateRange),
+  country.stats.totalActivities > 0 && `${country.stats.totalActivities} activities`,
+].filter(Boolean).join(' · ');
+// One-line identity: the place itself (state or country); the tab name is in the dock, the country in the line below
+const heading = state ? state.name : country.name;
+
 // Stat tiles (Miller's Law: 3-4 chunked facts). The destination tile is skipped on state pages,
 // where the breadcrumb and title already say it.
 const stats = [
@@ -52,7 +63,7 @@ const stats = [
 
 <div data-trip-header class="flex flex-col gap-3 sm:gap-4 mb-5 sm:mb-6">
   <!-- Jakob's Law: Familiar Breadcrumb Navigation -->
-  <nav aria-label="Breadcrumb" class="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-text/60">
+  <nav aria-label="Breadcrumb" class="hidden sm:flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-text/60">
     <a href="/" class="hover:text-primary transition-colors flex items-center gap-1">
       <span>🌍</span>
       <span>Destinations</span>
@@ -78,21 +89,24 @@ const stats = [
   <!-- Hero Header + Sub-navigation Switcher (Law of Common Region & Fitts's Law). Tabs sit in a row under the trip
        details at every width (Jakob's Law: page tabs under the title), so the title, description and stats keep the
        full card width on laptops instead of sharing it with five tabs -->
-  <div class="glass-effect rounded-2xl p-4 sm:p-6 border border-primary/20 shadow-md flex flex-col gap-4">
-    <div class="flex flex-col gap-3.5 min-w-0 flex-1">
+  <div class="glass-effect rounded-2xl p-3 sm:p-6 border border-primary/20 shadow-md flex flex-col gap-3 sm:gap-4">
+    <div class="flex flex-col gap-2.5 sm:gap-3.5 min-w-0 flex-1">
       <!-- Identity row: flag + title + currency. Description sits below at full width so text isn't squeezed by the flag column. -->
       <!-- Law of Proximity: rename/delete sit right after the trip name they act on, not at the far end of a wide row -->
       <div class="flex items-center gap-3 sm:gap-4 min-w-0">
-        <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-primary/15 border border-primary/25 flex items-center justify-center text-2xl sm:text-4xl shadow-inner shrink-0">
+        <div class="w-10 h-10 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-primary/15 border border-primary/25 flex items-center justify-center text-xl sm:text-4xl shadow-inner shrink-0">
           {country.flag}
         </div>
         <div class:list={['min-w-0 flex-1', manage && 'lg:flex-initial']}>
-          <h1 class="text-xl sm:text-3xl font-extrabold text-text tracking-tight leading-tight">
-            {country.title}
+          <h1 class="text-lg sm:text-3xl font-extrabold text-text tracking-tight leading-tight truncate sm:whitespace-normal">
+            {heading}
           </h1>
-          <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-bold bg-primary/15 text-primary border border-primary/25">
-            {country.currency}
-          </span>
+          <div class="flex items-center gap-2 mt-0.5 min-w-0">
+            {state && <span class="text-xs sm:text-sm font-semibold text-text/60 truncate">{country.name}</span>}
+            <span class="shrink-0 px-2 py-0.5 rounded-full text-[11px] sm:text-xs font-bold bg-primary/15 text-primary border border-primary/25">
+              {country.currency}
+            </span>
+          </div>
         </div>
         {manage && (
           <TripActions
@@ -106,11 +120,15 @@ const stats = [
         )}
       </div>
 
-      <p class="text-sm text-text/75 max-w-2xl leading-relaxed">
+      <p class="hidden sm:block text-sm text-text/75 max-w-2xl leading-relaxed">
         {country.description}
       </p>
 
-      {country.stats.hasItinerary && (
+      {country.stats.hasItinerary && !showTiles && summaryLine && (
+        <p class="text-xs sm:text-sm font-semibold text-text/70">{summaryLine}</p>
+      )}
+
+      {country.stats.hasItinerary && showTiles && (
         <ul class="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 [&>li:last-child:nth-child(odd)]:col-span-2 sm:[&>li:last-child:nth-child(odd)]:col-span-1">
           {stats.map((st) => (
             <li class="flex items-center gap-2.5 rounded-xl bg-white/45 border border-primary/15 px-3 py-2 min-w-0">
@@ -141,7 +159,7 @@ const stats = [
               data-nav-label={tab.label}
               data-astro-prefetch={isCurrent || Astro.locals.user ? 'false' : 'viewport'}
               class:list={[
-                'touch-target inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all duration-150',
+                'touch-target inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-[color,background-color,border-color,box-shadow,opacity,transform] duration-150',
                 isCurrent
                   ? 'bg-primary text-white shadow-sm'
                   : 'text-text/75 hover:text-primary hover:bg-primary/10',

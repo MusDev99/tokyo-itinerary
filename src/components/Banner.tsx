@@ -65,7 +65,7 @@ const Banner = ({ targetDate }: { targetDate: string | null }) => {
           {timeUnits.map((unit, index) => (
             <div key={index} className="flex items-center">
               <div className="flex flex-col items-center rounded-lg px-2 py-1">
-                <span className="text-base sm:text-lg font-extrabold text-bg drop-shadow-sm transition-all duration-300 hover:scale-110">
+                <span className="text-base sm:text-lg font-extrabold text-bg drop-shadow-sm transition-[color,background-color,border-color,box-shadow,opacity,transform] duration-300 hover:scale-110">
                   {unit.value}
                 </span>
                 <span className="text-[10px] sm:text-xs text-bg/70 font-semibold drop-shadow-sm">

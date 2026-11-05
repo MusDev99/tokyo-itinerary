@@ -2,7 +2,8 @@ import { h } from 'preact';
 import { useEffect, useRef } from 'preact/hooks';
 import { animate } from 'motion';
 import { readSavedSeason, isSeason, type SeasonId } from '../utils/seasons';
-import { compositorFrames, prefersReducedMotion, type Frames } from '../utils/motion';
+import { compositorFrames, type Frames } from '../utils/motion';
+import { resolveMotionLevel, readDeviceHints, particleCount, blurPx, type MotionLevel } from '../utils/motionLevel';
 
 type Controls = { stop: () => void; pause: () => void; play: () => void };
 
@@ -13,15 +14,27 @@ interface Ctx {
   motion: boolean;
   /** particle multiplier (fewer on small screens) */
   density: number;
+  level: MotionLevel;
   /** `base`: a static transform the element already has (kept in every frame) */
   anim: (el: Element, keyframes: Frames, options: any, base?: string) => void;
 }
 
 const rand = (a: number, b: number) => a + Math.random() * (b - a);
-const count = (ctx: Ctx, n: number) => Math.max(4, Math.round(n * ctx.density));
+const count = (ctx: Ctx, n: number) => particleCount(n, ctx.density, ctx.level);
+
+// Level of the scene being built (one scene is built at a time): blur and glow layers are the expensive ones
+let LEVEL: MotionLevel = 'full';
 
 function node(parent: HTMLElement, style: Partial<CSSStyleDeclaration> | Record<string, string>, text?: string) {
   const el = document.createElement('div');
+  style = { ...style };
+  const s = style as Record<string, string>;
+  if (LEVEL !== 'full') {
+    delete s.boxShadow; // glows
+    if (s.filter) delete s.filter; // blurs
+  } else if (s.filter?.startsWith('blur(')) {
+    s.filter = `blur(${blurPx(parseFloat(s.filter.slice(5)), 'full')}px)`; // at most 24px
+  }
   // No blanket will-change: compositor animations promote their own layer; static shapes stay cheap
   Object.assign(el.style, { position: 'absolute' }, style);
   if (text) el.textContent = text;
@@ -47,6 +60,7 @@ function faller(ctx: Ctx, o: { emoji?: string; size: [number, number]; dur: [num
 }
 
 function cloud(ctx: Ctx, o: { top: string; w: number; h: number; color: string; blur: number; dur: [number, number]; opacity: number }) {
+  if (ctx.level !== 'full') return node(ctx.root, { display: 'none' }); // blurred clouds are the priciest layer: full only
   const el = node(ctx.root, { top: o.top, left: '-30vw', width: `${o.w}px`, height: `${o.h}px`, borderRadius: '50%', background: o.color, filter: `blur(${o.blur}px)`, opacity: String(o.opacity) });
   const dur = rand(o.dur[0], o.dur[1]);
   if (ctx.motion) ctx.anim(el, { x: ['0vw', '170vw'] }, { duration: dur, repeat: Infinity, ease: 'linear', delay: -rand(0, dur) });
@@ -103,7 +117,7 @@ const SCENES: Record<SeasonId, { bg: string; build: (ctx: Ctx) => void }> = {
       twinkle(ctx, { n: 16, size: [3, 6], area: [20, 85], color: 'rgba(255,255,255,.95)', glow: 'rgba(255,255,200,.9)' });
       if (ctx.motion) {
         ctx.anim(halo, { scale: [1, 1.12, 1], opacity: [0.8, 1, 0.8] }, { duration: 6, repeat: Infinity, ease: 'easeInOut' });
-        ctx.anim(rays, { rotate: [0, 360] }, { duration: 90, repeat: Infinity, ease: 'linear' });
+        if (ctx.level === 'full') ctx.anim(rays, { rotate: [0, 360] }, { duration: 90, repeat: Infinity, ease: 'linear' });
       }
     },
   },
@@ -120,12 +134,14 @@ const SCENES: Record<SeasonId, { bg: string; build: (ctx: Ctx) => void }> = {
           const el = node(root, { left: `${rand(-5, 105)}%`, top: '0', width: '1.6px', height: `${len}px`, background: 'linear-gradient(180deg, rgba(220,235,255,0), rgba(220,235,255,.75))', transform: 'rotate(12deg)', opacity: String(rand(0.35, 0.85)) });
           ctx.anim(el, { y: ['-15vh', '112vh'], x: ['0vw', '-6vw'] }, { duration: dur, repeat: Infinity, ease: 'linear', delay: -rand(0, dur) }, 'rotate(12deg)');
         }
-        for (let i = 0; i < count(ctx, 10); i++) {
+        for (let i = 0; i < (ctx.level === 'full' ? count(ctx, 10) : 0); i++) {
           const el = node(root, { left: `${rand(2, 96)}%`, bottom: `${rand(2, 16)}%`, width: '46px', height: '12px', borderRadius: '50%', border: '1.5px solid rgba(220,235,255,.65)' });
           ctx.anim(el, { scale: [0, 1.6], opacity: [0.8, 0] }, { duration: rand(1.2, 2.2), repeat: Infinity, ease: 'easeOut', delay: -rand(0, 2) });
         }
+        if (ctx.level === 'full') {
         const flash = node(root, { inset: '0', background: 'radial-gradient(circle at 30% 20%, rgba(255,255,255,.9), rgba(200,220,255,.3) 60%, transparent)', opacity: '0' });
         ctx.anim(flash, { opacity: [0, 0, 0.8, 0, 0.5, 0, 0] }, { duration: 12, times: [0, 0.85, 0.86, 0.88, 0.89, 0.93, 1], repeat: Infinity, ease: 'linear' });
+        }
       }
     },
   },
@@ -135,7 +151,7 @@ const SCENES: Record<SeasonId, { bg: string; build: (ctx: Ctx) => void }> = {
       const { root } = ctx;
       const sun = node(root, { left: '62%', top: '8%', width: '34vmin', height: '34vmin', borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,240,200,.95) 0%, rgba(255,226,160,.5) 45%, transparent 72%)', filter: 'blur(6px)' });
       if (ctx.motion) ctx.anim(sun, { scale: [1, 1.08, 1], opacity: [0.8, 1, 0.8] }, { duration: 9, repeat: Infinity, ease: 'easeInOut' });
-      [{ top: '4%', h: 26, o: 0.65, d: 38 }, { top: '24%', h: 30, o: 0.75, d: 46 }, { top: '46%', h: 32, o: 0.7, d: 32 }, { top: '66%', h: 30, o: 0.75, d: 52 }].forEach((b, i) => {
+      if (ctx.level === 'full') [{ top: '4%', h: 26, o: 0.65, d: 38 }, { top: '24%', h: 30, o: 0.75, d: 46 }, { top: '46%', h: 32, o: 0.7, d: 32 }, { top: '66%', h: 30, o: 0.75, d: 52 }].forEach((b, i) => {
         const el = node(root, { left: '-30vw', top: b.top, width: '160vw', height: `${b.h}vh`, background: 'radial-gradient(ellipse at center, rgba(255,250,240,.9) 0%, rgba(255,250,240,0) 70%)', filter: 'blur(36px)', opacity: String(b.o) });
         if (ctx.motion) ctx.anim(el, { x: [i % 2 ? '10vw' : '-10vw', i % 2 ? '-10vw' : '10vw'] }, { duration: b.d, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' });
       });
@@ -153,7 +169,7 @@ const SCENES: Record<SeasonId, { bg: string; build: (ctx: Ctx) => void }> = {
     bg: 'linear-gradient(180deg,#040613 0%,#0a1238 45%,#1b1f5c 100%)',
     build(ctx) {
       const { root } = ctx;
-      for (const [top, c, d] of [['10%', 'rgba(52,211,153,.30)', 18], ['26%', 'rgba(167,139,250,.28)', 24]] as const) {
+      for (const [top, c, d] of (ctx.level === 'full' ? [['10%', 'rgba(52,211,153,.30)', 18], ['26%', 'rgba(167,139,250,.28)', 24]] : []) as ReadonlyArray<readonly [string, string, number]>) {
         const a = node(root, { left: '-20vw', top, width: '140vw', height: '22vh', borderRadius: '50%', background: `linear-gradient(90deg, transparent, ${c}, transparent)`, filter: 'blur(40px)' });
         if (ctx.motion) ctx.anim(a, { x: ['-6vw', '6vw'], scaleY: [0.8, 1.25], opacity: [0.5, 1] }, { duration: d, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' });
       }
@@ -161,7 +177,7 @@ const SCENES: Record<SeasonId, { bg: string; build: (ctx: Ctx) => void }> = {
       const moon = node(root, { right: '9%', top: '8%', width: '84px', height: '84px', borderRadius: '50%', background: 'radial-gradient(circle at 35% 35%, #fffdf0, #f3e7b6 70%, #d9c985)', boxShadow: '0 0 60px 18px rgba(255,240,180,.35)' });
       if (ctx.motion) {
         ctx.anim(moon, { scale: [1, 1.05, 1] }, { duration: 8, repeat: Infinity, ease: 'easeInOut' });
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < (ctx.level === 'full' ? 3 : 0); i++) {
           const s = node(root, { left: `${rand(10, 70)}%`, top: `${rand(2, 30)}%`, width: '140px', height: '2px', background: 'linear-gradient(90deg, rgba(255,255,255,0), #fff)', borderRadius: '2px', opacity: '0', transform: 'rotate(32deg)' });
           const gap = rand(6, 14);
           // The pause between streaks lives in the keyframes (repeatDelay would force a main-thread loop)
@@ -185,7 +201,12 @@ export default function SeasonBackground() {
     const hostEl = host.current;
     if (!hostEl) return;
 
-    const reduced = prefersReducedMotion();
+    const readLevel = (): MotionLevel => {
+      let saved: string | null = null;
+      try { saved = localStorage.getItem('motion'); } catch { /* blocked: use the device default */ }
+      return resolveMotionLevel(readDeviceHints(saved));
+    };
+    let level = readLevel();
     const density = window.innerWidth < 640 ? 0.55 : 1;
     let current: { id: SeasonId; el: HTMLElement; controls: Controls[] } | null = null;
 
@@ -195,15 +216,18 @@ export default function SeasonBackground() {
       Object.assign(el.style, { position: 'absolute', inset: '0', overflow: 'hidden', background: def.bg, opacity: instant ? '1' : '0' });
       hostEl.appendChild(el);
 
+      LEVEL = level;
       const controls: Controls[] = [];
       const ctx: Ctx = {
         root: el,
         controls,
-        motion: !reduced,
+        motion: level !== 'off',
         density,
+        level,
         anim: (target, keyframes, options, base) => controls.push(animate(target, compositorFrames(keyframes, base), options) as unknown as Controls),
       };
       def.build(ctx);
+      if (document.hidden || document.documentElement.hasAttribute('data-overlay')) controls.forEach((c) => c.pause());
 
       const prev = current;
       current = { id, el, controls };
@@ -226,15 +250,32 @@ export default function SeasonBackground() {
       const id = (e as CustomEvent).detail?.theme;
       if (isSeason(id) && id !== current?.id) mount(id, false);
     };
-    // Pause everything while the tab is hidden
-    const onVisibility = () => {
-      current?.controls.forEach((c) => (document.hidden ? c.pause() : c.play()));
+    // The person (or the OS) changed the motion level: rebuild the current scene at once
+    const onLevel = () => {
+      const next = readLevel();
+      if (next !== level && current) {
+        level = next;
+        mount(current.id, true);
+      }
     };
+    // Nothing animates while the tab is hidden or a sheet / dialog / drawer is open (the page behind is covered)
+    const syncPause = () => {
+      const paused = document.hidden || document.documentElement.hasAttribute('data-overlay');
+      current?.controls.forEach((c) => (paused ? c.pause() : c.play()));
+    };
+    const overlayObserver = new MutationObserver(syncPause);
+    overlayObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-overlay'] });
+    const reducedQuery = matchMedia('(prefers-reduced-motion: reduce)');
     document.addEventListener('theme-changed', onTheme);
-    document.addEventListener('visibilitychange', onVisibility);
+    document.addEventListener('motion-changed', onLevel);
+    document.addEventListener('visibilitychange', syncPause);
+    reducedQuery.addEventListener('change', onLevel);
     return () => {
       document.removeEventListener('theme-changed', onTheme);
-      document.removeEventListener('visibilitychange', onVisibility);
+      document.removeEventListener('motion-changed', onLevel);
+      document.removeEventListener('visibilitychange', syncPause);
+      reducedQuery.removeEventListener('change', onLevel);
+      overlayObserver.disconnect();
       current?.controls.forEach((c) => c.stop());
     };
   }, []);

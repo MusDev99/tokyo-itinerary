@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { goTo } from '../utils/refresh';
 import { redirectIfSignedOut } from '../utils/authClient';
 import { useState } from 'preact/hooks';
 import ConfirmDialog from './ConfirmDialog';
@@ -47,12 +48,12 @@ export default function TripActions({ tab, country, state, activityCount, afterD
 
   const rename = async () => {
     const data = await call('PATCH', { tab, rename: { country: newCountry, state: newState } });
-    if (data?.href) window.location.href = data.href;
+    if (data?.href) goTo(data.href);
   };
 
   const remove = async () => {
     const data = await call('DELETE', { tab, wholeTrip: true });
-    if (data) window.location.href = afterDeleteHref;
+    if (data) goTo(afterDeleteHref);
   };
 
   const close = () => { setMode('idle'); setError(''); };

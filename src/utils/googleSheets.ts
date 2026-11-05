@@ -6,6 +6,7 @@ import type { Place } from '../types/place';
 import { UserError, safeHttpUrl, sheetText, youtubeEmbedUrl } from './security.ts';
 import { cacheState, timed, type Timed } from './swr.ts';
 import { chunk, mapPool } from './chunk.ts';
+import { fixtureTabs } from './fixture.ts';
 import { sortByTime, normalizeSheetDate, normalizeSheetTime } from './calendar.ts';
 import {
   POCKET_TAB, POCKET_HEADERS, POCKET_LAST_COL, MAX_POCKET_ITEMS, parsePocketRows, itemToRow,
@@ -475,6 +476,29 @@ export async function pullCountriesFromGoogleSheets(options?: {
   itineraries: Record<string, DayItinerary[]>;
   tabTitles: Record<string, string>;
 }> {
+  // Dev-only sample data (never in a production build): `SHEETS_FIXTURE=1` or `many`
+  const fixtureMode = (import.meta as any).env?.DEV ? process.env.SHEETS_FIXTURE : undefined;
+  if (fixtureMode) {
+    const tabs = fixtureTabs(fixtureMode);
+    const itineraries: Record<string, DayItinerary[]> = {};
+    const tabTitles: Record<string, string> = {};
+    for (const [tab, days] of Object.entries(tabs)) {
+      const slug = tab.toLowerCase().replace(/[\s_]+/g, '-');
+      itineraries[slug] = days;
+      tabTitles[slug] = tab;
+    }
+    return {
+      result: {
+        configured: true, spreadsheetId: 'fixture', serviceAccountEmail: null, countriesSynced: Object.keys(itineraries),
+        totalDays: Object.values(itineraries).reduce((n, d) => n + d.length, 0),
+        totalActivities: Object.values(itineraries).reduce((n, d) => n + d.reduce((m, x) => m + x.items.length, 0), 0),
+        source: 'google-sheets', syncedAt: new Date().toISOString(),
+      },
+      itineraries,
+      tabTitles,
+    };
+  }
+
   const creds = loadServiceAccountCredentials();
   const spreadsheetId = resolveSpreadsheetId(options?.spreadsheetId);
 
@@ -1020,30 +1044,38 @@ async function readPlaceRows(
 // Trip locations change only through savePlace/removePlace, which clear this (same timing as the trip cache)
 let placeRowsCache: (Timed & { rows: Promise<string[][] | null>; refreshing?: boolean }) | null = null;
 
+/**
+ * `_trips` rows through the same stale-while-revalidate cache for every reader (place, dates), so one page
+ * render costs at most one Sheets read instead of one per helper.
+ */
+async function cachedPlaceRows(): Promise<string[][] | null> {
+  const ctx = await writeContext();
+  const now = Date.now();
+  const state = cacheState(placeRowsCache, now);
+  if (state === 'miss') {
+    placeRowsCache = { ...timed(now), rows: readPlaceRows(ctx, ctx.spreadsheetId) };
+  } else if (state === 'stale' && !placeRowsCache!.refreshing) {
+    const base = placeRowsCache!;
+    base.refreshing = true;
+    readPlaceRows(ctx, ctx.spreadsheetId)
+      .then((r) => {
+        // Only replace the entry we refreshed: a save in the meantime cleared it and wins
+        if (r && placeRowsCache === base) placeRowsCache = { ...timed(Date.now()), rows: Promise.resolve(r) };
+      })
+      .catch(() => {})
+      .finally(() => (base.refreshing = false));
+  }
+  const pending = placeRowsCache!.rows;
+  return pending.catch((err) => {
+    if (placeRowsCache?.rows === pending) placeRowsCache = null; // don't keep a failed read
+    throw err;
+  });
+}
+
 /** Saved place for a trip tab, or null when none was confirmed yet. */
 export async function getPlace(tab: string): Promise<Place | null> {
   try {
-    const ctx = await writeContext();
-    const now = Date.now();
-    const state = cacheState(placeRowsCache, now);
-    if (state === 'miss') {
-      placeRowsCache = { ...timed(now), rows: readPlaceRows(ctx, ctx.spreadsheetId) };
-    } else if (state === 'stale' && !placeRowsCache!.refreshing) {
-      const base = placeRowsCache!;
-      base.refreshing = true;
-      readPlaceRows(ctx, ctx.spreadsheetId)
-        .then((r) => {
-          // Only replace the entry we refreshed: a save in the meantime cleared it and wins
-          if (r && placeRowsCache === base) placeRowsCache = { ...timed(Date.now()), rows: Promise.resolve(r) };
-        })
-        .catch(() => {})
-        .finally(() => (base.refreshing = false));
-    }
-    const pending = placeRowsCache!.rows;
-    const rows = await pending.catch((err) => {
-      if (placeRowsCache?.rows === pending) placeRowsCache = null; // don't keep a failed read
-      throw err;
-    });
+    const rows = await cachedPlaceRows();
     if (!rows) return null;
     const wanted = tab.trim().toLowerCase();
     const row = rows.slice(1).find((r) => String(r[0] || '').trim().toLowerCase() === wanted);
@@ -1099,8 +1131,7 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Planned date range of a trip (from `_trips`), or null when none was saved (legacy trips). */
 export async function getTripDates(tab: string): Promise<TripDates | null> {
   try {
-    const ctx = await writeContext();
-    const rows = await readPlaceRows(ctx, ctx.spreadsheetId);
+    const rows = await cachedPlaceRows();
     if (!rows) return null;
     const wanted = tab.trim().toLowerCase();
     const row = rows.slice(1).find((r) => String(r[0] || '').trim().toLowerCase() === wanted);

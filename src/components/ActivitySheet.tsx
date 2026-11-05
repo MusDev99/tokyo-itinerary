@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { animate } from 'motion';
 import { createPortal } from 'preact/compat';
 import { prefersReducedMotion } from '../utils/motion';
+import { lockOverlay } from '../utils/overlay';
 import { CATEGORIES } from '../utils/analytics';
 import { addDays, dayLabel, isIsoDate, MAX_TRIP_DAYS } from '../utils/tripDraft';
 import { useDismiss } from './useDismiss';
@@ -76,11 +77,7 @@ export default function ActivitySheet({ mode, initial, days, plannedDays = [], c
   useDismiss(true, [sheet], (reason) => reason === 'escape' && close());
 
   // Keep the page from scrolling behind the sheet
-  useEffect(() => {
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = prev; };
-  }, []);
+  useEffect(() => lockOverlay(), []);
 
   useEffect(() => {
     if (mode === 'add') titleInput.current?.focus();

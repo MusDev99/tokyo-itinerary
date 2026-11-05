@@ -124,7 +124,7 @@ import { COLLAPSE_AFTER } from '../utils/countryList';
         {Astro.locals.user ? (
           <a
             href="/add"
-            class="touch-target inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-primary text-white text-sm font-extrabold shadow-md hover:opacity-95 active:scale-[0.98] transition-all w-full md:w-auto"
+            class="touch-target inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-primary text-white text-sm font-extrabold shadow-md hover:opacity-95 active:scale-[0.98] transition-[color,background-color,border-color,box-shadow,opacity,transform] w-full md:w-auto"
           >
             <span aria-hidden="true">＋</span>
             <span>New itinerary</span>
@@ -171,7 +171,7 @@ import { COLLAPSE_AFTER } from '../utils/countryList';
                 data-name={`${c.name} ${c.states.map((st) => st.name).join(' ')}`}
                 data-reveal
                 data-card
-                class="relative glass-effect rounded-2xl p-4 sm:p-5 hover:border-primary/50 hover:shadow-lg transition-shadow duration-150 flex flex-col gap-3"
+                class="cv-card relative glass-effect rounded-2xl p-4 sm:p-5 hover:border-primary/50 hover:shadow-lg transition-shadow duration-150 flex flex-col gap-3"
               >
                 <div class="flex items-start justify-between gap-3">
                   <div class="flex items-center gap-3 min-w-0">
@@ -274,6 +274,11 @@ import { COLLAPSE_AFTER } from '../utils/countryList';
 </Layout>
 
 <script>
+
+  import { onPageLoad } from '../utils/pageLoad';
+
+  // Re-runs after every soft navigation (the body is swapped, bundled scripts do not re-execute)
+  onPageLoad(() => {
   // Search + "Show all" for long destination lists (plain DOM: no hydration cost for 100+ cards).
   // Same rules as utils/countryList.ts: a search shows every match; otherwise the first N until "Show all".
   const root = document.querySelector<HTMLElement>('[data-filter-root]');
@@ -300,6 +305,7 @@ import { COLLAPSE_AFTER } from '../utils/countryList';
     more?.addEventListener('click', () => { showAll = true; render(); });
     render();
   }
+  });
 </script>
 
 <script>

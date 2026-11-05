@@ -58,7 +58,7 @@ const mobileCountries = countries.map((c) => ({
       <!-- Brand / Home Link (Jakob's Law & Fitts's Law) -->
       <div class="flex items-center gap-2 sm:gap-4">
         <!-- Back to the previous page (hidden on the home page) -->
-        <BackButton path={Astro.url.pathname} client:load />
+        <BackButton path={Astro.url.pathname} client:idle />
         <a
           href="/"
           class="flex items-center gap-2.5 py-2 group focus-ring rounded-lg"
@@ -87,7 +87,7 @@ const mobileCountries = countries.map((c) => ({
         <a
           href="/"
           class:list={[
-            'px-3.5 py-2 rounded-xl text-sm font-semibold transition-all duration-150 flex items-center gap-1.5 shrink-0',
+            'px-3.5 py-2 rounded-xl text-sm font-semibold transition-[color,background-color,border-color,box-shadow,opacity,transform] duration-150 flex items-center gap-1.5 shrink-0',
             currentPath === '/'
               ? 'bg-primary text-white shadow-sm'
               : 'text-text/80 hover:bg-primary/10 hover:text-primary',
@@ -107,7 +107,7 @@ const mobileCountries = countries.map((c) => ({
               <a
                 href={link.href}
                 class:list={[
-                  'px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-150 flex items-center gap-1.5 whitespace-nowrap',
+                  'px-3 py-2 rounded-xl text-sm font-semibold transition-[color,background-color,border-color,box-shadow,opacity,transform] duration-150 flex items-center gap-1.5 whitespace-nowrap',
                   isActive
                     ? 'bg-primary text-white shadow-sm'
                     : 'text-text/80 hover:bg-primary/10 hover:text-primary',
@@ -140,8 +140,8 @@ const mobileCountries = countries.map((c) => ({
 
               {/* Fitts's Law: Continuous hover bridge (pt-2) prevents menu loss */}
               {link.sublinks && (
-                <div class="absolute top-full left-0 pt-2 w-52 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-50">
-                  <div class="glass-effect bg-surface-solid rounded-2xl shadow-xl border border-primary/20 p-1.5 flex flex-col gap-0.5">
+                <div class="absolute top-full left-0 pt-2 w-52 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-[color,background-color,border-color,box-shadow,opacity,transform] duration-150 z-50">
+                  <div class="bg-surface-solid rounded-2xl shadow-xl border border-primary/20 p-1.5 flex flex-col gap-0.5">
                     <a
                       href={link.hubHref}
                       class:list={[
@@ -194,8 +194,8 @@ const mobileCountries = countries.map((c) => ({
               </svg>
             </button>
             <!-- Hick's Law: a scrolling list instead of 100 pills; the full searchable list lives on the dashboard -->
-            <div class="absolute top-full right-0 pt-2 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all duration-150 z-50">
-              <div class="glass-effect bg-surface-solid rounded-2xl shadow-xl border border-primary/20 p-1.5 flex flex-col">
+            <div class="absolute top-full right-0 pt-2 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-[color,background-color,border-color,box-shadow,opacity,transform] duration-150 z-50">
+              <div class="bg-surface-solid rounded-2xl shadow-xl border border-primary/20 p-1.5 flex flex-col">
                 <div class="max-h-[60vh] overflow-y-auto overscroll-contain flex flex-col gap-0.5">
                   {morePills.map((link) => (
                     <a href={link.href} class="flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl text-sm font-medium text-text/80 hover:bg-primary/10 hover:text-primary transition-colors">
@@ -213,8 +213,8 @@ const mobileCountries = countries.map((c) => ({
 
       <!-- Mobile navigation (quick add + animated slide-in drawer) -->
       <div class="flex items-center gap-1">
-        <UserMenu user={signedInUser} next={currentPath === '/login' ? '/' : currentPath} client:load />
-        <MobileNav countries={mobileCountries} currentPath={currentPath} canEdit={Boolean(user)} client:load />
+        <UserMenu user={signedInUser} next={currentPath === '/login' ? '/' : currentPath} client:idle />
+        <MobileNav countries={mobileCountries} currentPath={currentPath} canEdit={Boolean(user)} client:idle />
       </div>
     </div>
   </div>

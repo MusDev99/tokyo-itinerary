@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, lazy, Suspense } from 'react';
 import type { DayItinerary } from '../types/itinerary';
 import { CATEGORIES, detectCategory, fetchLiveRates, type CategoryInfo } from '../utils/analytics';
 import { buildHubCurrencies, currencySymbol, formatMoney } from '../utils/currencyInfo';
-import CurrencyExchangeGraph from './CurrencyExchangeGraph';
+// chart.js (~150 KB) only loads when the Currency tab is opened, not with the dashboard
+const CurrencyExchangeGraph = lazy(() => import('./CurrencyExchangeGraph'));
 import SpendDonut from './SpendDonut';
 import SpendHistory from './SpendHistory';
 import { groupSpendByDay, type SpendLine } from '../utils/spendHistory';
@@ -334,12 +335,14 @@ export const AnalyticsDashboard: React.FC<Props> = ({ dataSources, currencies = 
           <section className={card} aria-label="Exchange rate history">
             <h3 className="text-sm font-extrabold text-text">Rate history · {base} → {graphTarget}</h3>
             <p className="text-xs text-text/60 mb-3">See whether now is a good time to exchange.</p>
-            <CurrencyExchangeGraph
-              baseCurrency={base}
-              targetCurrency={graphTarget}
-              availableTargets={hub.filter((c) => c !== base)}
-              onTargetChange={(t) => { setGraphTarget(t); setTo(t); }}
-            />
+            <Suspense fallback={<div className="h-56 rounded-xl bg-primary/10 animate-pulse" role="status" aria-label="Loading chart" />}>
+              <CurrencyExchangeGraph
+                baseCurrency={base}
+                targetCurrency={graphTarget}
+                availableTargets={hub.filter((c) => c !== base)}
+                onTargetChange={(t) => { setGraphTarget(t); setTo(t); }}
+              />
+            </Suspense>
           </section>
         </div>
       )}

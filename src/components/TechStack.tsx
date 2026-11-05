@@ -34,7 +34,7 @@ const TechStack = () => {
             href={tech.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-4 py-2 bg-bg/80 rounded-full border border-primary/20 hover:bg-primary/10 hover:border-primary/30 transition-all duration-300 text-text/80 hover:text-text flex items-center gap-2"
+            className="px-4 py-2 bg-bg/80 rounded-full border border-primary/20 hover:bg-primary/10 hover:border-primary/30 transition-[color,background-color,border-color,box-shadow,opacity,transform] duration-300 text-text/80 hover:text-text flex items-center gap-2"
           >
             <tech.icon className="w-4 h-4" />
             {tech.name}

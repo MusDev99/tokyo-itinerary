@@ -12,6 +12,6 @@ const destinations = countries.map((c) => ({
   days: c.stats.totalDays,
 }));
 ---
-<footer class="mt-10 bg-gradient-to-b from-transparent to-secondary/30 border-t border-primary/20 backdrop-blur-sm">
+<footer class="mt-10 bg-gradient-to-b from-transparent to-secondary/30 border-t border-primary/20">
   <FooterContent destinations={destinations} year={new Date().getFullYear()} canEdit={Boolean(Astro.locals.user)} client:visible />
 </footer>

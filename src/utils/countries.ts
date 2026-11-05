@@ -445,8 +445,10 @@ function startSheetsFetch(): Promise<{ countries: CountryMetadata[]; syncResult:
   const runFetch = async () => {
     const spreadsheetId = resolveSpreadsheetId();
     const creds = loadServiceAccountCredentials();
+    // Dev-only sample data (see utils/fixture.ts): skip the "unconfigured" shortcut
+    const fixture = Boolean((import.meta as any).env?.DEV && process.env.SHEETS_FIXTURE);
 
-    if (!spreadsheetId || !creds) {
+    if (!fixture && (!spreadsheetId || !creds)) {
       const unconfiguredResult: SheetSyncResult = {
         configured: false,
         spreadsheetId: spreadsheetId || null,
