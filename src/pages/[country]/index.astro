@@ -76,7 +76,7 @@ const countryDataSource = country.stats.hasItinerary
               </p>
             </div>
           </div>
-          <AnalyticsDashboard dataSources={countryDataSource} currencies={[country.currency]} client:load />
+          <AnalyticsDashboard dataSources={countryDataSource} currencies={[country.currency]} client:visible />
         </section>
       </div>
     ) : (

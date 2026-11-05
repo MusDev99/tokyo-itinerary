@@ -58,7 +58,7 @@ const mobileCountries = countries.map((c) => ({
       <!-- Brand / Home Link (Jakob's Law & Fitts's Law) -->
       <div class="flex items-center gap-2 sm:gap-4">
         <!-- Back to the previous page (hidden on the home page) -->
-        <BackButton path={Astro.url.pathname} client:load />
+        <BackButton path={Astro.url.pathname} client:idle />
         <a
           href="/"
           class="flex items-center gap-2.5 py-2 group focus-ring rounded-lg"
@@ -213,8 +213,8 @@ const mobileCountries = countries.map((c) => ({
 
       <!-- Mobile navigation (quick add + animated slide-in drawer) -->
       <div class="flex items-center gap-1">
-        <UserMenu user={signedInUser} next={currentPath === '/login' ? '/' : currentPath} client:load />
-        <MobileNav countries={mobileCountries} currentPath={currentPath} canEdit={Boolean(user)} client:load />
+        <UserMenu user={signedInUser} next={currentPath === '/login' ? '/' : currentPath} client:idle />
+        <MobileNav countries={mobileCountries} currentPath={currentPath} canEdit={Boolean(user)} client:idle />
       </div>
     </div>
   </div>

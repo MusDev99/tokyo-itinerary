@@ -1,5 +1,6 @@
 import { useState } from 'preact/hooks';
-import jsPDF from 'jspdf';
+// jspdf (~400 KB with its deps) is loaded when the person asks for a PDF, not with the page
+const loadPdf = () => import('jspdf').then((m) => m.default);
 import type { DayItinerary } from '../types/itinerary';
 
 interface Props {
@@ -13,6 +14,7 @@ export default function PDFDownload({ itinerary }: Props) {
     setIsGenerating(true);
     
     try {
+      const jsPDF = await loadPdf();
       const pdf = new jsPDF('p', 'mm', 'a4');
       
       // Load custom fonts
@@ -201,6 +203,10 @@ export default function PDFDownload({ itinerary }: Props) {
     <div className="flex justify-center w-full sm:w-auto">
       <button
         onClick={generatePDF}
+        // Warm the chunk on intent (hover / focus / touch) so the tap itself feels immediate
+        onPointerEnter={() => void loadPdf()}
+        onFocus={() => void loadPdf()}
+        onTouchStart={() => void loadPdf()}
         disabled={isGenerating}
         className={`relative w-full sm:w-auto px-6 sm:px-8 py-3.5 text-sm sm:text-base font-semibold rounded-full transition-all duration-300 overflow-hidden group touch-target focus-ring flex items-center justify-center
           ${isGenerating 
