@@ -4,6 +4,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import TripWizard from '../components/TripWizard';
 import { getAllCountriesWithSheets, getCountryOptions } from '../utils/countries';
+import { toIsoDate } from '../utils/calendar';
 
 Astro.response.headers.set('Cache-Control', 'no-store, max-age=0');
 
@@ -17,6 +18,20 @@ const trips = countries.flatMap((c) =>
     ? c.states.filter((s) => s.legacy && s.tabName.includes(' - ')).map((s) => ({ country: c.name, state: s.name }))
     : []
 );
+
+// Trips that can be copied: just what the picker shows (the rows stay on the server). Newest first, as in each country.
+const copyTrips = countries
+  .flatMap((c) => c.states.filter((s) => s.stats.hasItinerary).map((s) => ({
+    slug: s.slug,
+    title: s.title,
+    country: c.name,
+    cities: s.cities,
+    start: s.stats.firstDate ? toIsoDate(s.stats.firstDate) : '',
+    end: s.stats.lastDate ? toIsoDate(s.stats.lastDate) : '',
+    days: s.itinerary.map((d) => ({ date: toIsoDate(d.date), title: d.title, items: d.items.length })).filter((d) => d.date && d.items > 0),
+  })))
+  .filter((t) => t.days.length > 0)
+  .sort((a, b) => b.start.localeCompare(a.start));
 
 // Known defaults plus any countries already in the sheet
 const options = getCountryOptions();
@@ -36,7 +51,7 @@ for (const c of countries) {
         Three quick steps, then add places day by day.
       </p>
     </div>
-    <TripWizard countries={options} trips={trips} initialCountry={initialCountry} initialState={initialState} client:load />
+    <TripWizard countries={options} trips={trips} copyTrips={copyTrips} initialCountry={initialCountry} initialState={initialState} client:load />
   </div>
   <Footer />
 </Layout>

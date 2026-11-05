@@ -3,6 +3,13 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-05 13:51 — Feat: copy a trip and start from suggestions
+
+- **Start from, in the new-trip wizard:** ✍️ From scratch · 📋 Copy a trip · 💡 Suggestions. Copy and Suggestions have their own short flows (Trip → When → Review; Places → Where → When → Cities → Review).
+- **Copy a trip:** search any trip, tick the days to copy (whole trip by default), choose a new start date. Dates shift by the same offset (gaps between days are kept), prices are optional, notes/images/video are never copied. `POST /api/trips/copy` creates the tab first, writes in chunks of 50, records `copied_from`, and removes the half-made trip if a step fails.
+- **Suggestions:** `GET /api/suggestions` (public, read-only) ranks places already in the sheet by how many trips used them, with typical time, median price and category; filter by city and type, pick up to 60, and they are spread across the trip's days.
+- `POST /api/trips` accepts optional `activities` (max 150, validated by the shared `parseActivity`). New pure, tested helpers: `tripCopy.ts`, `suggestions.ts`, `parseActivity.ts`.
+
 ## 2026-11-05 14:05 — Feat: create and edit titled trips
 
 - **New-trip wizard has four steps:** Where (a **trip title**, country, first city, pinned place) → When → **Cities** → Review. In Cities you add the cities the trip moves through and how many days in each (the first city keeps what is left): "Tokyo 3 Mar–5 Mar · Osaka 6 Mar–9 Mar". The trip is created as a titled trip (own tab, stable slug, stops, `created_by`) through the new `POST /api/trips`; a half-made trip is removed if a later step fails.
