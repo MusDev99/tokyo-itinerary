@@ -10,6 +10,11 @@ Each entry has a date and time (Malaysia time, UTC+8) and a short description of
 - **Nothing breaks:** every existing `Country - State` tab is an automatic trip with slug `country-state`; old `/japan/tokyo[/…]`, `/tools` and `/prepare` links 301 to the new pages, a country that was a single plain tab opens that trip, and the old calendar feed keeps serving (calendar apps subscribe to it). Pocket, place, dates and checklist keep keying by the tab, so nothing is orphaned.
 - Adding a place now names the trip's tab (`tab`), so it also works for titled trips. Nav, home, sitemap and the calendar feed read trips. Creating and editing titled trips, copy and suggestions come in the next PRs.
 - Dev fixture gains the two Japan trips (multi-city and 2026) to check every screen locally.
+## 2026-11-05 13:40 — Fix: country view dock, glass dock, ⋯ menus
+
+- **Country view has the tab dock too:** a country split into cities now shows the floating bottom bar (Overview, Itinerary) on phones and tablets, like every trip; its header tabs stay for desktop.
+- **A more transparent dock:** about half transparent with a strong blur, a bright edge and an inner highlight, readable text over the page, and a night-theme version.
+- **⋯ menus are never hidden:** the Pocket row menu and the timeline "Actions" menu open in a portal above everything, so the next section can no longer cover "Delete" (the Pocket bug) and a card edge can no longer clip it.
 
 ## 2026-11-05 13:10 — Perf: a faster, calmer app (soft navigation, lighter paint, less clutter)
 
