@@ -26,9 +26,13 @@ if (country.states.length > 0) {
   return Astro.redirect(`/${country.slug}/${country.states[0].slug}/pocket`);
 }
 
-const savedPlace = await getPlace(country.tabName);
-const suggestion: Place | null = savedPlace ? null : await topPlace(country.name);
-const tripDates = await getTripDates(country.tabName);
+// Independent reads run together (the two `_trips` helpers share one cached read; the geocode is capped at 1.5 s)
+const [savedPlace, tripDates, geocoded] = await Promise.all([
+  getPlace(country.tabName),
+  getTripDates(country.tabName),
+  topPlace(country.name),
+]);
+const suggestion: Place | null = savedPlace ? null : geocoded;
 const groups = country.stats.hasItinerary
   ? buildChecklist({
       country: country.name,
