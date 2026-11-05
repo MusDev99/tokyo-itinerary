@@ -215,7 +215,7 @@ export default function PocketHome({ tab, signedIn, loginHref, tripStart, hasIti
 
       {signedIn ? (
         <button type="button" onClick={() => setSheet({ kind: null })} aria-haspopup="dialog"
-          className="touch-target w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 h-12 rounded-xl bg-primary text-white text-base font-extrabold shadow-md hover:opacity-95 active:scale-[0.98] transition-all">
+          className="touch-target w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 h-12 rounded-xl bg-primary text-white text-base font-extrabold shadow-md hover:opacity-95 active:scale-[0.98] transition-[color,background-color,border-color,box-shadow,opacity,transform]">
           <span aria-hidden="true" className="text-lg">＋</span> Put it in Pocket
         </button>
       ) : (

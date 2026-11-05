@@ -76,7 +76,7 @@ export default function SearchFilter({ itinerary, onFilteredItinerary }: Props) 
           placeholder="Search activities, locations, or notes..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-4 py-3 bg-gradient-to-r from-bg/50 to-secondary/30 border border-primary/20 rounded-lg text-text placeholder-text/50 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-300 touch-target focus-ring"
+          className="w-full pl-10 pr-4 py-3 bg-gradient-to-r from-bg/50 to-secondary/30 border border-primary/20 rounded-lg text-text placeholder-text/50 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-[color,background-color,border-color,box-shadow,opacity,transform] duration-300 touch-target focus-ring"
         />
         {searchTerm && (
           <button
@@ -94,7 +94,7 @@ export default function SearchFilter({ itinerary, onFilteredItinerary }: Props) 
       <div className="flex items-center justify-between">
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-secondary/20 to-bg/20 border border-primary/20 rounded-lg hover:from-secondary/30 hover:to-bg/30 transition-all duration-200 touch-target touch-feedback focus-ring"
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-secondary/20 to-bg/20 border border-primary/20 rounded-lg hover:from-secondary/30 hover:to-bg/30 transition-[color,background-color,border-color,box-shadow,opacity,transform] duration-200 touch-target touch-feedback focus-ring"
         >
           <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
@@ -132,7 +132,7 @@ export default function SearchFilter({ itinerary, onFilteredItinerary }: Props) 
             <select
               value={selectedDay || ''}
               onChange={(e) => setSelectedDay(e.target.value ? Number(e.target.value) : null)}
-              className="w-full px-3 py-2 bg-bg/50 border border-primary/20 rounded-lg text-text focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200"
+              className="w-full px-3 py-2 bg-bg/50 border border-primary/20 rounded-lg text-text focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-[color,background-color,border-color,box-shadow,opacity,transform] duration-200"
             >
               <option value="">All days</option>
               {itinerary.map(day => (
@@ -147,7 +147,7 @@ export default function SearchFilter({ itinerary, onFilteredItinerary }: Props) 
             <select
               value={priceFilter}
               onChange={(e) => setPriceFilter(e.target.value as 'all' | 'free' | 'paid')}
-              className="w-full px-3 py-2 bg-bg/50 border border-primary/20 rounded-lg text-text focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200"
+              className="w-full px-3 py-2 bg-bg/50 border border-primary/20 rounded-lg text-text focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-[color,background-color,border-color,box-shadow,opacity,transform] duration-200"
             >
               <option value="all">All prices</option>
               <option value="free">Free activities</option>

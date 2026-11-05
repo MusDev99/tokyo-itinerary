@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { memo } from 'preact/compat';
 import { redirectIfSignedOut } from '../utils/authClient';
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { animate } from 'motion';
@@ -43,7 +44,7 @@ function LiveBadge({ tag }: { tag?: LiveTag }) {
   return <span className={`shrink-0 px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide ${b.className}`}>{b.text}</span>;
 }
 
-export default function TimelineItem(props: TimelineItemProps) {
+function TimelineItemBase(props: TimelineItemProps) {
   const { open, onToggle, editable = false, liveTag, id, tab, row, date, time, title, description, location, price, note, images, youtubeUrl, isLast } = props;
   const [showVideo, setShowVideo] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -176,7 +177,7 @@ export default function TimelineItem(props: TimelineItemProps) {
       {/* Von Restorff: on today's day the activity that's on now stands out; checked-in ones step back */}
       <article
         aria-current={liveTag === 'now' ? 'time' : undefined}
-        className={`rounded-2xl border shadow-sm transition-colors duration-150 p-3 sm:p-5 ${
+        className={`cv-card rounded-2xl border shadow-sm transition-colors duration-150 p-3 sm:p-5 ${
           liveTag === 'now'
             ? 'bg-emerald-50/80 border-emerald-500 ring-2 ring-emerald-500/30'
             : `bg-white/45 hover:bg-white/60 border-primary/15 hover:border-primary/35 ${liveTag === 'done' || liveTag === 'skipped' ? 'opacity-70' : ''}`
@@ -399,3 +400,14 @@ export default function TimelineItem(props: TimelineItemProps) {
     </div>
   );
 }
+
+/**
+ * A day re-renders on every day switch and live-tag tick; an unchanged activity (same fields, same open state)
+ * must not. Callers pass a stable `onToggle` per index, so a shallow compare is enough.
+ */
+const TimelineItem = memo(TimelineItemBase, (a, b) => {
+  const keys = new Set([...Object.keys(a), ...Object.keys(b)]) as Set<keyof TimelineItemProps>;
+  for (const k of keys) if (a[k] !== b[k] && k !== 'onToggle') return false;
+  return true;
+});
+export default TimelineItem;

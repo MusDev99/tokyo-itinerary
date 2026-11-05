@@ -208,7 +208,7 @@ export default function PDFDownload({ itinerary }: Props) {
         onFocus={() => void loadPdf()}
         onTouchStart={() => void loadPdf()}
         disabled={isGenerating}
-        className={`relative w-full sm:w-auto px-6 sm:px-8 py-3.5 text-sm sm:text-base font-semibold rounded-full transition-all duration-300 overflow-hidden group touch-target focus-ring flex items-center justify-center
+        className={`relative w-full sm:w-auto px-6 sm:px-8 py-3.5 text-sm sm:text-base font-semibold rounded-full transition-[color,background-color,border-color,box-shadow,opacity,transform] duration-300 overflow-hidden group touch-target focus-ring flex items-center justify-center
           ${isGenerating 
             ? 'bg-gray-400 text-white cursor-not-allowed' 
             : 'bg-gradient-to-r from-primary to-accent text-white hover:from-accent hover:to-primary active:scale-95 shadow-lg hover:shadow-2xl transform hover:-translate-y-1'

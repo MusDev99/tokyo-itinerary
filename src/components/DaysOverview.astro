@@ -32,7 +32,7 @@ const { days, currency, itineraryHref } = Astro.props;
       return (
         <a
           href={`${itineraryHref}?day=${day.day}`}
-          class="group bg-white/45 hover:bg-white rounded-xl p-4 border border-primary/15 hover:border-primary/40 shadow-xs hover:shadow-md transition-all duration-150 flex flex-col justify-between"
+          class="group bg-white/45 hover:bg-white rounded-xl p-4 border border-primary/15 hover:border-primary/40 shadow-xs hover:shadow-md transition-[color,background-color,border-color,box-shadow,opacity,transform] duration-150 flex flex-col justify-between"
         >
           <div>
             <div class="flex items-center justify-between gap-2 mb-2">

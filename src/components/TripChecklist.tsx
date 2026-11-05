@@ -138,7 +138,7 @@ export default function TripChecklist({ tab, groups, firstDate }: Props) {
       <aside className="contents lg:flex lg:flex-col lg:gap-5 lg:col-start-1 lg:row-start-1 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto lg:pr-1">
         {/* Phone: the count and bar stick under the header while scrolling the long list (Goal-Gradient Effect).
             A direct child of the card (the aside is display: contents) so it can stick for the card's full height. */}
-        <div className="order-1 sticky top-[66px] z-10 -mx-4 -mt-4 px-4 pt-4 pb-2 sm:-mx-6 sm:-mt-6 sm:px-6 sm:pt-6 rounded-t-2xl bg-[color-mix(in_srgb,var(--surface-solid)_92%,transparent)] backdrop-blur-md shadow-sm space-y-2 lg:shadow-none lg:static lg:m-0 lg:p-0 lg:rounded-none lg:bg-transparent lg:backdrop-blur-none">
+        <div className="order-1 sticky top-[66px] z-10 -mx-4 -mt-4 px-4 pt-4 pb-2 sm:-mx-6 sm:-mt-6 sm:px-6 sm:pt-6 rounded-t-2xl bg-[color-mix(in_srgb,var(--surface-solid)_92%,transparent)] shadow-sm space-y-2 lg:shadow-none lg:static lg:m-0 lg:p-0 lg:rounded-none lg:bg-transparent lg:backdrop-blur-none">
           <div className="flex items-baseline justify-between gap-3">
             <h2 id="prepare-title" className="text-lg sm:text-xl font-extrabold text-text">Get ready for your trip</h2>
             <span className="shrink-0 text-sm font-extrabold text-primary tabular-nums" aria-live="polite">

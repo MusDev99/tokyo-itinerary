@@ -173,7 +173,7 @@ export const CurrencyExchangeGraph: React.FC<CurrencyExchangeGraphProps> = ({
                 key={curr}
                 type="button"
                 onClick={() => onTargetChange?.(curr)}
-                className={`px-2.5 py-1 text-xs rounded-lg font-medium transition-all ${
+                className={`px-2.5 py-1 text-xs rounded-lg font-medium transition-[color,background-color,border-color,box-shadow,opacity,transform] ${
                   targetCurrency === curr
                     ? 'bg-primary text-white shadow-sm'
                     : 'bg-primary/10 text-text/80 hover:bg-primary/20'
@@ -192,7 +192,7 @@ export const CurrencyExchangeGraph: React.FC<CurrencyExchangeGraphProps> = ({
               key={days}
               type="button"
               onClick={() => setTimeframe(days)}
-              className={`px-2.5 py-1 text-xs rounded-md font-medium transition-all ${
+              className={`px-2.5 py-1 text-xs rounded-md font-medium transition-[color,background-color,border-color,box-shadow,opacity,transform] ${
                 timeframe === days
                   ? 'bg-primary text-white shadow-sm'
                   : 'text-text/70 hover:text-text'

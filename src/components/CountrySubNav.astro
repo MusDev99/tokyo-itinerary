@@ -141,7 +141,7 @@ const stats = [
               data-nav-label={tab.label}
               data-astro-prefetch={isCurrent || Astro.locals.user ? 'false' : 'viewport'}
               class:list={[
-                'touch-target inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all duration-150',
+                'touch-target inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-[color,background-color,border-color,box-shadow,opacity,transform] duration-150',
                 isCurrent
                   ? 'bg-primary text-white shadow-sm'
                   : 'text-text/75 hover:text-primary hover:bg-primary/10',

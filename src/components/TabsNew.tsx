@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect, useMemo } from 'preact/hooks';
 import Timeline from './Timeline';
 import SearchFilter from './SearchFilter';
 import type { DayItinerary } from '../types/itinerary';
@@ -27,11 +27,11 @@ interface Props {
 
 export default function Tabs({ itinerary, canEdit = false, region, liveHref, stateHrefs, pocketTab, tripRange }: Props) {
   // Edits may only move an activity to a day of the trip: the saved range, else the days already planned
-  const range = (() => {
+  const range = useMemo(() => {
     if (tripRange?.start && tripRange?.end) return tripRange;
     const isos = itinerary.map((d) => toIsoDate(d.date)).filter(Boolean).sort();
     return isos.length ? { start: isos[0], end: isos[isos.length - 1] } : null;
-  })();
+  }, [tripRange, itinerary]);
   // Private bookings are fetched client-side after sign-in, so cached/guest pages never contain them
   const [pocket, setPocket] = useState<PocketItem[]>([]);
   useEffect(() => {
@@ -101,7 +101,7 @@ export default function Tabs({ itinerary, canEdit = false, region, liveHref, sta
           type="button"
           onClick={() => setShowSearch(!showSearch)}
           aria-expanded={showSearch}
-          className={`touch-target inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold border transition-all duration-150 w-full sm:w-auto ${
+          className={`touch-target inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold border transition-[color,background-color,border-color,box-shadow,opacity,transform] duration-150 w-full sm:w-auto ${
             showSearch
               ? 'bg-primary text-white border-primary shadow-sm'
               : 'bg-white/45 text-text/80 border-primary/20 hover:border-primary/40 hover:text-primary'
@@ -144,7 +144,7 @@ export default function Tabs({ itinerary, canEdit = false, region, liveHref, sta
                 role="tab"
                 aria-selected={isActive}
                 onClick={() => handleTabChange(index)}
-                className={`touch-target shrink-0 snap-start px-3.5 py-2 rounded-xl text-left transition-all duration-150 border ${
+                className={`touch-target shrink-0 snap-start px-3.5 py-2 rounded-xl text-left transition-[color,background-color,border-color,box-shadow,opacity,transform] duration-150 border ${
                   isActive
                     ? 'bg-primary text-white border-primary shadow-md'
                     : 'bg-white/45 text-text/80 border-primary/15 hover:bg-primary/10 hover:border-primary/35'
@@ -180,7 +180,7 @@ export default function Tabs({ itinerary, canEdit = false, region, liveHref, sta
         {/* Trip Progress Bar (Goal-Gradient Effect) */}
         <div className="mt-2 h-1.5 bg-primary/15 rounded-full overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all duration-200 ease-out"
+            className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-[color,background-color,border-color,box-shadow,opacity,transform] duration-200 ease-out"
             style={{
               width: `${
                 filteredItinerary.length > 0

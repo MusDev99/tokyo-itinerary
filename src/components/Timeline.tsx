@@ -26,6 +26,11 @@ interface Props {
   dateMax?: string;
 }
 
+const sameTags = (a: Record<string, LiveTag>, b: Record<string, LiveTag>) => {
+  const ka = Object.keys(a);
+  return ka.length === Object.keys(b).length && ka.every((k) => a[k] === b[k]);
+};
+
 export default function Timeline({ day, canEdit = false, region, liveHref, bookings = [], pocketHref = '', dateMin = '', dateMax = '' }: Props) {
   const totalDayCost = day.items.reduce((sum, item) => sum + (item.price?.amount || 0), 0);
   const currency = day.items.find((item) => item.price?.currency)?.price.currency || '';
@@ -47,7 +52,9 @@ export default function Timeline({ day, canEdit = false, region, liveHref, booki
       } catch {
         live = undefined; // storage blocked: highlight by time only
       }
-      setTags(dayLiveTags(day, iso, minutes, live));
+      // Same highlights as before: keep the old object so nothing re-renders every 30 s for no reason
+      const next = dayLiveTags(day, iso, minutes, live);
+      setTags((prev) => (prev && sameTags(prev, next) ? prev : next));
     };
     update();
     const timer = setInterval(update, 30_000);
@@ -71,6 +78,7 @@ export default function Timeline({ day, canEdit = false, region, liveHref, booki
     autoOpened.current = id;
     setOpen(day.items.map((_, i) => i === target));
   }, [tags, day]);
+  const toggleItem = (index: number) => () => setOpen((prev) => prev.map((v, i) => (i === index ? !v : v)));
   const setAll = (value: boolean) => setOpen(day.items.map(() => value));
 
   // The chevron flips to show the next action (Motion; instant for reduced motion)
@@ -165,7 +173,8 @@ export default function Timeline({ day, canEdit = false, region, liveHref, booki
             dateMax={dateMax}
             liveTag={tags?.[itemKey(item)]}
             open={open[index] ?? false}
-            onToggle={() => setOpen((prev) => prev.map((v, i) => (i === index ? !v : v)))}
+            // Stable per item: TimelineItem is memoised and ignores the identity of this callback
+            onToggle={toggleItem(index)}
             isLast={index === day.items.length - 1}
           />
         ))}

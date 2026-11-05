@@ -48,7 +48,7 @@ const countryDataSource = country.stats.hasItinerary
             {country.states.map((st) => (
               <a
                 href={`/${country.slug}/${st.slug}`}
-                class="group bg-white/45 hover:bg-white rounded-xl p-4 border border-primary/15 hover:border-primary/40 shadow-xs hover:shadow-md transition-all duration-150 flex items-center justify-between gap-3"
+                class="group bg-white/45 hover:bg-white rounded-xl p-4 border border-primary/15 hover:border-primary/40 shadow-xs hover:shadow-md transition-[color,background-color,border-color,box-shadow,opacity,transform] duration-150 flex items-center justify-between gap-3"
               >
                 <div class="min-w-0">
                   <h3 class="text-base font-bold text-text group-hover:text-primary transition-colors truncate">📍 {st.name}</h3>
