@@ -57,7 +57,7 @@ const googleHref = `/api/auth/google?next=${encodeURIComponent(next)}`;
           ) : (
             <p class="text-sm font-semibold">Please contact the site admin to request access.</p>
           )}
-          <a href={googleHref} class="touch-target flex items-center justify-center px-4 py-3 rounded-xl bg-primary/10 text-primary font-bold">Try a different Google account</a>
+          <a href={googleHref} data-astro-reload class="touch-target flex items-center justify-center px-4 py-3 rounded-xl bg-primary/10 text-primary font-bold">Try a different Google account</a>
         </div>
       ) : user ? (
         <div class="space-y-3">
@@ -73,12 +73,12 @@ const googleHref = `/api/auth/google?next=${encodeURIComponent(next)}`;
             </div>
           </div>
           <a href={next} class="touch-target flex items-center justify-center px-4 py-3 rounded-xl bg-primary text-white font-bold">Continue</a>
-          <form method="post" action="/api/logout">
+          <form method="post" action="/api/logout" data-astro-reload>
             <button type="submit" class="touch-target w-full px-4 py-3 rounded-xl bg-primary/10 text-primary font-bold">Sign out</button>
           </form>
         </div>
       ) : (
-        <a href={googleHref} class="touch-target flex items-center justify-center gap-3 px-4 py-3 rounded-xl bg-white border border-primary/30 text-gray-800 font-bold shadow-sm hover:shadow-md transition-shadow">
+        <a href={googleHref} data-astro-reload class="touch-target flex items-center justify-center gap-3 px-4 py-3 rounded-xl bg-white border border-primary/30 text-gray-800 font-bold shadow-sm hover:shadow-md transition-shadow">
           <svg class="w-5 h-5" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.500c3.500 0 6.600 1.200 9.100 3.600l6.800-6.800C35.800 2.400 30.300 0 24 0 14.600 0 6.500 5.400 2.600 13.200l7.900 6.100C12.400 13.600 17.700 9.500 24 9.500z"/><path fill="#4285F4" d="M46.500 24.500c0-1.600-.1-3.100-.4-4.500H24v9h12.700c-.6 3-2.200 5.500-4.700 7.200l7.300 5.700c4.300-4 6.700-9.800 6.700-17.400z"/><path fill="#FBBC05" d="M10.500 28.700A14.500 14.500 0 019.500 24c0-1.600.3-3.200.8-4.700l-7.900-6.100A24 24 0 000 24c0 3.900.9 7.500 2.600 10.800l7.900-6.100z"/><path fill="#34A853" d="M24 48c6.500 0 11.900-2.100 15.900-5.800l-7.300-5.700c-2 1.400-4.700 2.300-8.600 2.300-6.300 0-11.600-4.100-13.500-9.800l-7.900 6.100C6.500 42.600 14.600 48 24 48z"/></svg>
           Continue with Google
         </a>

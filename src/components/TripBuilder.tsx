@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { refreshPage } from '../utils/refresh';
 import { useMemo, useState } from 'preact/hooks';
 import { redirectIfSignedOut } from '../utils/authClient';
 import { buildDays, nextFreeDay, suggestNextTime, isIsoDate } from '../utils/tripDraft';
@@ -80,7 +81,7 @@ export default function TripBuilder({ country, state, currency, dates, planned, 
           suggestTime={suggestTime}
           onSave={save}
           // The timeline is server-rendered: refresh once, after the last save, not on every one
-          onClose={(saved) => (saved > 0 ? window.location.reload() : setOpen(false))}
+          onClose={(saved) => { setOpen(false); if (saved > 0) refreshPage(); }}
         />
       )}
     </>

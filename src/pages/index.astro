@@ -274,6 +274,11 @@ import { COLLAPSE_AFTER } from '../utils/countryList';
 </Layout>
 
 <script>
+
+  import { onPageLoad } from '../utils/pageLoad';
+
+  // Re-runs after every soft navigation (the body is swapped, bundled scripts do not re-execute)
+  onPageLoad(() => {
   // Search + "Show all" for long destination lists (plain DOM: no hydration cost for 100+ cards).
   // Same rules as utils/countryList.ts: a search shows every match; otherwise the first N until "Show all".
   const root = document.querySelector<HTMLElement>('[data-filter-root]');
@@ -300,6 +305,7 @@ import { COLLAPSE_AFTER } from '../utils/countryList';
     more?.addEventListener('click', () => { showAll = true; render(); });
     render();
   }
+  });
 </script>
 
 <script>

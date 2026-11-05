@@ -88,6 +88,10 @@ const mask = 'url(/world-map.svg) center / 100% 100% no-repeat';
   import { animate } from 'motion';
   import { compositorFrames, prefersReducedMotion } from '../utils/motion';
 
+  import { onPageLoad } from '../utils/pageLoad';
+
+  // Re-runs after every soft navigation (the body is swapped, bundled scripts do not re-execute)
+  onPageLoad(() => {
   const root = document.querySelector<HTMLElement>('[data-world-map]');
   if (root) {
     const pins = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-pin]'));
@@ -129,4 +133,5 @@ const mask = 'url(/world-map.svg) center / 100% 100% no-repeat';
       sync();
     }
   }
+  });
 </script>

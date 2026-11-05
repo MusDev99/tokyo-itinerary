@@ -99,7 +99,7 @@ export default function UserMenu({ user, next }: Props) {
             <p className="text-xs font-extrabold text-text/70 mb-1 pl-2">Theme · {active.icon} {active.label}</p>
             <ThemePicker theme={theme} onPick={setTheme} />
           </div>
-          <form method="post" action="/api/logout" className="border-t border-primary/10 mt-1 pt-1">
+          <form method="post" action="/api/logout" data-astro-reload className="border-t border-primary/10 mt-1 pt-1">
             <button type="submit" className="touch-target w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold text-text hover:bg-primary/10 text-left">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />

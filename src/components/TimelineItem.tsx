@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { refreshPage } from '../utils/refresh';
 import { memo } from 'preact/compat';
 import { redirectIfSignedOut } from '../utils/authClient';
 import { useState, useEffect, useRef } from 'preact/hooks';
@@ -99,7 +100,7 @@ function TimelineItemBase(props: TimelineItemProps) {
         setActionError(data.error || 'Something went wrong');
         return;
       }
-      window.location.reload();
+      refreshPage();
     } catch {
       setActionError('Network error — please try again.');
     } finally {
@@ -361,7 +362,7 @@ function TimelineItemBase(props: TimelineItemProps) {
             days={editDays(draft.date)}
             plannedDays={[]}
             onSave={saveEdit}
-            onClose={(saved) => (saved > 0 ? window.location.reload() : setEditing(false))}
+            onClose={(saved) => (saved > 0 ? (setEditing(false), refreshPage()) : setEditing(false))}
           />
         )}
         {actionError && (

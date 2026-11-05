@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
 import SeasonBackground from '../components/SeasonBackground';
 import OfflineStatus from '../components/OfflineStatus';
 import NavProgress from '../components/NavProgress.astro';
@@ -18,6 +19,8 @@ const DEFAULT_DESCRIPTION =
   'Day-by-day travel itineraries with maps, budget analytics, currency conversion and travel tools for every trip.';
 const { title, description = DEFAULT_DESCRIPTION, noindex = false, seasonBackground = true } = Astro.props;
 // Canonical drops the query string so ?country=... variants don't compete with the clean URL
+// Soft navigation: header, tab dock and content swap in place instead of reloading the page. PUBLIC_SOFT_NAV=0 turns it off.
+const softNav = import.meta.env.PUBLIC_SOFT_NAV !== '0';
 const canonical = new URL(Astro.url.pathname, Astro.url.origin).toString();
 ---
 
@@ -47,6 +50,7 @@ const canonical = new URL(Astro.url.pathname, Astro.url.origin).toString();
     <meta property="og:url" content={canonical} />
     <meta name="twitter:card" content="summary" />
     <meta name="theme-color" content="#7c3aed" />
+    {softNav && <ClientRouter />}
     <script is:inline>
       // Apply the saved season before first paint (no flash of the wrong theme)
       try {
@@ -54,6 +58,14 @@ const canonical = new URL(Astro.url.pathname, Astro.url.origin).toString();
         var ok = ['autumn', 'winter', 'spring', 'summer', 'rain', 'haze', 'night'];
         document.documentElement.setAttribute('data-theme', ok.indexOf(t) > -1 ? t : 'autumn');
       } catch (e) {}
+      // Soft navigation replaces <html> attributes with the new page's (which has no data-theme): carry it over
+      if (!window.__themeSwap) {
+        window.__themeSwap = true;
+        document.addEventListener('astro:before-swap', function (e) {
+          var cur = document.documentElement.getAttribute('data-theme');
+          if (cur) e.newDocument.documentElement.setAttribute('data-theme', cur);
+        });
+      }
     </script>
   </head>
   <body class="min-h-screen flex flex-col bg-transparent touch-manipulation mobile-safe-area">
@@ -61,10 +73,10 @@ const canonical = new URL(Astro.url.pathname, Astro.url.origin).toString();
     <NavProgress />
 
     <!-- Offline pill + service worker registration -->
-    <OfflineStatus client:idle />
+    <OfflineStatus client:idle transition:persist transition:name="offline-status" />
 
     <!-- Animated season background (Motion) -->
-    {seasonBackground && <SeasonBackground client:idle />}
+    {seasonBackground && <SeasonBackground client:idle transition:persist transition:name="season-bg" />}
 
     <!-- Main Content -->
     <div id="page-content" class="relative z-10 flex-1 flex flex-col">

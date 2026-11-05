@@ -1,3 +1,4 @@
+import { goTo } from '../utils/refresh';
 import { h } from 'preact';
 import { animate } from 'motion';
 import { prefersReducedMotion } from '../utils/motion';
@@ -30,7 +31,7 @@ export default function BackButton({ path }: Props) {
     if (sameSite && window.history.length > 1) {
       window.history.back();
     } else {
-      window.location.href = parentPath(path);
+      goTo(parentPath(path));
     }
   };
 

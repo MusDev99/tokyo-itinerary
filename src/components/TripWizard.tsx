@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { goTo } from '../utils/refresh';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { animate } from 'motion';
 import { redirectIfSignedOut } from '../utils/authClient';
@@ -163,7 +164,7 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
         return;
       }
       writeDraft(null);
-      window.location.href = data.href;
+      goTo(data.href);
     } catch {
       setError('Network error. Please try again.');
     } finally {
