@@ -31,6 +31,12 @@ const navLinks = countries.map((country) => {
 });
 
 const currentPath = Astro.url.pathname;
+
+// Past ~6 destinations the pill row overflows: keep the first few (plus the one you are in) and move the rest to "More".
+const MAX_PILLS = 5;
+const activeIdx = navLinks.findIndex((l) => currentPath === l.hubHref || currentPath.startsWith(`/${l.slug}/`));
+const pills = navLinks.filter((_, i) => i < MAX_PILLS || i === activeIdx);
+const morePills = navLinks.filter((l) => !pills.includes(l));
 const user = Astro.locals.user;
 const signedInUser = user ? { name: user.name, email: user.email, picture: user.picture } : null;
 
@@ -94,7 +100,7 @@ const mobileCountries = countries.map((c) => ({
 
         <div class="h-4 w-px bg-primary/20 mx-1 shrink-0" aria-hidden="true"></div>
 
-        {navLinks.map((link) => {
+        {pills.map((link) => {
           const isActive = currentPath === link.hubHref || currentPath.startsWith(`/${link.slug}/`);
           return (
             <div class="relative group shrink-0">
@@ -173,6 +179,36 @@ const mobileCountries = countries.map((c) => ({
             </div>
           );
         })}
+
+        {morePills.length > 0 && (
+          <div class="relative group shrink-0">
+            <button
+              type="button"
+              class="px-3 py-2 rounded-xl text-sm font-semibold flex items-center gap-1.5 whitespace-nowrap text-text/80 hover:bg-primary/10 hover:text-primary focus-ring"
+              aria-haspopup="true"
+            >
+              <span>More</span>
+              <span class="text-[10px] px-1.5 py-0.5 rounded-full font-bold bg-primary/15 text-primary">{morePills.length}</span>
+              <svg class="w-3.5 h-3.5 transition-transform duration-200 group-hover:rotate-180 group-focus-within:rotate-180 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <!-- Hick's Law: a scrolling list instead of 100 pills; the full searchable list lives on the dashboard -->
+            <div class="absolute top-full right-0 pt-2 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all duration-150 z-50">
+              <div class="glass-effect bg-surface-solid rounded-2xl shadow-xl border border-primary/20 p-1.5 flex flex-col">
+                <div class="max-h-[60vh] overflow-y-auto overscroll-contain flex flex-col gap-0.5">
+                  {morePills.map((link) => (
+                    <a href={link.href} class="flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl text-sm font-medium text-text/80 hover:bg-primary/10 hover:text-primary transition-colors">
+                      <span class="flex items-center gap-2 min-w-0"><span>{link.flag}</span><span class="truncate">{link.text}</span></span>
+                      {link.daysCount > 0 && <span class="text-[10px] px-1.5 py-0.5 rounded-full font-bold bg-primary/15 text-primary shrink-0">{link.daysCount}d</span>}
+                    </a>
+                  ))}
+                </div>
+                <a href="/#destinations" class="mt-1 px-3 py-2.5 rounded-xl text-xs font-bold text-primary bg-primary/10 text-center hover:bg-primary/15">Search all destinations →</a>
+              </div>
+            </div>
+          </div>
+        )}
       </nav>
 
       <!-- Mobile navigation (quick add + animated slide-in drawer) -->

@@ -3,6 +3,7 @@ import { createPortal } from 'preact/compat';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { animate, stagger } from 'motion';
 import { prefersReducedMotion } from '../utils/motion';
+import { COLLAPSE_AFTER, groupByLetter, matchesQuery, visibleItems } from '../utils/countryList';
 
 export interface NavState {
   name: string;
@@ -62,6 +63,9 @@ function Collapsible({ open, children }: { open: boolean; children: any }) {
 
 export default function MobileNav({ countries, currentPath, canEdit = false }: Props) {
   const [open, setOpen] = useState(false);
+  // Long lists: search first, a short list by default, A-Z sections once everything is shown (Hick's Law)
+  const [query, setQuery] = useState('');
+  const [showAll, setShowAll] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(
     countries.find((c) => currentPath === c.hubHref || currentPath.startsWith(`${c.hubHref}/`))?.slug ?? null
@@ -180,7 +184,32 @@ export default function MobileNav({ countries, currentPath, canEdit = false }: P
                   Destinations ({countries.length})
                 </div>
 
-                {countries.map((c) => {
+                {countries.length > COLLAPSE_AFTER && (
+                  <div data-item className="sticky top-0 z-10 -mx-1 px-1 pb-2 bg-[var(--surface-solid)]">
+                    <label htmlFor="nav-search" className="sr-only">Search destinations</label>
+                    <input id="nav-search" type="search" inputMode="search" enterKeyHint="search" autoComplete="off"
+                      placeholder="Search country or city"
+                      value={query} onInput={(e) => setQuery((e.target as HTMLInputElement).value)}
+                      className="w-full min-w-0 h-11 px-3 rounded-xl bg-white/70 border border-primary/20 text-base text-text placeholder:text-text/40 focus:outline-none focus:ring-2 focus:ring-primary/40" />
+                  </div>
+                )}
+
+                {(() => {
+                  const { shown, hidden } = visibleItems(countries, {
+                    query, showAll,
+                    matches: (c, q) => matchesQuery(q, c.name, ...c.states.map((s) => s.name)),
+                  });
+                  const grouped = !query.trim() && showAll && countries.length > COLLAPSE_AFTER;
+                  const sections = grouped ? groupByLetter(shown, (c) => c.name) : [{ letter: '', items: shown }];
+                  return (
+                    <>
+                      {query.trim() && shown.length === 0 && (
+                        <p data-item role="status" className="px-3 py-6 text-center text-sm text-text/60">No destination matches “{query.trim()}”.</p>
+                      )}
+                      {sections.map((sec) => (
+                        <div key={sec.letter || 'all'} className="space-y-2">
+                          {sec.letter && <div data-item className="px-2 pt-2 text-xs font-extrabold text-primary">{sec.letter}</div>}
+                          {sec.items.map((c) => {
                   const active = currentPath === c.hubHref || currentPath.startsWith(`${c.hubHref}/`);
                   const isOpen = expanded === c.slug;
                   return (
@@ -240,6 +269,17 @@ export default function MobileNav({ countries, currentPath, canEdit = false }: P
                     </div>
                   );
                 })}
+                        </div>
+                      ))}
+                      {hidden > 0 && (
+                        <button type="button" data-item onClick={() => setShowAll(true)}
+                          className="touch-target w-full rounded-2xl border-2 border-dashed border-primary/35 px-3.5 py-3 text-sm font-bold text-primary">
+                          Show all {countries.length} destinations
+                        </button>
+                      )}
+                    </>
+                  );
+                })()}
               </nav>
 
               <div data-item className="shrink-0 p-4 border-t border-primary/15" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>

@@ -19,7 +19,7 @@ export const pickerButton = {
  */
 export function usePickerPopover(opts: { width: number; height: number; onOpen?: () => void }) {
   const [open, setOpen] = useState(false);
-  const [pos, setPos] = useState({ top: 0, left: 0, width: opts.width });
+  const [pos, setPos] = useState<{ top: number; left: number; width: number; centered?: boolean }>({ top: 0, left: 0, width: opts.width });
   const trigger = useRef<HTMLButtonElement>(null);
   const pop = useRef<HTMLDivElement>(null);
 
@@ -28,7 +28,7 @@ export function usePickerPopover(opts: { width: number; height: number; onOpen?:
     const width = Math.min(opts.width, window.innerWidth - 16);
     const at = anchorPosition(trigger.current!.getBoundingClientRect(), { width, height: opts.height },
       { width: window.innerWidth, height: window.innerHeight });
-    setPos({ ...at, width });
+    setPos({ ...at, width });  // `centered`: no room beside the field, so the page is dimmed behind it
     setOpen(true);
   };
 
@@ -86,8 +86,10 @@ export function PickerPopover({ picker, className = '', children, ...aria }: {
   'aria-labelledby'?: string;
 }) {
   if (!picker.open) return null;
-  const { top, left, width } = picker.pos;
+  const { top, left, width, centered } = picker.pos;
   return createPortal(
+    <>
+      {centered && <div aria-hidden="true" className="fixed inset-0 bg-black/30" style={{ zIndex: 99 }} />}
     <div
       ref={picker.pop as RefObject<HTMLDivElement>}
       role="dialog"
@@ -97,7 +99,8 @@ export function PickerPopover({ picker, className = '', children, ...aria }: {
       className={`rounded-2xl bg-surface-solid shadow-2xl border border-primary/25 ${className}`}
     >
       {children}
-    </div>,
+    </div>
+    </>,
     document.body
   );
 }

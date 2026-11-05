@@ -5,6 +5,7 @@ import type { DayItinerary, TimelineItem } from '../types/itinerary';
 import type { Place } from '../types/place';
 import { UserError, safeHttpUrl, sheetText, youtubeEmbedUrl } from './security.ts';
 import { cacheState, timed, type Timed } from './swr.ts';
+import { chunk, mapPool } from './chunk.ts';
 import { sortByTime, normalizeSheetDate, normalizeSheetTime } from './calendar.ts';
 import {
   POCKET_TAB, POCKET_HEADERS, POCKET_LAST_COL, MAX_POCKET_ITEMS, parsePocketRows, itemToRow,
@@ -438,6 +439,10 @@ const IGNORED_TAB_SLUGS = new Set([
   'instructions',
 ]);
 
+/** Tabs per values:batchGet request (keeps the URL well under ~8KB) and how many requests run at once. */
+const BATCH_TABS = 25;
+const BATCH_PARALLEL = 4;
+
 async function fetchSheetsApiWithRetry(
   url: string,
   init: RequestInit,
@@ -546,28 +551,24 @@ export async function pullCountriesFromGoogleSheets(options?: {
       };
     }
 
-    // 2. Batch-fetch all worksheet values in a single call
-    const rangesQuery = sheetTitles
-      .map((t) => `ranges=${encodeURIComponent(`'${t.replace(/'/g, "''")}'!A1:Z2000`)}`)
-      .join('&');
-
-    const valuesRes = await fetchSheetsApiWithRetry(
-      `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(
-        spreadsheetId
-      )}/values:batchGet?${rangesQuery}`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
+    // 2. Batch-fetch worksheet values in chunks: one GET with every tab in the URL breaks past a few dozen
+    //    trips (URL length), so read BATCH_TABS tabs per request, a few requests at a time, order preserved.
+    const groups = chunk(sheetTitles, BATCH_TABS);
+    const batches = await mapPool(groups, BATCH_PARALLEL, async (titles) => {
+      const rangesQuery = titles
+        .map((t) => `ranges=${encodeURIComponent(`'${t.replace(/'/g, "''")}'!A1:Z2000`)}`)
+        .join('&');
+      const res = await fetchSheetsApiWithRetry(
+        `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(spreadsheetId)}/values:batchGet?${rangesQuery}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (!res.ok) {
+        const errBody = await res.text();
+        throw new Error(`Failed to batchGet sheet values (${res.status}): ${errBody}`);
       }
-    );
-
-    if (!valuesRes.ok) {
-      const errBody = await valuesRes.text();
-      throw new Error(`Failed to batchGet sheet values (${valuesRes.status}): ${errBody}`);
-    }
-
-    const valuesJson = (await valuesRes.json()) as {
-      valueRanges?: Array<{ range?: string; values?: string[][] }>;
-    };
+      return ((await res.json()) as { valueRanges?: Array<{ range?: string; values?: string[][] }> }).valueRanges || [];
+    });
+    const valuesJson = { valueRanges: batches.flat() };
 
     const itineraries: Record<string, DayItinerary[]> = {};
     const tabTitles: Record<string, string> = {};

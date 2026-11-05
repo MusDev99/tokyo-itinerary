@@ -15,7 +15,7 @@ interface Props {
 const SIZE = 232;
 const C = SIZE / 2;
 const R_NUM = 88;
-const R_HAND = 74;
+const R_HAND = R_NUM; // the knob sits centred on its number
 const pad = (n: number) => String(n).padStart(2, '0');
 
 
@@ -34,7 +34,7 @@ export default function AnalogTimePicker({ id, value, onChange, invalid, placeho
 
   const picker = usePickerPopover({
     width: 272,
-    height: 430,
+    height: 480, // real height incl. 44px buttons: decides below / above / centred
     onOpen: () => {
       const p = parseClockTime(value) || { h: 9, m: 0 };
       setH12(p.h % 12 || 12);
@@ -92,18 +92,18 @@ export default function AnalogTimePicker({ id, value, onChange, invalid, placeho
         {/* Digital readout + AM/PM (Fitts: large targets) */}
         <div className="flex items-center justify-center gap-2 mb-3">
           <button type="button" onClick={() => setMode('hour')}
-            className={`px-3 py-1 rounded-xl text-3xl font-extrabold tabular-nums transition-colors ${mode === 'hour' ? 'bg-primary text-white' : 'bg-primary/10 text-primary'}`}>
+            className={`min-h-[48px] px-3 py-1 rounded-xl text-3xl font-extrabold tabular-nums transition-colors ${mode === 'hour' ? 'bg-primary text-white' : 'bg-primary/10 text-primary'}`}>
             {pad(h12)}
           </button>
           <span className="text-3xl font-extrabold text-text/60">:</span>
           <button type="button" onClick={() => setMode('minute')}
-            className={`px-3 py-1 rounded-xl text-3xl font-extrabold tabular-nums transition-colors ${mode === 'minute' ? 'bg-primary text-white' : 'bg-primary/10 text-primary'}`}>
+            className={`min-h-[48px] px-3 py-1 rounded-xl text-3xl font-extrabold tabular-nums transition-colors ${mode === 'minute' ? 'bg-primary text-white' : 'bg-primary/10 text-primary'}`}>
             {pad(min)}
           </button>
-          <div className="flex flex-col gap-1 ml-1">
+          <div className="flex flex-col gap-1 ml-1" role="group" aria-label="AM or PM">
             {(['AM', 'PM'] as const).map((p) => (
               <button key={p} type="button" onClick={() => setPm(p === 'PM')}
-                className={`px-2 py-1 rounded-lg text-xs font-bold ${((p === 'PM') === pm) ? 'bg-primary text-white' : 'bg-primary/10 text-primary'}`}>
+                className={`min-h-[44px] min-w-[48px] px-2 py-1 rounded-lg text-xs font-bold ${((p === 'PM') === pm) ? 'bg-primary text-white' : 'bg-primary/10 text-primary'}`}>
                 {p}
               </button>
             ))}
@@ -114,7 +114,7 @@ export default function AnalogTimePicker({ id, value, onChange, invalid, placeho
         <svg
           ref={dial}
           viewBox={`0 0 ${SIZE} ${SIZE}`}
-          className="w-full h-auto touch-none select-none cursor-pointer"
+          className="w-full max-w-[240px] mx-auto block h-auto touch-none select-none cursor-pointer"
           role="slider"
           tabIndex={0}
           aria-label={mode === 'hour' ? 'Hour' : 'Minute'}
