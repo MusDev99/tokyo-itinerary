@@ -15,6 +15,8 @@ export interface ActivityDraft {
   price_amount: string;
   price_currency: string;
   price_notes: string;
+  /** City of this place (only trips through several cities use it) */
+  city: string;
   /** true once the user picks a currency themselves (stops auto-follow of the country currency) */
   currencyTouched?: boolean;
 }
@@ -29,6 +31,7 @@ export const emptyActivity = (currency = ''): ActivityDraft => ({
   price_amount: '',
   price_currency: currency,
   price_notes: '',
+  city: '',
 });
 
 export { inputClass };

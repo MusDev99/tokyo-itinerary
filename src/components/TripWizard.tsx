@@ -4,7 +4,8 @@ import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { animate } from 'motion';
 import { redirectIfSignedOut } from '../utils/authClient';
 import { prefersReducedMotion } from '../utils/motion';
-import { slug, validateTripName, validateRange, buildDays, diffDays } from '../utils/tripDraft';
+import { slug, validateRange, buildDays, diffDays } from '../utils/tripDraft';
+import { stopsFromParts, citiesLabel } from '../utils/trips';
 import { formatLongDate } from '../utils/calendar';
 import LocationPicker from './LocationPicker';
 import CalendarPicker from './CalendarPicker';
@@ -22,12 +23,15 @@ interface Props {
   initialState?: string;
 }
 
-type Step = 1 | 2 | 3;
-const STEPS = ['Where', 'When', 'Review'] as const;
+type Step = 1 | 2 | 3 | 4;
+const STEPS = ['Where', 'When', 'Cities', 'Review'] as const;
 const DRAFT_KEY = 'tripDraft:wizard';
 const CREATE_STEPS = ['Saving your trip…', 'Setting the dates…', 'Opening your trip…'] as const;
 
-interface Draft { country: string; state: string; start: string; end: string; place: Place | null; step: Step; savedAt?: number }
+/** An extra city after the first one, and how many days to stay */
+interface Extra { city: string; days: number }
+
+interface Draft { title?: string; country: string; state: string; start: string; end: string; place: Place | null; step: Step; extras?: Extra[]; savedAt?: number }
 
 /** A draft older than this is dropped instead of offered (a trip planned last month is not "unfinished") */
 const DRAFT_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
@@ -61,6 +65,9 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
   const [step, setStep] = useState<Step>(1);
   const [country, setCountry] = useState(initialCountry);
   const [state, setState] = useState(initialState);
+  const [title, setTitle] = useState('');
+  // Cities after the first (the first city is `state` and keeps whatever days are left)
+  const [extras, setExtras] = useState<Extra[]>([]);
   const [place, setPlace] = useState<Place | null>(null);
   const [start, setStart] = useState('');
   const [end, setEnd] = useState('');
@@ -96,11 +103,13 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
   // Autosave only once there is no pending offer, so the offer can't be overwritten by the empty form
   useEffect(() => {
     if (busy || pending || !checked) return;
-    writeDraft(country || state || start ? { country, state, start, end, place, step, savedAt: Date.now() } : null);
-  }, [country, state, start, end, place, step, busy, pending, checked]);
+    writeDraft(country || state || start || title ? { title, country, state, start, end, place, step, extras, savedAt: Date.now() } : null);
+  }, [title, country, state, start, end, place, step, extras, busy, pending, checked]);
 
   const resume = () => {
     if (!pending) return;
+    setTitle(pending.title || '');
+    setExtras(pending.extras || []);
     setCountry(pending.country);
     setState(pending.state);
     setStart(pending.start);
@@ -122,13 +131,16 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
   }, [step]);
 
   const match = useMemo(() => countries.find((c) => c.slug === slug(country)), [country, countries]);
+  // Cities already used in this country (suggestions while typing)
   const knownStates = useMemo(
-    () => trips.filter((t) => slug(t.country) === slug(country)).map((t) => t.state),
+    () => [...new Set(trips.filter((t) => slug(t.country) === slug(country)).map((t) => t.state))],
     [trips, country]
   );
-  const nameErrors = validateTripName(country, state);
+  const nameErrors = {
+    country: country.trim() ? '' : 'Country is required',
+    state: state.trim() ? '' : 'Add the first city',
+  };
   const nameValid = !nameErrors.country && !nameErrors.state;
-  const exists = nameValid && knownStates.some((s) => slug(s) === slug(state));
   const tripKey = `${slug(country)}|${slug(state)}`;
 
   // A different destination means a different place: drop the old pick
@@ -139,30 +151,40 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
 
   const rangeError = start || end ? validateRange(start, end) : null;
   const days = buildDays(start, end).length;
-  const step1Ready = nameValid && !exists && Boolean(place);
+  const step1Ready = nameValid && Boolean(place);
   const step2Ready = Boolean(start && end) && !rangeError;
+  // Cities step: every extra city is named and the first city keeps at least one day
+  const extraDays = extras.reduce((n, e) => n + e.days, 0);
+  const firstDays = days - extraDays;
+  const step3Ready = firstDays >= 1 && extras.every((e) => e.city.trim());
+  const parts = [{ city: state, days: firstDays }, ...extras];
+  const stopsPreview = days > 0 ? stopsFromParts(start, days, parts) : [];
+  const shortDate = (iso: string) => new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(new Date(`${iso}T00:00:00Z`));
+  const title0 = title.trim() || `${state.trim()} trip ${start.slice(0, 4)}`;
 
   const next = () => {
     setTouched(true);
     setError('');
     if (step === 1 && step1Ready) setStep(2);
-    else if (step === 2 && step2Ready) setStep(3);
+    else if (step === 2 && step2Ready) { setStep(3); setExtras((x) => x.filter((e) => e.days < days)); }
+    else if (step === 3 && step3Ready) setStep(4);
   };
 
   const create = async () => {
     setBusy(true);
     setError('');
     try {
-      const res = await fetch('/api/itinerary', {
+      const res = await fetch('/api/trips', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          title: title.trim(),
           country,
-          state,
+          city: state,
+          stops: parts.map((p) => ({ city: p.city, country, days: p.days })),
           place,
           dates: { start, end },
           website: (document.getElementById('hp-website') as HTMLInputElement | null)?.value || '',
-          activities: [],
         }),
       });
       if (redirectIfSignedOut(res)) return;
@@ -182,6 +204,7 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
 
   const startOver = () => {
     writeDraft(null);
+    setTitle(''); setExtras([]);
     setCountry(''); setState(''); setPlace(null); setStart(''); setEnd('');
     setStep(1); setTouched(false); setError('');
   };
@@ -211,7 +234,7 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
         <div role="region" aria-label="Unfinished trip" className="rounded-2xl border border-primary/25 bg-primary/10 p-3 space-y-2">
           <p className="text-sm font-extrabold text-text">Continue your unfinished trip?</p>
           <p className="text-xs text-text/75">
-            {[pending.state, pending.country].filter(Boolean).join(', ')}
+            {[pending.title || pending.state, pending.country].filter(Boolean).join(', ')}
             {pending.start && pending.end ? ` · ${formatLongDate(pending.start)} → ${formatLongDate(pending.end)}` : ''}
           </p>
           <div className="flex gap-2">
@@ -220,7 +243,7 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
           </div>
         </div>
       )}
-      {!pending && (country || state || start || end) && (
+      {!pending && (country || state || start || end || title) && (
         <div className="flex items-center justify-between gap-3 text-xs text-text/70 px-1">
           <span>{restored ? 'Picked up where you left off.' : 'Draft saved on this device.'}</span>
           <button type="button" className="touch-target font-bold text-primary px-2" onClick={startOver}>Start over</button>
@@ -231,6 +254,10 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
         {step === 1 && (
           <>
             <h2 className="text-lg font-extrabold text-text">Where are you going?</h2>
+            <FormField label="Trip title" htmlFor="wz-title" hideOptional={false}>
+              <input id="wz-title" className={inputClass} maxLength={100} placeholder="e.g. AirTravel Sdn Bhd Trip at Japan 2025"
+                autoComplete="off" value={title} onInput={(e) => setTitle((e.target as HTMLInputElement).value)} />
+            </FormField>
             <FormField label="Country" htmlFor="wz-country" required error={touched ? nameErrors.country : ''}>
               <input id="wz-country" list="wz-country-list" className={inputClass} placeholder="e.g. Japan"
                 autoComplete="off" value={country}
@@ -239,7 +266,7 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
                 {countries.map((c) => <option key={c.slug} value={c.name}>{c.flag}</option>)}
               </datalist>
             </FormField>
-            <FormField label="State / City" htmlFor="wz-state" required error={touched ? nameErrors.state : ''}>
+            <FormField label="First city" htmlFor="wz-state" required error={touched ? nameErrors.state : ''}>
               <input id="wz-state" list="wz-state-list" className={inputClass} placeholder="e.g. Tokyo"
                 autoComplete="off" value={state}
                 onInput={(e) => setState((e.target as HTMLInputElement).value)} />
@@ -248,17 +275,10 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
               </datalist>
             </FormField>
 
-            {exists && (
-              <p role="status" className="rounded-xl bg-amber-500/15 border border-amber-500/30 p-3 text-xs font-semibold text-amber-900">
-                {country} - {state} already exists.{' '}
-                <a className="underline font-bold" href={`/trips/${slug(country)}-${slug(state)}`}>Open it to add places →</a>
-              </p>
-            )}
-
-            {nameValid && !exists && (
+            {nameValid && (
               <div className="rounded-xl bg-white/30 border border-primary/15 p-3 space-y-1">
                 <LocationPicker key={tripKey} idPrefix="wz-loc" initialQuery={state.trim()} value={place} onSelect={setPlace} />
-                <p className="text-[11px] text-text/60">Pin the exact place. It powers prayer times and other tools.</p>
+                <p className="text-[11px] text-text/60">Pin the exact place of the first city. It powers prayer times and other tools.</p>
                 {touched && !place && <p className="text-[11px] font-semibold text-red-600">Pick the matching location to continue.</p>}
               </div>
             )}
@@ -291,11 +311,54 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
 
         {step === 3 && (
           <>
+            <h2 className="text-lg font-extrabold text-text">Which cities?</h2>
+            <p className="text-xs text-text/70">One city is fine. Add more if the trip moves on: each extra city takes days from the first.</p>
+            <ol className="space-y-2" aria-label="Cities in order">
+              <li className="flex items-center gap-2 rounded-xl bg-white/40 border border-primary/15 px-3 py-2">
+                <span className="font-extrabold text-primary w-5" aria-hidden="true">1</span>
+                <span className="flex-1 min-w-0 font-bold text-text truncate">{state}</span>
+                <span className="text-xs font-bold text-text/70 shrink-0">{firstDays} {firstDays === 1 ? 'day' : 'days'}</span>
+              </li>
+              {extras.map((x, i) => (
+                <li key={i} className="flex items-center gap-2 rounded-xl bg-white/40 border border-primary/15 px-2 py-2">
+                  <span className="font-extrabold text-primary w-5 text-center" aria-hidden="true">{i + 2}</span>
+                  <input className={`${inputClass} flex-1`} aria-label={`City ${i + 2}`} placeholder="City" maxLength={80} value={x.city}
+                    onInput={(e) => setExtras((all) => all.map((y, j) => (j === i ? { ...y, city: (e.target as HTMLInputElement).value } : y)))} />
+                  <div className="flex items-center shrink-0" role="group" aria-label={`Days in city ${i + 2}`}>
+                    <button type="button" aria-label="One day less" disabled={x.days <= 1}
+                      onClick={() => setExtras((all) => all.map((y, j) => (j === i ? { ...y, days: y.days - 1 } : y)))}
+                      className="touch-target w-11 h-11 rounded-lg bg-primary/10 text-primary font-bold text-lg disabled:opacity-40">−</button>
+                    <span className="w-8 text-center text-sm font-extrabold tabular-nums">{x.days}</span>
+                    <button type="button" aria-label="One day more" disabled={firstDays <= 1}
+                      onClick={() => setExtras((all) => all.map((y, j) => (j === i ? { ...y, days: y.days + 1 } : y)))}
+                      className="touch-target w-11 h-11 rounded-lg bg-primary/10 text-primary font-bold text-lg disabled:opacity-40">＋</button>
+                  </div>
+                  <button type="button" aria-label={`Remove city ${i + 2}`} onClick={() => setExtras((all) => all.filter((_, j) => j !== i))}
+                    className="touch-target w-11 h-11 rounded-lg text-red-700 hover:bg-red-500/10 font-bold">✕</button>
+                </li>
+              ))}
+            </ol>
+            <button type="button" disabled={firstDays <= 1 || extras.length >= 8}
+              onClick={() => setExtras((all) => [...all, { city: '', days: 1 }])}
+              className="touch-target w-full rounded-xl border-2 border-dashed border-primary/40 text-primary text-sm font-bold py-2 disabled:opacity-40">
+              ＋ Add another city
+            </button>
+            {stopsPreview.length > 0 && (
+              <p className="text-xs font-semibold text-text/70">
+                {stopsPreview.map((st) => `${st.city} ${shortDate(st.start)}–${shortDate(st.end)}`).join(' · ')}
+              </p>
+            )}
+            {touched && !step3Ready && <p className="text-[11px] font-semibold text-red-600">{firstDays < 1 ? 'The first city needs at least one day.' : 'Name every city or remove the empty ones.'}</p>}
+          </>
+        )}
+
+        {step === 4 && (
+          <>
             <h2 className="text-lg font-extrabold text-text">Ready to go?</h2>
             <div className="rounded-2xl border-2 border-dashed border-primary/40 bg-white/40 p-4 space-y-3">
               <div>
-                <div className="text-xl font-extrabold text-text break-words">{state}</div>
-                <div className="text-sm text-text/70">{match?.flag} {country}</div>
+                <div className="text-xl font-extrabold text-text break-words">{title0}</div>
+                <div className="text-sm text-text/70">{match?.flag} {citiesLabel(stopsPreview.map((st) => st.city))} · {country}</div>
               </div>
               <dl className="grid grid-cols-3 gap-2 text-xs">
                 <div><dt className="text-text/50 font-bold">From</dt><dd className="font-bold">{formatLongDate(start)}</dd></div>
@@ -320,9 +383,9 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
           {step > 1 && (
             <button type="button" className={ghostBtn} disabled={busy} onClick={() => { setStep((step - 1) as Step); setError(''); }}>Back</button>
           )}
-          {step < 3 ? (
+          {step < 4 ? (
             <button type="button" className={primaryBtn} onClick={next}>
-              {step === 1 ? 'Next: choose dates →' : 'Next: review →'}
+              {step === 1 ? 'Next: choose dates →' : step === 2 ? 'Next: cities →' : 'Next: review →'}
             </button>
           ) : (
             <button type="button" className={primaryBtn} disabled={busy} onClick={create}>

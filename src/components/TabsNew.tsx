@@ -7,6 +7,7 @@ import { localNow, todayIndex } from '../utils/today';
 import { deviceNow } from './deviceClock';
 
 import { itemsForDay, type PocketItem } from '../utils/pocket';
+import { cityForDay, type Stop } from '../utils/trips';
 import { toIsoDate } from '../utils/calendar';
 
 interface Props {
@@ -23,9 +24,12 @@ interface Props {
   pocketTab?: string;
   /** Trip date range (ISO). Defaults to the span of the itinerary's own days */
   tripRange?: { start: string; end: string } | null;
+  /** Cities and stops of a multi-city trip */
+  tripCities?: string[];
+  tripStops?: Stop[];
 }
 
-export default function Tabs({ itinerary, canEdit = false, region, liveHref, stateHrefs, pocketTab, tripRange }: Props) {
+export default function Tabs({ itinerary, canEdit = false, region, liveHref, stateHrefs, pocketTab, tripRange, tripCities, tripStops }: Props) {
   // Edits may only move an activity to a day of the trip: the saved range, else the days already planned
   const range = useMemo(() => {
     if (tripRange?.start && tripRange?.end) return tripRange;
@@ -160,6 +164,8 @@ export default function Tabs({ itinerary, canEdit = false, region, liveHref, sta
             <Timeline day={currentDay} canEdit={canEdit} region={region} liveHref={(currentDay.state && stateHrefs?.[currentDay.state]) || liveHref}
               dateMin={range?.start || ''}
               dateMax={range?.end || ''}
+              tripCities={tripCities}
+              cityForDate={tripCities && tripCities.length > 1 ? (iso: string) => cityForDay({ date: iso }, tripStops || []) || tripCities[0] : undefined}
               bookings={pocket.length ? itemsForDay(pocket, toIsoDate(currentDay.date)) : []}
               pocketHref={`${(liveHref || '').replace(/\/itinerary$/, '')}/pocket`} />
 

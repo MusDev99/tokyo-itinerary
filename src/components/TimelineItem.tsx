@@ -27,6 +27,10 @@ interface TimelineItemProps extends TimelineItemType {
   /** Trip dates an edit may move this activity to (ISO; empty = unbounded) */
   dateMin?: string;
   dateMax?: string;
+  /** The trip's cities and the city of this activity's day (multi-city trips) */
+  tripCities?: string[];
+  dayCity?: string;
+  cityForDate?: (iso: string) => string;
 }
 
 /** Shown when an activity has no time set */
@@ -80,6 +84,7 @@ function TimelineItemBase(props: TimelineItemProps) {
       price_amount: price?.amount ? String(price.amount) : '',
       price_currency: price?.currency || '',
       price_notes: price?.notes || '',
+      city: props.city || props.dayCity || '',
     });
     setActionError('');
     setEditing(true);
@@ -361,6 +366,8 @@ function TimelineItemBase(props: TimelineItemProps) {
             initial={draft}
             days={editDays(draft.date)}
             plannedDays={[]}
+            cities={props.tripCities}
+            cityForDate={props.cityForDate}
             onSave={saveEdit}
             onClose={(saved) => (saved > 0 ? (setEditing(false), refreshPage()) : setEditing(false))}
           />

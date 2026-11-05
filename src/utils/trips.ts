@@ -2,6 +2,8 @@
 // A trip is one worksheet tab with a title, a stable slug and optional stops (cities with day ranges).
 // Tabs without a registry row are "legacy" trips derived from the old `Country - State` naming.
 
+import { addDays, diffDays } from './tripDraft.ts';
+
 export interface Stop {
   city: string;
   country: string;
@@ -126,3 +128,44 @@ export function orderedCities(dayCities: string[], stops: Stop[] = []): string[]
 
 /** "Tokyo → Osaka" (or just "Tokyo"); empty when there is no city information. */
 export const citiesLabel = (cities: string[]) => cities.join(' → ');
+
+/** A worksheet-tab name from a trip title: no characters Sheets forbids, no leading `_` (hidden tabs), max 90, unique. */
+export function tabNameFromTitle(title: string, takenTabs: Iterable<string>): string {
+  const taken = new Set([...takenTabs].map((t) => t.trim().toLowerCase()));
+  const base = title.replace(/[\[\]*?:\/\\'!]/g, ' ').replace(/\s+/g, ' ').replace(/^[_\s]+/, '').trim().slice(0, 90).trim() || 'Trip';
+  let tab = base;
+  for (let n = 2; taken.has(tab.toLowerCase()); n++) tab = `${base.slice(0, 86)} ${n}`;
+  return tab;
+}
+
+/**
+ * Stops from "city + number of days" rows laid end to end from `start`: every row gets its days and the last one
+ * takes whatever is left of the trip. Rows without a city are skipped.
+ */
+export function stopsFromParts(start: string, totalDays: number, parts: Array<{ city: string; country?: string; days: number }>): Stop[] {
+  const rows = parts.filter((p) => p.city.trim());
+  const out: Stop[] = [];
+  let used = 0;
+  rows.forEach((p, i) => {
+    const isLast = i === rows.length - 1;
+    const days = isLast ? totalDays - used : Math.max(1, Math.min(Math.floor(p.days) || 1, totalDays - used - (rows.length - 1 - i)));
+    if (days < 1) return;
+    out.push({ city: p.city.trim(), country: (p.country || '').trim(), start: addDays(start, used), end: addDays(start, used + days - 1) });
+    used += days;
+  });
+  return out;
+}
+
+/** Error text when stops fall outside the trip or overlap, else null. */
+export function validateStops(stops: Stop[], start: string, end: string): string | null {
+  const sorted = [...stops].sort((a, b) => a.start.localeCompare(b.start));
+  for (let i = 0; i < sorted.length; i++) {
+    const s = sorted[i];
+    if (s.start < start || s.end > end) return `${s.city} falls outside the trip dates`;
+    if (i > 0 && s.start <= sorted[i - 1].end) return `${s.city} overlaps ${sorted[i - 1].city}`;
+  }
+  return null;
+}
+
+/** Days of the trip spent in each stop, for the editor (inverse of stopsFromParts). */
+export const stopDays = (s: Stop) => diffDays(s.start, s.end) + 1;

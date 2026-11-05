@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   parseStops, serializeStops, parseTripMetas, legacyTripSlug, uniqueSlug, cityForDay, orderedCities, citiesLabel,
+  tabNameFromTitle, stopsFromParts, validateStops, stopDays,
 } from '../src/utils/trips.ts';
 
 test('stops: valid ones are kept and sorted, malformed ones dropped, bad JSON is empty', () => {
@@ -67,4 +68,30 @@ test('cities in visiting order without repeats', () => {
   assert.deepEqual(orderedCities(['Tokyo', 'tokyo', 'Osaka', '', 'Tokyo']), ['Tokyo', 'Osaka']);
   assert.equal(citiesLabel(['Tokyo', 'Osaka']), 'Tokyo → Osaka');
   assert.equal(citiesLabel([]), '');
+});
+
+test('tab names from titles: forbidden characters dropped, never hidden, unique, bounded', () => {
+  assert.equal(tabNameFromTitle('AirTravel Sdn Bhd: Trip at Japan 2025!', []), 'AirTravel Sdn Bhd Trip at Japan 2025');
+  assert.equal(tabNameFromTitle('_secret', []), 'secret');
+  assert.equal(tabNameFromTitle('Japan 2025', ['japan 2025']), 'Japan 2025 2');
+  assert.equal(tabNameFromTitle('Japan 2025', ['Japan 2025', 'Japan 2025 2']), 'Japan 2025 3');
+  assert.equal(tabNameFromTitle('???', []), 'Trip');
+  assert.ok(tabNameFromTitle('x'.repeat(300), []).length <= 90);
+});
+
+test('stops laid end to end; the last takes the rest; empty cities skipped', () => {
+  const stops = stopsFromParts('2025-03-01', 7, [{ city: 'Tokyo', days: 4 }, { city: 'Osaka', days: 1 }]);
+  assert.deepEqual(stops.map((s) => [s.city, s.start, s.end]), [['Tokyo', '2025-03-01', '2025-03-04'], ['Osaka', '2025-03-05', '2025-03-07']]);
+  assert.deepEqual(stopsFromParts('2025-03-01', 3, [{ city: 'Fuji', days: 99 }]).map((s) => s.end), ['2025-03-03']);
+  assert.equal(stopsFromParts('2025-03-01', 3, [{ city: ' ', days: 2 }, { city: 'A', days: 1 }])[0].end, '2025-03-03');
+  // a middle stop can never eat the days the later stops need
+  assert.deepEqual(stopsFromParts('2025-03-01', 3, [{ city: 'A', days: 9 }, { city: 'B', days: 1 }, { city: 'C', days: 1 }]).map((s) => stopDays(s)), [1, 1, 1]);
+});
+
+test('stop validation: inside the trip, no overlaps', () => {
+  const ok = parseStops([{ city: 'A', start: '2025-03-01', end: '2025-03-03' }, { city: 'B', start: '2025-03-04', end: '2025-03-05' }]);
+  assert.equal(validateStops(ok, '2025-03-01', '2025-03-05'), null);
+  assert.match(validateStops(ok, '2025-03-02', '2025-03-05')!, /outside/);
+  const overlap = parseStops([{ city: 'A', start: '2025-03-01', end: '2025-03-03' }, { city: 'B', start: '2025-03-03', end: '2025-03-05' }]);
+  assert.match(validateStops(overlap, '2025-03-01', '2025-03-05')!, /overlaps/);
 });
