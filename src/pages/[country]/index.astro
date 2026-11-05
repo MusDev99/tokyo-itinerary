@@ -6,8 +6,7 @@ import Footer from '../../components/Footer.astro';
 import CountrySubNav from '../../components/CountrySubNav.astro';
 import AnalyticsDashboard from '../../components/AnalyticsDashboard';
 import DaysOverview from '../../components/DaysOverview.astro';
-import TripOverview from '../../components/TripOverview.astro';
-import { getAllCountriesWithSheets } from '../../utils/countries';
+import { getAllCountriesWithSheets, plainCountryTrip } from '../../utils/countries';
 
 Astro.response.headers.set('Cache-Control', pageCacheControl(Boolean(Astro.locals.user)));
 
@@ -17,6 +16,9 @@ const country = countries.find((c) => c.slug === Astro.params.country?.toLowerCa
 if (!country) {
   return Astro.redirect('/404');
 }
+// A country that was a single plain tab (no state) is that trip: show the trip, as before
+const plain = plainCountryTrip(country);
+if (plain) return Astro.redirect(`/trips/${plain.slug}/overview`);
 
 const countryDataSource = country.stats.hasItinerary
   ? { [country.slug]: country.itinerary }
@@ -28,32 +30,21 @@ const countryDataSource = country.stats.hasItinerary
   <div class="w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8">
     <CountrySubNav country={country} activeTab="overview" />
 
-    {country.stats.hasItinerary && country.states.length === 0 ? (
-      // A country without states is itself a trip: same Overview tab as a state trip
-      <TripOverview
-        name={country.name}
-        flag={country.flag}
-        region={country.region || country.name}
-        currency={country.currency}
-        days={country.itinerary}
-        itineraryHref={`/${country.slug}/itinerary`}
-        feedPath={`/${country.slug}/calendar.ics`}
-      />
-    ) : country.stats.hasItinerary ? (
+    {country.stats.hasItinerary ? (
       <div class="space-y-6 sm:space-y-8">
         <section aria-label="Destinations in this country" class="glass-effect rounded-2xl p-4 sm:p-6 border border-primary/20 shadow-md">
-          <h2 class="text-lg sm:text-xl font-extrabold text-text mb-1">States & Cities</h2>
-          <p class="text-xs sm:text-sm text-text/70 mb-4">Each place has its own itinerary.</p>
+          <h2 class="text-lg sm:text-xl font-extrabold text-text mb-1">Trips</h2>
+          <p class="text-xs sm:text-sm text-text/70 mb-4">Open a trip for its days, budget and Pocket.</p>
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {country.states.map((st) => (
               <a
-                href={`/${country.slug}/${st.slug}`}
+                href={`/trips/${st.slug}`}
                 class="group bg-white/45 hover:bg-white rounded-xl p-4 border border-primary/15 hover:border-primary/40 shadow-xs hover:shadow-md transition-[color,background-color,border-color,box-shadow,opacity,transform] duration-150 flex items-center justify-between gap-3"
               >
                 <div class="min-w-0">
-                  <h3 class="text-base font-bold text-text group-hover:text-primary transition-colors truncate">📍 {st.name}</h3>
-                  <p class="text-xs text-text/70 mt-0.5">
-                    {st.stats.totalDays} {st.stats.totalDays === 1 ? 'day' : 'days'} · {st.stats.totalActivities} activities
+                  <h3 class="text-base font-bold text-text group-hover:text-primary transition-colors truncate">{st.legacy ? `📍 ${st.name}` : st.title}</h3>
+                  <p class="text-xs text-text/70 mt-0.5 truncate">
+                    {st.cities.length > 0 && !st.legacy ? `${st.cities.join(' → ')} · ` : ''}{st.stats.totalDays} {st.stats.totalDays === 1 ? 'day' : 'days'} · {st.stats.totalActivities} activities
                   </p>
                 </div>
                 <span class="text-primary font-bold shrink-0">→</span>

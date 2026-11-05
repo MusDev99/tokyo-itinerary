@@ -1,4 +1,11 @@
 ---
-// Tools and Prepare now live in the Pocket tab; keep old links and saved pages working.
-return Astro.redirect(`/${Astro.params.country}/pocket`, 301);
+// Trips own these pages now (/trips/<slug>/...). A country that was a single plain tab goes straight to its trip;
+// any other country shows its trips.
+import { getAllCountriesWithSheets, plainCountryTrip } from '../../utils/countries';
+
+const { countries } = await getAllCountriesWithSheets();
+const country = countries.find((c) => c.slug === Astro.params.country?.toLowerCase());
+if (!country) return Astro.redirect('/404');
+const plain = plainCountryTrip(country);
+return Astro.redirect(plain ? `/trips/${plain.slug}/pocket` : `/${country.slug}`, 301);
 ---

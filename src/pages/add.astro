@@ -14,7 +14,7 @@ const { countries } = await getAllCountriesWithSheets();
 
 const trips = countries.flatMap((c) =>
   c.states.length > 0
-    ? c.states.map((s) => ({ country: c.name, state: s.name }))
+    ? c.states.filter((s) => s.legacy && s.tabName.includes(' - ')).map((s) => ({ country: c.name, state: s.name }))
     : []
 );
 

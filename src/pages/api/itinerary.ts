@@ -7,9 +7,10 @@ import {
   renameTrip,
   type ActivityInput,
 } from '../../utils/googleSheets';
-import { buildTabName, slugify } from '../../utils/countries';
+import { buildTabName } from '../../utils/countries';
 import { savePlace, saveTripDates, getTripDates } from '../../utils/googleSheets';
-import { getAllCountriesWithSheets } from '../../utils/countries';
+import { getAllCountriesWithSheets, findTripByTab } from '../../utils/countries';
+import { legacyTripSlug } from '../../utils/trips';
 import { toIsoDate } from '../../utils/calendar';
 import { validateTripName, validateRange } from '../../utils/tripDraft';
 import { parsePlace } from '../../types/place';
@@ -80,10 +81,21 @@ export const POST: APIRoute = async ({ request, locals }) => {
   // Honeypot: bots fill hidden fields. Pretend success.
   if (body.website) return json({ ok: true });
 
+  // Adding to an existing trip names its worksheet tab; creating an old-style trip names country + state
+  const requestedTab = str(body.tab, 100);
   const country = str(body.country, 60);
   const state = str(body.state, 60);
-  const tabError = validateTab(country, state);
-  if (tabError) return json({ error: tabError, fieldErrors: { trip: tabError } }, 400);
+  let tabName: string;
+  if (requestedTab) {
+    const { countries } = await getAllCountriesWithSheets();
+    const known = findTripByTab(countries, requestedTab);
+    if (!known) return json({ error: 'Unknown trip' }, 404);
+    tabName = known.trip.tabName;
+  } else {
+    const tabError = validateTab(country, state);
+    if (tabError) return json({ error: tabError, fieldErrors: { trip: tabError } }, 400);
+    tabName = buildTabName(country, state);
+  }
 
   const rawActivities = Array.isArray(body.activities) ? body.activities : [];
   // Wizard "create trip": no activities yet, but a validated date range
@@ -110,7 +122,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   if (hasErrors) return json({ error: 'Please fix the highlighted fields', rowErrors }, 400);
 
   try {
-    const result = await submitItinerary(buildTabName(country, state), activities);
+    const result = await submitItinerary(tabName, activities);
     await recordAudit({ email: who(locals), action: result.created ? 'create_trip' : 'add_activities', tab: result.tab, target: `${activities.length} activities` });
     // Trip dates (best-effort, like the place: the tab itself is already written)
     if (dates) {
@@ -135,12 +147,24 @@ export const POST: APIRoute = async ({ request, locals }) => {
       tab: result.tab,
       created: result.created,
       count: activities.length,
-      href: `/${slugify(country)}/${slugify(state)}`,
+      href: await tripHref(result.tab, country, state),
     });
   } catch (err: any) {
     return json({ error: clientError(err, 'Failed to save itinerary') }, 500);
   }
 };
+
+/** Address of the trip stored in `tab`: its registry slug, else the derived `country-state` slug of an old tab. */
+async function tripHref(tab: string, country: string, state: string): Promise<string> {
+  try {
+    const { countries } = await getAllCountriesWithSheets();
+    const found = findTripByTab(countries, tab);
+    if (found) return `/trips/${found.trip.slug}`;
+  } catch {
+    // fall through to the derived slug
+  }
+  return `/trips/${legacyTripSlug(country, state)}`;
+}
 
 function parseRef(body: any) {
   const id = str(body?.id, 64);
@@ -169,7 +193,7 @@ export const PATCH: APIRoute = async ({ request, locals }) => {
       const newTab = buildTabName(country, state);
       await renameTrip(tab, newTab);
       await recordAudit({ email: who(locals), action: 'rename_trip', tab, target: newTab });
-      return json({ ok: true, tab: newTab, href: `/${slugify(country)}/${slugify(state)}` });
+      return json({ ok: true, tab: newTab, href: `/trips/${legacyTripSlug(country, state)}` });
     } catch (err: any) {
       return json({ error: clientError(err, 'Failed to rename trip') }, 500);
     }
@@ -199,15 +223,8 @@ async function checkEditDate(tab: string, date: string): Promise<string | null> 
   if (range && iso >= range.start && iso <= range.end) return null;
 
   const { countries } = await getAllCountriesWithSheets();
-  const wanted = tab.toLowerCase();
   const planned: string[] = [];
-  for (const c of countries) {
-    const lists = [
-      ...(c.states.length === 0 && c.tabName?.toLowerCase() === wanted ? [c.itinerary] : []),
-      ...c.states.filter((s) => s.tabName.toLowerCase() === wanted).map((s) => s.itinerary),
-    ];
-    for (const days of lists) for (const d of days) { const x = toIsoDate(d.date); if (x) planned.push(x); }
-  }
+  for (const d of findTripByTab(countries, tab)?.trip.itinerary ?? []) { const x = toIsoDate(d.date); if (x) planned.push(x); }
   planned.sort();
   if (!range && planned.length === 0) return null; // nothing to compare with yet
   if (!range && iso >= planned[0] && iso <= planned[planned.length - 1]) return null;

@@ -3,6 +3,13 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-05 13:55 — Feat: trips with titles (read side)
+
+- **A trip is now its own thing, not a city.** One worksheet tab = one trip with a free **title**, a stable **slug** and optional **stops** (cities with day ranges), stored in a registry row of the hidden `_trips` tab (new columns K:Q). Rows may carry optional `city` / `country` columns, so one trip can run through several cities (days 1-4 Tokyo, days 5-7 Osaka) and a country can have several trips in different years ("AirTravel Sdn Bhd Trip at Japan 2025" and a separate "Fuji Weekend 2026" no longer merge).
+- **New addresses:** `/trips/<slug>` with `/overview`, `/analysis`, `/pocket` and `/calendar.ics`. `/japan` now lists the country's trips (with their cities); days of a multi-city trip show a "📍 city" badge; the header shows the title and "Tokyo → Osaka · Japan".
+- **Nothing breaks:** every existing `Country - State` tab is an automatic trip with slug `country-state`; old `/japan/tokyo[/…]`, `/tools` and `/prepare` links 301 to the new pages, a country that was a single plain tab opens that trip, and the old calendar feed keeps serving (calendar apps subscribe to it). Pocket, place, dates and checklist keep keying by the tab, so nothing is orphaned.
+- Adding a place now names the trip's tab (`tab`), so it also works for titled trips. Nav, home, sitemap and the calendar feed read trips. Creating and editing titled trips, copy and suggestions come in the next PRs.
+- Dev fixture gains the two Japan trips (multi-city and 2026) to check every screen locally.
 ## 2026-11-05 13:40 — Fix: country view dock, glass dock, ⋯ menus
 
 - **Country view has the tab dock too:** a country split into cities now shows the floating bottom bar (Overview, Itinerary) on phones and tablets, like every trip; its header tabs stay for desktop.

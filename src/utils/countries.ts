@@ -1,20 +1,38 @@
 import type { DayItinerary } from '../types/itinerary';
 import { cacheState, timed, type Timed } from './swr';
 import { WORLD_COUNTRIES, worldCountry } from './worldCountries';
+import { cityForDay, citiesLabel, legacyTripSlug, orderedCities, RESERVED_TRIP_SLUGS, uniqueSlug, type Stop, type TripMeta } from './trips';
 import {
   pullCountriesFromGoogleSheets,
+  getTripMetas,
   resolveSpreadsheetId,
   loadServiceAccountCredentials,
   type SheetSyncResult,
 } from './googleSheets';
 
+/**
+ * One trip: a worksheet tab with a title. Its `slug` is the stable `/trips/<slug>` address (a registry row stores it;
+ * an old `Country - State` tab without a registry row gets `country-state`). The type keeps its historical name
+ * because most screens still read a country's trips as its "states".
+ */
 export interface StateMetadata {
+  /** Stable trip slug (the address is /trips/<slug>) */
   slug: string;
+  /** Short label: the city for an old `Country - State` tab, the title for a titled trip */
   name: string;
+  /** The trip's title ("Tokyo, Japan" for an old tab) */
+  title: string;
   tabName: string;
   currency: string;
   itinerary: DayItinerary[];
   stats: CountryMetadata['stats'];
+  /** Cities in visiting order (from the rows, then the registry stops) */
+  cities: string[];
+  stops: Stop[];
+  /** true for an old `Country - State` tab that has no registry row */
+  legacy: boolean;
+  createdBy: string;
+  copiedFrom: string;
 }
 
 export interface CountryMetadata {
@@ -292,7 +310,7 @@ function sortCountries(countries: CountryMetadata[]): CountryMetadata[] {
 
 
 export const TAB_SEPARATOR = ' - ';
-export const RESERVED_SLUGS = new Set(['itinerary', 'add', 'api', '404', 'tools', 'prepare', 'pocket']);
+export const RESERVED_SLUGS = new Set(['itinerary', 'add', 'api', '404', 'tools', 'prepare', 'pocket', 'trips']);
 
 export function slugify(value: string): string {
   return value
@@ -334,69 +352,133 @@ function firstTime(days: DayItinerary[]): number {
 }
 
 /**
- * Groups worksheet tabs by country. Tabs named "Country - State" become states of a country;
- * plain tabs ("japan") are treated as a country with no states.
- * Country-level itinerary = all states merged (ordered by start date, days renumbered).
+ * Builds countries from TRIPS. Every worksheet tab is one trip: a tab with a registry row (`_trips`: title, slug,
+ * stops...) is a titled trip, any other tab is an old `Country - State` trip whose slug is `country-state`.
+ * A trip is listed under its primary country, and a country's `itinerary` is all its trips merged by start date
+ * (days renumbered), each day labelled with its city.
  */
-function buildCountries(
+export function buildCountries(
   itineraries: Record<string, DayItinerary[]>,
-  tabTitles: Record<string, string>
+  tabTitles: Record<string, string>,
+  metas: TripMeta[] = []
 ): CountryMetadata[] {
-  const groups = new Map<
-    string,
-    { countryName: string; tabs: Array<{ tab: string; state: string | null; days: DayItinerary[] }> }
-  >();
+  interface T {
+    tab: string;
+    slug: string;
+    name: string;
+    title: string;
+    legacy: boolean;
+    meta?: TripMeta;
+    days: DayItinerary[];
+  }
+  const metaByTab = new Map(metas.map((m) => [m.tab.trim().toLowerCase(), m]));
+  const groups = new Map<string, { countryName: string; trips: T[] }>();
+  const taken = new Set<string>();
 
-  for (const [slug, days] of Object.entries(itineraries)) {
+  // Titled trips first, so a registry slug always wins over an old tab's derived one
+  const entries = Object.entries(itineraries).sort(([a], [b]) => Number(metaByTab.has((tabTitles[b] || b).trim().toLowerCase())) - Number(metaByTab.has((tabTitles[a] || a).trim().toLowerCase())));
+
+  for (const [slug, rawDays] of entries) {
     const rawTab = tabTitles[slug] || slug;
-    const { country, state } = parseTabName(rawTab);
-    const countrySlug = slugify(country);
-    if (!countrySlug || RESERVED_SLUGS.has(countrySlug)) continue;
-    const group = groups.get(countrySlug) || { countryName: country, tabs: [] };
-    group.tabs.push({ tab: rawTab, state, days });
+    const meta = metaByTab.get(rawTab.trim().toLowerCase());
+    let countryName: string;
+    let tripSlug: string;
+    let name: string;
+    let title: string;
+    if (meta) {
+      countryName = meta.country || meta.stops.find((s) => s.country)?.country || rawDays.flatMap((d) => d.items).find((i) => i.country)?.country || 'Other';
+      tripSlug = meta.slug;
+      name = meta.title;
+      title = meta.title;
+    } else {
+      const { country, state } = parseTabName(rawTab);
+      countryName = country;
+      tripSlug = legacyTripSlug(country, state);
+      name = state ? formatTabNameToCountryName(state) : formatTabNameToCountryName(country);
+      title = state ? `${name}, ${formatTabNameToCountryName(country)}` : name;
+    }
+    const countrySlug = slugify(countryName);
+    if (!countrySlug || RESERVED_SLUGS.has(countrySlug) || !tripSlug) continue;
+    if (RESERVED_TRIP_SLUGS.has(tripSlug) || taken.has(tripSlug)) tripSlug = uniqueSlug(tripSlug, taken);
+    taken.add(tripSlug);
+
+    // Every day knows its city: its own cell, else the registry stop covering its date, else the old tab's state
+    const stops = meta?.stops ?? [];
+    const legacyCity = meta ? '' : parseTabName(rawTab).state ? formatTabNameToCountryName(parseTabName(rawTab).state as string) : '';
+    const cityOfDay = rawDays.map((d) => cityForDay(d, stops) || legacyCity);
+    // A trip through several cities labels each day with its city (the "📍 Osaka" badge and the day's route origin)
+    const multiCity = new Set(cityOfDay.filter(Boolean).map((c) => c.toLowerCase())).size > 1;
+    const days = rawDays.map((d, i) => {
+      const city = cityOfDay[i];
+      return city ? { ...d, city, ...(multiCity ? { state: city } : {}) } : d;
+    });
+
+    const group = groups.get(countrySlug) || { countryName, trips: [] };
+    group.trips.push({ tab: rawTab, slug: tripSlug, name, title, legacy: !meta, meta, days });
     groups.set(countrySlug, group);
   }
 
   const result: CountryMetadata[] = [];
   for (const [countrySlug, group] of groups) {
-    const stateTabs = group.tabs.filter((t) => t.state);
-    const plainTabs = group.tabs.filter((t) => !t.state);
-
-    // Order tabs chronologically and merge days into one continuous country timeline
-    const ordered = [...group.tabs].sort((a, b) => firstTime(a.days) - firstTime(b.days));
+    // Order trips chronologically and merge days into one continuous country timeline
+    const ordered = [...group.trips].sort((a, b) => firstTime(a.days) - firstTime(b.days));
     let offset = 0;
     const merged: DayItinerary[] = [];
     for (const t of ordered) {
-      const stateLabel = t.state ? formatTabNameToCountryName(t.state) : undefined;
       for (const d of t.days) {
-        merged.push({ ...d, day: d.day + offset, ...(stateLabel ? { state: stateLabel } : {}) });
+        merged.push({ ...d, day: d.day + offset, state: d.city || t.name });
       }
       offset += t.days.length ? Math.max(...t.days.map((d) => d.day)) : 0;
     }
 
     const country = buildCountryMetadataFromTab(countrySlug, group.countryName, merged);
-    country.tabName = plainTabs[0]?.tab || group.countryName;
+    country.tabName = group.countryName;
 
-    country.states = stateTabs
+    country.states = group.trips
       .map((t) => {
-        const stateName = formatTabNameToCountryName(t.state as string);
         const meta = buildCountryMetadataFromTab(countrySlug, t.tab, t.days);
+        const cities = orderedCities(t.days.map((d) => d.city || ''), t.meta?.stops);
         return {
-          slug: slugify(t.state as string),
-          name: stateName,
+          slug: t.slug,
+          name: t.name,
+          title: t.title,
           tabName: t.tab,
           currency: meta.currency,
           itinerary: t.days,
           stats: meta.stats,
+          cities,
+          stops: t.meta?.stops ?? [],
+          legacy: t.legacy,
+          createdBy: t.meta?.createdBy ?? '',
+          copiedFrom: t.meta?.copiedFrom ?? '',
         } satisfies StateMetadata;
       })
-      .filter((st) => st.slug && !RESERVED_SLUGS.has(st.slug))
-      .sort((a, b) => a.name.localeCompare(b.name));
+      // Newest trips first; trips without dates last
+      .sort((a, b) => (b.stats.firstDate ? Date.parse(b.stats.firstDate) || 0 : 0) - (a.stats.firstDate ? Date.parse(a.stats.firstDate) || 0 : 0) || a.name.localeCompare(b.name));
 
     result.push(country);
   }
   return result;
 }
+
+/** The trip stored in worksheet tab `tab` (case-insensitive), with its country; null when no trip uses that tab. */
+export function findTripByTab(countries: CountryMetadata[], tab: string) {
+  const wanted = tab.trim().toLowerCase();
+  for (const country of countries) {
+    const trip = country.states.find((s) => s.tabName.trim().toLowerCase() === wanted);
+    if (trip) return { country, trip };
+  }
+  return null;
+}
+
+/** The one trip of a country that was a plain `korea` tab (no state): the country page IS that trip, as before. */
+export function plainCountryTrip(country: CountryMetadata): StateMetadata | null {
+  const only = country.states.length === 1 ? country.states[0] : null;
+  return only && only.legacy && !only.tabName.includes(' - ') ? only : null;
+}
+
+/** Cities label for a trip ("Tokyo → Osaka"), or '' when it has none. */
+export const tripCitiesLabel = (t: Pick<StateMetadata, 'cities'>) => citiesLabel(t.cities);
 
 interface GlobalSheetsCache extends Timed {
   countries: CountryMetadata[];
@@ -470,7 +552,7 @@ function startSheetsFetch(): Promise<{ countries: CountryMetadata[]; syncResult:
     });
 
     if (result.source === 'google-sheets') {
-      const sheetCountries = buildCountries(itineraries, tabTitles);
+      const sheetCountries = buildCountries(itineraries, tabTitles, await getTripMetas());
 
       const sorted = sortCountries(sheetCountries);
       if (gen !== (g.__TOKYO_SHEETS_GEN__ ?? 0)) return { countries: sorted, syncResult: result };
@@ -513,22 +595,31 @@ export function getActiveItinerariesMap(countriesList: CountryMetadata[]): Recor
 }
 
 /**
- * One `Country - State` trip presented as its own destination (the shape CountrySubNav and the trip pages use),
- * or null when either slug is unknown.
+ * One trip presented as its own destination (the shape CountrySubNav and the trip pages use), or null when the slug
+ * is unknown. `page` names the tab ("Itinerary", "Pocket"...) in the title.
  */
+export function tripBySlug(countries: CountryMetadata[], tripSlug?: string, page = 'Itinerary') {
+  const slug = tripSlug?.toLowerCase();
+  for (const baseCountry of countries) {
+    const stateMeta = baseCountry.states.find((s) => s.slug === slug);
+    if (!stateMeta) continue;
+    const place = stateMeta.legacy ? `${baseCountry.name} – ${stateMeta.name}` : stateMeta.title;
+    const country: CountryMetadata = {
+      ...baseCountry,
+      title: `${place} ${page}`,
+      description: `Day-by-day plan, budget analytics, and local insights for ${stateMeta.title}.`,
+      itinerary: stateMeta.itinerary,
+      currency: stateMeta.currency,
+      region: stateMeta.cities.join(', ') || stateMeta.name,
+      stats: stateMeta.stats,
+      tabName: stateMeta.tabName,
+    };
+    return { baseCountry, stateMeta, country };
+  }
+  return null;
+}
+
+/** Old two-slug lookup (`/japan/tokyo`): resolves through the trip's stable slug. */
 export function stateTrip(countries: CountryMetadata[], countrySlug?: string, stateSlug?: string, page = 'Itinerary') {
-  const baseCountry = countries.find((c) => c.slug === countrySlug?.toLowerCase());
-  const stateMeta = baseCountry?.states.find((s) => s.slug === stateSlug?.toLowerCase());
-  if (!baseCountry || !stateMeta) return null;
-  const country: CountryMetadata = {
-    ...baseCountry,
-    title: `${baseCountry.name} – ${stateMeta.name} ${page}`,
-    description: `Day-by-day plan, budget analytics, and local insights for ${stateMeta.name}, ${baseCountry.name}.`,
-    itinerary: stateMeta.itinerary,
-    currency: stateMeta.currency,
-    region: stateMeta.name,
-    stats: stateMeta.stats,
-    tabName: stateMeta.tabName,
-  };
-  return { baseCountry, stateMeta, country };
+  return tripBySlug(countries, legacyTripSlug(countrySlug || '', stateSlug || ''), page);
 }

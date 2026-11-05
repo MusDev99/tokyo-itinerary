@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { listPocket, addPocket, updatePocket, deletePocket } from '../../utils/googleSheets';
-import { getAllCountriesWithSheets } from '../../utils/countries';
+import { getAllCountriesWithSheets, findTripByTab } from '../../utils/countries';
 import { parsePocketItem, sortItems } from '../../utils/pocket';
 import { clientError } from '../../utils/security';
 import { recordAudit } from '../../utils/users';
@@ -19,12 +19,7 @@ const str = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice
 async function knownTab(tab: string): Promise<string | null> {
   if (!tab) return null;
   const { countries } = await getAllCountriesWithSheets();
-  const wanted = tab.toLowerCase();
-  for (const c of countries) {
-    if (c.tabName && c.tabName.toLowerCase() === wanted) return c.tabName;
-    for (const st of c.states) if (st.tabName.toLowerCase() === wanted) return st.tabName;
-  }
-  return null;
+  return findTripByTab(countries, tab)?.trip.tabName ?? null;
 }
 
 // Audit log keeps only kind + title: never notes, confirmation codes or links (OWASP A09).

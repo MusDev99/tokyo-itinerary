@@ -1,5 +1,6 @@
 ---
-// Tools and Prepare now live in the Pocket tab; keep old links and saved pages working.
+// Old address of a `Country - State` trip: its trip page is /trips/<country>-<state> (the derived slug).
+import { legacyTripSlug } from '../../../utils/trips';
 const { country, state } = Astro.params;
-return Astro.redirect(`/${country}/${state}/pocket`, 301);
+return Astro.redirect(`/trips/${legacyTripSlug(country ?? '', state ?? '')}/pocket`, 301);
 ---

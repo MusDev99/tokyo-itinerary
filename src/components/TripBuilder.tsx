@@ -15,8 +15,8 @@ interface PlannedDay {
 }
 
 interface Props {
-  country: string;
-  state: string;
+  /** Worksheet tab of the trip the places are added to */
+  tab: string;
   currency: string;
   /** Saved trip range from the wizard (legacy trips have none) */
   dates: { start: string; end: string } | null;
@@ -27,7 +27,7 @@ interface Props {
 }
 
 /** The "Add place" button of a trip page; the form itself is the shared ActivitySheet. */
-export default function TripBuilder({ country, state, currency, dates, planned, empty = false }: Props) {
+export default function TripBuilder({ tab, currency, dates, planned, empty = false }: Props) {
   const [open, setOpen] = useState(false);
 
   const plannedByDate = useMemo(() => new Map(planned.map((p) => [p.date, p])), [planned]);
@@ -52,7 +52,7 @@ export default function TripBuilder({ country, state, currency, dates, planned, 
       const res = await fetch('/api/itinerary', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ country, state, activities: [draftToPayload(draft)], website: '' }),
+        body: JSON.stringify({ tab, activities: [draftToPayload(draft)], website: '' }),
       });
       if (redirectIfSignedOut(res)) return { _: 'Please sign in again.' };
       const data = await res.json();

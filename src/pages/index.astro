@@ -83,13 +83,9 @@ const nearToday = (first: string | null, last: string | null) => {
   return Boolean(s && e && s.getTime() - DAY <= startOfToday.getTime() && startOfToday.getTime() <= e.getTime() + DAY);
 };
 const todayTrips: TodayTrip[] = countries.flatMap((c) =>
-  c.states.length
-    ? c.states
-        .filter((st) => st.stats.hasItinerary && nearToday(st.stats.firstDate, st.stats.lastDate))
-        .map((st) => ({ name: `${st.name}, ${c.name}`, flag: c.flag, href: `/${c.slug}/${st.slug}`, region: st.name, days: slimDays(st.itinerary) }))
-    : c.stats.hasItinerary && nearToday(c.stats.firstDate, c.stats.lastDate)
-      ? [{ name: c.name, flag: c.flag, href: `/${c.slug}/itinerary`, region: c.name, days: slimDays(c.itinerary) }]
-      : [],
+  c.states
+    .filter((st) => st.stats.hasItinerary && nearToday(st.stats.firstDate, st.stats.lastDate))
+    .map((st) => ({ name: st.legacy ? `${st.name}, ${c.name}` : st.title, flag: c.flag, href: `/trips/${st.slug}`, region: st.cities[0] || st.name, days: slimDays(st.itinerary) })),
 );
 
 const upcomingCountries = countries.filter((c) => !c.stats.hasItinerary);
@@ -207,10 +203,10 @@ import { COLLAPSE_AFTER } from '../utils/countryList';
                     {c.states.map((s) => (
                       <li>
                         <a
-                          href={`/${c.slug}/${s.slug}`}
+                          href={`/trips/${s.slug}`}
                           class="touch-target inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/45 border border-primary/20 text-xs font-semibold text-text/80 hover:text-primary hover:border-primary/40 transition-colors"
                         >
-                          <span aria-hidden="true">📍</span>{s.name}
+                          <span aria-hidden="true">📍</span>{s.legacy ? s.name : s.title}
                         </a>
                       </li>
                     ))}

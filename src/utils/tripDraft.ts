@@ -2,7 +2,7 @@
 // Shared by the browser (TripWizard / TripBuilder) and the API so both apply the same rules.
 
 export const TAB_FORBIDDEN = /[\[\]*?:\/\\'!]/;
-export const TAB_RESERVED = new Set(['itinerary', 'add', 'api', '404', 'tools', 'prepare', 'pocket']);
+export const TAB_RESERVED = new Set(['itinerary', 'add', 'api', '404', 'tools', 'prepare', 'pocket', 'trips']);
 export const TAB_SEPARATOR = ' - ';
 export const MAX_TRIP_DAYS = 60;
 

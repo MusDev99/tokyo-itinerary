@@ -251,7 +251,7 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
             {exists && (
               <p role="status" className="rounded-xl bg-amber-500/15 border border-amber-500/30 p-3 text-xs font-semibold text-amber-900">
                 {country} - {state} already exists.{' '}
-                <a className="underline font-bold" href={`/${slug(country)}/${slug(state)}`}>Open it to add places →</a>
+                <a className="underline font-bold" href={`/trips/${slug(country)}-${slug(state)}`}>Open it to add places →</a>
               </p>
             )}
 

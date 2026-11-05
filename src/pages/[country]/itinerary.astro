@@ -8,8 +8,7 @@ import Tabs from '../../components/TabsNew';
 import PDFDownload from '../../components/PDFDownload';
 import CalendarExport from '../../components/CalendarExport';
 import AnalyticsDashboard from '../../components/AnalyticsDashboard';
-import { getAllCountriesWithSheets } from '../../utils/countries';
-import { getTripDates } from '../../utils/googleSheets';
+import { getAllCountriesWithSheets, plainCountryTrip } from '../../utils/countries';
 
 Astro.response.headers.set('Cache-Control', pageCacheControl(Boolean(Astro.locals.user)));
 
@@ -20,8 +19,9 @@ if (!country) {
   return Astro.redirect('/404');
 }
 
-// Saved trip range limits where an edit can move an activity (plain-country trips only)
-const tripDates = Astro.locals.user && country.states.length === 0 ? await getTripDates(country.tabName) : null;
+// A country that was a single plain tab is that trip: its itinerary is the trip's
+const plain = plainCountryTrip(country);
+if (plain) return Astro.redirect(`/trips/${plain.slug}`);
 
 const countryDataSource = country.stats.hasItinerary
   ? { [country.slug]: country.itinerary }
@@ -40,7 +40,7 @@ const countryDataSource = country.stats.hasItinerary
           aria-label="Interactive Daily Timeline"
           class="glass-effect rounded-2xl shadow-md border border-primary/20 overflow-hidden"
         >
-          <Tabs itinerary={country.itinerary} region={country.name} liveHref={`/${country.slug}/itinerary`} stateHrefs={Object.fromEntries(country.states.map((s) => [s.name, `/${country.slug}/${s.slug}`]))} canEdit={Boolean(Astro.locals.user)} pocketTab={country.states.length === 0 ? country.tabName : undefined} tripRange={tripDates} client:load />
+          <Tabs itinerary={country.itinerary} region={country.name} liveHref={`/${country.slug}/itinerary`} stateHrefs={Object.fromEntries(country.states.flatMap((s) => [[s.name, `/trips/${s.slug}`], ...s.cities.map((c) => [c, `/trips/${s.slug}`])]))} canEdit={Boolean(Astro.locals.user)} client:load />
         </section>
 
         <!-- Collapsible country analytics: only on a hub (a country without states is a trip with its own Analysis tab) -->

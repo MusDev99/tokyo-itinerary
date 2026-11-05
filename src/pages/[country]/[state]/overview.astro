@@ -1,41 +1,6 @@
 ---
-import { pageCacheControl } from '../../../utils/security';
-import Layout from '../../../layouts/Layout.astro';
-import Header from '../../../components/Header.astro';
-import Footer from '../../../components/Footer.astro';
-import CountrySubNav from '../../../components/CountrySubNav.astro';
-import TripOverview from '../../../components/TripOverview.astro';
-import { getAllCountriesWithSheets, stateTrip } from '../../../utils/countries';
-
-Astro.response.headers.set('Cache-Control', pageCacheControl(Boolean(Astro.locals.user)));
-
-const { countries } = await getAllCountriesWithSheets();
-const trip = stateTrip(countries, Astro.params.country, Astro.params.state, 'Overview');
-if (!trip) return Astro.redirect('/404');
-const { baseCountry, stateMeta, country } = trip;
-const base = `/${baseCountry.slug}/${stateMeta.slug}`;
+// Old address of a `Country - State` trip: its trip page is /trips/<country>-<state> (the derived slug).
+import { legacyTripSlug } from '../../../utils/trips';
+const { country, state } = Astro.params;
+return Astro.redirect(`/trips/${legacyTripSlug(country ?? '', state ?? '')}/overview`, 301);
 ---
-
-<Layout title={`${stateMeta.name} Trip Overview - ${baseCountry.name}`} description={`Today, the days at a glance and exports for your ${stateMeta.name}, ${baseCountry.name} trip.`}>
-  <Header />
-  <div class="w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8">
-    <CountrySubNav country={country} activeTab="overview" state={{ slug: stateMeta.slug, name: stateMeta.name }} />
-    {country.stats.hasItinerary ? (
-      <TripOverview
-        name={`${stateMeta.name}, ${baseCountry.name}`}
-        flag={baseCountry.flag}
-        region={stateMeta.name}
-        currency={stateMeta.currency}
-        days={stateMeta.itinerary}
-        itineraryHref={base}
-        feedPath={`${base}/calendar.ics`}
-      />
-    ) : (
-      <div class="glass-effect rounded-2xl p-8 text-center border border-primary/20">
-        <p class="text-lg font-bold text-text">Nothing planned for {stateMeta.name} yet.</p>
-        <p class="text-sm text-text/70 mt-1">Add activities to this trip to see the days at a glance.</p>
-      </div>
-    )}
-  </div>
-  <Footer />
-</Layout>

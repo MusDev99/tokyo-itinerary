@@ -24,6 +24,9 @@ export interface TimelineItem {
   price: Price;
   note: string;
   category?: string;
+  /** City / country this activity is in (optional sheet columns); blank = the day's or the trip's */
+  city?: string;
+  country?: string;
   images?: string;
   youtubeUrl?: string;
 }
@@ -34,5 +37,7 @@ export interface DayItinerary {
   date: string;
   /** State / city this day belongs to (set on a country's merged itinerary when it has several states) */
   state?: string;
+  /** The day's city: its activities' `city` cell, else the trip stop covering the date */
+  city?: string;
   items: TimelineItem[];
 } 

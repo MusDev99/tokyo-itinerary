@@ -1,0 +1,88 @@
+---
+import { pageCacheControl } from '../../../utils/security';
+import Layout from '../../../layouts/Layout.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import CountrySubNav from '../../../components/CountrySubNav.astro';
+import Tabs from '../../../components/TabsNew';
+import PDFDownload from '../../../components/PDFDownload';
+import CalendarExport from '../../../components/CalendarExport';
+import TripBuilder from '../../../components/TripBuilder';
+import { getTripDates } from '../../../utils/googleSheets';
+import { toIsoDate } from '../../../utils/calendar';
+import { getAllCountriesWithSheets, tripBySlug } from '../../../utils/countries';
+
+Astro.response.headers.set('Cache-Control', pageCacheControl(Boolean(Astro.locals.user)));
+
+const { countries } = await getAllCountriesWithSheets();
+const trip = tripBySlug(countries, Astro.params.slug, 'Itinerary');
+if (!trip) return Astro.redirect('/404');
+const { baseCountry, stateMeta, country } = trip;
+
+// Builder data (signed-in editors only): saved trip range + which days already have activities
+const canEdit = Boolean(Astro.locals.user);
+const tripDates = canEdit ? await getTripDates(stateMeta.tabName) : null;
+const planned = canEdit
+  ? stateMeta.itinerary
+      .map((d) => ({ date: toIsoDate(d.date), title: d.title, lastTime: d.items[d.items.length - 1]?.time || '' }))
+      .filter((d) => d.date)
+  : [];
+
+---
+
+<Layout title={`${country.title} - Interactive Timeline`}>
+  <Header />
+  <div class="w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8">
+    <CountrySubNav country={country} activeTab="itinerary" state={stateMeta}
+      manage={Astro.locals.user ? { tab: stateMeta.tabName, country: baseCountry.name, state: stateMeta.name, activityCount: stateMeta.stats.totalActivities, afterDeleteHref: `/${baseCountry.slug}` } : undefined} />
+
+    {country.stats.hasItinerary ? (
+      <div class="space-y-6 sm:space-y-8">
+        {Astro.locals.user ? (
+          <TripBuilder
+            client:load
+            tab={stateMeta.tabName}
+            currency={stateMeta.currency}
+            dates={tripDates}
+            planned={planned}
+          />
+        ) : (
+          <a
+            href={`/login?next=${encodeURIComponent(Astro.url.pathname)}`}
+            class="touch-target inline-flex items-center justify-center gap-2 px-5 h-11 rounded-xl bg-primary/10 text-primary text-sm font-extrabold hover:bg-primary/20 transition-colors w-full sm:w-auto"
+          >
+            Sign in to edit
+          </a>
+        )}
+
+        <!-- Main Interactive Day-by-Day Timeline (Priority #1 on Itinerary Page - Hick's Law) -->
+        <section
+          aria-label="Interactive Daily Timeline"
+          class="glass-effect rounded-2xl shadow-md border border-primary/20 overflow-hidden"
+        >
+          <Tabs itinerary={country.itinerary} region={stateMeta.name} liveHref={`/trips/${stateMeta.slug}`} canEdit={Boolean(Astro.locals.user)} pocketTab={stateMeta.tabName} tripRange={tripDates} client:load />
+        </section>
+
+        <!-- Export actions side by side (Law of Proximity): PDF is the primary, calendar the secondary -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 my-6 sm:my-8">
+          <PDFDownload itinerary={country.itinerary} client:visible />
+          <CalendarExport feedPath={`/trips/${stateMeta.slug}/calendar.ics`} client:visible />
+        </div>
+      </div>
+    ) : (
+      <div class="glass-effect rounded-2xl p-8 text-center border border-primary/20">
+        <p class="text-lg font-bold text-text">Nothing planned for {stateMeta.name} yet.</p>
+        <p class="text-sm text-text/70 mt-1">
+          Add places to see the day-by-day timeline.
+        </p>
+        {canEdit && (
+          <div class="mt-5 max-w-xs mx-auto">
+            <TripBuilder client:load empty tab={stateMeta.tabName}
+              currency={stateMeta.currency} dates={tripDates} planned={planned} />
+          </div>
+        )}
+      </div>
+    )}
+  </div>
+  <Footer />
+</Layout>
