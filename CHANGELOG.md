@@ -3,7 +3,11 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
-## 2026-11-05 12:28 — Fix: time picker, new trip start, more activity types, 100+ destinations
+## 2026-11-05 12:35 — Release 0.1.1: time picker, new trip start, more activity types, 100+ destinations
+
+- **Release notes:** `docs/releases/v0.1.1.md`. Version bumped to 0.1.1.
+
+### Details
 
 - **Time picker:** the hour hand's knob now sits on its number (it covered the "12"), AM/PM and hour/minute buttons are 44px, and the popover no longer jams to the top of a short phone screen over the field you are editing: when it fits neither below nor above it is centred with the page dimmed. A stray `0` / `0:00` from a blank number-formatted cell now reads as "no time" instead of 0:00 (a real `00:00` midnight is kept).
 - **New trip starts clean:** the wizard always opens on "Where". An unfinished draft is offered ("Continue your unfinished trip? / Start fresh") instead of silently jumping to the Review step; drafts older than a week are dropped, a prefilled link ignores old drafts, and "Start over" is available on every step.
