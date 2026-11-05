@@ -268,3 +268,25 @@ html[data-nav="slow"]:not([data-nav-tab]) #page-content {
 [data-astro-transition-persist] {
   view-transition-name: none !important;
 }
+
+/* Instant feedback (Doherty Threshold): every 44px target answers a press at once, before the network does */
+.touch-target:active:not(:disabled):not([aria-disabled="true"]) {
+  transform: scale(0.97);
+}
+.touch-target {
+  transition-property: transform, background-color, color, border-color, opacity, box-shadow;
+  transition-duration: 90ms;
+}
+
+/* A new day / tab body fades in quickly (opacity only: compositor) */
+@keyframes fade-in-fast {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.fade-in-fast {
+  animation: fade-in-fast 140ms ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fade-in-fast { animation: none; }
+  .touch-target:active:not(:disabled) { transform: none; }
+}

@@ -25,6 +25,7 @@ interface Props {
 type Step = 1 | 2 | 3;
 const STEPS = ['Where', 'When', 'Review'] as const;
 const DRAFT_KEY = 'tripDraft:wizard';
+const CREATE_STEPS = ['Saving your trip…', 'Setting the dates…', 'Opening your trip…'] as const;
 
 interface Draft { country: string; state: string; start: string; end: string; place: Place | null; step: Step; savedAt?: number }
 
@@ -65,6 +66,13 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
   const [end, setEnd] = useState('');
   const [touched, setTouched] = useState(false);
   const [busy, setBusy] = useState(false);
+  // Progress illusion while the trip is created (one request): named steps advance on a timer, so the wait reads as work
+  const [stage, setStage] = useState(0);
+  useEffect(() => {
+    if (!busy) { setStage(0); return; }
+    const t = setInterval(() => setStage((n) => Math.min(n + 1, CREATE_STEPS.length - 1)), 650);
+    return () => clearInterval(t);
+  }, [busy]);
   const [error, setError] = useState('');
   // An unfinished draft is OFFERED, never applied silently: the form always opens on a clean "Where" step
   const [pending, setPending] = useState<Draft | null>(null);
@@ -301,6 +309,13 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
           </>
         )}
 
+        {busy && (
+          <div role="progressbar" aria-valuemin={0} aria-valuemax={CREATE_STEPS.length} aria-valuenow={stage + 1} aria-label="Creating your trip"
+            className="h-1.5 rounded-full bg-primary/15 overflow-hidden">
+            <div className="h-full w-full origin-left bg-gradient-to-r from-primary to-accent rounded-full transition-transform duration-500 ease-out"
+              style={{ transform: `scaleX(${(stage + 1) / CREATE_STEPS.length})` }} />
+          </div>
+        )}
         <div className="flex gap-2 pt-1">
           {step > 1 && (
             <button type="button" className={ghostBtn} disabled={busy} onClick={() => { setStep((step - 1) as Step); setError(''); }}>Back</button>
@@ -311,7 +326,7 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
             </button>
           ) : (
             <button type="button" className={primaryBtn} disabled={busy} onClick={create}>
-              {busy ? 'Creating trip…' : 'Create trip'}
+              {busy ? CREATE_STEPS[stage] : 'Create trip'}
             </button>
           )}
         </div>

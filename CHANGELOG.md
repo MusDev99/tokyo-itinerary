@@ -3,6 +3,17 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-05 13:10 — Perf: a faster, calmer app (soft navigation, lighter paint, less clutter)
+
+- **Tab taps no longer reload the page.** Soft navigation (Astro `ClientRouter`) keeps the header, tab dock and season background alive and swaps only the content. On a throttled Pixel 5 a tab switch went from about 1.1-1.9 s to about 0.3-0.5 s. `PUBLIC_SOFT_NAV=0` turns it off. Sign-in, sign-out and downloads stay real page loads.
+- **Instant feedback and progress:** the loading bar finishes to 100% instead of stalling, tab switches show the trip skeleton at once, every 44px target presses in at once, edits/deletes/adds refresh the page in place (no white flash), Pocket saves and deletes appear immediately (and roll back on error), and creating a trip shows three named steps.
+- **Smoother scrolling:** below 1024px cards are solid translucent surfaces instead of live blur (only the header and tab dock keep a blur), long lists skip off-screen cards (`content-visibility`), timeline items no longer re-render every 30 s, and `transition-all` is gone.
+- **Motion: Full / Lite / Off** in the profile menu. Phones and weak devices default to Lite (a few slow particles, no blur or glow layers); animation pauses while a sheet, dialog or drawer is open; Off honours reduced motion live.
+- **Less JavaScript up front:** chart.js (172 KB) loads with the Currency tab and jspdf (about 390 KB) when you ask for a PDF; background, offline pill, menus and back button hydrate when idle.
+- **Faster server:** Pocket pages read the sheet in parallel, trip dates share one cached read, and the place suggestion is capped at 1.5 s and remembered.
+- **Less clutter:** the trip header is one compact card (place, country, currency, one summary line; the three stat tiles only on Overview, no description or breadcrumb on phones); the itinerary opens on the day strip with search behind an icon and a flat day body; Add place floats above the dock on phones; Pocket loses its repeated heading, shows rows with a ⋯ menu; Analysis loses its wrapper card; Overview days are a list.
+- **Dev tooling:** `SHEETS_FIXTURE=1 npm run dev` serves sample trips (`many` adds 150) without Google credentials, and `node scripts/perf-check.mjs` measures tab switches, JS bytes and scroll frames on a throttled phone.
+
 ## 2026-11-05 12:35 — Release 0.1.1: time picker, new trip start, more activity types, 100+ destinations
 
 - **Release notes:** `docs/releases/v0.1.1.md`. Version bumped to 0.1.1.

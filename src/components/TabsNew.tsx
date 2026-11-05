@@ -85,40 +85,7 @@ export default function Tabs({ itinerary, canEdit = false, region, liveHref, sta
   const currentDay = filteredItinerary[activeTab];
 
   return (
-    <div className="w-full p-3 sm:p-6">
-      {/* Top Toolbar: Day Selector Header + Search Toggle (Hick's Law: Progressive disclosure for filters) */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-        <div>
-          <h3 className="text-lg sm:text-xl font-extrabold text-text">
-            Daily Itinerary Schedule
-          </h3>
-          <p className="text-xs text-text/70">
-            Select a day below or search across all {itinerary.length} days
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setShowSearch(!showSearch)}
-          aria-expanded={showSearch}
-          className={`touch-target inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold border transition-[color,background-color,border-color,box-shadow,opacity,transform] duration-150 w-full sm:w-auto ${
-            showSearch
-              ? 'bg-primary text-white border-primary shadow-sm'
-              : 'bg-white/45 text-text/80 border-primary/20 hover:border-primary/40 hover:text-primary'
-          }`}
-        >
-          <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-          <span>{showSearch ? 'Hide Search & Filters' : 'Search & Filter Activities'}</span>
-        </button>
-      </div>
-
+    <div className="w-full p-2 sm:p-6">
       {showSearch && (
         <div className="mb-5">
           <SearchFilter
@@ -128,12 +95,14 @@ export default function Tabs({ itinerary, canEdit = false, region, liveHref, sta
         </div>
       )}
 
-      {/* Day Tabs Strip (Fitts's Law & Miller's Law: Large touch targets with Day + Short Date) */}
-      <div className="relative mb-5 sm:mb-6">
+      {/* Day strip (Fitts's Law & Miller's Law: 44px targets, Day + short date) with the search tucked into an icon
+          (Hick's Law: the filter is there when you want it, not a full-width bar above every day) */}
+      <div className="relative mb-3 sm:mb-5">
+        <div className="flex items-start gap-2">
         <div
           role="tablist"
           aria-label="Trip Days"
-          className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory"
+          className="flex-1 min-w-0 flex gap-2 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory"
         >
           {filteredItinerary.map((day, index) => {
             const isActive = activeTab === index;
@@ -150,52 +119,44 @@ export default function Tabs({ itinerary, canEdit = false, region, liveHref, sta
                     : 'bg-white/45 text-text/80 border-primary/15 hover:bg-primary/10 hover:border-primary/35'
                 }`}
               >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs sm:text-sm font-extrabold">Day {day.day}</span>
-                  <span
-                    className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
-                      isActive ? 'bg-white/25 text-white' : 'bg-primary/10 text-primary'
-                    }`}
-                  >
-                    {day.items.length}
-                  </span>
-                </div>
-                <div
-                  className={`text-[11px] font-medium mt-0.5 ${
-                    isActive ? 'text-white/90' : 'text-text/60'
-                  }`}
-                >
+                <div className="text-xs sm:text-sm font-extrabold leading-tight">Day {day.day}</div>
+                <div className={`text-[11px] font-medium mt-0.5 leading-tight ${isActive ? 'text-white/90' : 'text-text/60'}`}>
                   {formatShortDate(day.date)}
                 </div>
-                {day.state && (
-                  <div className={`text-[10px] font-bold mt-0.5 truncate max-w-[96px] ${isActive ? 'text-white/90' : 'text-primary'}`}>
-                    📍 {day.state}
-                  </div>
-                )}
               </button>
             );
           })}
         </div>
+          <button
+            type="button"
+            onClick={() => setShowSearch(!showSearch)}
+            aria-expanded={showSearch}
+            aria-label={showSearch ? 'Hide search and filters' : 'Search and filter activities'}
+            className={`touch-target shrink-0 w-11 h-11 grid place-items-center rounded-xl border ${
+              showSearch ? 'bg-primary text-white border-primary shadow-sm' : 'bg-white/45 text-text/80 border-primary/20 hover:border-primary/40 hover:text-primary'
+            }`}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </button>
+        </div>
 
         {/* Trip Progress Bar (Goal-Gradient Effect) */}
-        <div className="mt-2 h-1.5 bg-primary/15 rounded-full overflow-hidden">
+        <div className="mt-1 h-1 bg-primary/15 rounded-full overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-[color,background-color,border-color,box-shadow,opacity,transform] duration-200 ease-out"
+            className="h-full w-full origin-left bg-gradient-to-r from-primary to-accent rounded-full transition-transform duration-200 ease-out"
             style={{
-              width: `${
-                filteredItinerary.length > 0
-                  ? ((activeTab + 1) / filteredItinerary.length) * 100
-                  : 0
-              }%`,
+              transform: `scaleX(${filteredItinerary.length > 0 ? (activeTab + 1) / filteredItinerary.length : 0})`,
             }}
           />
         </div>
       </div>
 
       {/* Active Day Timeline Content */}
-      <div className="rounded-2xl bg-white/45 border border-primary/15 p-2.5 sm:p-6">
+      <div className="sm:rounded-2xl sm:bg-white/45 sm:border sm:border-primary/15 sm:p-6">
         {currentDay ? (
-          <div>
+          <div key={currentDay.day} className="fade-in-fast">
             <Timeline day={currentDay} canEdit={canEdit} region={region} liveHref={(currentDay.state && stateHrefs?.[currentDay.state]) || liveHref}
               dateMin={range?.start || ''}
               dateMax={range?.end || ''}

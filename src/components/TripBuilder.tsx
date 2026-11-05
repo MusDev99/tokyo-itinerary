@@ -65,8 +65,11 @@ export default function TripBuilder({ country, state, currency, dates, planned, 
   return (
     <>
       <button type="button" onClick={() => setOpen(true)} aria-haspopup="dialog"
-        className={`touch-target inline-flex items-center justify-center gap-2 px-5 h-11 rounded-xl bg-primary text-white text-sm font-extrabold shadow-sm hover:opacity-95 active:scale-[0.98] transition-[color,background-color,border-color,box-shadow,opacity,transform] ${
-          empty ? 'w-full h-12 text-base' : 'w-full sm:w-auto'
+        // Phones: a floating button in thumb reach above the tab dock (Fitts's Law, Jakob's Law); from lg it sits inline
+        className={`touch-target inline-flex items-center justify-center gap-2 px-5 h-11 rounded-xl bg-primary text-white text-sm font-extrabold shadow-sm hover:opacity-95 ${
+          empty
+            ? 'w-full h-12 text-base'
+            : 'max-lg:fixed max-lg:right-4 max-lg:bottom-[calc(5.75rem+env(safe-area-inset-bottom))] max-lg:z-30 max-lg:h-12 max-lg:rounded-full max-lg:shadow-xl lg:w-auto'
         }`}>
         <span aria-hidden="true" className="text-lg leading-none">＋</span> Add place
       </button>

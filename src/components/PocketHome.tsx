@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useEffect, useMemo, useState } from 'preact/hooks';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { redirectIfSignedOut } from '../utils/authClient';
 import { sortItems, type PocketItem, type PocketKind } from '../utils/pocket';
 import { formatLongDate } from '../utils/calendar';
@@ -7,6 +7,7 @@ import type { CheckGroup } from '../utils/checklist';
 import type { Place } from '../types/place';
 import PocketSheet, { KIND_META, type PocketDraft } from './PocketSheet';
 import ConfirmDialog from './ConfirmDialog';
+import { useDismiss } from './useDismiss';
 import TripChecklist from './TripChecklist';
 import TravelTools from './TravelTools';
 
@@ -22,6 +23,44 @@ interface Props {
   groups: CheckGroup[];
   firstDate: string | null;
   tools: { searchName: string; savedPlace: Place | null; suggestion: Place | null; dates: string[] };
+}
+
+/** Skeleton rows while the Pocket loads (same height as a real row: no layout jump) */
+function RowSkeleton() {
+  return (
+    <div role="status" aria-label="Loading your Pocket" className="space-y-3 py-1">
+      {[0, 1].map((i) => (
+        <div key={i} className="flex gap-3 animate-pulse">
+          <div className="w-7 h-7 rounded-lg bg-primary/15 shrink-0" />
+          <div className="flex-1 space-y-2">
+            <div className="h-3.5 w-2/3 rounded bg-primary/15" />
+            <div className="h-3 w-1/2 rounded bg-primary/10" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** One ⋯ button per row instead of two always-visible icon buttons (Hick's Law: fewer options on screen). */
+function RowMenu({ label, onEdit, onDelete }: { label: string; onEdit: () => void; onDelete: () => void }) {
+  const [open, setOpen] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
+  useDismiss(open, [root], () => setOpen(false));
+  return (
+    <div ref={root} className="relative shrink-0">
+      <button type="button" aria-haspopup="menu" aria-expanded={open} aria-label={`Actions for ${label}`} onClick={() => setOpen((o) => !o)}
+        className="touch-target w-11 h-11 grid place-items-center rounded-full text-text/70 hover:bg-primary/10 text-lg font-bold">⋯</button>
+      {open && (
+        <div role="menu" className="absolute right-0 top-full z-20 mt-1 w-36 rounded-xl bg-surface-solid border border-primary/20 shadow-xl p-1">
+          <button type="button" role="menuitem" onClick={() => { setOpen(false); onEdit(); }}
+            className="touch-target w-full flex items-center gap-2 px-3 rounded-lg text-sm font-semibold text-text hover:bg-primary/10 text-left">✎ Edit</button>
+          <button type="button" role="menuitem" onClick={() => { setOpen(false); onDelete(); }}
+            className="touch-target w-full flex items-center gap-2 px-3 rounded-lg text-sm font-semibold text-red-700 hover:bg-red-500/10 text-left">🗑 Delete</button>
+        </div>
+      )}
+    </div>
+  );
 }
 
 const NOTE_BG: Record<string, string> = {
@@ -56,7 +95,6 @@ export default function PocketHome({ tab, signedIn, loginHref, tripStart, hasIti
   const [loadError, setLoadError] = useState('');
   const [sheet, setSheet] = useState<{ kind: PocketKind | null; item?: PocketItem } | null>(null);
   const [del, setDel] = useState<PocketItem | null>(null);
-  const [delBusy, setDelBusy] = useState(false);
   const [delError, setDelError] = useState('');
   const [copied, setCopied] = useState('');
   const [open, setOpen] = useState<Record<string, boolean>>({ bookings: true, notes: true, checklist: false, tools: false });
@@ -97,8 +135,11 @@ export default function PocketHome({ tab, signedIn, loginHref, tripStart, hasIti
       if (redirectIfSignedOut(res)) return;
       const data = await res.json();
       if (!res.ok) return data.fieldErrors || { _: data.error || 'Something went wrong' };
+      // Show it at once (Doherty Threshold): the server's copy is already in the response, no second round trip
+      if (id) setItems((prev) => (prev || []).map((i) => (i.id === id ? { ...i, ...draft } : i)));
+      else if (data.item) setItems((prev) => [...(prev || []), data.item as PocketItem]);
+      else await load();
       setSheet(null);
-      await load();
     } catch {
       return { _: 'Network error. Please try again.' };
     }
@@ -114,40 +155,40 @@ export default function PocketHome({ tab, signedIn, loginHref, tripStart, hasIti
     if (!res || !res.ok) load();
   };
 
+  // Optimistic: the row leaves the list when you confirm; it comes back with a message if the server says no
   const confirmDelete = async () => {
     if (!del) return;
-    setDelBusy(true);
+    const gone = del;
+    const before = items;
+    setItems((prev) => (prev || []).filter((i) => i.id !== gone.id));
+    setDel(null);
     setDelError('');
     try {
       const res = await fetch('/api/pocket', {
         method: 'DELETE', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tab, id: del.id }),
+        body: JSON.stringify({ tab, id: gone.id }),
       });
       if (redirectIfSignedOut(res)) return;
       if (!res.ok) throw new Error((await res.json()).error || 'Could not delete');
-      setDel(null);
-      await load();
     } catch (e: any) {
-      setDelError(e?.message || 'Could not delete');
-    } finally {
-      setDelBusy(false);
+      setItems(before);
+      setLoadError(`“${gone.title}” could not be removed: ${e?.message || 'try again'}`);
     }
   };
 
   const actions = (item: PocketItem) => (
-    <div className="flex items-center gap-1 shrink-0">
-      <button type="button" aria-label={`Edit ${item.title}`} onClick={() => setSheet({ kind: item.kind, item })}
-        className="touch-target w-11 h-11 grid place-items-center rounded-full text-primary hover:bg-primary/10">✎</button>
-      <button type="button" aria-label={`Delete ${item.title}`} onClick={() => { setDelError(''); setDel(item); }}
-        className="touch-target w-11 h-11 grid place-items-center rounded-full text-red-700 hover:bg-red-500/10">🗑</button>
-    </div>
+    <RowMenu
+      label={item.title}
+      onEdit={() => setSheet({ kind: item.kind, item })}
+      onDelete={() => { setDelError(''); setDel(item); }}
+    />
   );
 
   const card = (item: PocketItem) => {
     const meta = KIND_META[item.kind];
     const d = item.details;
     return (
-      <li key={item.id} id={item.id} className="rounded-xl bg-white/60 border border-primary/15 p-3 flex gap-3">
+      <li key={item.id} id={item.id} className="flex gap-3 py-3 border-b border-primary/10 last:border-b-0 scroll-mt-24">
         <span className="text-2xl leading-none mt-0.5" aria-hidden="true">{meta.icon}</span>
         <div className="min-w-0 flex-1 space-y-0.5">
           <div className="text-sm font-extrabold text-text break-words">
@@ -206,13 +247,6 @@ export default function PocketHome({ tab, signedIn, loginHref, tripStart, hasIti
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-4">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-extrabold text-text">Pocket</h1>
-          <p className="text-sm text-text/70">Bookings, docs, notes and tools for this trip.</p>
-        </div>
-      </div>
-
       {signedIn ? (
         <button type="button" onClick={() => setSheet({ kind: null })} aria-haspopup="dialog"
           className="touch-target w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 h-12 rounded-xl bg-primary text-white text-base font-extrabold shadow-md hover:opacity-95 active:scale-[0.98] transition-[color,background-color,border-color,box-shadow,opacity,transform]">
@@ -233,10 +267,10 @@ export default function PocketHome({ tab, signedIn, loginHref, tripStart, hasIti
             </div>
           )}
           <Section id="pk-bookings" title="Bookings & docs" count={bookings.length} open={open.bookings} onToggle={() => toggle('bookings')}>
-            {items === null ? empty('Loading…') : bookings.length === 0 ? empty('No flights, stays or docs yet. Add one with the button above.') : <ul className="space-y-2">{bookings.map(card)}</ul>}
+            {items === null ? <RowSkeleton /> : bookings.length === 0 ? empty('No flights, stays or docs yet. Add one with the button above.') : <ul className="space-y-2">{bookings.map(card)}</ul>}
           </Section>
           <Section id="pk-notes" title="Notes" count={notes.length} open={open.notes} onToggle={() => toggle('notes')}>
-            {items === null ? empty('Loading…') : notes.length === 0 ? empty('Door codes, wifi, reminders.') : <ul className="space-y-2">{notes.map(noteCard)}</ul>}
+            {items === null ? <RowSkeleton /> : notes.length === 0 ? empty('Door codes, wifi, reminders.') : <ul className="space-y-2">{notes.map(noteCard)}</ul>}
           </Section>
         </>
       )}
@@ -254,7 +288,7 @@ export default function PocketHome({ tab, signedIn, loginHref, tripStart, hasIti
         <PocketSheet kind={sheet.kind} item={sheet.item} defaultDate={tripStart} onSave={save} onClose={() => setSheet(null)} />
       )}
       <ConfirmDialog open={Boolean(del)} title="Remove from Pocket?" message={del ? `“${del.title}” will be removed for everyone with access.` : ''}
-        confirmLabel="Remove" busy={delBusy} error={delError} onConfirm={confirmDelete} onCancel={() => setDel(null)} />
+        confirmLabel="Remove" busy={false} error={delError} onConfirm={confirmDelete} onCancel={() => setDel(null)} />
     </div>
   );
 }
