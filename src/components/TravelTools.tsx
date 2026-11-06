@@ -1,5 +1,6 @@
 import { h } from 'preact';
-import { redirectIfSignedOut } from '../utils/authClient';
+import { apiFetch } from '../utils/apiFetch';
+import { toast } from '../utils/toast';
 import { useState } from 'preact/hooks';
 import LocationPicker from './LocationPicker';
 import PrayerTimesCard from './PrayerTimesCard';
@@ -28,23 +29,13 @@ export default function TravelTools({ tab, searchName, savedPlace, suggestion, d
   const save = async (p: Place) => {
     setBusy(true);
     setError('');
-    try {
-      const res = await fetch('/api/place', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tab, place: p }),
-      });
-      if (redirectIfSignedOut(res)) return;
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Could not save the location');
-      setPlace(p);
-      setConfirmed(true);
-      setChanging(false);
-    } catch (e: any) {
-      setError(e?.message || 'Could not save the location');
-    } finally {
-      setBusy(false);
-    }
+    const r = await apiFetch('/api/place', { body: { tab, place: p } });
+    setBusy(false);
+    if (!r.ok) { if (r.kind !== 'signed-out') setError(r.error); return; }
+    setPlace(p);
+    setConfirmed(true);
+    setChanging(false);
+    toast.success('Location saved');
   };
 
   return (

@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { refreshPage } from '../utils/refresh';
 import { useMemo, useState } from 'preact/hooks';
-import { redirectIfSignedOut } from '../utils/authClient';
+import { apiFetch } from '../utils/apiFetch';
 import { buildDays, nextFreeDay, suggestNextTime, isIsoDate } from '../utils/tripDraft';
 import ActivitySheet from './ActivitySheet';
 import { cityForDay, type Stop } from '../utils/trips';
@@ -53,18 +53,8 @@ export default function TripBuilder({ tab, currency, dates, planned, empty = fal
   const initial: ActivityDraft = { ...emptyActivity(currency), date: first, time: suggestTime(first), city: cities.length > 1 ? cityForDate(first) : '' };
 
   const save = async (draft: ActivityDraft): Promise<Record<string, string> | void> => {
-    try {
-      const res = await fetch('/api/itinerary', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tab, activities: [draftToPayload(draft)], website: '' }),
-      });
-      if (redirectIfSignedOut(res)) return { _: 'Please sign in again.' };
-      const data = await res.json();
-      if (!res.ok) return { ...(data.rowErrors?.[0] || {}), _: data.error || 'Something went wrong' };
-    } catch {
-      return { _: 'Network error. Please try again.' };
-    }
+    const r = await apiFetch('/api/itinerary', { body: { tab, activities: [draftToPayload(draft)], website: '' } });
+    if (!r.ok) return { ...(r.data?.rowErrors?.[0] || {}), _: r.error };
   };
 
   return (

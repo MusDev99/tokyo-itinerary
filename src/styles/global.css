@@ -237,6 +237,11 @@
   }
 }
 
+/* Same for filled primary buttons (ui/Button) */
+[data-theme="night"] .btn-primary {
+  color: #1e1b4b;
+}
+
 /* Night's primary is amber: white text on it fails contrast, so the active dock pill uses dark ink there */
 [data-theme="night"] #trip-bottom-nav a[aria-current="page"] {
   color: #1e1b4b;

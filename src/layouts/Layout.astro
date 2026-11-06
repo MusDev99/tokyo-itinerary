@@ -3,6 +3,7 @@ import '../styles/global.css';
 import { ClientRouter } from 'astro:transitions';
 import SeasonBackground from '../components/SeasonBackground';
 import OfflineStatus from '../components/OfflineStatus';
+import Toaster from '../components/ui/Toaster';
 import NavProgress from '../components/NavProgress.astro';
 
 interface Props {
@@ -74,6 +75,8 @@ const canonical = new URL(Astro.url.pathname, Astro.url.origin).toString();
 
     <!-- Offline pill + service worker registration -->
     <OfflineStatus client:idle transition:persist transition:name="offline-status" />
+    <!-- Toasts (undo, saved, errors): one host for the whole app -->
+    <Toaster client:idle transition:persist transition:name="toaster" />
 
     <!-- Animated season background (Motion) -->
     {seasonBackground && <SeasonBackground client:idle transition:persist transition:name="season-bg" />}

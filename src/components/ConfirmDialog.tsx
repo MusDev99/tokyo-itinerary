@@ -4,6 +4,8 @@ import { useEffect, useRef } from 'preact/hooks';
 import { animate } from 'motion';
 import { prefersReducedMotion } from '../utils/motion';
 import { lockOverlay } from '../utils/overlay';
+import InlineError from './ui/InlineError';
+import Button from './ui/Button';
 
 interface Props {
   open: boolean;
@@ -74,18 +76,10 @@ export default function ConfirmDialog({
             <div className="text-sm text-text/75 mt-1 leading-relaxed break-words">{message}</div>
           </div>
         </div>
-        {error && (
-          <div role="alert" className="mt-3 p-2.5 rounded-xl bg-danger/10 border border-danger/30 text-xs font-semibold text-danger-strong">{error}</div>
-        )}
+        <InlineError className="mt-3" message={error} />
         <div className="mt-5 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-          <button ref={cancelBtn} type="button" onClick={onCancel} disabled={busy}
-            className="touch-target px-4 py-2.5 rounded-xl bg-primary/10 text-primary text-sm font-bold">
-            Cancel
-          </button>
-          <button type="button" onClick={onConfirm} disabled={busy}
-            className={`touch-target px-4 py-2.5 rounded-xl text-white text-sm font-bold disabled:opacity-60 ${danger ? 'bg-danger-solid hover:bg-danger-solid' : 'bg-primary'}`}>
-            {busy ? 'Working…' : confirmLabel}
-          </button>
+          <Button buttonRef={cancelBtn} variant="soft" onClick={onCancel} disabled={busy}>Cancel</Button>
+          <Button variant={danger ? 'danger' : 'primary'} onClick={onConfirm} busy={busy} busyLabel="Working…">{confirmLabel}</Button>
         </div>
       </div>
     </div>,

@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import InlineError from './ui/InlineError';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { animate, stagger } from 'motion';
 import { PRAYERS, compassPoint, type DayTimings, type PrayerMethod } from '../utils/prayer';
@@ -114,10 +115,7 @@ export default function PrayerTimesCard({ place, dates }: Props) {
       )}
 
       {error && !loading && (
-        <div role="alert" className="p-3 rounded-xl bg-danger/10 border border-danger/30 text-sm font-semibold text-danger-strong flex items-center justify-between gap-3">
-          <span>{error}</span>
-          <button type="button" onClick={() => setAttempt((a) => a + 1)} className="touch-target px-3 py-1.5 rounded-lg bg-danger-solid text-white text-xs font-bold shrink-0">Retry</button>
-        </div>
+        <InlineError message={error} onRetry={() => setAttempt((a) => a + 1)} />
       )}
 
       {!loading && !error && days.length > 0 && (
