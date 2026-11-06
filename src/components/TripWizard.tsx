@@ -261,7 +261,7 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
         return (
           <li key={p} className="flex-1 min-w-0" aria-current={active ? 'step' : undefined}>
             <div className={`h-1.5 rounded-full transition-colors ${done || active ? 'bg-primary' : 'bg-primary/20'}`} />
-            <span className={`mt-1 block text-[11px] font-bold truncate ${active ? 'text-primary' : 'text-text/50'}`}>
+            <span className={`mt-1 block text-micro font-bold truncate ${active ? 'text-primary' : 'text-text/50'}`}>
               {done ? '✓ ' : `${n}. `}{label}
             </span>
           </li>
@@ -300,7 +300,7 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
           <>
             <h2 className="text-lg font-extrabold text-text">Which trip do you want to copy?</h2>
             <CopyPicker trips={copyTrips} source={source} onSource={setSource} selected={selected} onSelected={setSelected} prices={prices} onPrices={setPrices} />
-            {touched && !ready.source && <p className="text-[11px] font-semibold text-red-600">Pick a trip and at least one day.</p>}
+            {touched && !ready.source && <p className="text-micro font-semibold text-danger-strong">Pick a trip and at least one day.</p>}
           </>
         )}
 
@@ -309,7 +309,7 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
             <h2 className="text-lg font-extrabold text-text">Pick places others loved</h2>
             <p className="text-xs text-text/70">From the trips already in the sheet, most used first. You choose where and when next.</p>
             <SuggestionPicker picks={picks} onPicks={setPicks} initialCity="" />
-            {touched && !ready.picks && <p className="text-[11px] font-semibold text-red-600">Pick at least one place, or switch to “From scratch”.</p>}
+            {touched && !ready.picks && <p className="text-micro font-semibold text-danger-strong">Pick at least one place, or switch to “From scratch”.</p>}
           </>
         )}
 
@@ -340,8 +340,8 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
             {nameValid && (
               <div className="rounded-xl bg-white/30 border border-primary/15 p-3 space-y-1">
                 <LocationPicker key={tripKey} idPrefix="wz-loc" initialQuery={state.trim()} value={place} onSelect={setPlace} />
-                <p className="text-[11px] text-text/60">Pin the exact place of the first city. It powers prayer times and other tools.</p>
-                {touched && !place && <p className="text-[11px] font-semibold text-red-600">Pick the matching location to continue.</p>}
+                <p className="text-micro text-text/60">Pin the exact place of the first city. It powers prayer times and other tools.</p>
+                {touched && !place && <p className="text-micro font-semibold text-danger-strong">Pick the matching location to continue.</p>}
               </div>
             )}
             {match && <p className="text-xs text-text/70">{match.flag} Default currency: <strong>{match.currency}</strong></p>}
@@ -357,8 +357,8 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
             <p role="status" className="text-sm font-bold text-primary">
               {copyEnd ? `${copySpan} ${copySpan === 1 ? 'day' : 'days'} · ${formatLongDate(start)} → ${formatLongDate(copyEnd)}` : 'Pick the first day'}
             </p>
-            {copySpan > MAX_TRIP_DAYS && <p className="text-[11px] font-semibold text-red-600">That spans more than {MAX_TRIP_DAYS} days: pick fewer days.</p>}
-            {touched && !whenReady && copySpan <= MAX_TRIP_DAYS && <p className="text-[11px] font-semibold text-red-600">Pick the start date to continue.</p>}
+            {copySpan > MAX_TRIP_DAYS && <p className="text-micro font-semibold text-danger-strong">That spans more than {MAX_TRIP_DAYS} days: pick fewer days.</p>}
+            {touched && !whenReady && copySpan <= MAX_TRIP_DAYS && <p className="text-micro font-semibold text-danger-strong">Pick the start date to continue.</p>}
           </>
         )}
 
@@ -375,10 +375,10 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
                   onChange={setEnd} />
               </FormField>
             </div>
-            <p role="status" className={`text-sm font-bold ${rangeError ? 'text-red-600' : 'text-primary'}`}>
+            <p role="status" className={`text-sm font-bold ${rangeError ? 'text-danger-strong' : 'text-primary'}`}>
               {rangeError || (days ? `${days} ${days === 1 ? 'day' : 'days'}` : 'Pick your first and last day')}
             </p>
-            {touched && !whenReady && !rangeError && <p className="text-[11px] font-semibold text-red-600">Pick both dates to continue.</p>}
+            {touched && !whenReady && !rangeError && <p className="text-micro font-semibold text-danger-strong">Pick both dates to continue.</p>}
           </>
         )}
 
@@ -407,7 +407,7 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
                       className="touch-target w-11 h-11 rounded-lg bg-primary/10 text-primary font-bold text-lg disabled:opacity-40">＋</button>
                   </div>
                   <button type="button" aria-label={`Remove city ${i + 2}`} onClick={() => setExtras((all) => all.filter((_, j) => j !== i))}
-                    className="touch-target w-11 h-11 rounded-lg text-red-700 hover:bg-red-500/10 font-bold">✕</button>
+                    className="touch-target w-11 h-11 rounded-lg text-danger-strong hover:bg-danger/10 font-bold">✕</button>
                 </li>
               ))}
             </ol>
@@ -421,7 +421,7 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
                 {stopsPreview.map((st) => `${st.city} ${shortDate(st.start)}–${shortDate(st.end)}`).join(' · ')}
               </p>
             )}
-            {touched && !citiesReady && <p className="text-[11px] font-semibold text-red-600">{firstDays < 1 ? 'The first city needs at least one day.' : 'Name every city or remove the empty ones.'}</p>}
+            {touched && !citiesReady && <p className="text-micro font-semibold text-danger-strong">{firstDays < 1 ? 'The first city needs at least one day.' : 'Name every city or remove the empty ones.'}</p>}
           </>
         )}
 
@@ -442,9 +442,9 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
                 <div><dt className="text-text/50 font-bold">To</dt><dd className="font-bold">{formatLongDate(mode === 'copy' ? copyEnd : end)}</dd></div>
                 <div><dt className="text-text/50 font-bold">Length</dt><dd className="font-bold">{mode === 'copy' ? copySpan : diffDays(start, end) + 1} days</dd></div>
               </dl>
-              {mode !== 'copy' && place && <p className="text-[11px] text-text/60">📍 {place.name}{place.admin1 ? `, ${place.admin1}` : ''}</p>}
-              {mode === 'copy' && <p className="text-[11px] text-text/60">{copyCount} {copyCount === 1 ? 'place' : 'places'}{prices ? ' with prices' : ' without prices'}</p>}
-              {mode === 'suggest' && <p className="text-[11px] text-text/60">{picks.length} suggested {picks.length === 1 ? 'place' : 'places'}, spread over {diffDays(start, end) + 1} days (you can move them later)</p>}
+              {mode !== 'copy' && place && <p className="text-micro text-text/60">📍 {place.name}{place.admin1 ? `, ${place.admin1}` : ''}</p>}
+              {mode === 'copy' && <p className="text-micro text-text/60">{copyCount} {copyCount === 1 ? 'place' : 'places'}{prices ? ' with prices' : ' without prices'}</p>}
+              {mode === 'suggest' && <p className="text-micro text-text/60">{picks.length} suggested {picks.length === 1 ? 'place' : 'places'}, spread over {diffDays(start, end) + 1} days (you can move them later)</p>}
             </div>
             {mode === 'copy' && (
               <FormField label="Trip title" htmlFor="wz-title-review">
@@ -453,7 +453,7 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
               </FormField>
             )}
             <p className="text-xs text-text/70">{mode === 'blank' ? "You'll add places day by day on the next screen." : 'You can change anything on the next screen.'}</p>
-            {error && <div role="alert" className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-sm font-semibold text-red-800">{error}</div>}
+            {error && <div role="alert" className="p-3 rounded-xl bg-danger/10 border border-danger/30 text-sm font-semibold text-danger-strong">{error}</div>}
           </>
         )}
 

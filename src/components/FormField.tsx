@@ -23,10 +23,10 @@ export default function FormField({
     <div className={`flex flex-col gap-1 min-w-0 ${className}`}>
       <label htmlFor={htmlFor} className="text-xs font-bold text-text/80">
         {label}
-        {required ? <span className="text-red-600"> *</span> : !hideOptional && <span className="text-text/40 font-medium"> (optional)</span>}
+        {required ? <span className="text-danger-strong"> *</span> : !hideOptional && <span className="text-text/40 font-medium"> (optional)</span>}
       </label>
       {children}
-      {error && <span className="text-[11px] font-semibold text-red-600">{error}</span>}
+      {error && <span className="text-micro font-semibold text-danger-strong">{error}</span>}
     </div>
   );
 }

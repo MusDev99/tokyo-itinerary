@@ -154,7 +154,7 @@ export default function FooterContent({ destinations, year, canEdit = false }: P
                   <span>{d.flag}</span>
                   <span>{d.name}</span>
                   {d.days > 0 && (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/15 text-primary font-bold">{d.days}d</span>
+                    <span className="text-micro px-1.5 py-0.5 rounded-full bg-primary/15 text-primary font-bold">{d.days}d</span>
                   )}
                 </a>
               ))}

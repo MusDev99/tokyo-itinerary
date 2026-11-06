@@ -35,7 +35,7 @@ export function ModeSwitch({ mode, onMode }: { mode: StartMode; onMode: (m: Star
           }`}>
           <span className="block text-xl leading-none" aria-hidden="true">{m.icon}</span>
           <span className="block text-xs font-extrabold mt-1 leading-tight">{m.label}</span>
-          <span className={`block text-[10px] leading-tight ${mode === m.id ? 'text-white/80' : 'text-text/55'}`}>{m.hint}</span>
+          <span className={`block text-micro leading-tight ${mode === m.id ? 'text-white/80' : 'text-text/55'}`}>{m.hint}</span>
         </button>
       ))}
     </div>
@@ -97,7 +97,7 @@ export function CopyPicker({ trips, source, onSource, selected, onSelected, pric
                     onChange={() => onSelected(on ? selected.filter((x) => x !== d.date) : [...selected, d.date])} />
                   <span className="min-w-0 flex-1">
                     <span className="block text-sm font-bold text-text truncate">Day {i + 1} · {d.title && !/^day \d+$/i.test(d.title) ? d.title : formatLongDate(d.date)}</span>
-                    <span className="block text-[11px] text-text/60">{formatLongDate(d.date)}</span>
+                    <span className="block text-micro text-text/60">{formatLongDate(d.date)}</span>
                   </span>
                   <span className="text-xs font-bold text-primary shrink-0">{d.items} {d.items === 1 ? 'place' : 'places'}</span>
                 </label>
@@ -109,7 +109,7 @@ export function CopyPicker({ trips, source, onSource, selected, onSelected, pric
           <input type="checkbox" className="w-5 h-5" checked={prices} onChange={(e) => onPrices((e.target as HTMLInputElement).checked)} />
           Copy prices too
         </label>
-        <p className="text-[11px] text-text/60">{count} {count === 1 ? 'place' : 'places'} will be copied. Notes, photos and videos stay behind.</p>
+        <p className="text-micro text-text/60">{count} {count === 1 ? 'place' : 'places'} will be copied. Notes, photos and videos stay behind.</p>
       </div>
     );
   }
@@ -208,7 +208,7 @@ export function SuggestionPicker({ picks, onPicks, initialCity = '' }: SuggestPr
         {picks.length > 0 ? <span className="text-primary">{picks.length} picked</span> : 'Nothing picked yet'}
         {picks.length >= MAX_PICKS && <span className="text-text/60"> (the most that fits)</span>}
       </p>
-      {error && <p role="alert" className="text-sm font-semibold text-red-700">{error}</p>}
+      {error && <p role="alert" className="text-sm font-semibold text-danger-strong">{error}</p>}
       {items === null && !error && <div role="status" aria-label="Loading suggestions" className="h-24 rounded-xl bg-primary/10 animate-pulse" />}
       {items && items.length === 0 && <p role="status" className="py-4 text-center text-sm text-text/60">No places match. Try another city or type.</p>}
       <ul className="max-h-[42vh] overflow-y-auto overscroll-contain rounded-xl border border-primary/15 divide-y divide-primary/10 bg-white/40">
@@ -221,7 +221,7 @@ export function SuggestionPicker({ picks, onPicks, initialCity = '' }: SuggestPr
                 <input type="checkbox" className="w-5 h-5 shrink-0" checked={on} disabled={!on && picks.length >= MAX_PICKS} onChange={() => toggle(s)} />
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm font-bold text-text truncate">{cat?.emoji} {s.title}</span>
-                  <span className="block text-[11px] text-text/60 truncate">
+                  <span className="block text-micro text-text/60 truncate">
                     {[s.city, `used in ${s.count} ${s.count === 1 ? 'trip' : 'trips'}`, s.price > 0 ? `${s.price.toLocaleString()} ${s.currency}` : ''].filter(Boolean).join(' · ')}
                   </span>
                 </span>

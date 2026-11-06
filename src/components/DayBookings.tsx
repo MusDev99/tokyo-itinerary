@@ -27,7 +27,7 @@ export default function DayBookings({ cards, pocketHref }: { cards: DayCard[]; p
             <span className="text-xl" aria-hidden="true">{ICON[c.variant]}</span>
             <span className="min-w-0 flex-1">
               <span className="block text-sm font-extrabold text-text truncate">{label(c)}</span>
-              <span className="block text-[11px] font-semibold text-text/60">
+              <span className="block text-micro font-semibold text-text/60">
                 {[c.time, c.item.details.terminal && `Terminal ${c.item.details.terminal}`, c.item.details.address].filter(Boolean).join(' · ') || 'In your Pocket'}
               </span>
             </span>

@@ -61,7 +61,7 @@ export default function LocationPicker({ initialQuery, value, onSelect, idPrefix
   return (
     <div className="space-y-2">
       <label htmlFor={`${idPrefix}-q`} className="text-xs font-bold text-text/80">
-        Confirm location <span className="text-red-600">*</span>
+        Confirm location <span className="text-danger-strong">*</span>
       </label>
       <input
         id={`${idPrefix}-q`}
@@ -75,7 +75,7 @@ export default function LocationPicker({ initialQuery, value, onSelect, idPrefix
         }}
       />
       {loading && <p className="text-xs text-text/60">Searching…</p>}
-      {error && <p className="text-xs font-semibold text-red-600">{error}</p>}
+      {error && <p className="text-xs font-semibold text-danger-strong">{error}</p>}
       {!loading && !error && query.trim().length >= 2 && results.length === 0 && (
         <p className="text-xs text-text/60">No matches. Try a different spelling or the nearest big city.</p>
       )}
@@ -96,11 +96,11 @@ export default function LocationPicker({ initialQuery, value, onSelect, idPrefix
                 >
                   <span className="min-w-0">
                     <span className="block text-sm font-bold truncate">{placeLabel(p)}</span>
-                    <span className="block text-[11px] text-text/60">
+                    <span className="block text-micro text-text/60">
                       {p.lat.toFixed(2)}, {p.lng.toFixed(2)} · {p.timezone}
                     </span>
                   </span>
-                  <span aria-hidden="true" className={`w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center text-[11px] ${selected ? 'bg-primary border-primary text-white' : 'border-primary/40'}`}>
+                  <span aria-hidden="true" className={`w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center text-micro ${selected ? 'bg-primary border-primary text-white' : 'border-primary/40'}`}>
                     {selected ? '✓' : ''}
                   </span>
                 </button>

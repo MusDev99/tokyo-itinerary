@@ -59,7 +59,7 @@ export default function SpendHistory({ groups, categories, money, countryLabel }
             >
               <span className="min-w-0 text-xs font-extrabold uppercase tracking-wide text-text/65">
                 Day {g.day}{g.dateLabel ? ` · ${g.dateLabel}` : ''}
-                {where && <span className="block truncate text-[10px] font-semibold normal-case tracking-normal text-text/50">{where}</span>}
+                {where && <span className="block truncate text-micro font-semibold normal-case tracking-normal text-text/50">{where}</span>}
               </span>
               <span className="flex items-center gap-2 whitespace-nowrap text-sm font-extrabold text-text">
                 {money(g.total)}
@@ -87,8 +87,8 @@ export default function SpendHistory({ groups, categories, money, countryLabel }
                         {(l.description || l.note) && <p className="truncate text-xs text-text/60">{l.description || l.note}</p>}
                       </div>
                       <div className="shrink-0 text-right">
-                        <p className="text-sm font-extrabold tabular-nums text-rose-600">−{money(l.converted)}</p>
-                        <p className="text-[11px] tabular-nums text-text/55">
+                        <p className="text-sm font-extrabold tabular-nums text-danger-strong">−{money(l.converted)}</p>
+                        <p className="text-micro tabular-nums text-text/55">
                           {[l.time, l.currency && formatMoney(l.amount, l.currency)].filter(Boolean).join(' · ')}
                         </p>
                       </div>

@@ -3,6 +3,13 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-06 11:34 — Chore: UI tokens (status colours, smallest text, radius rule)
+
+- **Status colours are tokens:** `danger` / `success` / `warning` (plus `-strong` for text and `-solid` for filled buttons) defined once in `global.css` with a night variant, replacing about 100 raw `red-*`, `emerald-*`, `amber-*` classes across 40 files. Errors, successes and warnings now follow the theme and keep contrast at night.
+- **One smallest text size:** `text-micro` (11px) replaces `text-[8px]`, `[9px]`, `[10px]`, `[11px]` (83 uses), so nothing is below 11px.
+- **Radius rule** documented (cards `2xl`, controls `xl`, chips `full`); the 4 `rounded-md` became `rounded-lg`.
+- `tests/uiTokens.test.ts` fails the build if raw status colours or sub-11px text come back. CLAUDE.md: removed a stale duplicate Routes/Tabs section left by the merge and added the UI-token rule.
+
 ## 2026-11-05 13:51 — Feat: copy a trip and start from suggestions
 
 - **Start from, in the new-trip wizard:** ✍️ From scratch · 📋 Copy a trip · 💡 Suggestions. Copy and Suggestions have their own short flows (Trip → When → Review; Places → Where → When → Cities → Review).

@@ -68,7 +68,7 @@ const Banner = ({ targetDate }: { targetDate: string | null }) => {
                 <span className="text-base sm:text-lg font-extrabold text-bg drop-shadow-sm transition-[color,background-color,border-color,box-shadow,opacity,transform] duration-300 hover:scale-110">
                   {unit.value}
                 </span>
-                <span className="text-[10px] sm:text-xs text-bg/70 font-semibold drop-shadow-sm">
+                <span className="text-micro sm:text-xs text-bg/70 font-semibold drop-shadow-sm">
                   {unit.label}
                 </span>
               </div>

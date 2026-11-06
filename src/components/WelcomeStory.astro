@@ -32,24 +32,24 @@ const BARS = [32, 54, 41, 70, 48, 84, 100];
     class="absolute top-[28px] left-[10px] h-[240px] w-[320px] overflow-hidden rounded-2xl border border-primary/25 bg-[color-mix(in_srgb,var(--surface-solid)_88%,transparent)] shadow-2xl shadow-black/20"
   >
     <div class="flex h-[26px] items-center gap-1.5 border-b border-primary/15 px-3">
-      <span class="size-2 rounded-full bg-rose-400"></span>
-      <span class="size-2 rounded-full bg-amber-400"></span>
-      <span class="size-2 rounded-full bg-emerald-400"></span>
-      <span class="ml-2 text-[10px] font-semibold text-text/70">PlanTravel · Japan – Tokyo</span>
+      <span class="size-2 rounded-full bg-danger"></span>
+      <span class="size-2 rounded-full bg-warning"></span>
+      <span class="size-2 rounded-full bg-success"></span>
+      <span class="ml-2 text-micro font-semibold text-text/70">PlanTravel · Japan – Tokyo</span>
     </div>
 
     <div class="absolute top-[34px] right-[10px] left-[10px] h-[28px] rounded-lg border border-dashed border-primary/30"></div>
-    <span class="absolute top-[24px] right-[14px] text-[8px] font-semibold text-text/50">Ideas</span>
+    <span class="absolute top-[24px] right-[14px] text-micro font-semibold text-text/50">Ideas</span>
 
     {DAYS.map((d) => (
       <div class="absolute top-[70px] h-[96px] w-[94px] rounded-lg bg-primary/10" style={`left:${d.x}px`}>
-        <span class="absolute top-1 left-1.5 text-[8px] font-extrabold uppercase tracking-wide text-primary">{d.name}</span>
+        <span class="absolute top-1 left-1.5 text-micro font-extrabold uppercase tracking-wide text-primary">{d.name}</span>
       </div>
     ))}
 
     {STATIC.map((c) => (
       <div
-        class="absolute flex h-[20px] w-[86px] items-center gap-1 rounded-md bg-[color-mix(in_srgb,var(--surface-solid)_96%,transparent)] px-1.5 text-[9px] font-medium text-text shadow-sm"
+        class="absolute flex h-[20px] w-[86px] items-center gap-1 rounded-lg bg-[color-mix(in_srgb,var(--surface-solid)_96%,transparent)] px-1.5 text-micro font-medium text-text shadow-sm"
         style={`left:${c.x}px;top:${c.y}px`}
       >
         <span>{c.icon}</span><span class="truncate">{c.text}</span>
@@ -62,7 +62,7 @@ const BARS = [32, 54, 41, 70, 48, 84, 100];
         data-order={c.order}
         data-tx={c.tx}
         data-ty={c.ty}
-        class="absolute top-[40px] flex h-[20px] w-[86px] items-center gap-1 rounded-md bg-[color-mix(in_srgb,var(--surface-solid)_96%,transparent)] px-1.5 text-[9px] font-semibold text-text shadow-md ring-1 ring-primary/30"
+        class="absolute top-[40px] flex h-[20px] w-[86px] items-center gap-1 rounded-lg bg-[color-mix(in_srgb,var(--surface-solid)_96%,transparent)] px-1.5 text-micro font-semibold text-text shadow-md ring-1 ring-primary/30"
         style={`left:${c.x}px;transform:translate(${c.tx}px,${c.ty}px)`}
       >
         <span>{c.icon}</span><span class="truncate">{c.text}</span>
@@ -74,7 +74,7 @@ const BARS = [32, 54, 41, 70, 48, 84, 100];
         <span
           data-bar
           data-i={i}
-          class:list={['flex-1 origin-bottom rounded-t-[3px]', i === BARS.length - 1 ? 'bg-emerald-500' : 'bg-primary/55']}
+          class:list={['flex-1 origin-bottom rounded-t-[3px]', i === BARS.length - 1 ? 'bg-success' : 'bg-primary/55']}
           style={`height:${h}%`}
         ></span>
       ))}
@@ -99,20 +99,20 @@ const BARS = [32, 54, 41, 70, 48, 84, 100];
     </span>
     <span>
       <span class="block text-sm font-bold tabular-nums text-text">14:30</span>
-      <span class="block text-[10px] text-text/65">Now · Senso-ji</span>
+      <span class="block text-micro text-text/65">Now · Senso-ji</span>
     </span>
   </div>
 
-  <div data-badge class="absolute top-[6px] right-[2px] flex items-center gap-1 rounded-full bg-emerald-500 px-3 py-1 text-xs font-bold text-white shadow-lg">
+  <div data-badge class="absolute top-[6px] right-[2px] flex items-center gap-1 rounded-full bg-success px-3 py-1 text-xs font-bold text-white shadow-lg">
     <svg viewBox="0 0 24 24" class="size-3.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"></path></svg>
     Day 2 planned
   </div>
 
   <div
     data-bob
-    class="absolute right-[-4px] bottom-[22px] flex items-center gap-1.5 rounded-full border border-primary/25 bg-[color-mix(in_srgb,var(--surface-solid)_95%,transparent)] px-3 py-1.5 text-[11px] font-medium text-text shadow-xl"
+    class="absolute right-[-4px] bottom-[22px] flex items-center gap-1.5 rounded-full border border-primary/25 bg-[color-mix(in_srgb,var(--surface-solid)_95%,transparent)] px-3 py-1.5 text-micro font-medium text-text shadow-xl"
   >
-    <svg viewBox="0 0 24 24" class="size-4 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4 4 0 010-8 5.5 5.5 0 0110.6 1.2A3.5 3.5 0 0117 18H7z"></path><path d="M9.5 13.5l2 2 3.5-3.5"></path></svg>
+    <svg viewBox="0 0 24 24" class="size-4 text-success" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4 4 0 010-8 5.5 5.5 0 0110.6 1.2A3.5 3.5 0 0117 18H7z"></path><path d="M9.5 13.5l2 2 3.5-3.5"></path></svg>
     Synced to Google Sheets
   </div>
 </div>

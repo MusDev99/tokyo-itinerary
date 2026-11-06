@@ -254,7 +254,7 @@ export default function PocketHome({ tab, signedIn, loginHref, tripStart, hasIti
       {signedIn && (
         <>
           {loadError && (
-            <div role="alert" className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-sm font-semibold text-red-800 flex items-center justify-between gap-2">
+            <div role="alert" className="p-3 rounded-xl bg-danger/10 border border-danger/30 text-sm font-semibold text-danger-strong flex items-center justify-between gap-2">
               {loadError}
               <button type="button" onClick={load} className="touch-target px-3 font-bold underline">Retry</button>
             </div>

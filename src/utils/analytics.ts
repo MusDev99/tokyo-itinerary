@@ -31,8 +31,8 @@ export const CATEGORIES: Record<string, CategoryInfo> = {
     label: 'Sightseeing & Activities',
     emoji: '⛩️',
     color: '#059669',
-    bgClass: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-800',
-    textClass: 'text-emerald-700',
+    bgClass: 'bg-success/15 border-success/30 text-success-strong',
+    textClass: 'text-success-strong',
   },
   lodging: {
     key: 'lodging',
@@ -87,8 +87,8 @@ export const CATEGORIES: Record<string, CategoryInfo> = {
     label: 'Adventure & Sports',
     emoji: '🧗',
     color: '#dc2626',
-    bgClass: 'bg-red-500/15 border-red-500/30 text-red-800',
-    textClass: 'text-red-700',
+    bgClass: 'bg-danger/15 border-danger/30 text-danger-strong',
+    textClass: 'text-danger-strong',
   },
   general: {
     key: 'general',

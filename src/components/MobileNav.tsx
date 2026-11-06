@@ -256,7 +256,7 @@ export default function MobileNav({ countries, currentPath, canEdit = false }: P
                               <a href={s.href} tabIndex={isOpen ? 0 : -1}
                                 className={`${linkBase} flex-1 min-w-0 justify-between ${isHere(currentPath, s.href) ? 'bg-primary text-white' : 'text-text/85 hover:bg-primary/10'}`}>
                                 <span className="flex items-center gap-2 min-w-0"><span aria-hidden="true">📍</span> <span className="truncate">{s.name}</span></span>
-                                {s.days > 0 && <span className="text-[11px] opacity-75">{s.days}d</span>}
+                                {s.days > 0 && <span className="text-micro opacity-75">{s.days}d</span>}
                               </a>
                               <a href={s.toolsHref} tabIndex={isOpen ? 0 : -1} aria-label={`${s.name} pocket`}
                                 className={`${linkBase} px-3 justify-center ${isHere(currentPath, s.toolsHref) ? 'bg-primary text-white' : 'text-text/85 hover:bg-primary/10'}`}>

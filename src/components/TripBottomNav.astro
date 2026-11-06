@@ -59,7 +59,7 @@ const ICONS: Record<TabKey, Shape[]> = {
             aria-current={current ? 'page' : undefined}
             data-astro-prefetch={current || Astro.locals.user ? 'false' : 'viewport'}
             class:list={[
-              'group relative flex flex-col items-center justify-center gap-0.5 h-14 px-1 rounded-[1.35rem] text-[11px] font-bold leading-none focus-ring',
+              'group relative flex flex-col items-center justify-center gap-0.5 h-14 px-1 rounded-[1.35rem] text-micro font-bold leading-none focus-ring',
               'transition-[background-color,color,transform] duration-200 motion-reduce:transition-none active:scale-95',
               current
                 ? 'bg-primary text-white shadow-[0_4px_12px_color-mix(in_srgb,var(--color-primary)_45%,transparent)]'
@@ -86,7 +86,7 @@ const ICONS: Record<TabKey, Shape[]> = {
             {tab.badge && (
               <span
                 class:list={[
-                  'absolute top-1.5 left-1/2 ml-2.5 px-1.5 py-0.5 rounded-full text-[9px] font-extrabold leading-none',
+                  'absolute top-1.5 left-1/2 ml-2.5 px-1.5 py-0.5 rounded-full text-micro font-extrabold leading-none',
                   current ? 'bg-white text-primary' : 'bg-primary text-white',
                 ]}
               >

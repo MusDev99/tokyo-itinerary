@@ -111,7 +111,7 @@ export default function PocketSheet({ kind: initialKind, item, defaultDate = '',
                 className="touch-target min-h-[88px] rounded-2xl border-2 border-primary/25 bg-white/60 p-3 text-left hover:border-primary/60 active:scale-[0.98] transition-[color,background-color,border-color,box-shadow,opacity,transform]">
                 <span className="text-2xl" aria-hidden="true">{KIND_META[k].icon}</span>
                 <span className="block text-sm font-extrabold text-text">{KIND_META[k].label}</span>
-                <span className="block text-[11px] text-text/60">{KIND_META[k].hint}</span>
+                <span className="block text-micro text-text/60">{KIND_META[k].hint}</span>
               </button>
             ))}
           </div>
@@ -171,7 +171,7 @@ export default function PocketSheet({ kind: initialKind, item, defaultDate = '',
                     );
                   })}
                 </div>
-                {errs.docKind && <span className="text-[11px] font-semibold text-red-600">{errs.docKind}</span>}
+                {errs.docKind && <span className="text-micro font-semibold text-danger-strong">{errs.docKind}</span>}
               </div>
             )}
 
@@ -232,13 +232,13 @@ export default function PocketSheet({ kind: initialKind, item, defaultDate = '',
                     <FormField label="Notes" htmlFor="pk-notes" className="col-span-2">
                       <textarea id="pk-notes" rows={2} maxLength={2000} className={inputClass} value={draft.notes} onInput={(e) => patch({ notes: (e.target as HTMLTextAreaElement).value })} />
                     </FormField>
-                    <p className="col-span-2 text-[11px] text-text/60">Everyone with edit access to the sheet can read this. Don't store passport numbers.</p>
+                    <p className="col-span-2 text-micro text-text/60">Everyone with edit access to the sheet can read this. Don't store passport numbers.</p>
                   </div>
                 )}
               </div>
             )}
 
-            {errs._ && <div role="alert" className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-sm font-semibold text-red-800">{errs._}</div>}
+            {errs._ && <div role="alert" className="p-3 rounded-xl bg-danger/10 border border-danger/30 text-sm font-semibold text-danger-strong">{errs._}</div>}
 
             <div className="flex gap-2">
               <button type="button" onClick={() => (item || initialKind ? onClose() : setKind(null))}

@@ -157,7 +157,7 @@ export default function ActivitySheet({ mode, initial, days, plannedDays = [], c
           active ? 'bg-primary text-white border-primary' : 'bg-white/60 text-text border-primary/25 hover:border-primary/60'
         }`}>
         <span className="block text-xs font-extrabold">{dayLabel(i)}</span>
-        <span className={`block text-[10px] font-bold ${active ? 'text-white/80' : 'text-text/60'}`}>
+        <span className={`block text-micro font-bold ${active ? 'text-white/80' : 'text-text/60'}`}>
           {weekday(iso)} {Number(iso.slice(8))} {monthShort(iso)}{planned.has(iso) ? ' •' : ''}
         </span>
       </button>
@@ -187,8 +187,8 @@ export default function ActivitySheet({ mode, initial, days, plannedDays = [], c
                     className="touch-target shrink-0 min-w-[56px] rounded-xl border-2 border-dashed border-primary/40 text-primary text-xl font-bold">＋</button>
                 )}
               </div>
-              {errs.date && <span className="text-[11px] font-semibold text-red-600">{errs.date}</span>}
-              {mode === 'edit' && <p className="text-[11px] text-text/55 mt-1">Trip days only</p>}
+              {errs.date && <span className="text-micro font-semibold text-danger-strong">{errs.date}</span>}
+              {mode === 'edit' && <p className="text-micro text-text/55 mt-1">Trip days only</p>}
             </div>
 
             {cities.length > 1 && (
@@ -262,8 +262,8 @@ export default function ActivitySheet({ mode, initial, days, plannedDays = [], c
               )}
             </div>
 
-            {errs._ && <div role="alert" className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-sm font-semibold text-red-800">{errs._}</div>}
-            <div role="status" aria-live="polite" className="min-h-[1.25rem] text-sm font-bold text-emerald-700">{toast}</div>
+            {errs._ && <div role="alert" className="p-3 rounded-xl bg-danger/10 border border-danger/30 text-sm font-semibold text-danger-strong">{errs._}</div>}
+            <div role="status" aria-live="polite" className="min-h-[1.25rem] text-sm font-bold text-success-strong">{toast}</div>
           </div>
 
           {/* Pinned actions: always in thumb reach, however long the form gets */}

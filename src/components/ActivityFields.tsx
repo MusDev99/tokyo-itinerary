@@ -60,7 +60,7 @@ export default function ActivityFields({ value, errors = {}, onChange, idPrefix,
         <FormField label="Date" required error={errors.date} htmlFor={id('date')} className="sm:col-span-2">
           <CalendarPicker id={id('date')} value={value.date} invalid={!!errors.date} min={dateMin} max={dateMax}
             onChange={(date) => onChange({ date })} />
-          {dateMin && dateMax && <span className="text-[11px] text-text/55">Trip days only</span>}
+          {dateMin && dateMax && <span className="text-micro text-text/55">Trip days only</span>}
         </FormField>
       )}
       <FormField label="Time" error={errors.time} htmlFor={id('time')} className={hideDate ? 'sm:col-span-3' : 'sm:col-span-2'}>
@@ -68,7 +68,7 @@ export default function ActivityFields({ value, errors = {}, onChange, idPrefix,
           onChange={(time) => onChange({ time })} />
         {value.time && (
           <button type="button" onClick={() => onChange({ time: '' })}
-            className="self-start px-1 py-1 text-[11px] font-bold text-primary hover:underline">
+            className="self-start px-1 py-1 text-micro font-bold text-primary hover:underline">
             Clear time (--:--)
           </button>
         )}
