@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   parseStops, serializeStops, parseTripMetas, legacyTripSlug, uniqueSlug, cityForDay, orderedCities, citiesLabel,
-  tabNameFromTitle, stopsFromParts, validateStops, stopDays,
+  tabNameFromTitle, stopsFromParts, partsFromStops, validateStops, stopDays,
 } from '../src/utils/trips.ts';
 
 test('stops: valid ones are kept and sorted, malformed ones dropped, bad JSON is empty', () => {
@@ -86,6 +86,14 @@ test('stops laid end to end; the last takes the rest; empty cities skipped', () 
   assert.equal(stopsFromParts('2025-03-01', 3, [{ city: ' ', days: 2 }, { city: 'A', days: 1 }])[0].end, '2025-03-03');
   // a middle stop can never eat the days the later stops need
   assert.deepEqual(stopsFromParts('2025-03-01', 3, [{ city: 'A', days: 9 }, { city: 'B', days: 1 }, { city: 'C', days: 1 }]).map((s) => stopDays(s)), [1, 1, 1]);
+});
+
+test('stops become city + days rows again, in date order (re-laying them on new dates)', () => {
+  const stops = stopsFromParts('2025-03-01', 7, [{ city: 'Tokyo', days: 4 }, { city: 'Osaka', days: 1 }]);
+  const parts = partsFromStops([...stops].reverse());
+  assert.deepEqual(parts.map((p) => [p.city, p.days]), [['Tokyo', 4], ['Osaka', 3]]);
+  // a longer trip: Osaka (last) takes the extra days
+  assert.deepEqual(stopsFromParts('2025-04-01', 9, parts).map((s) => [s.city, s.end]), [['Tokyo', '2025-04-04'], ['Osaka', '2025-04-09']]);
 });
 
 test('stop validation: inside the trip, no overlaps', () => {

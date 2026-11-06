@@ -1,10 +1,11 @@
 import { h } from 'preact';
-import { goTo, refreshPage } from '../utils/refresh';
+import { goTo } from '../utils/refresh';
 import { apiFetch } from '../utils/apiFetch';
 import { toast } from '../utils/toast';
 import { useState } from 'preact/hooks';
 import ConfirmDialog from './ConfirmDialog';
-import { inputClass } from './inputClass';
+import TripEditSheet from './TripEditSheet';
+import type { Stop } from '../utils/trips';
 
 interface Props {
   tab: string; // exact worksheet tab (never renamed: the title is a separate field)
@@ -13,12 +14,14 @@ interface Props {
   activityCount: number;
   /** Where to go after the trip is deleted */
   afterDeleteHref: string;
+  /** For the edit sheet: saved dates and the cities of this trip */
+  dates?: { start: string; end: string } | null;
+  stops?: Stop[];
 }
 
-/** Trip-level actions: rename the trip (its title; the slug and tab stay, so shared links keep working) and delete it. */
-export default function TripActions({ tab, title, activityCount, afterDeleteHref }: Props) {
-  const [mode, setMode] = useState<'idle' | 'rename' | 'delete'>('idle');
-  const [newTitle, setNewTitle] = useState(title);
+/** Trip-level actions: edit the trip (title, dates, cities; the slug and tab stay, so shared links keep working) and delete it. */
+export default function TripActions({ tab, title, activityCount, afterDeleteHref, dates = null, stops = [] }: Props) {
+  const [mode, setMode] = useState<'idle' | 'edit' | 'delete'>('idle');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
@@ -29,11 +32,6 @@ export default function TripActions({ tab, title, activityCount, afterDeleteHref
     setBusy(false);
     if (!r.ok) { if (r.kind !== 'signed-out') setError(r.error); return null; }
     return r.data;
-  };
-
-  const rename = async () => {
-    const data = await call('PATCH', { tab, title: newTitle }, '/api/trips');
-    if (data) { setMode('idle'); toast.success('Trip renamed'); refreshPage(); }
   };
 
   const remove = async () => {
@@ -51,8 +49,8 @@ export default function TripActions({ tab, title, activityCount, afterDeleteHref
   return (
     // Common Region: one quiet container so the two icons read as a single "manage" control
     <div className="inline-flex items-center gap-0.5 shrink-0 self-start p-0.5 rounded-xl bg-white/45 border border-primary/15" role="group" aria-label="Manage trip">
-      <button type="button" aria-label="Rename trip" title="Rename trip"
-        onClick={() => { setNewTitle(title); setMode('rename'); }}
+      <button type="button" aria-label="Edit trip" title="Edit trip"
+        onClick={() => setMode('edit')}
         className={`${btn} text-primary hover:bg-primary/15`}>
         <svg className={icon} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
           <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zM19.5 7.125L16.875 4.5" />
@@ -67,23 +65,7 @@ export default function TripActions({ tab, title, activityCount, afterDeleteHref
         </svg>
       </button>
 
-      <ConfirmDialog
-        open={mode === 'rename'}
-        danger={false}
-        title="Rename trip"
-        confirmLabel="Save title"
-        busy={busy}
-        error={error}
-        onConfirm={rename}
-        onCancel={close}
-        message={
-          <div className="space-y-2 mt-2">
-            <p>Only the title changes: the trip keeps its address, so shared links still work.</p>
-            <input className={inputClass} aria-label="Trip title" value={newTitle} placeholder="Trip title" maxLength={100}
-              onInput={(e) => setNewTitle((e.target as HTMLInputElement).value)} />
-          </div>
-        }
-      />
+      {mode === 'edit' && <TripEditSheet tab={tab} title={title} dates={dates} stops={stops} onClose={close} />}
 
       <ConfirmDialog
         open={mode === 'delete'}

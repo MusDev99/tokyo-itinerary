@@ -4,6 +4,7 @@ import { apiFetch } from '../utils/apiFetch';
 import { toast } from '../utils/toast';
 import InlineError from './ui/InlineError';
 import { ListSkeleton } from './ui/Skeleton';
+import EmptyState from './ui/EmptyState';
 import { sortItems, type PocketItem, type PocketKind } from '../utils/pocket';
 import { formatLongDate } from '../utils/calendar';
 import type { CheckGroup } from '../utils/checklist';
@@ -215,7 +216,7 @@ export default function PocketHome({ tab, signedIn, loginHref, tripStart, hasIti
     </li>
   );
 
-  const empty = (text: string) => <p className="text-sm text-text/60 px-1 py-2">{text}</p>;
+  const empty = (text: string, icon = '📭') => <EmptyState icon={icon} title={text} className="py-4" />;
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-4">
@@ -236,10 +237,10 @@ export default function PocketHome({ tab, signedIn, loginHref, tripStart, hasIti
             <InlineError message={loadError} onRetry={load} />
           )}
           <Section id="pk-bookings" title="Bookings & docs" count={bookings.length} open={open.bookings} onToggle={() => toggle('bookings')}>
-            {items === null ? <RowSkeleton /> : bookings.length === 0 ? empty('No flights, stays or docs yet. Add one with the button above.') : <ul className="space-y-2">{bookings.map(card)}</ul>}
+            {items === null ? <RowSkeleton /> : bookings.length === 0 ? empty('No flights, stays or docs yet', '✈️') : <ul className="space-y-2">{bookings.map(card)}</ul>}
           </Section>
           <Section id="pk-notes" title="Notes" count={notes.length} open={open.notes} onToggle={() => toggle('notes')}>
-            {items === null ? <RowSkeleton /> : notes.length === 0 ? empty('Door codes, wifi, reminders.') : <ul className="space-y-2">{notes.map(noteCard)}</ul>}
+            {items === null ? <RowSkeleton /> : notes.length === 0 ? empty('No notes yet: door codes, wifi, reminders', '📝') : <ul className="space-y-2">{notes.map(noteCard)}</ul>}
           </Section>
         </>
       )}
@@ -247,7 +248,7 @@ export default function PocketHome({ tab, signedIn, loginHref, tripStart, hasIti
       <Section id="pk-checklist" title="Checklist" open={open.checklist} onToggle={() => toggle('checklist')}>
         {hasItinerary
           ? <TripChecklist tab={tab} groups={groups} firstDate={firstDate} />
-          : empty('Add places to your itinerary to get a tailored checklist.')}
+          : empty('Add places to your itinerary to get a tailored checklist', '✅')}
       </Section>
       <Section id="pk-tools" title="Location & prayer times" open={open.tools} onToggle={() => toggle('tools')}>
         <TravelTools tab={tab} searchName={tools.searchName} savedPlace={tools.savedPlace} suggestion={tools.suggestion} dates={tools.dates} canEdit={signedIn} />

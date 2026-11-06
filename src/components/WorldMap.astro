@@ -27,7 +27,7 @@ const mask = 'url(/world-map.svg) center / 100% 100% no-repeat';
             data-planned={p.planned ? '' : undefined}
             aria-pressed={i === 0 ? 'true' : 'false'}
             aria-label={`${p.name}${p.planned ? `, ${p.days} days planned` : ', wishlist'}`}
-            class="focus-ring group absolute grid size-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full"
+            class="focus-ring group absolute grid size-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full after:absolute after:-inset-1.5 after:content-['']"
             style={`left:${p.left}%;top:${p.top}%`}
           >
             <span data-pulse aria-hidden="true" class:list={['absolute size-4 rounded-full', p.planned ? 'bg-primary/40' : 'hidden']}></span>

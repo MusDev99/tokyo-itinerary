@@ -4,6 +4,7 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
+import EmptyState from '../components/ui/EmptyState';
 import WorldMap from '../components/WorldMap.astro';
 import TodayCard from '../components/TodayCard';
 import { slimDays, type TodayTrip } from '../utils/today';
@@ -27,7 +28,9 @@ if (
 
 Astro.response.headers.set('Cache-Control', pageCacheControl(Boolean(Astro.locals.user)));
 
-const { countries } = await getAllCountriesWithSheets();
+const { countries, syncResult } = await getAllCountriesWithSheets();
+// No trips AND the sheet could not be read (or is not set up) is a different message from "no trips yet"
+const sheetProblem = countries.length === 0 && syncResult.source !== 'google-sheets';
 const allItineraries = getActiveItinerariesMap(countries);
 
 const DAY = 86_400_000;
@@ -140,6 +143,22 @@ import { COLLAPSE_AFTER } from '../utils/countryList';
         <section data-reveal aria-labelledby="map-heading" class="space-y-3">
           <h2 id="map-heading" class="text-lg sm:text-xl font-extrabold text-text px-1">World map</h2>
           <div class="glass-effect rounded-2xl sm:rounded-3xl p-3 sm:p-5"><WorldMap countries={countries} /></div>
+        </section>
+      )}
+
+      {trips.length === 0 && (
+        <section aria-label="No trips to show" class="glass-effect rounded-2xl p-4 sm:p-6 border border-primary/20">
+          {sheetProblem ? (
+            <EmptyState icon="🛠️" title="We can't reach your trip sheet right now" hint="Nothing is lost. Try again in a moment; if it keeps happening, check the Google Sheet connection.">
+              <a href="/" data-astro-reload class="touch-target focus-ring inline-flex items-center justify-center min-h-11 px-5 rounded-xl bg-primary text-white text-sm font-extrabold shadow-md">Try again</a>
+            </EmptyState>
+          ) : (
+            <EmptyState icon="🧳" title="No trips yet" hint={Astro.locals.user ? 'Start with a blank trip, copy one, or pick places others loved.' : 'Sign in to plan your first trip.'}>
+              <a href={Astro.locals.user ? '/add' : '/login?next=/add'} class="touch-target focus-ring inline-flex items-center justify-center min-h-11 px-5 rounded-xl bg-primary text-white text-sm font-extrabold shadow-md">
+                {Astro.locals.user ? 'Plan your first trip' : 'Sign in'}
+              </a>
+            </EmptyState>
+          )}
         </section>
       )}
 
