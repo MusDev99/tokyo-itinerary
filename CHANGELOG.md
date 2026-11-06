@@ -3,6 +3,13 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-06 11:55 — Feat: loading states and feedback
+
+- **One loading placeholder, `.skeleton`** (opacity only, off with reduced motion) replaces the five ad-hoc `animate-pulse` blocks (tab skeleton, prayer times, chart, timeline photo, suggestions) and the unused `SkeletonLoader.tsx`. New `ListSkeleton` is shaped like a real list row, so content replaces it without a layout jump (Pocket and the wizard's suggestions use it).
+- **Suggestions picker:** skeleton rows on first load; when you change search, city or type the list stays and dims (`aria-busy`) instead of blanking; errors use `InlineError`; request goes through `apiFetch` and cancels stale searches.
+- **Undo instead of "can't be undone":** deleting a place or a Pocket item happens at once and a toast offers **Undo** for 6 seconds (it puts the same content back; it gets a new id / a new row at the end of the sheet, shown at the same day and time).
+- **Saved confirmations:** place edit, trip created/copied/renamed/deleted now toast (the toast survives the page swap). The wizard subtitle no longer says "Three quick steps".
+
 ## 2026-11-06 11:41 — Chore: shared UI kit (Button, InlineError, EmptyState, toast, apiFetch)
 
 - **One `Button`** (primary / soft / danger / ghost, 44px minimum, focus ring, `busy` spinner that blocks a second press) now drives Confirm dialog, Add/Edit place, Pocket sheet and the new-trip wizard buttons. At night the primary button uses dark ink (white on amber failed contrast).

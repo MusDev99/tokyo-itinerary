@@ -1,6 +1,7 @@
 import { h } from 'preact';
 import { goTo, refreshPage } from '../utils/refresh';
 import { apiFetch } from '../utils/apiFetch';
+import { toast } from '../utils/toast';
 import { useState } from 'preact/hooks';
 import ConfirmDialog from './ConfirmDialog';
 import { inputClass } from './inputClass';
@@ -32,12 +33,12 @@ export default function TripActions({ tab, title, activityCount, afterDeleteHref
 
   const rename = async () => {
     const data = await call('PATCH', { tab, title: newTitle }, '/api/trips');
-    if (data) { setMode('idle'); refreshPage(); }
+    if (data) { setMode('idle'); toast.success('Trip renamed'); refreshPage(); }
   };
 
   const remove = async () => {
     const data = await call('DELETE', { tab, wholeTrip: true });
-    if (data) goTo(afterDeleteHref);
+    if (data) { toast.success('Trip deleted'); goTo(afterDeleteHref); }
   };
 
   const close = () => { setMode('idle'); setError(''); };

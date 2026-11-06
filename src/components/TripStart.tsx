@@ -4,6 +4,9 @@ import { CATEGORIES } from '../utils/analytics';
 import { normTitle, type Suggestion } from '../utils/suggestions';
 import { formatLongDate } from '../utils/calendar';
 import { inputClass } from './inputClass';
+import { apiFetch } from '../utils/apiFetch';
+import InlineError from './ui/InlineError';
+import { ListSkeleton } from './ui/Skeleton';
 
 export type StartMode = 'blank' | 'copy' | 'suggest';
 
@@ -161,20 +164,19 @@ export function SuggestionPicker({ picks, onPicks, initialCity = '' }: SuggestPr
   const [error, setError] = useState('');
   const picked = new Set(picks.map((p) => p.key));
 
+  const [refreshing, setRefreshing] = useState(false);
   useEffect(() => {
     const ctrl = new AbortController();
+    setRefreshing(true);
     const t = setTimeout(async () => {
-      try {
-        const params = new URLSearchParams({ q, city, category });
-        const res = await fetch(`/api/suggestions?${params}`, { signal: ctrl.signal });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Could not load suggestions');
-        setItems(data.items as Suggestion[]);
-        if (data.cities) setCities(data.cities as string[]);
-        setError('');
-      } catch (e: any) {
-        if (e?.name !== 'AbortError') setError(e?.message || 'Could not load suggestions');
-      }
+      const params = new URLSearchParams({ q, city, category });
+      const r = await apiFetch(`/api/suggestions?${params}`, { signal: ctrl.signal });
+      if (ctrl.signal.aborted) return;
+      setRefreshing(false);
+      if (!r.ok) { setError(r.kind === 'http' ? r.error : 'Could not load suggestions. Check your connection.'); return; }
+      setItems(r.data.items as Suggestion[]);
+      if (r.data.cities) setCities(r.data.cities as string[]);
+      setError('');
     }, 250);
     return () => { clearTimeout(t); ctrl.abort(); };
   }, [q, city, category]);
@@ -208,10 +210,10 @@ export function SuggestionPicker({ picks, onPicks, initialCity = '' }: SuggestPr
         {picks.length > 0 ? <span className="text-primary">{picks.length} picked</span> : 'Nothing picked yet'}
         {picks.length >= MAX_PICKS && <span className="text-text/60"> (the most that fits)</span>}
       </p>
-      {error && <p role="alert" className="text-sm font-semibold text-danger-strong">{error}</p>}
-      {items === null && !error && <div role="status" aria-label="Loading suggestions" className="h-24 rounded-xl bg-primary/10 animate-pulse" />}
+      <InlineError message={error} />
+      {items === null && !error && <ListSkeleton rows={4} label="Loading suggestions" />}
       {items && items.length === 0 && <p role="status" className="py-4 text-center text-sm text-text/60">No places match. Try another city or type.</p>}
-      <ul className="max-h-[42vh] overflow-y-auto overscroll-contain rounded-xl border border-primary/15 divide-y divide-primary/10 bg-white/40">
+      <ul aria-busy={refreshing} className={`max-h-[42vh] overflow-y-auto transition-opacity ${refreshing && items ? 'opacity-60' : ''} overscroll-contain rounded-xl border border-primary/15 divide-y divide-primary/10 bg-white/40`}>
         {(items || []).map((s) => {
           const on = picked.has(s.key);
           const cat = CATEGORIES[s.category];

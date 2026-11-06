@@ -3,6 +3,7 @@ import { goTo } from '../utils/refresh';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { animate } from 'motion';
 import { apiFetch } from '../utils/apiFetch';
+import { toast } from '../utils/toast';
 import { prefersReducedMotion } from '../utils/motion';
 import { slug, validateRange, buildDays, diffDays, addDays, isIsoDate, MAX_TRIP_DAYS } from '../utils/tripDraft';
 import { stopsFromParts, citiesLabel } from '../utils/trips';
@@ -229,6 +230,7 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
       const r = await apiFetch(url, { body: payload });
       if (!r.ok) { if (r.kind !== 'signed-out') setError(r.error); return; }
       writeDraft(null);
+      toast.success(mode === 'copy' ? 'Trip copied' : 'Trip created');
       goTo(r.data.href);
     } finally {
       setBusy(false);

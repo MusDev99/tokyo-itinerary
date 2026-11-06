@@ -335,7 +335,7 @@ export const AnalyticsDashboard: React.FC<Props> = ({ dataSources, currencies = 
           <section className={card} aria-label="Exchange rate history">
             <h3 className="text-sm font-extrabold text-text">Rate history · {base} → {graphTarget}</h3>
             <p className="text-xs text-text/60 mb-3">See whether now is a good time to exchange.</p>
-            <Suspense fallback={<div className="h-56 rounded-xl bg-primary/10 animate-pulse" role="status" aria-label="Loading chart" />}>
+            <Suspense fallback={<div className="h-56 rounded-xl skeleton" role="status" aria-label="Loading chart" />}>
               <CurrencyExchangeGraph
                 baseCurrency={base}
                 targetCurrency={graphTarget}
