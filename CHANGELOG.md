@@ -3,6 +3,13 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-06 12:30 — Release 0.3.0: titled multi-city trips, copy and suggestions, consistent UI
+
+- **Release notes:** `docs/releases/v0.3.0.md`. Version bumped to 0.3.0 (minor: new features, backward compatible, no new env vars).
+- Includes #40 to #44 (trips redesign: titled multi-city trips at `/trips/<slug>`, create/edit, copy a trip, suggestions, dock on country view) and #45 to #48 (UI tokens, UI kit, loading and Undo, edit-trip sheet, 500 page, tap targets).
+- `npm audit --omit=dev`: 4 moderate findings in the build-time chain `@astrojs/vercel` > `@vercel/nft` > `glob` / `minimatch`; fix needs a breaking upgrade, deferred.
+- Tag `v0.3.0` after merge (tag pushes are blocked from the cloud session: push it from your machine).
+
 ## 2026-11-06 12:15 — Feat: UX polish (edit trip, error and empty states, tap targets)
 
 - **Edit a trip after creating it:** the pencil opens one sheet with the **title, dates and cities** (days per city, the last city takes the rest, live preview). `PATCH /api/trips` now accepts `dates`; changing them re-lays the existing cities on the new range. Places already in the itinerary are never moved or deleted. This closes the "no UI to edit cities/dates" gap.
