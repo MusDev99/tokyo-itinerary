@@ -57,7 +57,7 @@ export default function TravelTools({ tab, searchName, savedPlace, suggestion, d
             {place ? (
               <p className="text-sm text-text/80 mt-0.5 break-words">
                 Using <strong>{placeLabel(place)}</strong>
-                {!confirmed && <span className="ml-2 inline-block text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-900 whitespace-nowrap">Not confirmed</span>}
+                {!confirmed && <span className="ml-2 inline-block text-micro font-bold px-2 py-0.5 rounded-full bg-warning/20 text-warning-strong whitespace-nowrap">Not confirmed</span>}
               </p>
             ) : (
               <p className="text-sm text-text/70 mt-0.5">We couldn't find “{searchName}”. Search for the right place below.</p>
@@ -87,7 +87,7 @@ export default function TravelTools({ tab, searchName, savedPlace, suggestion, d
             )}
           </div>
         )}
-        {error && <p role="alert" className="text-xs font-semibold text-red-700">{error}</p>}
+        {error && <p role="alert" className="text-xs font-semibold text-danger-strong">{error}</p>}
       </section>
 
       {/* Prayer times card */}

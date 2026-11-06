@@ -39,7 +39,7 @@ export default function PortalMenu({ label, items, className = '' }: { label: st
               role="menuitem"
               onClick={() => { picker.close(false); item.onSelect(); }}
               className={`touch-target w-full flex items-center gap-2 px-3 rounded-lg text-sm font-semibold text-left ${
-                item.danger ? 'text-red-700 hover:bg-red-500/10' : 'text-text hover:bg-primary/10'
+                item.danger ? 'text-danger-strong hover:bg-danger/10' : 'text-text hover:bg-primary/10'
               }`}
             >
               {item.label}

@@ -107,15 +107,15 @@ export default function SpendDonut({ slices, total, money, title }: Props) {
           {pick ? (
             <>
               <span className="text-xl leading-none" aria-hidden="true">{pick.emoji}</span>
-              <span className="mt-1 max-w-full truncate text-[11px] font-bold text-text/70">{pick.label}</span>
+              <span className="mt-1 max-w-full truncate text-micro font-bold text-text/70">{pick.label}</span>
               <span className="text-lg font-extrabold text-text leading-tight">{money(pick.total)}</span>
-              <span className="text-[11px] font-semibold text-text/60">{pct(pick.total)}% · {pick.count} {pick.count === 1 ? 'item' : 'items'}</span>
+              <span className="text-micro font-semibold text-text/60">{pct(pick.total)}% · {pick.count} {pick.count === 1 ? 'item' : 'items'}</span>
             </>
           ) : (
             <>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-text/55">Total spend</span>
+              <span className="text-micro font-bold uppercase tracking-wider text-text/55">Total spend</span>
               <span className="text-xl font-extrabold text-text leading-tight break-words">{money(total)}</span>
-              <span className="text-[11px] text-text/55">tap a slice</span>
+              <span className="text-micro text-text/55">tap a slice</span>
             </>
           )}
         </div>

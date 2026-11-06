@@ -150,7 +150,7 @@ export default function AnalogTimePicker({ id, value, onChange, invalid, placeho
           })}
         </svg>
 
-        <p className="text-center text-[11px] text-text/60 mt-1">
+        <p className="text-center text-micro text-text/60 mt-1">
           {mode === 'hour' ? 'Tap or drag to set the hour' : 'Tap or drag to set the minute'}
         </p>
 

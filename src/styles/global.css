@@ -115,6 +115,16 @@
   --color-secondary: #fde68a;
   --color-accent: #b45309;
   --surface-solid: #ffffff;
+  /* Status colours (PR "UI tokens"): base = fills/borders (use with /10-/30 for soft surfaces), strong = text on a
+     light surface, solid = a filled button behind white text. Night swaps strong to a light tint for contrast. */
+  --color-danger: #ef4444;
+  --color-danger-strong: #b91c1c;
+  --color-danger-solid: #dc2626;
+  --color-success: #10b981;
+  --color-success-strong: #047857;
+  --color-success-solid: #059669;
+  --color-warning: #f59e0b;
+  --color-warning-strong: #92400e;
 }
 
 [data-theme="autumn"] {
@@ -177,6 +187,12 @@
   --color-secondary: #1e2a5a;
   --color-accent: #a5b4fc;
   --surface-solid: #151c3b;
+  --color-danger: #f87171;
+  --color-danger-strong: #fca5a5;
+  --color-success: #34d399;
+  --color-success-strong: #6ee7b7;
+  --color-warning: #fbbf24;
+  --color-warning-strong: #fcd34d;
   color-scheme: dark;
 }
 

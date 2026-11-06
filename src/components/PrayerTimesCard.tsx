@@ -93,7 +93,7 @@ export default function PrayerTimesCard({ place, dates }: Props) {
         {data?.qibla != null && (
           <div className="flex items-center gap-3 rounded-xl bg-white/45 border border-primary/15 px-3 py-2 self-start">
             <div className="relative w-12 h-12 rounded-full border-2 border-primary/30 bg-white/50 flex items-center justify-center" aria-hidden="true">
-              <span className="absolute top-0.5 text-[9px] font-bold text-text/50">N</span>
+              <span className="absolute top-0.5 text-micro font-bold text-text/50">N</span>
               <div ref={needle} className="absolute inset-[5px] flex items-start justify-center" style={{ transformOrigin: '50% 50%' }}>
                 <div className="w-0 h-0 border-l-[5px] border-r-[5px] border-b-[18px] border-l-transparent border-r-transparent border-b-primary" />
               </div>
@@ -101,7 +101,7 @@ export default function PrayerTimesCard({ place, dates }: Props) {
             </div>
             <div className="leading-tight">
               <div className="text-sm font-extrabold text-text">Qibla {Math.round(data.qibla)}° {compassPoint(data.qibla)}</div>
-              <div className="text-[11px] text-text/60">Bearing from north, clockwise</div>
+              <div className="text-micro text-text/60">Bearing from north, clockwise</div>
             </div>
           </div>
         )}
@@ -114,9 +114,9 @@ export default function PrayerTimesCard({ place, dates }: Props) {
       )}
 
       {error && !loading && (
-        <div role="alert" className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-sm font-semibold text-red-800 flex items-center justify-between gap-3">
+        <div role="alert" className="p-3 rounded-xl bg-danger/10 border border-danger/30 text-sm font-semibold text-danger-strong flex items-center justify-between gap-3">
           <span>{error}</span>
-          <button type="button" onClick={() => setAttempt((a) => a + 1)} className="touch-target px-3 py-1.5 rounded-lg bg-red-600 text-white text-xs font-bold shrink-0">Retry</button>
+          <button type="button" onClick={() => setAttempt((a) => a + 1)} className="touch-target px-3 py-1.5 rounded-lg bg-danger-solid text-white text-xs font-bold shrink-0">Retry</button>
         </div>
       )}
 
@@ -126,12 +126,12 @@ export default function PrayerTimesCard({ place, dates }: Props) {
             <div key={d.date} className={`rounded-xl border p-3 ${d.date === today ? 'bg-primary/15 border-primary' : 'bg-white/45 border-primary/15'}`}>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-extrabold text-text">{fmtDay(d.date)}</span>
-                {d.date === today && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary text-white">Today</span>}
+                {d.date === today && <span className="text-micro font-bold px-2 py-0.5 rounded-full bg-primary text-white">Today</span>}
               </div>
               <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                 {PRAYERS.map((p) => (
                   <div key={p.key} className="rounded-lg bg-white/50 px-2 py-1.5 text-center">
-                    <div className="text-[11px] font-semibold text-text/60">{p.label}</div>
+                    <div className="text-micro font-semibold text-text/60">{p.label}</div>
                     <div className="text-sm font-extrabold text-text tabular-nums">{d[p.key]}</div>
                   </div>
                 ))}

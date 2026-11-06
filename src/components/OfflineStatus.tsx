@@ -42,7 +42,7 @@ export default function OfflineStatus() {
           href="/offline"
           className="pointer-events-auto touch-target inline-flex items-center gap-2 h-11 px-4 rounded-full bg-surface-solid border border-primary/30 shadow-lg text-sm font-bold text-text whitespace-nowrap"
         >
-          <span className="w-2 h-2 rounded-full bg-amber-500" aria-hidden="true" />
+          <span className="w-2 h-2 rounded-full bg-warning" aria-hidden="true" />
           Offline · saved copy
         </a>
       )}

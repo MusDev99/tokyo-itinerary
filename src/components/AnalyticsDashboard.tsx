@@ -213,7 +213,7 @@ export const AnalyticsDashboard: React.FC<Props> = ({ dataSources, currencies = 
         <div>
           <h2 className="text-lg sm:text-xl font-extrabold text-text">Spending & currency</h2>
           <p className="text-xs text-text/60 flex items-center gap-1.5 mt-0.5">
-            <span className={`inline-block w-2 h-2 rounded-full ${rateStatus === 'live' ? 'bg-emerald-500' : 'bg-amber-400'}`} />
+            <span className={`inline-block w-2 h-2 rounded-full ${rateStatus === 'live' ? 'bg-success' : 'bg-warning'}`} />
             {rateStatus === 'live' ? 'Live exchange rates' : rateStatus === 'loading' ? 'Loading rates…' : 'Offline rates (approximate)'}
           </p>
         </div>
@@ -255,7 +255,7 @@ export const AnalyticsDashboard: React.FC<Props> = ({ dataSources, currencies = 
         <div className="flex flex-col gap-4 sm:gap-5">
           <div className={`${card} bg-gradient-to-br from-primary/15 to-transparent flex flex-col sm:flex-row sm:items-center justify-between gap-4`}>
             <div className="min-w-0">
-              <div className="text-[11px] font-bold uppercase tracking-wider text-text/60">Total estimated spend</div>
+              <div className="text-micro font-bold uppercase tracking-wider text-text/60">Total estimated spend</div>
               <div className="text-3xl sm:text-4xl font-extrabold text-text break-words">{money(total)}</div>
               <div className="text-xs text-text/60 mt-1">
                 ≈ {money(avgPerDay)} per day · {paid.length} paid of {items.length} activities
@@ -387,10 +387,10 @@ export const AnalyticsDashboard: React.FC<Props> = ({ dataSources, currencies = 
                 <li key={i.id} className="min-w-0 rounded-xl border border-primary/20 bg-white/45 p-3 sm:px-4 sm:py-3 flex items-start sm:items-center justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-1.5 mb-1">
-                      <span className="px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[11px] font-bold">
+                      <span className="px-2 py-0.5 rounded-lg bg-primary/10 text-primary text-micro font-bold">
                         {multiCountry ? `${slugLabel(i.country)} · ` : ''}Day {i.day}
                       </span>
-                      <span className="text-[11px] font-semibold" style={{ color: `color-mix(in srgb, ${i.category.color} 65%, var(--color-text))` }}>{i.category.emoji} {i.category.label}</span>
+                      <span className="text-micro font-semibold" style={{ color: `color-mix(in srgb, ${i.category.color} 65%, var(--color-text))` }}>{i.category.emoji} {i.category.label}</span>
                     </div>
                     <div className="font-semibold text-sm text-text line-clamp-2 sm:line-clamp-1 break-words">{i.title}</div>
                     {i.description && <div className="text-xs text-text/60 line-clamp-1">{i.description}</div>}
@@ -399,10 +399,10 @@ export const AnalyticsDashboard: React.FC<Props> = ({ dataSources, currencies = 
                     {i.amount > 0 ? (
                       <>
                         <div className="text-sm font-extrabold text-text">{money(i.converted)}</div>
-                        {i.currency !== base && <div className="text-[11px] text-text/55">{formatMoney(i.amount, i.currency)}</div>}
+                        {i.currency !== base && <div className="text-micro text-text/55">{formatMoney(i.amount, i.currency)}</div>}
                       </>
                     ) : (
-                      <span className="text-xs font-bold text-emerald-600">Free</span>
+                      <span className="text-xs font-bold text-success-strong">Free</span>
                     )}
                   </div>
                 </li>

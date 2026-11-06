@@ -72,7 +72,7 @@ const mobileCountries = countries.map((c) => ({
             <span class="text-base sm:text-lg font-extrabold text-text tracking-tight leading-none">
               PlanTravel
             </span>
-            <span class="text-[11px] font-medium text-text/60 leading-tight">
+            <span class="text-micro font-medium text-text/60 leading-tight">
               Travel & Expense Intelligence
             </span>
           </div>
@@ -116,7 +116,7 @@ const mobileCountries = countries.map((c) => ({
                 {link.daysCount > 0 && (
                   <span
                     class:list={[
-                      'text-[10px] px-1.5 py-0.5 rounded-full font-bold',
+                      'text-micro px-1.5 py-0.5 rounded-full font-bold',
                       isActive ? 'bg-white/25 text-white' : 'bg-primary/15 text-primary',
                     ]}
                   >
@@ -185,7 +185,7 @@ const mobileCountries = countries.map((c) => ({
               aria-haspopup="true"
             >
               <span>More</span>
-              <span class="text-[10px] px-1.5 py-0.5 rounded-full font-bold bg-primary/15 text-primary">{morePills.length}</span>
+              <span class="text-micro px-1.5 py-0.5 rounded-full font-bold bg-primary/15 text-primary">{morePills.length}</span>
               <svg class="w-3.5 h-3.5 transition-transform duration-200 group-hover:rotate-180 group-focus-within:rotate-180 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
               </svg>
@@ -197,7 +197,7 @@ const mobileCountries = countries.map((c) => ({
                   {morePills.map((link) => (
                     <a href={link.href} class="flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl text-sm font-medium text-text/80 hover:bg-primary/10 hover:text-primary transition-colors">
                       <span class="flex items-center gap-2 min-w-0"><span>{link.flag}</span><span class="truncate">{link.text}</span></span>
-                      {link.daysCount > 0 && <span class="text-[10px] px-1.5 py-0.5 rounded-full font-bold bg-primary/15 text-primary shrink-0">{link.daysCount}d</span>}
+                      {link.daysCount > 0 && <span class="text-micro px-1.5 py-0.5 rounded-full font-bold bg-primary/15 text-primary shrink-0">{link.daysCount}d</span>}
                     </a>
                   ))}
                 </div>

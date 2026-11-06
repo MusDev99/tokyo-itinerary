@@ -192,7 +192,7 @@ export const CurrencyExchangeGraph: React.FC<CurrencyExchangeGraphProps> = ({
               key={days}
               type="button"
               onClick={() => setTimeframe(days)}
-              className={`px-2.5 py-1 text-xs rounded-md font-medium transition-[color,background-color,border-color,box-shadow,opacity,transform] ${
+              className={`px-2.5 py-1 text-xs rounded-lg font-medium transition-[color,background-color,border-color,box-shadow,opacity,transform] ${
                 timeframe === days
                   ? 'bg-primary text-white shadow-sm'
                   : 'text-text/70 hover:text-text'
@@ -207,29 +207,29 @@ export const CurrencyExchangeGraph: React.FC<CurrencyExchangeGraphProps> = ({
       {/* Snapshot metrics */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
         <div className="p-2.5 rounded-lg bg-bg/40 border border-primary/15">
-          <div className="text-[11px] text-text/60">Current Rate</div>
+          <div className="text-micro text-text/60">Current Rate</div>
           <div className="text-base font-bold text-text">
             {latestRate ? latestRate.toFixed(3) : '—'} <span className="text-xs font-normal text-text/60">{targetCurrency}</span>
           </div>
           {avgRate > 0 && (
-            <div className="text-[10px] text-text/55">{Math.abs(vsAvg).toFixed(1)}% {vsAvg >= 0 ? 'above' : 'below'} {timeframe}D avg</div>
+            <div className="text-micro text-text/55">{Math.abs(vsAvg).toFixed(1)}% {vsAvg >= 0 ? 'above' : 'below'} {timeframe}D avg</div>
           )}
         </div>
         <div className="p-2.5 rounded-lg bg-bg/40 border border-primary/15">
-          <div className="text-[11px] text-text/60">{timeframe}D Change</div>
-          <div className={`text-base font-bold flex items-center gap-1 ${isUp ? 'text-emerald-400' : 'text-red-400'}`}>
+          <div className="text-micro text-text/60">{timeframe}D Change</div>
+          <div className={`text-base font-bold flex items-center gap-1 ${isUp ? 'text-success' : 'text-danger'}`}>
             <span>{isUp ? '▲' : '▼'}</span>
             <span>{Math.abs(changePercent).toFixed(2)}%</span>
           </div>
         </div>
         <div className="p-2.5 rounded-lg bg-bg/40 border border-primary/15">
-          <div className="text-[11px] text-text/60">{timeframe}D Low</div>
+          <div className="text-micro text-text/60">{timeframe}D Low</div>
           <div className="text-base font-semibold text-text">
             {minRate ? minRate.toFixed(3) : '—'}
           </div>
         </div>
         <div className="p-2.5 rounded-lg bg-bg/40 border border-primary/15">
-          <div className="text-[11px] text-text/60">{timeframe}D High</div>
+          <div className="text-micro text-text/60">{timeframe}D High</div>
           <div className="text-base font-semibold text-text">
             {maxRate ? maxRate.toFixed(3) : '—'}
           </div>
@@ -244,7 +244,7 @@ export const CurrencyExchangeGraph: React.FC<CurrencyExchangeGraphProps> = ({
             <span>Fetching historical rates...</span>
           </div>
         ) : error ? (
-          <div className="text-center text-red-400 text-sm">
+          <div className="text-center text-danger text-sm">
             {error}
           </div>
         ) : (

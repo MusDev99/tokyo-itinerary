@@ -124,7 +124,7 @@ export default function Tabs({ itinerary, canEdit = false, region, liveHref, sta
                 }`}
               >
                 <div className="text-xs sm:text-sm font-extrabold leading-tight">Day {day.day}</div>
-                <div className={`text-[11px] font-medium mt-0.5 leading-tight ${isActive ? 'text-white/90' : 'text-text/60'}`}>
+                <div className={`text-micro font-medium mt-0.5 leading-tight ${isActive ? 'text-white/90' : 'text-text/60'}`}>
                   {formatShortDate(day.date)}
                 </div>
               </button>
@@ -186,7 +186,7 @@ export default function Tabs({ itinerary, canEdit = false, region, liveHref, sta
                   </span>
                 </button>
 
-                <span className="text-[11px] sm:text-xs font-bold text-text/60 text-center">
+                <span className="text-micro sm:text-xs font-bold text-text/60 text-center">
                   Day {activeTab + 1} / {filteredItinerary.length}
                 </span>
 

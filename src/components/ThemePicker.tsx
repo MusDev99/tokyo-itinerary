@@ -67,7 +67,7 @@ export function MotionPicker() {
   const { level, choose } = useMotionLevel();
   return (
     <div role="group" aria-labelledby="motion-group" className="mt-2">
-      <p id="motion-group" className="px-1 pt-1 pb-1.5 text-[10px] font-extrabold uppercase tracking-wider text-text/55">Motion</p>
+      <p id="motion-group" className="px-1 pt-1 pb-1.5 text-micro font-extrabold uppercase tracking-wider text-text/55">Motion</p>
       <div className="grid grid-cols-3 gap-1.5">
         {MOTION_LEVELS.map((m) => (
           <button key={m} type="button" aria-pressed={level === m} onClick={() => choose(m)}
@@ -75,7 +75,7 @@ export function MotionPicker() {
               level === m ? 'bg-gradient-to-br from-primary to-accent text-white border-white/60 shadow-md' : 'bg-primary/5 text-text border-transparent hover:bg-primary/15'
             }`}>
             <span className="block text-xs font-extrabold leading-tight">{MOTION_COPY[m].label}</span>
-            <span className="block text-[10px] opacity-75 leading-tight">{MOTION_COPY[m].hint}</span>
+            <span className="block text-micro opacity-75 leading-tight">{MOTION_COPY[m].hint}</span>
           </button>
         ))}
       </div>
@@ -118,7 +118,7 @@ export default function ThemePicker({ theme, onPick }: { theme: SeasonId; onPick
     <div ref={root} onKeyDown={onKey}>
       {GROUPS.map((g) => (
         <div key={g.id} role="group" aria-labelledby={`theme-group-${g.id}`} className="mt-1 first-of-type:mt-0">
-          <p id={`theme-group-${g.id}`} className="px-1 pt-1 pb-1.5 text-[10px] font-extrabold uppercase tracking-wider text-text/55">
+          <p id={`theme-group-${g.id}`} className="px-1 pt-1 pb-1.5 text-micro font-extrabold uppercase tracking-wider text-text/55">
             {g.label}
           </p>
           <div className="grid grid-cols-4 gap-1.5">
@@ -138,7 +138,7 @@ export default function ThemePicker({ theme, onPick }: { theme: SeasonId; onPick
                   }`}
                 >
                   <span className="text-2xl leading-none" aria-hidden="true">{s.icon}</span>
-                  <span className="text-[11px] font-bold leading-tight text-center">{s.label}</span>
+                  <span className="text-micro font-bold leading-tight text-center">{s.label}</span>
                 </button>
               );
             })}

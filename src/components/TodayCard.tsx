@@ -120,11 +120,11 @@ export default function TodayCard({ trips }: Props) {
 
   return (
     // Serial Position + Von Restorff: during a trip the most useful thing comes first and stands out
-    <section ref={card} aria-labelledby="today-title" className="glass-effect rounded-2xl sm:rounded-3xl p-4 sm:p-6 mb-6 sm:mb-8 border border-emerald-500/40 shadow-md space-y-4">
+    <section ref={card} aria-labelledby="today-title" className="glass-effect rounded-2xl sm:rounded-3xl p-4 sm:p-6 mb-6 sm:mb-8 border border-success/40 shadow-md space-y-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-wider text-emerald-800">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" aria-hidden="true" />
+          <p className="flex items-center gap-2 text-micro font-extrabold uppercase tracking-wider text-success-strong">
+            <span className="w-2 h-2 rounded-full bg-success" aria-hidden="true" />
             Today · Day {day.day}
           </p>
           <h2 id="today-title" className="text-lg sm:text-2xl font-extrabold text-text leading-tight mt-1">
@@ -140,8 +140,8 @@ export default function TodayCard({ trips }: Props) {
       {/* Goal-Gradient Effect: progress through the day */}
       {all.length > 0 && (
         <div className="flex items-center gap-3">
-          <div className="flex-1 h-1.5 rounded-full bg-emerald-500/15 overflow-hidden" role="progressbar" aria-label="Today's progress" aria-valuemin={0} aria-valuemax={all.length} aria-valuenow={done}>
-            <div className="h-full rounded-full bg-emerald-500 transition-[width] duration-300" style={{ width: `${(done / all.length) * 100}%` }} />
+          <div className="flex-1 h-1.5 rounded-full bg-success/15 overflow-hidden" role="progressbar" aria-label="Today's progress" aria-valuemin={0} aria-valuemax={all.length} aria-valuenow={done}>
+            <div className="h-full rounded-full bg-success transition-[width] duration-300" style={{ width: `${(done / all.length) * 100}%` }} />
           </div>
           <span className="text-xs font-bold text-text/65 tabular-nums">{done} of {all.length} done</span>
         </div>
@@ -149,12 +149,12 @@ export default function TodayCard({ trips }: Props) {
 
       {current && (
         <div className="flex items-center gap-2 text-sm text-text/80">
-          <span className="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-emerald-500/20 text-emerald-900">Now</span>
+          <span className="shrink-0 px-2 py-0.5 rounded-full text-micro font-extrabold uppercase bg-success/20 text-success-strong">Now</span>
           <span className="min-w-0 flex-1 truncate">
             <span className="font-bold"><When it={current} /></span> {current.title}
           </span>
           {/* Fitts's Law: 44px targets right where the activity is named */}
-          <button type="button" onClick={() => mark(current, 'done')} aria-label={`Mark ${current.title} done`} className={`${quiet} shrink-0 bg-emerald-500/15 text-emerald-900 hover:bg-emerald-500/25`}>
+          <button type="button" onClick={() => mark(current, 'done')} aria-label={`Mark ${current.title} done`} className={`${quiet} shrink-0 bg-success/15 text-success-strong hover:bg-success/25`}>
             ✓ Done
           </button>
         </div>
@@ -233,7 +233,7 @@ export default function TodayCard({ trips }: Props) {
         {toast && (
           <div className="flex items-center justify-between gap-3 rounded-xl bg-text/90 text-white px-3.5 py-1 text-sm">
             <span className="min-w-0 truncate">{toast.text}</span>
-            <button type="button" onClick={undo} className="touch-target shrink-0 px-2 font-extrabold text-amber-300 hover:underline">
+            <button type="button" onClick={undo} className="touch-target shrink-0 px-2 font-extrabold text-warning hover:underline">
               Undo
             </button>
           </div>

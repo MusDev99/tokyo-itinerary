@@ -66,7 +66,7 @@ export default function ConfirmDialog({
         className="w-full max-w-sm rounded-2xl bg-surface-solid shadow-2xl border border-primary/20 p-5 sm:p-6"
       >
         <div className="flex items-start gap-3">
-          <span className={`w-10 h-10 rounded-full flex items-center justify-center text-lg shrink-0 ${danger ? 'bg-red-500/15' : 'bg-primary/15'}`} aria-hidden="true">
+          <span className={`w-10 h-10 rounded-full flex items-center justify-center text-lg shrink-0 ${danger ? 'bg-danger/15' : 'bg-primary/15'}`} aria-hidden="true">
             {danger ? '⚠️' : '❔'}
           </span>
           <div className="min-w-0">
@@ -75,7 +75,7 @@ export default function ConfirmDialog({
           </div>
         </div>
         {error && (
-          <div role="alert" className="mt-3 p-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-xs font-semibold text-red-800">{error}</div>
+          <div role="alert" className="mt-3 p-2.5 rounded-xl bg-danger/10 border border-danger/30 text-xs font-semibold text-danger-strong">{error}</div>
         )}
         <div className="mt-5 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
           <button ref={cancelBtn} type="button" onClick={onCancel} disabled={busy}
@@ -83,7 +83,7 @@ export default function ConfirmDialog({
             Cancel
           </button>
           <button type="button" onClick={onConfirm} disabled={busy}
-            className={`touch-target px-4 py-2.5 rounded-xl text-white text-sm font-bold disabled:opacity-60 ${danger ? 'bg-red-600 hover:bg-red-700' : 'bg-primary'}`}>
+            className={`touch-target px-4 py-2.5 rounded-xl text-white text-sm font-bold disabled:opacity-60 ${danger ? 'bg-danger-solid hover:bg-danger-solid' : 'bg-primary'}`}>
             {busy ? 'Working…' : confirmLabel}
           </button>
         </div>

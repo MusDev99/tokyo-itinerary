@@ -37,16 +37,16 @@ interface TimelineItemProps extends TimelineItemType {
 const NO_TIME = '--:--';
 
 const LIVE_BADGE: Record<LiveTag, { text: string; className: string }> = {
-  now: { text: 'Now', className: 'bg-emerald-500 text-white' },
+  now: { text: 'Now', className: 'bg-success text-white' },
   next: { text: 'Next', className: 'bg-primary/15 text-primary border border-primary/30' },
-  done: { text: '✓ Done', className: 'bg-emerald-500/15 text-emerald-900' },
+  done: { text: '✓ Done', className: 'bg-success/15 text-success-strong' },
   skipped: { text: 'Skipped', className: 'bg-text/10 text-text/60' },
 };
 
 function LiveBadge({ tag }: { tag?: LiveTag }) {
   if (!tag) return null;
   const b = LIVE_BADGE[tag];
-  return <span className={`shrink-0 px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide ${b.className}`}>{b.text}</span>;
+  return <span className={`shrink-0 px-2 py-0.5 rounded-full text-micro font-extrabold uppercase tracking-wide ${b.className}`}>{b.text}</span>;
 }
 
 function TimelineItemBase(props: TimelineItemProps) {
@@ -159,7 +159,7 @@ function TimelineItemBase(props: TimelineItemProps) {
       {/* Timeline Node & Vertical Connector */}
       <div
         className={`absolute left-0.5 sm:left-2 top-5 w-3 sm:w-3.5 h-3 sm:h-3.5 rounded-full ring-4 shadow-sm z-10 ${
-          liveTag === 'now' ? 'bg-emerald-500 ring-emerald-500/25' : liveTag === 'done' ? 'bg-emerald-500/60 ring-white' : 'bg-primary ring-white'
+          liveTag === 'now' ? 'bg-success ring-success/25' : liveTag === 'done' ? 'bg-success/60 ring-white' : 'bg-primary ring-white'
         }`}
         aria-hidden="true"
       />
@@ -176,7 +176,7 @@ function TimelineItemBase(props: TimelineItemProps) {
         aria-current={liveTag === 'now' ? 'time' : undefined}
         className={`cv-card rounded-2xl border shadow-sm transition-colors duration-150 p-3 sm:p-5 ${
           liveTag === 'now'
-            ? 'bg-emerald-50/80 border-emerald-500 ring-2 ring-emerald-500/30'
+            ? 'bg-success/10 border-success ring-2 ring-success/30'
             : `bg-white/45 hover:bg-white/60 border-primary/15 hover:border-primary/35 ${liveTag === 'done' || liveTag === 'skipped' ? 'opacity-70' : ''}`
         }`}
       >
@@ -230,8 +230,8 @@ function TimelineItemBase(props: TimelineItemProps) {
             <span
               className={`px-2.5 py-1 rounded-lg text-xs font-extrabold ${
                 price.amount > 0
-                  ? 'bg-amber-500/15 text-amber-900 border border-amber-500/30'
-                  : 'bg-emerald-500/15 text-emerald-800 border border-emerald-500/25'
+                  ? 'bg-warning/15 text-warning-strong border border-warning/30'
+                  : 'bg-success/15 text-success-strong border border-success/25'
               }`}
             >
               {formatPrice(price)}
@@ -252,7 +252,7 @@ function TimelineItemBase(props: TimelineItemProps) {
 
         {/* Category as a quiet overline above the title instead of a boxed chip */}
         <div
-          className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide mb-1"
+          className="flex items-center gap-1.5 text-micro font-bold uppercase tracking-wide mb-1"
           style={{ color: categoryMeta.color }}
         >
           <span aria-hidden="true">{categoryMeta.emoji}</span>
@@ -288,7 +288,7 @@ function TimelineItemBase(props: TimelineItemProps) {
 
         {/* Travel Note / Tip: lightweight, no heavy box */}
         {note && (
-          <div className="flex items-start gap-2 pl-3 py-0.5 mb-3 border-l-2 border-amber-500/60 text-xs sm:text-sm text-text/80">
+          <div className="flex items-start gap-2 pl-3 py-0.5 mb-3 border-l-2 border-warning/60 text-xs sm:text-sm text-text/80">
             <span aria-hidden="true">💡</span>
             <p className="leading-relaxed"><span className="font-bold text-text">Tip: </span>{note}</p>
           </div>
@@ -320,7 +320,7 @@ function TimelineItemBase(props: TimelineItemProps) {
                 type="button"
                 onClick={() => setShowVideo(!showVideo)}
                 aria-expanded={showVideo}
-                className="touch-target flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-600 active:bg-red-600 text-red-700 hover:text-white active:text-white text-sm font-bold transition-colors"
+                className="touch-target flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-danger/10 hover:bg-danger-solid active:bg-danger-solid text-danger-strong hover:text-white active:text-white text-sm font-bold transition-colors"
               >
                 <span aria-hidden="true">▶</span>
                 <span>{showVideo ? 'Hide video guide' : 'Watch video guide'}</span>
@@ -342,7 +342,7 @@ function TimelineItemBase(props: TimelineItemProps) {
           />
         )}
         {actionError && (
-          <div role="alert" className="mt-3 p-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-xs font-semibold text-red-800">
+          <div role="alert" className="mt-3 p-2.5 rounded-xl bg-danger/10 border border-danger/30 text-xs font-semibold text-danger-strong">
             {actionError}
           </div>
         )}

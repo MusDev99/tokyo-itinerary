@@ -103,7 +103,7 @@ const stats = [
           </h1>
           <div class="flex items-center gap-2 mt-0.5 min-w-0">
             {state && <span class="text-xs sm:text-sm font-semibold text-text/60 truncate">{subline ? `${subline} · ${country.name}` : country.name}</span>}
-            <span class="shrink-0 px-2 py-0.5 rounded-full text-[11px] sm:text-xs font-bold bg-primary/15 text-primary border border-primary/25">
+            <span class="shrink-0 px-2 py-0.5 rounded-full text-micro sm:text-xs font-bold bg-primary/15 text-primary border border-primary/25">
               {country.currency}
             </span>
           </div>
@@ -134,7 +134,7 @@ const stats = [
               <span class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-base shrink-0" aria-hidden="true">{st.icon}</span>
               <span class="min-w-0 leading-tight">
                 <span class="block text-sm font-bold text-text break-words">{st.value}</span>
-                <span class="block text-[11px] font-medium text-text/60 truncate">{st.label}</span>
+                <span class="block text-micro font-medium text-text/60 truncate">{st.label}</span>
               </span>
             </li>
           ))}
@@ -170,7 +170,7 @@ const stats = [
               {tab.badge && (
                 <span
                   class:list={[
-                    'text-[10px] px-1.5 py-0.5 rounded-full hidden sm:inline',
+                    'text-micro px-1.5 py-0.5 rounded-full hidden sm:inline',
                     isCurrent ? 'bg-white/25 text-white' : 'bg-primary/15 text-primary',
                   ]}
                 >

@@ -45,14 +45,14 @@ function Row({ id, label, hint, badge, checked, onToggle, onRemove }: RowProps) 
           <span className={`block text-sm font-semibold break-words ${checked ? 'line-through text-text/50' : 'text-text'}`}>{label}</span>
           {hint && <span className="block text-xs text-text/60 mt-0.5">{hint}</span>}
         </span>
-        {badge && !checked && <span className="shrink-0 self-center text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-800">{badge}</span>}
+        {badge && !checked && <span className="shrink-0 self-center text-micro font-extrabold px-2 py-0.5 rounded-full bg-warning/15 text-warning-strong">{badge}</span>}
       </label>
       {onRemove && (
         <button
           type="button"
           onClick={onRemove}
           aria-label={`Remove ${label}`}
-          className="touch-target shrink-0 w-11 rounded-xl text-text/50 hover:text-red-600 hover:bg-red-500/10"
+          className="touch-target shrink-0 w-11 rounded-xl text-text/50 hover:text-danger-strong hover:bg-danger/10"
         >
           ✕
         </button>
@@ -152,15 +152,15 @@ export default function TripChecklist({ tab, groups, firstDate }: Props) {
         <p className="order-1 -mt-3 text-xs text-text/60 lg:mt-0">Built from this trip's dates, places and activities. Your ticks are saved on this device.</p>
 
         {urgent.length > 0 && (
-          <div className="order-2 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 space-y-2">
-            <h3 className="text-sm font-extrabold text-amber-900">⏰ Do these soon</h3>
+          <div className="order-2 rounded-xl border border-warning/30 bg-warning/10 p-3 space-y-2">
+            <h3 className="text-sm font-extrabold text-warning-strong">⏰ Do these soon</h3>
             <ul className="space-y-2">
               {urgent.slice(0, URGENT_MAX).map(({ item, due }) => (
                 <Row key={`u-${item.id}`} checked={false} onToggle={toggle} id={item.id} label={item.label} hint={item.hint} badge={dueBadge(due!.days)} />
               ))}
             </ul>
             {urgent.length > URGENT_MAX && (
-              <p className="text-xs font-semibold text-amber-900/80">+{urgent.length - URGENT_MAX} more marked in the groups below</p>
+              <p className="text-xs font-semibold text-warning-strong/80">+{urgent.length - URGENT_MAX} more marked in the groups below</p>
             )}
           </div>
         )}

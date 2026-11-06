@@ -121,7 +121,7 @@ export default function CalendarPicker({ id, value, onChange, invalid, min = '',
         <div ref={grid} role="grid" aria-labelledby={labelId} onKeyDown={onGridKey} className="overflow-hidden">
           <div role="row" className="grid grid-cols-7">
             {weekdayLabels(weekStartsOn).map((d) => (
-              <span key={d} role="columnheader" className="h-8 grid place-items-center text-[11px] font-bold text-text/60">{d}</span>
+              <span key={d} role="columnheader" className="h-8 grid place-items-center text-micro font-bold text-text/60">{d}</span>
             ))}
           </div>
           {/* Keyed by position, not date: reusing the same nodes across months keeps keyboard focus from dropping to <body> */}

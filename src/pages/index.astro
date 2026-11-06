@@ -93,7 +93,7 @@ const totalDays = trips.reduce((n, t) => n + t.c.stats.totalDays, 0);
 const totalActivities = trips.reduce((n, t) => n + t.c.stats.totalActivities, 0);
 
 const statusStyle = {
-  ongoing: 'bg-emerald-500/20 text-emerald-900 border-emerald-500/40',
+  ongoing: 'bg-success/20 text-success-strong border-success/40',
   upcoming: 'bg-primary/15 text-primary border-primary/30',
   past: 'bg-text/10 text-text/60 border-text/15',
   undated: 'bg-text/10 text-text/60 border-text/15',
@@ -185,7 +185,7 @@ import { COLLAPSE_AFTER } from '../utils/countryList';
                     </div>
                   </div>
                   {statusLabel && (
-                    <span class:list={['px-2 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wide border shrink-0 whitespace-nowrap', statusStyle[status]]}>
+                    <span class:list={['px-2 py-1 rounded-full text-micro font-extrabold uppercase tracking-wide border shrink-0 whitespace-nowrap', statusStyle[status]]}>
                       {statusLabel}
                     </span>
                   )}
