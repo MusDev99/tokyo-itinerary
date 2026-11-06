@@ -4,6 +4,7 @@ import { useMemo, useState } from 'preact/hooks';
 import { redirectIfSignedOut } from '../utils/authClient';
 import { buildDays, nextFreeDay, suggestNextTime, isIsoDate } from '../utils/tripDraft';
 import ActivitySheet from './ActivitySheet';
+import { cityForDay, type Stop } from '../utils/trips';
 import { emptyActivity, draftToPayload, type ActivityDraft } from './ActivityFields';
 
 interface PlannedDay {
@@ -24,10 +25,13 @@ interface Props {
   planned: PlannedDay[];
   /** Show a larger call to action (trip has no activities yet) */
   empty?: boolean;
+  /** Cities of the trip and where it stays on which dates (multi-city trips) */
+  cities?: string[];
+  stops?: Stop[];
 }
 
 /** The "Add place" button of a trip page; the form itself is the shared ActivitySheet. */
-export default function TripBuilder({ tab, currency, dates, planned, empty = false }: Props) {
+export default function TripBuilder({ tab, currency, dates, planned, empty = false, cities = [], stops = [] }: Props) {
   const [open, setOpen] = useState(false);
 
   const plannedByDate = useMemo(() => new Map(planned.map((p) => [p.date, p])), [planned]);
@@ -45,7 +49,8 @@ export default function TripBuilder({ tab, currency, dates, planned, empty = fal
   };
 
   const first = nextFreeDay(days, planned.map((p) => p.date)) || new Date().toISOString().slice(0, 10);
-  const initial: ActivityDraft = { ...emptyActivity(currency), date: first, time: suggestTime(first) };
+  const cityForDate = (iso: string) => cityForDay({ date: iso }, stops) || cities[0] || '';
+  const initial: ActivityDraft = { ...emptyActivity(currency), date: first, time: suggestTime(first), city: cities.length > 1 ? cityForDate(first) : '' };
 
   const save = async (draft: ActivityDraft): Promise<Record<string, string> | void> => {
     try {
@@ -82,6 +87,8 @@ export default function TripBuilder({ tab, currency, dates, planned, empty = fal
           plannedDays={planned.map((p) => p.date)}
           canExtend
           suggestTime={suggestTime}
+          cities={cities}
+          cityForDate={cityForDate}
           onSave={save}
           // The timeline is server-rendered: refresh once, after the last save, not on every one
           onClose={(saved) => { setOpen(false); if (saved > 0) refreshPage(); }}

@@ -3,6 +3,20 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-05 13:51 — Feat: copy a trip and start from suggestions
+
+- **Start from, in the new-trip wizard:** ✍️ From scratch · 📋 Copy a trip · 💡 Suggestions. Copy and Suggestions have their own short flows (Trip → When → Review; Places → Where → When → Cities → Review).
+- **Copy a trip:** search any trip, tick the days to copy (whole trip by default), choose a new start date. Dates shift by the same offset (gaps between days are kept), prices are optional, notes/images/video are never copied. `POST /api/trips/copy` creates the tab first, writes in chunks of 50, records `copied_from`, and removes the half-made trip if a step fails.
+- **Suggestions:** `GET /api/suggestions` (public, read-only) ranks places already in the sheet by how many trips used them, with typical time, median price and category; filter by city and type, pick up to 60, and they are spread across the trip's days.
+- `POST /api/trips` accepts optional `activities` (max 150, validated by the shared `parseActivity`). New pure, tested helpers: `tripCopy.ts`, `suggestions.ts`, `parseActivity.ts`.
+
+## 2026-11-05 14:05 — Feat: create and edit titled trips
+
+- **New-trip wizard has four steps:** Where (a **trip title**, country, first city, pinned place) → When → **Cities** → Review. In Cities you add the cities the trip moves through and how many days in each (the first city keeps what is left): "Tokyo 3 Mar–5 Mar · Osaka 6 Mar–9 Mar". The trip is created as a titled trip (own tab, stable slug, stops, `created_by`) through the new `POST /api/trips`; a half-made trip is removed if a later step fails.
+- **City on each place:** trips with two or more cities show a **City** row in the Add/Edit place sheet (picking a day picks that day's city); the city is saved in a new optional `city` column that is only added to a tab when first used.
+- **Rename is a title change:** the pencil on a trip now edits its title only (`PATCH /api/trips`); the slug and worksheet tab never change, so shared links and Pocket keep working. An old `Country - State` trip gets its registry row on first edit and keeps its address.
+- `/api/trips` is protected like every other write route (signed-in, active editor).
+
 ## 2026-11-05 13:55 — Feat: trips with titles (read side)
 
 - **A trip is now its own thing, not a city.** One worksheet tab = one trip with a free **title**, a stable **slug** and optional **stops** (cities with day ranges), stored in a registry row of the hidden `_trips` tab (new columns K:Q). Rows may carry optional `city` / `country` columns, so one trip can run through several cities (days 1-4 Tokyo, days 5-7 Osaka) and a country can have several trips in different years ("AirTravel Sdn Bhd Trip at Japan 2025" and a separate "Fuji Weekend 2026" no longer merge).

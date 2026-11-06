@@ -1,32 +1,31 @@
 import { h } from 'preact';
-import { goTo } from '../utils/refresh';
+import { goTo, refreshPage } from '../utils/refresh';
 import { redirectIfSignedOut } from '../utils/authClient';
 import { useState } from 'preact/hooks';
 import ConfirmDialog from './ConfirmDialog';
 import { inputClass } from './inputClass';
 
 interface Props {
-  tab: string; // exact worksheet tab, e.g. "Japan - Tokyo"
-  country: string;
-  state: string;
+  tab: string; // exact worksheet tab (never renamed: the title is a separate field)
+  /** The trip's current title */
+  title: string;
   activityCount: number;
   /** Where to go after the trip is deleted */
   afterDeleteHref: string;
 }
 
-/** Trip-level actions: add activities, rename (country/state) and delete the whole trip. */
-export default function TripActions({ tab, country, state, activityCount, afterDeleteHref }: Props) {
+/** Trip-level actions: rename the trip (its title; the slug and tab stay, so shared links keep working) and delete it. */
+export default function TripActions({ tab, title, activityCount, afterDeleteHref }: Props) {
   const [mode, setMode] = useState<'idle' | 'rename' | 'delete'>('idle');
-  const [newCountry, setNewCountry] = useState(country);
-  const [newState, setNewState] = useState(state);
+  const [newTitle, setNewTitle] = useState(title);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
-  const call = async (method: 'PATCH' | 'DELETE', body: unknown) => {
+  const call = async (method: 'PATCH' | 'DELETE', body: unknown, url = '/api/itinerary') => {
     setBusy(true);
     setError('');
     try {
-      const res = await fetch('/api/itinerary', {
+      const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -47,8 +46,8 @@ export default function TripActions({ tab, country, state, activityCount, afterD
   };
 
   const rename = async () => {
-    const data = await call('PATCH', { tab, rename: { country: newCountry, state: newState } });
-    if (data?.href) goTo(data.href);
+    const data = await call('PATCH', { tab, title: newTitle }, '/api/trips');
+    if (data) { setMode('idle'); refreshPage(); }
   };
 
   const remove = async () => {
@@ -67,7 +66,7 @@ export default function TripActions({ tab, country, state, activityCount, afterD
     // Common Region: one quiet container so the two icons read as a single "manage" control
     <div className="inline-flex items-center gap-0.5 shrink-0 self-start p-0.5 rounded-xl bg-white/45 border border-primary/15" role="group" aria-label="Manage trip">
       <button type="button" aria-label="Rename trip" title="Rename trip"
-        onClick={() => { setNewCountry(country); setNewState(state); setMode('rename'); }}
+        onClick={() => { setNewTitle(title); setMode('rename'); }}
         className={`${btn} text-primary hover:bg-primary/15`}>
         <svg className={icon} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
           <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zM19.5 7.125L16.875 4.5" />
@@ -86,25 +85,23 @@ export default function TripActions({ tab, country, state, activityCount, afterD
         open={mode === 'rename'}
         danger={false}
         title="Rename trip"
-        confirmLabel="Save name"
+        confirmLabel="Save title"
         busy={busy}
         error={error}
         onConfirm={rename}
         onCancel={close}
         message={
           <div className="space-y-2 mt-2">
-            <p>This renames the trip to “{newCountry.trim()} - {newState.trim()}”.</p>
-            <input className={inputClass} aria-label="Country" value={newCountry} placeholder="Country"
-              onInput={(e) => setNewCountry((e.target as HTMLInputElement).value)} />
-            <input className={inputClass} aria-label="State / City" value={newState} placeholder="State / City"
-              onInput={(e) => setNewState((e.target as HTMLInputElement).value)} />
+            <p>Only the title changes: the trip keeps its address, so shared links still work.</p>
+            <input className={inputClass} aria-label="Trip title" value={newTitle} placeholder="Trip title" maxLength={100}
+              onInput={(e) => setNewTitle((e.target as HTMLInputElement).value)} />
           </div>
         }
       />
 
       <ConfirmDialog
         open={mode === 'delete'}
-        title={`Delete “${tab}”?`}
+        title={`Delete “${title}”?`}
         confirmLabel="Delete trip"
         busy={busy}
         error={error}

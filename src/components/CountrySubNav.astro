@@ -11,7 +11,7 @@ interface Props {
   /** When set, the page shows one trip (its slug addresses /trips/<slug>). */
   state?: { slug: string; name: string; title?: string; cities?: string[]; legacy?: boolean };
   /** Shows rename / delete controls inside the card (editors only act on them; the API enforces auth) */
-  manage?: { tab: string; country: string; state: string; activityCount: number; afterDeleteHref: string };
+  manage?: { tab: string; title: string; activityCount: number; afterDeleteHref: string };
 }
 
 const { country, activeTab, state, manage } = Astro.props;
@@ -112,8 +112,7 @@ const stats = [
           <TripActions
             client:load
             tab={manage.tab}
-            country={manage.country}
-            state={manage.state}
+            title={manage.title}
             activityCount={manage.activityCount}
             afterDeleteHref={manage.afterDeleteHref}
           />

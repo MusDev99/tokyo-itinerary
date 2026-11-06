@@ -7,7 +7,7 @@ import { UserError, safeHttpUrl, sheetText, youtubeEmbedUrl } from './security.t
 import { cacheState, timed, type Timed } from './swr.ts';
 import { chunk, mapPool } from './chunk.ts';
 import { fixtureTabs, fixtureMetas } from './fixture.ts';
-import { TRIP_META_HEADERS, parseTripMetas, type TripMeta } from './trips.ts';
+import { TRIP_META_HEADERS, parseTripMetas, serializeStops, type TripMeta } from './trips.ts';
 import { sortByTime, normalizeSheetDate, normalizeSheetTime } from './calendar.ts';
 import {
   POCKET_TAB, POCKET_HEADERS, POCKET_LAST_COL, MAX_POCKET_ITEMS, parsePocketRows, itemToRow,
@@ -680,6 +680,8 @@ export interface ActivityInput {
   price_amount?: number | null;
   price_currency?: string;
   price_notes?: string;
+  /** Optional city (undefined = leave the cell alone, '' = clear it) */
+  city?: string;
 }
 
 const SHEETS_BASE = 'https://sheets.googleapis.com/v4/spreadsheets';
@@ -791,6 +793,7 @@ function activityToRecord(a: ActivityInput, id?: string): Partial<Record<SheetCo
     price_amount: a.price_amount != null && a.price_amount > 0 ? String(a.price_amount) : '',
     price_currency: a.price_currency || '',
     price_notes: sheetText(a.price_notes || ''),
+    ...(a.city !== undefined ? { city: sheetText(a.city) } : {}),
     ...(id ? { id } : {}),
   };
 }
@@ -799,7 +802,9 @@ function activityToRecord(a: ActivityInput, id?: string): Partial<Record<SheetCo
 async function ensureHeaders(
   ctx: { creds: ServiceAccountCredentials; token: string },
   spreadsheetId: string,
-  tab: string
+  tab: string,
+  /** Optional columns to add when missing (e.g. `city`), so old tabs only grow a column once it is used */
+  extra: Array<(typeof SHEET_HEADERS)[number]> = []
 ): Promise<string[]> {
   const data = await sheetsRequest<{ values?: string[][] }>(
     ctx,
@@ -813,7 +818,7 @@ async function ensureHeaders(
   } else {
     for (const col of SHEET_HEADERS) {
       const present = headers.some((h) => COLUMN_ALIASES[col].includes(h));
-      if (!present && ['date', 'day_title', 'time', 'title', 'id'].includes(col)) headers.push(col);
+      if (!present && (['date', 'day_title', 'time', 'title', 'id'].includes(col) || extra.includes(col))) headers.push(col);
     }
   }
   await sheetsRequest(
@@ -849,7 +854,7 @@ export async function appendActivities(
     tab = tabName;
   }
 
-  const headers = await ensureHeaders(ctx, spreadsheetId, tab);
+  const headers = await ensureHeaders(ctx, spreadsheetId, tab, activities.some((a) => a.city) ? ['city'] : []);
   const ids = activities.map(() => crypto.randomUUID());
   const rows = activities.map((a, i) => recordToRow(headers, activityToRecord(a, ids[i])));
 
@@ -922,6 +927,7 @@ async function locateRow(
 export async function updateActivity(tabName: string, ref: RowRef, a: ActivityInput): Promise<void> {
   const ctx = await writeContext();
   const tab = (await findTabTitle(tabName)) ?? tabName;
+  if (a.city) await ensureHeaders(ctx, ctx.spreadsheetId, tab, ['city']);
   const found = await locateRow(ctx, ctx.spreadsheetId, tab, ref);
   if (!found) throw new UserError('Activity not found — it may have been changed or removed. Refresh and try again.');
 
@@ -1208,6 +1214,47 @@ export async function saveTripDates(tab: string, dates: TripDates): Promise<void
       { method: 'POST', body: JSON.stringify({ values: [[tab, '', '', '', '', '', '', '', dates.start, dates.end]] }) }
     );
   }
+}
+
+/** Creates/updates the trip's registry cells (K:Q of its `_trips` row: title, slug, country, stops, created_by...). */
+export async function saveTripMeta(tab: string, meta: Omit<TripMeta, 'tab'>): Promise<void> {
+  placeRowsCache = null;
+  const ctx = await writeContext();
+  const { spreadsheetId } = ctx;
+  let rows = await readPlaceRows(ctx, spreadsheetId);
+  if (!rows) {
+    await sheetsRequest(ctx, `${SHEETS_BASE}/${encodeURIComponent(spreadsheetId)}:batchUpdate`, {
+      method: 'POST',
+      body: JSON.stringify({ requests: [{ addSheet: { properties: { title: PLACES_TAB, hidden: true } } }] }),
+    });
+    rows = [];
+  }
+  if (!rows[0] || rows[0].length < PLACE_HEADERS.length) {
+    await sheetsRequest(
+      ctx,
+      `${SHEETS_BASE}/${encodeURIComponent(spreadsheetId)}/values/${encodeURIComponent(`${PLACES_TAB}!A1`)}?valueInputOption=RAW`,
+      { method: 'PUT', body: JSON.stringify({ values: [PLACE_HEADERS] }) }
+    );
+    rows = [PLACE_HEADERS, ...rows.slice(1)];
+  }
+  const cells = [meta.title, meta.slug, meta.country, serializeStops(meta.stops), meta.createdBy, meta.createdAt, meta.copiedFrom];
+  const wanted = tab.trim().toLowerCase();
+  const idx = rows.findIndex((r, i) => i > 0 && String(r[0] || '').trim().toLowerCase() === wanted);
+  if (idx > 0) {
+    await sheetsRequest(
+      ctx,
+      `${SHEETS_BASE}/${encodeURIComponent(spreadsheetId)}/values/${encodeURIComponent(`${PLACES_TAB}!K${idx + 1}:Q${idx + 1}`)}?valueInputOption=RAW`,
+      { method: 'PUT', body: JSON.stringify({ values: [cells] }) }
+    );
+  } else {
+    const row = [tab, '', '', '', '', '', '', '', '', '', ...cells];
+    await sheetsRequest(
+      ctx,
+      `${SHEETS_BASE}/${encodeURIComponent(spreadsheetId)}/values/${encodeURIComponent(`${PLACES_TAB}!A1`)}:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`,
+      { method: 'POST', body: JSON.stringify({ values: [row] }) }
+    );
+  }
+  clearSheetsCache(); // the countries cache was built with the old registry
 }
 
 /** Blanks the place row of a deleted trip (rows are left in place; reader ignores empty tabs). */

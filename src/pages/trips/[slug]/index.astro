@@ -34,7 +34,7 @@ const planned = canEdit
   <Header />
   <div class="w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8">
     <CountrySubNav country={country} activeTab="itinerary" state={stateMeta}
-      manage={Astro.locals.user ? { tab: stateMeta.tabName, country: baseCountry.name, state: stateMeta.name, activityCount: stateMeta.stats.totalActivities, afterDeleteHref: `/${baseCountry.slug}` } : undefined} />
+      manage={Astro.locals.user ? { tab: stateMeta.tabName, title: stateMeta.title, activityCount: stateMeta.stats.totalActivities, afterDeleteHref: `/${baseCountry.slug}` } : undefined} />
 
     {country.stats.hasItinerary ? (
       <div class="space-y-6 sm:space-y-8">
@@ -42,6 +42,8 @@ const planned = canEdit
           <TripBuilder
             client:load
             tab={stateMeta.tabName}
+            cities={stateMeta.cities}
+            stops={stateMeta.stops}
             currency={stateMeta.currency}
             dates={tripDates}
             planned={planned}
@@ -60,7 +62,7 @@ const planned = canEdit
           aria-label="Interactive Daily Timeline"
           class="glass-effect rounded-2xl shadow-md border border-primary/20 overflow-hidden"
         >
-          <Tabs itinerary={country.itinerary} region={stateMeta.name} liveHref={`/trips/${stateMeta.slug}`} canEdit={Boolean(Astro.locals.user)} pocketTab={stateMeta.tabName} tripRange={tripDates} client:load />
+          <Tabs itinerary={country.itinerary} region={stateMeta.name} liveHref={`/trips/${stateMeta.slug}`} canEdit={Boolean(Astro.locals.user)} pocketTab={stateMeta.tabName} tripRange={tripDates} tripCities={stateMeta.cities} tripStops={stateMeta.stops} client:load />
         </section>
 
         <!-- Export actions side by side (Law of Proximity): PDF is the primary, calendar the secondary -->
@@ -77,7 +79,7 @@ const planned = canEdit
         </p>
         {canEdit && (
           <div class="mt-5 max-w-xs mx-auto">
-            <TripBuilder client:load empty tab={stateMeta.tabName}
+            <TripBuilder client:load empty tab={stateMeta.tabName} cities={stateMeta.cities} stops={stateMeta.stops}
               currency={stateMeta.currency} dates={tripDates} planned={planned} />
           </div>
         )}
