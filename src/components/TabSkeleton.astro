@@ -9,18 +9,18 @@
 -->
 <div data-tab-skeleton aria-hidden="true" class="space-y-6 sm:space-y-8">
   <div class="glass-effect rounded-2xl p-4 sm:p-6 border border-primary/20 shadow-md">
-    <div class="h-5 w-48 rounded-lg bg-primary/15 motion-safe:animate-pulse"></div>
-    <div class="h-3.5 w-72 max-w-full rounded-lg bg-primary/10 mt-2.5 motion-safe:animate-pulse"></div>
+    <div class="h-5 w-48 rounded-lg skeleton"></div>
+    <div class="h-3.5 w-72 max-w-full rounded-lg mt-2.5 skeleton"></div>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-5">
       {[0, 1, 2, 3].map((i) => (
         <div class:list={['rounded-xl p-4 border border-primary/15 bg-white/45', i > 1 && 'hidden sm:block']}>
           <div class="flex items-center justify-between">
-            <div class="h-5 w-14 rounded-lg bg-primary/20 motion-safe:animate-pulse"></div>
-            <div class="h-3 w-12 rounded bg-primary/10 motion-safe:animate-pulse"></div>
+            <div class="h-5 w-14 rounded-lg skeleton"></div>
+            <div class="h-3 w-12 rounded skeleton"></div>
           </div>
-          <div class="h-4 w-4/5 rounded bg-primary/15 mt-3 motion-safe:animate-pulse"></div>
-          <div class="h-4 w-3/5 rounded bg-primary/10 mt-2 motion-safe:animate-pulse"></div>
-          <div class="h-3 w-full rounded bg-primary/10 mt-5 motion-safe:animate-pulse"></div>
+          <div class="h-4 w-4/5 rounded mt-3 skeleton"></div>
+          <div class="h-4 w-3/5 rounded mt-2 skeleton"></div>
+          <div class="h-3 w-full rounded mt-5 skeleton"></div>
         </div>
       ))}
     </div>
@@ -28,10 +28,10 @@
   <div class="glass-effect rounded-2xl p-4 sm:p-6 border border-primary/20 shadow-md space-y-3">
     {[0, 1, 2].map(() => (
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-primary/15 shrink-0 motion-safe:animate-pulse"></div>
+        <div class="w-10 h-10 rounded-xl shrink-0 skeleton"></div>
         <div class="flex-1 space-y-2">
-          <div class="h-4 w-2/3 rounded bg-primary/15 motion-safe:animate-pulse"></div>
-          <div class="h-3 w-1/3 rounded bg-primary/10 motion-safe:animate-pulse"></div>
+          <div class="h-4 w-2/3 rounded skeleton"></div>
+          <div class="h-3 w-1/3 rounded skeleton"></div>
         </div>
       </div>
     ))}

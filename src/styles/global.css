@@ -237,6 +237,20 @@
   }
 }
 
+/* The one loading placeholder: a soft block that breathes (opacity only = compositor, no layout or paint) */
+.skeleton {
+  background-color: color-mix(in srgb, var(--color-primary) 14%, transparent);
+  border-radius: 0.5rem;
+  animation: skeleton-breathe 1.4s ease-in-out infinite;
+}
+@keyframes skeleton-breathe {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
+}
+
 /* Same for filled primary buttons (ui/Button) */
 [data-theme="night"] .btn-primary {
   color: #1e1b4b;

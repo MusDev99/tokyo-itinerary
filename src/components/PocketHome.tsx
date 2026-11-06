@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'preact/hooks';
 import { apiFetch } from '../utils/apiFetch';
 import { toast } from '../utils/toast';
 import InlineError from './ui/InlineError';
+import { ListSkeleton } from './ui/Skeleton';
 import { sortItems, type PocketItem, type PocketKind } from '../utils/pocket';
 import { formatLongDate } from '../utils/calendar';
 import type { CheckGroup } from '../utils/checklist';
@@ -28,21 +29,7 @@ interface Props {
 }
 
 /** Skeleton rows while the Pocket loads (same height as a real row: no layout jump) */
-function RowSkeleton() {
-  return (
-    <div role="status" aria-label="Loading your Pocket" className="space-y-3 py-1">
-      {[0, 1].map((i) => (
-        <div key={i} className="flex gap-3 animate-pulse">
-          <div className="w-7 h-7 rounded-lg bg-primary/15 shrink-0" />
-          <div className="flex-1 space-y-2">
-            <div className="h-3.5 w-2/3 rounded bg-primary/15" />
-            <div className="h-3 w-1/2 rounded bg-primary/10" />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
+const RowSkeleton = () => <ListSkeleton rows={2} label="Loading your Pocket" />;
 
 /** One ⋯ button per row instead of two always-visible icon buttons (Hick's Law: fewer options on screen). */
 function RowMenu({ label, onEdit, onDelete }: { label: string; onEdit: () => void; onDelete: () => void }) {
@@ -142,7 +129,20 @@ export default function PocketHome({ tab, signedIn, loginHref, tripStart, hasIti
     setDel(null);
     setDelError('');
     const r = await apiFetch('/api/pocket', { method: 'DELETE', body: { tab, id: gone.id } });
-    if (r.ok) { toast.success(`Removed “${gone.title}”`); return; }
+    if (r.ok) {
+      // Undo puts it back as a new item (same content, new id): easy reversal instead of a "can't be undone" warning
+      const { id: _id, createdBy: _by, createdAt: _at, ...rest } = gone;
+      toast.success(`Removed “${gone.title}”`, {
+        action: {
+          label: 'Undo',
+          run: async () => {
+            const back = await apiFetch('/api/pocket', { body: { tab, item: rest, website: '' } });
+            if (back.ok) { await load(); toast.success('Restored'); } else toast.error(back.error);
+          },
+        },
+      });
+      return;
+    }
     if (r.kind === 'signed-out') return;
     setItems(before);
     setLoadError(`“${gone.title}” could not be removed: ${r.error}`);

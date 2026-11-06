@@ -110,7 +110,7 @@ export default function PrayerTimesCard({ place, dates }: Props) {
 
       {loading && (
         <div className="grid gap-2" aria-busy="true">
-          {[0, 1, 2].map((i) => <div key={i} className="h-24 rounded-xl bg-white/40 animate-pulse" />)}
+          {[0, 1, 2].map((i) => <div key={i} className="h-24 rounded-xl skeleton" />)}
         </div>
       )}
 

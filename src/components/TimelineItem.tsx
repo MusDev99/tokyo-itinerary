@@ -2,6 +2,7 @@ import { h } from 'preact';
 import { refreshPage } from '../utils/refresh';
 import { memo } from 'preact/compat';
 import { apiFetch } from '../utils/apiFetch';
+import { toast } from '../utils/toast';
 import InlineError from './ui/InlineError';
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { animate } from 'motion';
@@ -64,8 +65,7 @@ function TimelineItemBase(props: TimelineItemProps) {
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState('');
 
-  const startEdit = () => {
-    setDraft({
+  const toDraft = (): ActivityDraft => ({
       // Sheet dates come in many shapes (ISO, "Nov 30", serial numbers): the picker needs ISO
       date: toIsoDate(date || ''),
       title,
@@ -77,18 +77,11 @@ function TimelineItemBase(props: TimelineItemProps) {
       price_currency: price?.currency || '',
       price_notes: price?.notes || '',
       city: props.city || props.dayCity || '',
-    });
+  });
+  const startEdit = () => {
+    setDraft(toDraft());
     setActionError('');
     setEditing(true);
-  };
-
-  const callApi = async (method: 'PATCH' | 'DELETE', body: unknown) => {
-    setBusy(true);
-    setActionError('');
-    const r = await apiFetch('/api/itinerary', { method, body });
-    setBusy(false);
-    if (!r.ok) { if (r.kind !== 'signed-out') setActionError(r.error); return; }
-    refreshPage();
   };
 
   // Trip days an edit can move this activity to (the activity's own, possibly legacy, date is always allowed)
@@ -102,7 +95,26 @@ function TimelineItemBase(props: TimelineItemProps) {
     const r = await apiFetch('/api/itinerary', { method: 'PATCH', body: { tab, ...rowRef, activity: draftToPayload(d) } });
     if (!r.ok) return { ...(r.data?.rowErrors?.[0] || {}), _: r.error };
   };
-  const remove = () => callApi('DELETE', { tab, ...rowRef, title });
+  // Delete happens at once and the toast offers Undo (Nielsen: easy reversal beats a "can't be undone" warning):
+  // Undo adds the same place back (it lands at the same day and time; a new row at the end of the sheet).
+  const remove = async () => {
+    const payload = draftToPayload(toDraft());
+    setBusy(true);
+    setActionError('');
+    const r = await apiFetch('/api/itinerary', { method: 'DELETE', body: { tab, ...rowRef, title } });
+    setBusy(false);
+    if (!r.ok) { if (r.kind !== 'signed-out') setActionError(r.error); return; }
+    toast.success(`Deleted “${title}”`, {
+      action: {
+        label: 'Undo',
+        run: async () => {
+          const back = await apiFetch('/api/itinerary', { body: { tab, activities: [payload], website: '' } });
+          if (back.ok) { toast.success('Restored'); refreshPage(); } else toast.error(back.error || 'Could not restore it');
+        },
+      },
+    });
+    refreshPage();
+  };
 
   // Collapsed cards show only time + title (Hick's Law: scan first, open what you need)
   const [localOpen, setLocalOpen] = useState(true);
@@ -249,7 +261,7 @@ function TimelineItemBase(props: TimelineItemProps) {
         {images && (
           <div className="relative mb-3.5 overflow-hidden rounded-xl border border-primary/15 bg-primary/5">
             {!imageLoaded && (
-              <div className="h-44 sm:h-48 w-full animate-pulse bg-primary/10 rounded-xl" />
+              <div className="h-44 sm:h-48 w-full skeleton rounded-xl" />
             )}
             <img
               src={images}
@@ -315,7 +327,7 @@ function TimelineItemBase(props: TimelineItemProps) {
             cities={props.tripCities}
             cityForDate={props.cityForDate}
             onSave={saveEdit}
-            onClose={(saved) => (saved > 0 ? (setEditing(false), refreshPage()) : setEditing(false))}
+            onClose={(saved) => (saved > 0 ? (setEditing(false), toast.success('Saved'), refreshPage()) : setEditing(false))}
           />
         )}
         <InlineError className="mt-3" message={actionError} />
@@ -340,7 +352,7 @@ function TimelineItemBase(props: TimelineItemProps) {
       <ConfirmDialog
         open={confirmOpen}
         title="Delete this activity?"
-        message={<>“{title}” will be permanently deleted. This can't be undone.</>}
+        message={<>“{title}” will be removed from the itinerary. You can undo right after.</>}
         confirmLabel="Delete activity"
         busy={busy}
         error={confirmOpen ? actionError : ''}
