@@ -290,3 +290,17 @@ html[data-nav="slow"]:not([data-nav-tab]) #page-content {
   .fade-in-fast { animation: none; }
   .touch-target:active:not(:disabled) { transform: none; }
 }
+
+/* Glass dock: half transparent, so the text on the inactive tabs stays solid and the active tab keeps its pill */
+.trip-dock li > a:not([aria-current="page"]) {
+  font-weight: 700;
+  text-shadow: 0 0 8px rgb(255 255 255 / 0.55);
+}
+[data-theme="night"] .trip-dock {
+  background-color: rgb(15 23 60 / 0.45);
+  border-color: rgb(165 180 252 / 0.28);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.35), inset 0 1px 0 rgb(165 180 252 / 0.15);
+}
+[data-theme="night"] .trip-dock li > a:not([aria-current="page"]) {
+  text-shadow: 0 0 8px rgb(15 23 60 / 0.7);
+}

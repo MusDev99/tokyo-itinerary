@@ -4,10 +4,10 @@ import { memo } from 'preact/compat';
 import { redirectIfSignedOut } from '../utils/authClient';
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { animate } from 'motion';
-import { useDismiss } from './useDismiss';
 import type { TimelineItem as TimelineItemType } from '../types/itinerary';
 import { CATEGORIES, detectCategory } from '../utils/analytics';
 import ConfirmDialog from './ConfirmDialog';
+import PortalMenu from './PortalMenu';
 import { toIsoDate } from '../utils/calendar';
 import ActivitySheet from './ActivitySheet';
 import { draftToPayload, type ActivityDraft } from './ActivityFields';
@@ -55,16 +55,7 @@ function TimelineItemBase(props: TimelineItemProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const canEdit = editable && Boolean(tab && (id || row));
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const menuPanel = useRef<HTMLDivElement>(null);
 
-  // Overflow ("⋯") menu: close on outside tap / Escape, small spring-in (Motion)
-  useDismiss(menuOpen, [menuRef], () => setMenuOpen(false));
-  useEffect(() => {
-    if (!menuOpen || !menuPanel.current || prefersReducedMotion()) return;
-    animate(menuPanel.current, { opacity: [0, 1], scale: [0.92, 1], y: [-6, 0] }, { type: 'spring', stiffness: 420, damping: 28 });
-  }, [menuOpen]);
   // Addresses the row by id, or by sheet row + original title for legacy rows without an id
   const rowRef = id ? { id } : { row, expectTitle: title };
   const [editing, setEditing] = useState(false);
@@ -247,36 +238,14 @@ function TimelineItemBase(props: TimelineItemProps) {
             </span>
 
             {canEdit && !editing && (
-              <div ref={menuRef} className="relative">
-                <button
-                  type="button"
-                  onClick={() => setMenuOpen((o) => !o)}
-                  aria-haspopup="menu"
-                  aria-expanded={menuOpen}
-                  aria-label={`Actions for ${title}`}
-                  className="touch-target inline-flex items-center justify-center w-11 h-11 -mr-2 rounded-full text-text/70 hover:bg-primary/10 active:bg-primary/15 text-xl leading-none"
-                >
-                  <span aria-hidden="true">⋯</span>
-                </button>
-                {menuOpen && (
-                  <div
-                    ref={menuPanel}
-                    role="menu"
-                    className="absolute right-0 top-full mt-1 z-20 w-40 rounded-xl bg-surface-solid border border-primary/20 shadow-xl p-1"
-                  >
-                    <button type="button" role="menuitem"
-                      onClick={() => { setMenuOpen(false); startEdit(); }}
-                      className="touch-target w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-text hover:bg-primary/10 text-left">
-                      <span aria-hidden="true">✏️</span> Edit
-                    </button>
-                    <button type="button" role="menuitem"
-                      onClick={() => { setMenuOpen(false); setActionError(''); setConfirmOpen(true); }}
-                      className="touch-target w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-red-700 hover:bg-red-500/10 text-left">
-                      <span aria-hidden="true">🗑️</span> Delete
-                    </button>
-                  </div>
-                )}
-              </div>
+              <PortalMenu
+                className="-mr-2"
+                label={`Actions for ${title}`}
+                items={[
+                  { label: <><span aria-hidden="true">✏️</span> Edit</>, onSelect: startEdit },
+                  { label: <><span aria-hidden="true">🗑️</span> Delete</>, onSelect: () => { setActionError(''); setConfirmOpen(true); }, danger: true },
+                ]}
+              />
             )}
           </div>
         </div>

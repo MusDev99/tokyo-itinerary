@@ -31,9 +31,10 @@ const ICONS: Record<TabKey, Shape[]> = {
 
 <!--
   Trip tab bar, phones and tablets only (desktop keeps the tabs in the trip header).
-  A floating dock: rounded, blurred, lifted off the screen edge so it reads as a control and never as page content.
+  A floating glass dock: rounded, about half transparent with a strong blur, lifted off the screen edge so it reads as a
+  control and never as page content while the page still shows through.
   Jakob's Law: still the bottom tab bar every travel / map app uses, with icon + label. Fitts's Law: 56px-tall
-  targets in the thumb zone. Miller's Law: four destinations. The current tab is a filled pill (not colour alone).
+  targets in the thumb zone. Miller's Law: four destinations at most (a country view has two). The current tab is a filled pill (not colour alone).
   `#trip-bottom-nav` lifts the floating buttons and pads the page (global.css).
 -->
 <nav
@@ -43,7 +44,7 @@ const ICONS: Record<TabKey, Shape[]> = {
   style="bottom: calc(0.75rem + env(safe-area-inset-bottom))"
 >
   <ul
-    class="grid gap-1 p-1.5 rounded-[1.75rem] border border-primary/15 bg-[color-mix(in_srgb,var(--surface-solid)_88%,transparent)] backdrop-blur-md shadow-[0_6px_18px_rgb(0_0_0/0.16)]"
+    class="trip-dock grid gap-1 p-1.5 rounded-[1.75rem] border border-white/45 bg-[color-mix(in_srgb,var(--surface-solid)_46%,transparent)] backdrop-blur-xl backdrop-saturate-150 shadow-[0_8px_24px_rgb(0_0_0/0.12),inset_0_1px_0_rgb(255_255_255/0.5)]"
     style={`grid-template-columns: repeat(${tabs.length}, minmax(0, 1fr))`}
   >
     {tabs.map((tab) => {
@@ -62,7 +63,7 @@ const ICONS: Record<TabKey, Shape[]> = {
               'transition-[background-color,color,transform] duration-200 motion-reduce:transition-none active:scale-95',
               current
                 ? 'bg-primary text-white shadow-[0_4px_12px_color-mix(in_srgb,var(--color-primary)_45%,transparent)]'
-                : 'text-text/65 hover:text-text hover:bg-primary/10',
+                : 'text-text/85 hover:text-text hover:bg-primary/10',
             ]}
           >
             {icon ? (

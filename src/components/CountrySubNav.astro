@@ -18,8 +18,6 @@ const { country, activeTab, state, manage } = Astro.props;
 
 // One definition for these header tabs (desktop) and the bottom tab bar (phones / tablets)
 const { isTrip, tabs } = tripTabs(country, state);
-// Full class names so Tailwind keeps them
-const GRID_COLS: Record<number, string> = { 2: 'grid-cols-2', 3: 'grid-cols-3', 4: 'grid-cols-4', 5: 'grid-cols-5' };
 
 const fmt = (d: string | null, opts: Intl.DateTimeFormatOptions) => {
   if (!d) return null;
@@ -148,8 +146,8 @@ const stats = [
     {tabs.length > 1 && (
       <div class:list={[
         'items-center gap-1.5 p-1.5 rounded-xl bg-white/45 border border-primary/20 w-full sm:w-auto self-stretch sm:self-start shrink-0',
-        // A trip shows these only from lg (below it the bottom bar takes over); `max-lg:hidden` would lose to `sm:flex`
-        isTrip ? 'hidden lg:flex' : ['grid sm:flex', GRID_COLS[Math.min(tabs.length, 5)]],
+        // Trips AND country hubs show these only from lg (below it the bottom bar takes over); `max-lg:hidden` would lose to `sm:flex`
+        'hidden lg:flex',
       ]}>
         {tabs.map((tab) => {
           const isCurrent = activeTab === tab.key;
@@ -189,4 +187,4 @@ const stats = [
 
 <TabSkeleton />
 
-{isTrip && tabs.length > 1 && <TripBottomNav tabs={tabs} active={activeTab} />}
+{tabs.length > 1 && <TripBottomNav tabs={tabs} active={activeTab} />}
