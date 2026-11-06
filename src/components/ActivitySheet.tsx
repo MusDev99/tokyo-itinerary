@@ -10,6 +10,8 @@ import { useDismiss } from './useDismiss';
 import FormField from './FormField';
 import AnalogTimePicker from './AnalogTimePicker';
 import { MoreFields, inputClass, type ActivityDraft } from './ActivityFields';
+import InlineError from './ui/InlineError';
+import Button from './ui/Button';
 
 export type SaveResult = Record<string, string> | void;
 
@@ -262,19 +264,16 @@ export default function ActivitySheet({ mode, initial, days, plannedDays = [], c
               )}
             </div>
 
-            {errs._ && <div role="alert" className="p-3 rounded-xl bg-danger/10 border border-danger/30 text-sm font-semibold text-danger-strong">{errs._}</div>}
+            <InlineError message={errs._} />
             <div role="status" aria-live="polite" className="min-h-[1.25rem] text-sm font-bold text-success-strong">{toast}</div>
           </div>
 
           {/* Pinned actions: always in thumb reach, however long the form gets */}
           <div className="flex gap-2 px-4 sm:px-6 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))] border-t border-primary/10">
-            <button type="button" onClick={close} className="touch-target px-5 py-3 rounded-xl bg-primary/10 text-primary text-sm font-bold">
-              {saved ? 'Done' : 'Cancel'}
-            </button>
-            <button type="submit" disabled={busy || !dirty}
-              className="touch-target flex-1 px-5 py-3 rounded-xl bg-primary text-white text-sm sm:text-base font-extrabold shadow-md disabled:opacity-50">
-              {busy ? 'Saving…' : mode === 'edit' ? 'Save changes' : saved ? 'Add another' : 'Add place'}
-            </button>
+            <Button variant="soft" onClick={close}>{saved ? 'Done' : 'Cancel'}</Button>
+            <Button type="submit" className="flex-1" disabled={!dirty} busy={busy} busyLabel="Saving…">
+              {mode === 'edit' ? 'Save changes' : saved ? 'Add another' : 'Add place'}
+            </Button>
           </div>
         </form>
       </div>

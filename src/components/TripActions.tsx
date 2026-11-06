@@ -1,6 +1,6 @@
 import { h } from 'preact';
 import { goTo, refreshPage } from '../utils/refresh';
-import { redirectIfSignedOut } from '../utils/authClient';
+import { apiFetch } from '../utils/apiFetch';
 import { useState } from 'preact/hooks';
 import ConfirmDialog from './ConfirmDialog';
 import { inputClass } from './inputClass';
@@ -24,25 +24,10 @@ export default function TripActions({ tab, title, activityCount, afterDeleteHref
   const call = async (method: 'PATCH' | 'DELETE', body: unknown, url = '/api/itinerary') => {
     setBusy(true);
     setError('');
-    try {
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-      if (redirectIfSignedOut(res)) return null;
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || 'Something went wrong');
-        return null;
-      }
-      return data;
-    } catch {
-      setError('Network error — please try again.');
-      return null;
-    } finally {
-      setBusy(false);
-    }
+    const r = await apiFetch(url, { method, body });
+    setBusy(false);
+    if (!r.ok) { if (r.kind !== 'signed-out') setError(r.error); return null; }
+    return r.data;
   };
 
   const rename = async () => {

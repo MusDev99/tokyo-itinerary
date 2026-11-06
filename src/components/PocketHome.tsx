@@ -1,6 +1,8 @@
 import { h } from 'preact';
 import { useEffect, useMemo, useState } from 'preact/hooks';
-import { redirectIfSignedOut } from '../utils/authClient';
+import { apiFetch } from '../utils/apiFetch';
+import { toast } from '../utils/toast';
+import InlineError from './ui/InlineError';
 import { sortItems, type PocketItem, type PocketKind } from '../utils/pocket';
 import { formatLongDate } from '../utils/calendar';
 import type { CheckGroup } from '../utils/checklist';
@@ -95,16 +97,11 @@ export default function PocketHome({ tab, signedIn, loginHref, tripStart, hasIti
 
   const load = async () => {
     setLoadError('');
-    try {
-      const res = await fetch(`/api/pocket?tab=${encodeURIComponent(tab)}`);
-      if (redirectIfSignedOut(res)) return;
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Could not load your Pocket');
-      setItems(data.items as PocketItem[]);
-    } catch (e: any) {
-      setLoadError(e?.message || 'Could not load your Pocket');
-      setItems([]);
-    }
+    const r = await apiFetch(`/api/pocket?tab=${encodeURIComponent(tab)}`);
+    if (r.ok) { setItems(r.data.items as PocketItem[]); return; }
+    if (r.kind === 'signed-out') return;
+    setLoadError(r.kind === 'http' ? r.error : 'Could not load your Pocket. Check your connection.');
+    setItems([]);
   };
   useEffect(() => { if (signedIn) load(); }, [signedIn, tab]);
 
@@ -119,33 +116,21 @@ export default function PocketHome({ tab, signedIn, loginHref, tripStart, hasIti
   const notes = sorted.filter((i) => i.kind === 'note');
 
   const save = async (draft: PocketDraft, id?: string): Promise<Record<string, string> | void> => {
-    try {
-      const res = await fetch('/api/pocket', {
-        method: id ? 'PATCH' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tab, id, item: draft, website: '' }),
-      });
-      if (redirectIfSignedOut(res)) return;
-      const data = await res.json();
-      if (!res.ok) return data.fieldErrors || { _: data.error || 'Something went wrong' };
-      // Show it at once (Doherty Threshold): the server's copy is already in the response, no second round trip
-      if (id) setItems((prev) => (prev || []).map((i) => (i.id === id ? { ...i, ...draft } : i)));
-      else if (data.item) setItems((prev) => [...(prev || []), data.item as PocketItem]);
-      else await load();
-      setSheet(null);
-    } catch {
-      return { _: 'Network error. Please try again.' };
-    }
+    const r = await apiFetch('/api/pocket', { method: id ? 'PATCH' : 'POST', body: { tab, id, item: draft, website: '' } });
+    if (!r.ok) return r.data?.fieldErrors || { _: r.error };
+    // Show it at once (Doherty Threshold): the server's copy is already in the response, no second round trip
+    if (id) setItems((prev) => (prev || []).map((i) => (i.id === id ? { ...i, ...draft } : i)));
+    else if (r.data.item) setItems((prev) => [...(prev || []), r.data.item as PocketItem]);
+    else await load();
+    setSheet(null);
+    toast.success(id ? 'Saved' : 'Added to your Pocket');
   };
 
   const toggleDone = async (item: PocketItem) => {
     const { id, createdBy, createdAt, ...rest } = item;
     setItems((prev) => (prev || []).map((i) => (i.id === id ? { ...i, done: !i.done } : i))); // optimistic (Doherty)
-    const res = await fetch('/api/pocket', {
-      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tab, id, item: { ...rest, done: !item.done } }),
-    }).catch(() => null);
-    if (!res || !res.ok) load();
+    const r = await apiFetch('/api/pocket', { method: 'PATCH', body: { tab, id, item: { ...rest, done: !item.done } } });
+    if (!r.ok) load();
   };
 
   // Optimistic: the row leaves the list when you confirm; it comes back with a message if the server says no
@@ -156,17 +141,11 @@ export default function PocketHome({ tab, signedIn, loginHref, tripStart, hasIti
     setItems((prev) => (prev || []).filter((i) => i.id !== gone.id));
     setDel(null);
     setDelError('');
-    try {
-      const res = await fetch('/api/pocket', {
-        method: 'DELETE', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tab, id: gone.id }),
-      });
-      if (redirectIfSignedOut(res)) return;
-      if (!res.ok) throw new Error((await res.json()).error || 'Could not delete');
-    } catch (e: any) {
-      setItems(before);
-      setLoadError(`“${gone.title}” could not be removed: ${e?.message || 'try again'}`);
-    }
+    const r = await apiFetch('/api/pocket', { method: 'DELETE', body: { tab, id: gone.id } });
+    if (r.ok) { toast.success(`Removed “${gone.title}”`); return; }
+    if (r.kind === 'signed-out') return;
+    setItems(before);
+    setLoadError(`“${gone.title}” could not be removed: ${r.error}`);
   };
 
   const actions = (item: PocketItem) => (
@@ -254,10 +233,7 @@ export default function PocketHome({ tab, signedIn, loginHref, tripStart, hasIti
       {signedIn && (
         <>
           {loadError && (
-            <div role="alert" className="p-3 rounded-xl bg-danger/10 border border-danger/30 text-sm font-semibold text-danger-strong flex items-center justify-between gap-2">
-              {loadError}
-              <button type="button" onClick={load} className="touch-target px-3 font-bold underline">Retry</button>
-            </div>
+            <InlineError message={loadError} onRetry={load} />
           )}
           <Section id="pk-bookings" title="Bookings & docs" count={bookings.length} open={open.bookings} onToggle={() => toggle('bookings')}>
             {items === null ? <RowSkeleton /> : bookings.length === 0 ? empty('No flights, stays or docs yet. Add one with the button above.') : <ul className="space-y-2">{bookings.map(card)}</ul>}

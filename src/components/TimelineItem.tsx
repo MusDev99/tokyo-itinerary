@@ -1,7 +1,8 @@
 import { h } from 'preact';
 import { refreshPage } from '../utils/refresh';
 import { memo } from 'preact/compat';
-import { redirectIfSignedOut } from '../utils/authClient';
+import { apiFetch } from '../utils/apiFetch';
+import InlineError from './ui/InlineError';
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { animate } from 'motion';
 import type { TimelineItem as TimelineItemType } from '../types/itinerary';
@@ -84,24 +85,10 @@ function TimelineItemBase(props: TimelineItemProps) {
   const callApi = async (method: 'PATCH' | 'DELETE', body: unknown) => {
     setBusy(true);
     setActionError('');
-    try {
-      const res = await fetch('/api/itinerary', {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-      if (redirectIfSignedOut(res)) return;
-      const data = await res.json();
-      if (!res.ok) {
-        setActionError(data.error || 'Something went wrong');
-        return;
-      }
-      refreshPage();
-    } catch {
-      setActionError('Network error — please try again.');
-    } finally {
-      setBusy(false);
-    }
+    const r = await apiFetch('/api/itinerary', { method, body });
+    setBusy(false);
+    if (!r.ok) { if (r.kind !== 'signed-out') setActionError(r.error); return; }
+    refreshPage();
   };
 
   // Trip days an edit can move this activity to (the activity's own, possibly legacy, date is always allowed)
@@ -112,18 +99,8 @@ function TimelineItemBase(props: TimelineItemProps) {
   };
 
   const saveEdit = async (d: ActivityDraft): Promise<Record<string, string> | void> => {
-    try {
-      const res = await fetch('/api/itinerary', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tab, ...rowRef, activity: draftToPayload(d) }),
-      });
-      if (redirectIfSignedOut(res)) return { _: 'Please sign in again.' };
-      const data = await res.json();
-      if (!res.ok) return { ...(data.rowErrors?.[0] || {}), _: data.error || 'Something went wrong' };
-    } catch {
-      return { _: 'Network error. Please try again.' };
-    }
+    const r = await apiFetch('/api/itinerary', { method: 'PATCH', body: { tab, ...rowRef, activity: draftToPayload(d) } });
+    if (!r.ok) return { ...(r.data?.rowErrors?.[0] || {}), _: r.error };
   };
   const remove = () => callApi('DELETE', { tab, ...rowRef, title });
 
@@ -341,11 +318,7 @@ function TimelineItemBase(props: TimelineItemProps) {
             onClose={(saved) => (saved > 0 ? (setEditing(false), refreshPage()) : setEditing(false))}
           />
         )}
-        {actionError && (
-          <div role="alert" className="mt-3 p-2.5 rounded-xl bg-danger/10 border border-danger/30 text-xs font-semibold text-danger-strong">
-            {actionError}
-          </div>
-        )}
+        <InlineError className="mt-3" message={actionError} />
 
         {/* Progressive Disclosure for Video Embed (Hick's Law) */}
         {youtubeUrl && showVideo && (

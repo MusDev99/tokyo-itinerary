@@ -10,6 +10,8 @@ import FormField from './FormField';
 import CalendarPicker from './CalendarPicker';
 import AnalogTimePicker from './AnalogTimePicker';
 import { inputClass } from './inputClass';
+import InlineError from './ui/InlineError';
+import Button from './ui/Button';
 
 export type PocketDraft = Omit<PocketItem, 'id' | 'createdBy' | 'createdAt'>;
 
@@ -238,17 +240,11 @@ export default function PocketSheet({ kind: initialKind, item, defaultDate = '',
               </div>
             )}
 
-            {errs._ && <div role="alert" className="p-3 rounded-xl bg-danger/10 border border-danger/30 text-sm font-semibold text-danger-strong">{errs._}</div>}
+            <InlineError message={errs._} />
 
             <div className="flex gap-2">
-              <button type="button" onClick={() => (item || initialKind ? onClose() : setKind(null))}
-                className="touch-target px-5 py-3 rounded-xl bg-primary/10 text-primary text-sm font-bold">
-                {item || initialKind ? 'Cancel' : 'Back'}
-              </button>
-              <button type="submit" disabled={busy}
-                className="touch-target flex-1 px-5 py-3 rounded-xl bg-primary text-white text-sm sm:text-base font-extrabold shadow-md disabled:opacity-60">
-                {busy ? 'Saving…' : item ? 'Save changes' : 'Put it in Pocket'}
-              </button>
+              <Button variant="soft" onClick={() => (item || initialKind ? onClose() : setKind(null))}>{item || initialKind ? 'Cancel' : 'Back'}</Button>
+              <Button type="submit" className="flex-1" busy={busy} busyLabel="Saving…">{item ? 'Save changes' : 'Put it in Pocket'}</Button>
             </div>
           </form>
         )}

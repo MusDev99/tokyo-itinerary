@@ -2,7 +2,7 @@ import { h } from 'preact';
 import { goTo } from '../utils/refresh';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { animate } from 'motion';
-import { redirectIfSignedOut } from '../utils/authClient';
+import { apiFetch } from '../utils/apiFetch';
 import { prefersReducedMotion } from '../utils/motion';
 import { slug, validateRange, buildDays, diffDays, addDays, isIsoDate, MAX_TRIP_DAYS } from '../utils/tripDraft';
 import { stopsFromParts, citiesLabel } from '../utils/trips';
@@ -14,6 +14,8 @@ import CalendarPicker from './CalendarPicker';
 import FormField from './FormField';
 import { inputClass } from './ActivityFields';
 import type { Place } from '../types/place';
+import InlineError from './ui/InlineError';
+import Button from './ui/Button';
 
 interface CountryOption { name: string; slug: string; flag: string; currency: string }
 interface Trip { country: string; state: string }
@@ -61,10 +63,6 @@ const writeDraft = (d: Draft | null) => {
   } catch {}
 };
 
-const primaryBtn =
-  'touch-target flex-1 px-5 py-3 rounded-xl bg-primary text-white text-sm sm:text-base font-extrabold shadow-md hover:opacity-95 disabled:opacity-50 transition-opacity';
-const ghostBtn =
-  'touch-target px-5 py-3 rounded-xl bg-primary/10 text-primary text-sm font-bold hover:bg-primary/15 transition-colors';
 
 /**
  * Create-a-trip wizard: Where -> When -> Review.
@@ -228,17 +226,10 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
           ...(mode === 'suggest' ? { activities: distributeSuggestions(picks, buildDays(start, end)) } : {}),
         };
       }
-      const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-      if (redirectIfSignedOut(res)) return;
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || 'Something went wrong');
-        return;
-      }
+      const r = await apiFetch(url, { body: payload });
+      if (!r.ok) { if (r.kind !== 'signed-out') setError(r.error); return; }
       writeDraft(null);
-      goTo(data.href);
-    } catch {
-      setError('Network error. Please try again.');
+      goTo(r.data.href);
     } finally {
       setBusy(false);
     }
@@ -453,7 +444,7 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
               </FormField>
             )}
             <p className="text-xs text-text/70">{mode === 'blank' ? "You'll add places day by day on the next screen." : 'You can change anything on the next screen.'}</p>
-            {error && <div role="alert" className="p-3 rounded-xl bg-danger/10 border border-danger/30 text-sm font-semibold text-danger-strong">{error}</div>}
+            <InlineError message={error} />
           </>
         )}
 
@@ -468,14 +459,14 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
         <input id="hp-website" type="text" tabIndex={-1} autoComplete="off" aria-hidden="true" className="absolute -left-[9999px] w-px h-px opacity-0" />
         <div className="flex gap-2 pt-1">
           {idx > 0 && (
-            <button type="button" className={ghostBtn} disabled={busy} onClick={() => go(flow[idx - 1])}>Back</button>
+            <Button variant="soft" disabled={busy} onClick={() => go(flow[idx - 1])}>Back</Button>
           )}
           {phase !== 'review' ? (
-            <button type="button" className={primaryBtn} onClick={next}>{NEXT_LABEL[phase]}</button>
+            <Button className="flex-1" onClick={next}>{NEXT_LABEL[phase]}</Button>
           ) : (
-            <button type="button" className={primaryBtn} disabled={busy} onClick={create}>
-              {busy ? CREATE_STEPS[stage] : mode === 'copy' ? 'Copy trip' : 'Create trip'}
-            </button>
+            <Button className="flex-1" busy={busy} busyLabel={CREATE_STEPS[stage]} onClick={create}>
+              {mode === 'copy' ? 'Copy trip' : 'Create trip'}
+            </Button>
           )}
         </div>
       </div>

@@ -3,6 +3,14 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-06 11:41 — Chore: shared UI kit (Button, InlineError, EmptyState, toast, apiFetch)
+
+- **One `Button`** (primary / soft / danger / ghost, 44px minimum, focus ring, `busy` spinner that blocks a second press) now drives Confirm dialog, Add/Edit place, Pocket sheet and the new-trip wizard buttons. At night the primary button uses dark ink (white on amber failed contrast).
+- **One error box, `InlineError`** (announced to screen readers, optional **Retry**), replaces 8 hand-made error boxes; Pocket load and the prayer-times card now share it.
+- **`apiFetch()`** replaces about 12 hand-rolled `fetch` + `try/catch` blocks: JSON in/out, 25s timeout, same messages for network/timeout/server errors, only the server's `error` text is shown, signed-out redirects to login. Unit-tested.
+- **Toasts** (`toast.success/error/info`, optional Undo action, one `<Toaster>` above the tab dock): Pocket save/remove and saved location now confirm with a toast. `EmptyState` added for the next PRs.
+- `tests/apiFetch.test.ts` covers the API helper and the toast store; CLAUDE.md documents the kit.
+
 ## 2026-11-06 11:34 — Chore: UI tokens (status colours, smallest text, radius rule)
 
 - **Status colours are tokens:** `danger` / `success` / `warning` (plus `-strong` for text and `-solid` for filled buttons) defined once in `global.css` with a night variant, replacing about 100 raw `red-*`, `emerald-*`, `amber-*` classes across 40 files. Errors, successes and warnings now follow the theme and keep contrast at night.
