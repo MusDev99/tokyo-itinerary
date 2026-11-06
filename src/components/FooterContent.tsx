@@ -173,14 +173,15 @@ export default function FooterContent({ destinations, year, canEdit = false }: P
             <span className="text-text/40"> · </span>
             <span className="text-text/60">© {year}</span>
             <span className="text-text/40"> · </span>
-            <a href="/welcome" className="inline-flex items-center py-2 font-semibold text-primary underline-offset-2 hover:underline">How it works</a>
+            <a href="/welcome" className="inline-flex items-center min-h-11 py-2 font-semibold text-primary underline-offset-2 hover:underline">How it works</a>
           </p>
           <p className="flex flex-wrap items-center justify-center sm:justify-start gap-x-1.5 gap-y-1 text-xs text-text/60">
             <span>Built with</span>
             {TECHS.map((t, i) => (
               <span key={t.name} className="inline-flex items-center gap-1.5">
                 <a href={t.url} target="_blank" rel="noopener noreferrer"
-                  className="font-semibold text-text/75 hover:text-primary underline-offset-2 hover:underline py-1">
+                  // Fitts: the 24px text link gets a 44px tap area from an invisible overlay
+                  className="relative font-semibold text-text/75 hover:text-primary underline-offset-2 hover:underline py-1 after:absolute after:-inset-x-1.5 after:-inset-y-2.5 after:content-['']">
                   {t.name}
                 </a>
                 {i < TECHS.length - 1 && <span aria-hidden="true" className="text-text/30">·</span>}

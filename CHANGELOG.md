@@ -3,6 +3,15 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-06 12:15 — Feat: UX polish (edit trip, error and empty states, tap targets)
+
+- **Edit a trip after creating it:** the pencil opens one sheet with the **title, dates and cities** (days per city, the last city takes the rest, live preview). `PATCH /api/trips` now accepts `dates`; changing them re-lays the existing cities on the new range. Places already in the itinerary are never moved or deleted. This closes the "no UI to edit cities/dates" gap.
+- **Error page that cannot fail with the sheet:** new `500.astro` (no Header, no Sheets read) says what happened, that trips are safe, and offers **Try again** and **Go to home**. Home now tells "no trips yet" (with a button to plan the first one or sign in) apart from "we can't reach your trip sheet" (with Try again).
+- **Empty states with one action:** an empty trip, and the empty Pocket sections, use the shared `EmptyState` (icon, one line, next step; guests get a Sign in button).
+- **No more `alert()`:** a failed PDF export shows an error toast.
+- **Tap targets:** footer links ("How it works", Built-with links) and the world-map pins now have at least 44px tap areas (measured at 375px across home, country, trip tabs, login).
+- Tests: `partsFromStops` (cities back to rows, re-laid on a longer trip).
+
 ## 2026-11-06 11:55 — Feat: loading states and feedback
 
 - **One loading placeholder, `.skeleton`** (opacity only, off with reduced motion) replaces the five ad-hoc `animate-pulse` blocks (tab skeleton, prayer times, chart, timeline photo, suggestions) and the unused `SkeletonLoader.tsx`. New `ListSkeleton` is shaped like a real list row, so content replaces it without a layout jump (Pocket and the wizard's suggestions use it).

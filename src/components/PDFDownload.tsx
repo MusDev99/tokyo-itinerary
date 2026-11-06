@@ -1,4 +1,5 @@
 import { useState } from 'preact/hooks';
+import { toast } from '../utils/toast';
 // jspdf (~400 KB with its deps) is loaded when the person asks for a PDF, not with the page
 const loadPdf = () => import('jspdf').then((m) => m.default);
 import type { DayItinerary } from '../types/itinerary';
@@ -193,7 +194,7 @@ export default function PDFDownload({ itinerary }: Props) {
       
     } catch (error) {
       console.error('Error generating PDF:', error);
-      alert('An error occurred while generating the PDF. Please try again.');
+      toast.error('Could not create the PDF. Please try again.');
     } finally {
       setIsGenerating(false);
     }

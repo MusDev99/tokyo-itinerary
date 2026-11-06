@@ -8,6 +8,7 @@ import Tabs from '../../../components/TabsNew';
 import PDFDownload from '../../../components/PDFDownload';
 import CalendarExport from '../../../components/CalendarExport';
 import TripBuilder from '../../../components/TripBuilder';
+import EmptyState from '../../../components/ui/EmptyState';
 import { getTripDates } from '../../../utils/googleSheets';
 import { toIsoDate } from '../../../utils/calendar';
 import { getAllCountriesWithSheets, tripBySlug } from '../../../utils/countries';
@@ -34,7 +35,7 @@ const planned = canEdit
   <Header />
   <div class="w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8">
     <CountrySubNav country={country} activeTab="itinerary" state={stateMeta}
-      manage={Astro.locals.user ? { tab: stateMeta.tabName, title: stateMeta.title, activityCount: stateMeta.stats.totalActivities, afterDeleteHref: `/${baseCountry.slug}` } : undefined} />
+      manage={Astro.locals.user ? { tab: stateMeta.tabName, title: stateMeta.title, activityCount: stateMeta.stats.totalActivities, afterDeleteHref: `/${baseCountry.slug}`, dates: tripDates, stops: stateMeta.stops } : undefined} />
 
     {country.stats.hasItinerary ? (
       <div class="space-y-6 sm:space-y-8">
@@ -72,17 +73,17 @@ const planned = canEdit
         </div>
       </div>
     ) : (
-      <div class="glass-effect rounded-2xl p-8 text-center border border-primary/20">
-        <p class="text-lg font-bold text-text">Nothing planned for {stateMeta.name} yet.</p>
-        <p class="text-sm text-text/70 mt-1">
-          Add places to see the day-by-day timeline.
-        </p>
-        {canEdit && (
-          <div class="mt-5 max-w-xs mx-auto">
-            <TripBuilder client:load empty tab={stateMeta.tabName} cities={stateMeta.cities} stops={stateMeta.stops}
-              currency={stateMeta.currency} dates={tripDates} planned={planned} />
-          </div>
-        )}
+      <div class="glass-effect rounded-2xl p-4 border border-primary/20">
+        <EmptyState icon="🗓️" title={`Nothing planned for ${stateMeta.title} yet`} hint={canEdit ? 'Add your first place to start the day-by-day timeline.' : 'Sign in to add places to this trip.'}>
+          {canEdit ? (
+            <div class="max-w-xs mx-auto">
+              <TripBuilder client:load empty tab={stateMeta.tabName} cities={stateMeta.cities} stops={stateMeta.stops}
+                currency={stateMeta.currency} dates={tripDates} planned={planned} />
+            </div>
+          ) : (
+            <a href={`/login?next=${encodeURIComponent(Astro.url.pathname)}`} class="touch-target focus-ring inline-flex items-center justify-center min-h-11 px-5 rounded-xl bg-primary/10 text-primary text-sm font-extrabold">Sign in</a>
+          )}
+        </EmptyState>
       </div>
     )}
   </div>

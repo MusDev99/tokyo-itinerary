@@ -169,3 +169,8 @@ export function validateStops(stops: Stop[], start: string, end: string): string
 
 /** Days of the trip spent in each stop, for the editor (inverse of stopsFromParts). */
 export const stopDays = (s: Stop) => diffDays(s.start, s.end) + 1;
+
+/** Stops back as "city + days" rows (the shape the editor and `stopsFromParts` use), e.g. to re-lay them on new dates. */
+export function partsFromStops(stops: Stop[]): Array<{ city: string; country: string; days: number }> {
+  return [...stops].sort((a, b) => a.start.localeCompare(b.start)).map((s) => ({ city: s.city, country: s.country || '', days: stopDays(s) }));
+}

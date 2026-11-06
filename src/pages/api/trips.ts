@@ -8,7 +8,7 @@ import { validateRange, buildDays } from '../../utils/tripDraft';
 import { parseActivity } from '../../utils/parseActivity';
 import { chunk } from '../../utils/chunk';
 import type { ActivityInput } from '../../utils/googleSheets';
-import { stopsFromParts, tabNameFromTitle, uniqueSlug, validateStops, legacyTripSlug, type Stop, type TripMeta } from '../../utils/trips';
+import { partsFromStops, stopsFromParts, tabNameFromTitle, uniqueSlug, validateStops, legacyTripSlug, type Stop, type TripMeta } from '../../utils/trips';
 
 // Create and edit titled trips. Needs a signed-in, active editor (PROTECTED_API in src/middleware.ts).
 const json = (body: unknown, status = 200) =>
@@ -114,15 +114,26 @@ export const PATCH: APIRoute = async ({ request, locals }) => {
       if (title.length < 2) return json({ error: 'Give the trip a title', fieldErrors: { title: 'Give the trip a title' } }, 400);
       next.title = title;
     }
-    if (body.stops !== undefined) {
-      const range = (await getTripDates(trip.tabName)) ?? (trip.stats.firstDate && trip.stats.lastDate ? { start: trip.stats.firstDate.slice(0, 10), end: trip.stats.lastDate.slice(0, 10) } : null);
+    // New dates: validated like the wizard's; cities are re-laid on them (the editor sends both, but dates alone also
+    // keep the existing cities, in order and with their days, the last one taking the rest)
+    let newDates: { start: string; end: string } | null = null;
+    if (body.dates !== undefined) {
+      const start = str(body.dates?.start, 10);
+      const end = str(body.dates?.end, 10);
+      const rangeError = validateRange(start, end);
+      if (rangeError) return json({ error: rangeError, fieldErrors: { dates: rangeError } }, 400);
+      newDates = { start, end };
+    }
+    if (body.stops !== undefined || (newDates && next.stops.length)) {
+      const range = newDates ?? (await getTripDates(trip.tabName)) ?? (trip.stats.firstDate && trip.stats.lastDate ? { start: trip.stats.firstDate.slice(0, 10), end: trip.stats.lastDate.slice(0, 10) } : null);
       if (!range) return json({ error: 'Set the trip dates before adding cities' }, 400);
-      const parts = parseParts(body.stops);
+      const parts = body.stops !== undefined ? parseParts(body.stops) : partsFromStops(next.stops);
       const stops = stopsFromParts(range.start, buildDays(range.start, range.end).length, parts.map((p) => ({ ...p, country: p.country || next.country })));
       const stopError = validateStops(stops, range.start, range.end);
       if (stopError) return json({ error: stopError }, 400);
       next.stops = stops;
     }
+    if (newDates) await saveTripDates(trip.tabName, newDates);
     await saveTripMeta(trip.tabName, next);
     await recordAudit({ email: who(locals), action: 'update_trip', tab: trip.tabName, target: next.title.slice(0, 120) });
     return json({ ok: true, slug: next.slug, title: next.title });

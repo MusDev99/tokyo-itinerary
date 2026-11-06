@@ -24,5 +24,5 @@ Four PRs; this file tracks them.
 
 ## PR 3 notes
 - `POST /api/trips` creates tab + registry row + dates + place (rollback with `deleteTrip` if a later step fails); `PATCH /api/trips` edits title / stops (slug and tab never change).
-- Not yet in the UI: editing a trip's cities or dates after creation (the API accepts `stops`); delete works for every trip through the existing delete action.
+- Editing a trip's title, dates and cities after creation: `TripEditSheet` (UX polish PR); delete works for every trip through the existing delete action.
 - Wizard payload checked in a browser (intercepted request): title, country, first city, stops `[{Tokyo 3d},{Osaka 4d}]`, dates, place.
