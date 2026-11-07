@@ -1,0 +1,169 @@
+---
+import { pageCacheControl } from '../../../utils/security';
+import Layout from '../../../layouts/Layout.astro';
+import ShareTrip from '../../../components/ShareTrip';
+import PDFDownload from '../../../components/PDFDownload';
+import CalendarExport from '../../../components/CalendarExport';
+import EmptyState from '../../../components/ui/EmptyState';
+import { getAllCountriesWithSheets, tripBySlug, tripCitiesLabel } from '../../../utils/countries';
+import { buildPdfModel } from '../../../utils/tripPdf';
+import { toIsoDate } from '../../../utils/calendar';
+import { dateSpan, shareDescription, summaryLine } from '../../../utils/share';
+
+// The client page: what you send a traveller. Read-only, no editing controls, no tab bar, not indexed by search engines.
+Astro.response.headers.set('Cache-Control', pageCacheControl(Boolean(Astro.locals.user)));
+
+const { countries } = await getAllCountriesWithSheets();
+const trip = tripBySlug(countries, Astro.params.slug, 'Itinerary');
+if (!trip) return Astro.redirect('/404');
+const { baseCountry, stateMeta } = trip;
+const days = stateMeta.itinerary;
+
+const cities = tripCitiesLabel(stateMeta);
+const isoDates = days.map((d) => toIsoDate(d.date || '')).filter(Boolean).sort();
+const start = isoDates[0];
+const end = isoDates[isoDates.length - 1];
+const subtitle = [cities, baseCountry.name].filter(Boolean).join(' · ');
+const model = buildPdfModel({ title: stateMeta.title, subtitle, currency: stateMeta.currency }, days);
+const info = { title: stateMeta.title, cities, country: baseCountry.name, start, end, days: days.length };
+const summary = summaryLine(info);
+const href = `/trips/${stateMeta.slug}/share`;
+const cost = model.totals.map((t) => t.text).join(' + ');
+---
+
+<Layout
+  title={`${stateMeta.title} · Itinerary`}
+  description={shareDescription(info)}
+  image="/og-share.png"
+  noindex
+>
+  <main class="share-root w-full max-w-2xl mx-auto px-3.5 sm:px-6 py-5 sm:py-8 space-y-5 sm:space-y-6">
+    <!-- Brand only: this page is for a traveller, not for navigating the whole site -->
+    <div class="flex items-center gap-2.5 px-1 print:hidden">
+      <img src="/logo.svg" alt="" width="32" height="32" class="w-8 h-8" />
+      <span class="text-base font-extrabold text-text tracking-tight">PlanTravel</span>
+    </div>
+
+    <header class="glass-effect rounded-2xl p-4 sm:p-6 border border-primary/20 shadow-md space-y-4">
+      <div class="space-y-1.5 min-w-0">
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-text tracking-tight leading-tight break-words">{stateMeta.title}</h1>
+        {summary && <p class="text-sm sm:text-base font-semibold text-text/75">{summary}</p>}
+      </div>
+
+      {days.length > 0 && (
+        <dl class="grid grid-cols-3 gap-2 text-center">
+          <div class="rounded-xl bg-white/50 border border-primary/15 py-2.5 px-1">
+            <dt class="text-micro font-bold uppercase tracking-wide text-text/60">Days</dt>
+            <dd class="text-lg font-extrabold text-text">{model.days.length}</dd>
+          </div>
+          <div class="rounded-xl bg-white/50 border border-primary/15 py-2.5 px-1">
+            <dt class="text-micro font-bold uppercase tracking-wide text-text/60">Places</dt>
+            <dd class="text-lg font-extrabold text-text">{model.facts.find((f) => f.label === 'Places')?.value}</dd>
+          </div>
+          <div class="rounded-xl bg-white/50 border border-primary/15 py-2.5 px-1">
+            <dt class="text-micro font-bold uppercase tracking-wide text-text/60">{cities.includes('→') ? 'Cities' : 'City'}</dt>
+            <dd class="text-sm font-extrabold text-text px-1 break-words">{cities.split(' → ').length > 1 ? cities.split(' → ').length : (cities || '—')}</dd>
+          </div>
+        </dl>
+      )}
+
+      <!-- Costs are the agency's call to show: hidden until the reader asks (a plain checkbox, no script) -->
+      {cost && (
+        <div data-cost class="rounded-xl border border-warning/40 bg-warning/10 px-3 py-2.5">
+          <p class="text-micro font-bold uppercase tracking-wide text-warning-strong">Estimated cost</p>
+          <p class="text-lg font-extrabold text-text break-words">{cost}</p>
+          {model.totals.length > 1 && <p class="text-micro text-text/60">Different currencies are shown separately, not converted.</p>}
+        </div>
+      )}
+
+      <div class="flex flex-wrap items-center gap-2 print:hidden">
+        <ShareTrip info={info} href={href} client:load />
+        <PDFDownload itinerary={days} title={stateMeta.title} subtitle={subtitle} href={href} currency={stateMeta.currency} client:visible />
+        <CalendarExport feedPath={`/trips/${stateMeta.slug}/calendar.ics`} client:visible />
+      </div>
+
+      {cost && (
+        <div class="print:hidden">
+          <input id="show-costs" type="checkbox" class="peer sr-only" />
+          <label for="show-costs" class="touch-target inline-flex items-center gap-2 min-h-11 px-4 rounded-full border border-primary/30 bg-white/60 text-sm font-bold text-primary cursor-pointer peer-focus-visible:ring-2 peer-focus-visible:ring-primary/50 peer-checked:bg-primary peer-checked:text-white">
+            <span aria-hidden="true">💰</span>
+            <span>Show costs</span>
+          </label>
+        </div>
+      )}
+    </header>
+
+    {days.length === 0 ? (
+      <div class="glass-effect rounded-2xl p-4 border border-primary/20">
+        <EmptyState icon="🗓️" title="Nothing planned yet" hint="Check back soon: the day-by-day plan will appear here." />
+      </div>
+    ) : (
+      model.days.map((d) => (
+        <section aria-labelledby={`day-${d.label.replace(' ', '-')}`} class="space-y-2.5">
+          <div class="rounded-2xl bg-primary/10 border border-primary/20 px-4 py-3 flex items-start justify-between gap-3 break-after-avoid">
+            <div class="min-w-0">
+              <h2 id={`day-${d.label.replace(' ', '-')}`} class="text-base sm:text-lg font-extrabold text-text break-words">
+                <span class="text-primary">{d.label}</span><span class="text-text/50 font-bold"> · </span>{d.date}{d.city && <span class="text-text/50 font-bold"> · </span>}{d.city}
+              </h2>
+              {d.title && <p class="text-sm text-text/70 break-words">{d.title}</p>}
+            </div>
+            {d.cost && <span data-cost class="text-sm font-extrabold text-text shrink-0">{d.cost}</span>}
+          </div>
+
+          {d.items.length === 0 ? (
+            <p class="px-2 text-sm italic text-text/60">Nothing planned yet.</p>
+          ) : (
+            <ol class="space-y-2.5">
+              {d.items.map((it) => (
+                <li class="glass-effect rounded-2xl border border-primary/15 p-3.5 sm:p-4 flex gap-3 break-inside-avoid">
+                  <div class="w-12 shrink-0 text-right">
+                    <span class:list={['text-sm font-extrabold tabular-nums', it.time ? 'text-primary' : 'text-text/30']}>{it.time || '--:--'}</span>
+                  </div>
+                  <div class="min-w-0 flex-1 space-y-1">
+                    <h3 class="text-base font-extrabold text-text leading-snug break-words">{it.title}</h3>
+                    <p class="text-micro font-bold uppercase tracking-wide" style={`color:${it.categoryColor}`}>
+                      <span aria-hidden="true">{it.categoryEmoji}</span> {it.category}
+                    </p>
+                    {it.location && (
+                      it.mapsUrl ? (
+                        <p class="text-sm font-semibold">
+                          <a href={it.mapsUrl} target="_blank" rel="noopener noreferrer" class="text-primary underline-offset-2 hover:underline inline-flex items-center min-h-6 break-words">📍 {it.location}</a>
+                        </p>
+                      ) : (
+                        <p class="text-sm text-text/70 break-words">📍 {it.location}</p>
+                      )
+                    )}
+                    {it.description && <p class="text-sm text-text/80 leading-relaxed break-words">{it.description}</p>}
+                    {it.price && <p data-cost class="text-sm font-extrabold text-text">Cost: {it.price}</p>}
+                    {it.note && (
+                      <p class="rounded-lg bg-warning/10 border-l-4 border-warning px-3 py-2 text-sm text-warning-strong break-words">
+                        <span class="font-extrabold">Tip:</span> {it.note}
+                      </p>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ol>
+          )}
+        </section>
+      ))
+    )}
+
+    <footer class="px-1 pt-2 pb-6 text-center text-micro text-text/60">
+      Planned with PlanTravel · Prepared {model.generated}
+    </footer>
+  </main>
+</Layout>
+
+<style is:global>
+  /* Costs stay hidden until "Show costs" is ticked (CSS only: works without JavaScript, prints as shown) */
+  .share-root [data-cost] { display: none; }
+  .share-root:has(#show-costs:checked) [data-cost] { display: revert; }
+  /* the label text swaps without script */
+  .share-root #show-costs:checked + label span:last-child { display: none; }
+  .share-root #show-costs:checked + label::after { content: 'Hide costs'; }
+  @media print {
+    .share-root { max-width: none; }
+    .share-root .glass-effect { box-shadow: none; background: #fff; }
+  }
+</style>

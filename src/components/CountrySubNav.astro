@@ -1,6 +1,9 @@
 ---
 import type { CountryMetadata } from '../utils/countries';
 import TripActions from './TripActions';
+import ShareTrip from './ShareTrip';
+import { citiesLabel } from '../utils/trips';
+import { toIsoDate } from '../utils/calendar';
 import TripBottomNav from './TripBottomNav.astro';
 import TabSkeleton from './TabSkeleton.astro';
 import { tripTabs, type TabKey } from '../utils/tripTabs';
@@ -109,6 +112,21 @@ const stats = [
             </span>
           </div>
         </div>
+        {state?.slug && (
+          <div class="flex items-center gap-1 shrink-0 self-start">
+            <ShareTrip
+              variant="icon"
+              href={`/trips/${state.slug}/share`}
+              info={{
+                title: state.title ?? state.name,
+                cities: citiesLabel(state.cities ?? []),
+                country: country.name,
+                start: toIsoDate(country.stats.firstDate ?? '') || undefined,
+                end: toIsoDate(country.stats.lastDate ?? '') || undefined,
+                days: country.stats.totalDays,
+              }}
+              client:idle
+            />
         {manage && (
           <TripActions
             client:load
@@ -120,6 +138,8 @@ const stats = [
             stops={manage.stops ?? []}
             rev={manage.rev}
           />
+        )}
+          </div>
         )}
       </div>
 

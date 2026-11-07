@@ -25,6 +25,7 @@ export interface PdfItem {
   time: string;
   title: string;
   category: string;
+  categoryEmoji: string;
   categoryColor: string;
   location: string;
   mapsUrl?: string;
@@ -139,6 +140,7 @@ export function buildPdfModel(info: PdfTripInfo, days: DayItinerary[]): PdfModel
           time: it.time || '',
           title: it.title || it.location?.name || 'Untitled',
           category: cat.label,
+          categoryEmoji: cat.emoji,
           categoryColor: cat.color,
           location: it.location?.name && it.location.name !== it.title ? it.location.name : '',
           mapsUrl: it.location?.mapsUrl || undefined,
