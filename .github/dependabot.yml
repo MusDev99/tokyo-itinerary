@@ -1,5 +1,7 @@
-# Weekly dependency updates (OWASP A06). Minor and patch updates arrive as one grouped PR per ecosystem; majors are
-# opened separately so each gets its own review. Every PR runs the shared CI (tests + build) before it can merge.
+# Weekly dependency updates (OWASP A06). Minor and patch updates arrive as one grouped PR per ecosystem.
+# MAJOR versions are never proposed automatically: a major bump (for example Tailwind 3 -> 4, which needs a new PostCSS
+# plugin and a rewritten config) is a migration, done by hand in its own branch. Every PR also runs the `Verify`
+# workflow (tests + production build), so a bump that breaks the build cannot merge unnoticed.
 version: 2
 updates:
   - package-ecosystem: npm
@@ -12,6 +14,9 @@ updates:
       minor-and-patch:
         update-types: [minor, patch]
     labels: [dependencies]
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule:

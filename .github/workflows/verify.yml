@@ -1,0 +1,24 @@
+name: Verify
+
+# Runs the same gate as `npm run verify` (unit tests + production build) on every pull request and on master, so a
+# dependency bump or a change that breaks the build is caught before it can be merged.
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run verify
