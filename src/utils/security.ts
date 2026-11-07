@@ -1,3 +1,4 @@
+import { errorInfo, log } from './log.ts';
 // Output-side hardening shared by the sheet reader/writer and the middleware (OWASP A03/A05).
 
 /** http(s) URLs only: blocks javascript:, data: and other schemes coming from sheet cells. */
@@ -84,6 +85,6 @@ export class UserError extends Error {
 
 export function clientError(err: unknown, fallback: string): string {
   if (err instanceof UserError) return err.message;
-  console.error(fallback, err);
+  log.error('api_error', { message: fallback, ...errorInfo(err) });
   return fallback;
 }

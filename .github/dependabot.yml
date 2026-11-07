@@ -1,0 +1,19 @@
+# Weekly dependency updates (OWASP A06). Minor and patch updates arrive as one grouped PR per ecosystem; majors are
+# opened separately so each gets its own review. Every PR runs the shared CI (tests + build) before it can merge.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+    labels: [dependencies]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    labels: [dependencies]

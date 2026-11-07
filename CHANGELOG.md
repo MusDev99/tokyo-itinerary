@@ -3,6 +3,15 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-07 05:16 — Chore: operations (health check, structured logs, runbook, dependencies)
+
+- **`GET /api/health`** for uptime monitors: `ok` / `degraded` / `down` (503 only when the trip sheet cannot be read), answered from the warm cache so polling costs no Sheets quota. Anonymous callers get status and version only; `x-health-token` = `HEALTH_TOKEN` adds the individual checks and counters.
+- **Structured logs:** one JSON line per event with the request id attached automatically; tokens, cookies, `Authorization`, private keys, JWTs and long key-like text are scrubbed (a JSON parse error that quotes part of the service-account key used to be logged as is). The middleware adds an `x-request-id` header to every response and logs only failures and requests over 3 s. The error page shows the id as a **Reference**.
+- **Runbook** `docs/operations/runbook.md`: environments (separate staging sheet), env vars, onboarding and offboarding people, rotating each secret, monitoring, log events, incident table, rollback, restoring data, pre-launch checklist.
+- **Dependencies:** `npm audit --omit=dev` is now **0 vulnerabilities** (patched `glob` and `minimatch` forced for the build-time `@vercel/nft` and `sucrase` chains, `@astrojs/vercel` 11.0.20); weekly **Dependabot** (grouped minor and patch updates).
+- **Smoke test** also checks the request id, `/api/health`, `/api/suggestions`, and that `POST/PATCH /api/trips`, `/api/trips/copy` and `/api/pocket` are closed to guests.
+- Tests: `ops.test.ts` (log scrubbing, request ids, health decisions).
+
 ## 2026-11-07 05:08 — Perf: scale (cheaper writes, bounded retries, row limit)
 
 - **An edit no longer makes everybody re-read the whole sheet.** Adding, editing or deleting a place now re-reads just that trip's tab and patches the cache (4 Sheets requests, other tabs untouched), where before the cache was cleared and the next viewer waited for a full read of every trip (6+ requests at 100 trips). Verified against a fake Sheets API: 0 full reads after a write, other trips untouched, content correct.

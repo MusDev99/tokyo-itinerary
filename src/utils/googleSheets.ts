@@ -12,6 +12,7 @@ import { chunk, mapPool } from './chunk.ts';
 import { fixtureTabs, fixtureMetas } from './fixture.ts';
 import { TRIP_META_HEADERS, parseTripMetas, serializeStops, type TripMeta } from './trips.ts';
 import { sortByTime, normalizeSheetDate, normalizeSheetTime } from './calendar.ts';
+import { errorInfo, log } from './log.ts';
 import {
   POCKET_TAB, POCKET_HEADERS, POCKET_LAST_COL, MAX_POCKET_ITEMS, parsePocketRows, itemToRow,
   type PocketItem, type PocketInput,
@@ -177,7 +178,7 @@ export function loadServiceAccountCredentials(): ServiceAccountCredentials | nul
       }
       return parsed;
     } catch (e) {
-      console.error('[GoogleSheets] Invalid GOOGLE_SERVICE_ACCOUNT_JSON:', e);
+      log.error('sheets_credentials_invalid', errorInfo(e)); // a parse error can quote part of the key: scrubbed by errorInfo
     }
   }
 
@@ -217,7 +218,7 @@ export function loadServiceAccountCredentials(): ServiceAccountCredentials | nul
     const raw = fs.readFileSync(fullPath, 'utf8');
     return JSON.parse(raw) as ServiceAccountCredentials;
   } catch (e) {
-    console.error(`[GoogleSheets] Failed to read credentials at ${fullPath}:`, e);
+    log.error('sheets_credentials_unreadable', { file: path.basename(fullPath), ...errorInfo(e) });
     return null;
   }
 }
@@ -492,7 +493,7 @@ async function fetchSheetsApiWithRetry(
       if (res.status === 429) quotaGate.noteLimited(Date.now(), delay);
       if (attempt < 6 && canRetry(waited, delay, budgetMs)) {
         sheetsStats.retries++;
-        console.warn(`⏳ Google Sheets rate limit (${res.status}); retry ${attempt} in ${Math.round(delay / 100) / 10}s`);
+        log.warn('sheets_rate_limited', { status: res.status, attempt, retryInMs: delay });
         await new Promise((resolve) => setTimeout(resolve, delay));
         waited += delay;
         continue;
@@ -760,7 +761,7 @@ async function afterRowWrite(tab: string): Promise<void> {
   try {
     if (await cacheHooks.refreshTab?.(tab)) { sheetsStats.targetedRefreshes++; return; }
   } catch (err) {
-    console.warn('targeted refresh failed, clearing the cache instead', err);
+    log.warn('targeted_refresh_failed', errorInfo(err));
   }
   g.__TOKYO_SHEETS_CACHE__ = undefined;
 }
