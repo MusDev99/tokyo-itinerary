@@ -33,6 +33,18 @@ check('/api/health answers and the trip sheet is readable', health.status === 20
 check('/api/health is not cached', /no-store/.test(health.headers.get('cache-control') ?? ''));
 check('/api/health shows no details to anonymous callers', !('checks' in healthBody) && !('stats' in healthBody));
 
+// The client share page: public, read-only, kept out of search results, with a link-preview image
+const sitemap = await (await req('/sitemap.xml')).text().catch(() => '');
+const tripPath = (sitemap.match(/\/trips\/[a-z0-9-]+(?=<)/) ?? [])[0];
+if (tripPath) {
+  const share = await req(`${tripPath}/share`);
+  const html = share.status === 200 ? await share.text() : '';
+  check('client share page is served', share.status === 200, `HTTP ${share.status} ${tripPath}/share`);
+  check('client share page is noindex', /name="robots" content="noindex/.test(html));
+  check('client share page has a link-preview image', /property="og:image"/.test(html));
+  check('client share page has no editing controls', !/aria-label="(Edit|Delete) trip"/.test(html));
+}
+
 const sg = await req('/api/suggestions');
 check('GET /api/suggestions is public and read-only', sg.status === 200, `HTTP ${sg.status}`);
 
