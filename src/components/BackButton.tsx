@@ -1,4 +1,5 @@
 import { goTo } from '../utils/refresh';
+import { backTarget, hasSiteHistory } from '../utils/backTarget';
 import { h } from 'preact';
 import { animate } from 'motion';
 import { prefersReducedMotion } from '../utils/motion';
@@ -6,20 +7,15 @@ import { prefersReducedMotion } from '../utils/motion';
 interface Props {
   /** Current pathname; used to find a sensible parent when there is no in-site history */
   path: string;
-}
-
-/** Parent page of a path: /japan/tokyo/tools -> /japan/tokyo, /add -> / */
-export function parentPath(path: string): string {
-  const parts = path.split('/').filter(Boolean);
-  parts.pop();
-  return parts.length ? `/${parts.join('/')}` : '/';
+  /** Trip slug -> its country page (or "/"), so a trip never goes "up" to a page that does not exist */
+  tripParents?: Record<string, string>;
 }
 
 /**
  * Universal back button (Jakob's Law: where users expect it, top-left; Fitts's Law: 44px target).
  * Goes back in history when the previous page is on this site, otherwise up one level.
  */
-export default function BackButton({ path }: Props) {
+export default function BackButton({ path, tripParents = {} }: Props) {
   if (path === '/' || path === '') return null;
 
   const goBack = (e: MouseEvent) => {
@@ -27,11 +23,11 @@ export default function BackButton({ path }: Props) {
     if (!prefersReducedMotion()) {
       animate(el, { x: [0, -4, 0] }, { duration: 0.25 });
     }
-    const sameSite = document.referrer && new URL(document.referrer).origin === window.location.origin;
-    if (sameSite && window.history.length > 1) {
+    // Back to the previous page when we came from one on this site; otherwise up to the page this one belongs to
+    if (hasSiteHistory(window.history.state, document.referrer, window.location.origin, window.history.length)) {
       window.history.back();
     } else {
-      goTo(parentPath(path));
+      goTo(backTarget(window.location.pathname, tripParents));
     }
   };
 
