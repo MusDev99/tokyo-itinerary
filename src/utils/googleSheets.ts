@@ -3,7 +3,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { DayItinerary, TimelineItem } from '../types/itinerary';
 import type { Place } from '../types/place';
-import { UserError, safeHttpUrl, sheetText, youtubeEmbedUrl } from './security.ts';
+import { ConflictError, UserError, safeHttpUrl, sheetText, youtubeEmbedUrl } from './security.ts';
+import { activityRevision, pocketRevision } from './revision.ts';
 import { cacheState, timed, type Timed } from './swr.ts';
 import { chunk, mapPool } from './chunk.ts';
 import { fixtureTabs, fixtureMetas } from './fixture.ts';
@@ -323,6 +324,11 @@ export function rowsToDayItinerary(
   const idxCity = colIndex(COLUMN_ALIASES.city);
   const idxCountry = colIndex(COLUMN_ALIASES.country);
   const idxId = colIndex(COLUMN_ALIASES.id);
+  // Edit-conflict fingerprint of the fields a form edits (see revision.ts); the writer recomputes it from the live row
+  const revIdx: Record<string, number> = {
+    date: idxDate, time: idxTime, title: idxTitle, day_title: idxDayTitle, description: idxDesc, category: idxCategory,
+    location_name: idxLocName, price_amount: idxPriceAmount, price_currency: idxPriceCurrency, price_notes: idxPriceNotes, city: idxCity,
+  };
 
   const dayMap = new Map<number, DayItinerary>();
 
@@ -418,6 +424,7 @@ export function rowsToDayItinerary(
     const rowId = getCell(idxId);
     if (rowId) item.id = rowId;
     item.row = r + 1; // 1-based sheet row (fallback addressing for legacy rows without an id)
+    item.rev = activityRevision((c) => getCell(revIdx[c] ?? -1));
     if (tabName) item.tab = tabName;
 
     const cat = getCell(idxCategory);
@@ -924,12 +931,32 @@ async function locateRow(
   return null;
 }
 
-export async function updateActivity(tabName: string, ref: RowRef, a: ActivityInput): Promise<void> {
+/** Conflict check options: `rev` is what the person saw; `force` = they chose to overwrite whatever changed. */
+export interface ConflictOpts { rev?: string; force?: boolean }
+
+/** Revision of the live row, computed like the reader does (first matching header alias, trimmed cells). */
+export function liveRevision(headers: string[], row: string[]): string {
+  return activityRevision((col) => {
+    for (const alias of COLUMN_ALIASES[col as SheetColumn]) {
+      const i = headers.indexOf(alias);
+      if (i !== -1) return String(row[i] ?? '').trim();
+    }
+    return '';
+  });
+}
+
+function assertNoConflict(found: { headers: string[]; row: string[] }, opts?: ConflictOpts): void {
+  if (!opts?.rev || opts.force) return;
+  if (liveRevision(found.headers, found.row) !== opts.rev) throw new ConflictError('This place was changed by someone else while you were editing.');
+}
+
+export async function updateActivity(tabName: string, ref: RowRef, a: ActivityInput, opts?: ConflictOpts): Promise<void> {
   const ctx = await writeContext();
   const tab = (await findTabTitle(tabName)) ?? tabName;
   if (a.city) await ensureHeaders(ctx, ctx.spreadsheetId, tab, ['city']);
   const found = await locateRow(ctx, ctx.spreadsheetId, tab, ref);
   if (!found) throw new UserError('Activity not found — it may have been changed or removed. Refresh and try again.');
+  assertNoConflict(found, opts);
 
   const record = activityToRecord(a);
   const merged = found.headers.map((h, i) => {
@@ -950,13 +977,14 @@ export async function updateActivity(tabName: string, ref: RowRef, a: ActivityIn
   clearSheetsCache();
 }
 
-export async function deleteActivity(tabName: string, ref: RowRef): Promise<void> {
+export async function deleteActivity(tabName: string, ref: RowRef, opts?: ConflictOpts): Promise<void> {
   const ctx = await writeContext();
   const tabs = await listTabs(ctx, ctx.spreadsheetId);
   const match = tabs.find((t) => t.title.trim().toLowerCase() === tabName.trim().toLowerCase());
   if (!match) throw new UserError('Trip not found.');
   const found = await locateRow(ctx, ctx.spreadsheetId, match.title, ref);
   if (!found) throw new UserError('Activity not found — it may have been changed or removed. Refresh and try again.');
+  assertNoConflict(found, opts);
 
   await sheetsRequest(ctx, `${SHEETS_BASE}/${encodeURIComponent(ctx.spreadsheetId)}:batchUpdate`, {
     method: 'POST',
@@ -1384,18 +1412,22 @@ export async function addPocket(tab: string, input: PocketInput, createdBy: stri
   return item;
 }
 
-export async function updatePocket(tab: string, id: string, input: PocketInput): Promise<boolean> {
+/** Returns the saved item (or false when it is gone), so the caller can hand back the new revision. */
+export async function updatePocket(tab: string, id: string, input: PocketInput, opts?: ConflictOpts): Promise<PocketItem | false> {
   const current = (await listPocket(tab)).find((i) => i.id === id);
   if (!current) return false;
+  if (opts?.rev && !opts.force && pocketRevision(current as any) !== opts.rev) throw new ConflictError('This item was changed by someone else while you were editing.');
   const { rowNumber, ...rest } = current;
-  await updateSheetRow(POCKET_TAB, rowNumber, itemToRow(tab, { ...rest, ...input, id, createdBy: current.createdBy, createdAt: current.createdAt }));
-  return true;
+  const saved: PocketItem = { ...rest, ...input, id, createdBy: current.createdBy, createdAt: current.createdAt };
+  await updateSheetRow(POCKET_TAB, rowNumber, itemToRow(tab, saved));
+  return saved;
 }
 
 /** Blanks the row (the sheet keeps no row-delete helper); readers skip blank rows. */
-export async function deletePocket(tab: string, id: string): Promise<boolean> {
+export async function deletePocket(tab: string, id: string, opts?: ConflictOpts): Promise<boolean> {
   const current = (await listPocket(tab)).find((i) => i.id === id);
   if (!current) return false;
+  if (opts?.rev && !opts.force && pocketRevision(current as any) !== opts.rev) throw new ConflictError('This item was changed by someone else while you were editing.');
   await updateSheetRow(POCKET_TAB, current.rowNumber, new Array(POCKET_HEADERS.length).fill(''));
   return true;
 }

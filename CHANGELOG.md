@@ -3,6 +3,12 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-07 04:34 — Feat: no more silent overwrites when two people edit
+
+- **Edit conflicts are detected.** Before, the last save silently won. Now each place, Pocket item and trip's settings carries a short fingerprint of what you were looking at; if it changed meanwhile (another agent, or a direct edit in Google Sheets) the save is refused with **409** and you choose **Reload latest** or **Save mine anyway**. Deleting a place someone else changed asks "Delete it anyway?"; a Pocket tick or removal that clashes reloads the list with a message.
+- Content-based (no new sheet column): `utils/revision.ts` + `liveRevision`; notes/images edited elsewhere do not count as a conflict.
+- New `ConflictNotice` in the UI kit. Tests: `revision.test.ts`, and `conflicts.test.ts` proves the reader and the writer compute the same fingerprint (canonical and alias headers, serial dates, padded cells).
+
 ## 2026-11-06 12:30 — Release 0.3.0: titled multi-city trips, copy and suggestions, consistent UI
 
 - **Release notes:** `docs/releases/v0.3.0.md`. Version bumped to 0.3.0 (minor: new features, backward compatible, no new env vars).

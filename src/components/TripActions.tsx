@@ -17,10 +17,11 @@ interface Props {
   /** For the edit sheet: saved dates and the cities of this trip */
   dates?: { start: string; end: string } | null;
   stops?: Stop[];
+  rev?: string;
 }
 
 /** Trip-level actions: edit the trip (title, dates, cities; the slug and tab stay, so shared links keep working) and delete it. */
-export default function TripActions({ tab, title, activityCount, afterDeleteHref, dates = null, stops = [] }: Props) {
+export default function TripActions({ tab, title, activityCount, afterDeleteHref, dates = null, stops = [], rev }: Props) {
   const [mode, setMode] = useState<'idle' | 'edit' | 'delete'>('idle');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -65,7 +66,7 @@ export default function TripActions({ tab, title, activityCount, afterDeleteHref
         </svg>
       </button>
 
-      {mode === 'edit' && <TripEditSheet tab={tab} title={title} dates={dates} stops={stops} onClose={close} />}
+      {mode === 'edit' && <TripEditSheet tab={tab} title={title} dates={dates} stops={stops} rev={rev} onClose={close} />}
 
       <ConfirmDialog
         open={mode === 'delete'}

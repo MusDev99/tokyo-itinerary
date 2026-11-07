@@ -9,6 +9,7 @@ import PDFDownload from '../../../components/PDFDownload';
 import CalendarExport from '../../../components/CalendarExport';
 import TripBuilder from '../../../components/TripBuilder';
 import EmptyState from '../../../components/ui/EmptyState';
+import { tripRevision } from '../../../utils/revision';
 import { getTripDates } from '../../../utils/googleSheets';
 import { toIsoDate } from '../../../utils/calendar';
 import { getAllCountriesWithSheets, tripBySlug } from '../../../utils/countries';
@@ -23,6 +24,9 @@ const { baseCountry, stateMeta, country } = trip;
 // Builder data (signed-in editors only): saved trip range + which days already have activities
 const canEdit = Boolean(Astro.locals.user);
 const tripDates = canEdit ? await getTripDates(stateMeta.tabName) : null;
+// Same inputs the API compares against (saved range, else the first/last planned day), for edit-conflict detection
+const liveRange = tripDates ?? (stateMeta.stats.firstDate && stateMeta.stats.lastDate ? { start: stateMeta.stats.firstDate.slice(0, 10), end: stateMeta.stats.lastDate.slice(0, 10) } : null);
+const tripRev = canEdit ? tripRevision({ title: stateMeta.title, start: liveRange?.start, end: liveRange?.end, stops: stateMeta.stops }) : undefined;
 const planned = canEdit
   ? stateMeta.itinerary
       .map((d) => ({ date: toIsoDate(d.date), title: d.title, lastTime: d.items[d.items.length - 1]?.time || '' }))
@@ -35,7 +39,7 @@ const planned = canEdit
   <Header />
   <div class="w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8">
     <CountrySubNav country={country} activeTab="itinerary" state={stateMeta}
-      manage={Astro.locals.user ? { tab: stateMeta.tabName, title: stateMeta.title, activityCount: stateMeta.stats.totalActivities, afterDeleteHref: `/${baseCountry.slug}`, dates: tripDates, stops: stateMeta.stops } : undefined} />
+      manage={Astro.locals.user ? { tab: stateMeta.tabName, title: stateMeta.title, activityCount: stateMeta.stats.totalActivities, afterDeleteHref: `/${baseCountry.slug}`, dates: tripDates, stops: stateMeta.stops, rev: tripRev } : undefined} />
 
     {country.stats.hasItinerary ? (
       <div class="space-y-6 sm:space-y-8">

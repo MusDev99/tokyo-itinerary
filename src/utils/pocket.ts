@@ -44,6 +44,8 @@ export interface PocketItem {
   details: Record<string, string>;
   createdBy: string;
   createdAt: string;
+  /** Fingerprint from the server (GET/PATCH); sent back with an edit so a conflict can be detected */
+  rev?: string;
 }
 
 /** What the client may send: no id / owner / timestamps. */

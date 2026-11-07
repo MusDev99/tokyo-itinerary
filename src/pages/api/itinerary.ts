@@ -15,7 +15,7 @@ import { toIsoDate } from '../../utils/calendar';
 import { validateTripName, validateRange } from '../../utils/tripDraft';
 import { parseActivity } from '../../utils/parseActivity';
 import { parsePlace } from '../../types/place';
-import { clientError } from '../../utils/security';
+import { ConflictError, clientError } from '../../utils/security';
 import { recordAudit } from '../../utils/users';
 
 const MAX_ACTIVITIES = 50;
@@ -170,10 +170,12 @@ export const PATCH: APIRoute = async ({ request, locals }) => {
     // An edit may only move an activity to a day of the trip: inside the saved range, or a day already planned
     const dateError = await checkEditDate(tab, parsed.value!.date);
     if (dateError) return json({ error: dateError, rowErrors: [{ date: dateError }] }, 400);
-    await updateActivity(tab, ref, parsed.value!);
+    await updateActivity(tab, ref, parsed.value!, { rev: str(body?.rev, 20), force: body?.force === true });
     await recordAudit({ email: who(locals), action: 'update_activity', tab, target: parsed.value!.title });
     return json({ ok: true });
   } catch (err: any) {
+    // Somebody else changed it since the form was opened: 409 lets the form offer "reload" or "save anyway"
+    if (err instanceof ConflictError) return json({ error: err.message, conflict: true }, 409);
     return json({ error: clientError(err, 'Failed to update activity') }, 500);
   }
 };
@@ -210,10 +212,11 @@ export const DELETE: APIRoute = async ({ request, locals }) => {
     }
     const ref = parseRef(body);
     if (!ref) return json({ error: 'id (or row) is required' }, 400);
-    await deleteActivity(tab, ref);
+    await deleteActivity(tab, ref, { rev: str(body?.rev, 20), force: body?.force === true });
     await recordAudit({ email: who(locals), action: 'delete_activity', tab, target: str(body?.title, 200) || str(body?.expectTitle, 200) || str(body?.id, 64) });
     return json({ ok: true });
   } catch (err: any) {
+    if (err instanceof ConflictError) return json({ error: err.message, conflict: true }, 409);
     return json({ error: clientError(err, 'Failed to delete') }, 500);
   }
 };
