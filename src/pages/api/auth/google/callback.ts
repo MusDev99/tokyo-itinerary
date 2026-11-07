@@ -15,6 +15,7 @@ import {
 } from '../../../../utils/auth';
 import { authConfig } from '../../../../utils/authEnv';
 import { registerLogin, recordAudit } from '../../../../utils/users';
+import { errorInfo, log } from '../../../../utils/log';
 
 const limiter = ((globalThis as any).__OAUTH_CB_LIMITER__ ||= createRateLimiter(30, 10 * 60 * 1000));
 const g = globalThis as unknown as { __GOOGLE_JWKS__?: { keys: Jwk[]; expiresAt: number } };
@@ -60,7 +61,7 @@ export const GET: APIRoute = async ({ request, url, cookies, redirect }) => {
       }),
     });
     if (!tokenRes.ok) {
-      console.error('[auth] Google token exchange failed:', tokenRes.status);
+      log.error('auth_token_exchange_failed', { status: tokenRes.status });
       return fail(redirect, 'failed');
     }
     const { id_token } = (await tokenRes.json()) as { id_token?: string };
@@ -70,7 +71,7 @@ export const GET: APIRoute = async ({ request, url, cookies, redirect }) => {
     if (!claims) return fail(redirect, 'invalid');
     const checked = validateIdTokenClaims(claims, { clientId: auth.clientId, nonce: saved.nonce });
     if (!checked.ok) {
-      console.error('[auth] ID token rejected:', checked.reason);
+      log.error('auth_id_token_rejected', { reason: checked.reason });
       return fail(redirect, 'invalid');
     }
 
@@ -92,7 +93,7 @@ export const GET: APIRoute = async ({ request, url, cookies, redirect }) => {
     void recordAudit({ email: result.user.email, action: 'login' });
     return redirect(safeNext(saved.next, '/'), 302);
   } catch (err) {
-    console.error('[auth] sign-in failed:', err instanceof Error ? err.message : err);
+    log.error('auth_sign_in_failed', errorInfo(err));
     return fail(redirect, 'failed');
   }
 };

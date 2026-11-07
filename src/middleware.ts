@@ -3,6 +3,11 @@ import { SESSION_COOKIE, isSameOrigin, verifySession } from './utils/auth';
 import { authConfig } from './utils/authEnv';
 import { findActiveUser } from './utils/users';
 import { securityHeaders } from './utils/security';
+import { errorInfo, log, newRequestId, runWithRequest } from './utils/log';
+import type { APIContext, MiddlewareNext } from 'astro';
+
+/** Requests slower than this are logged (with failures); everything else stays quiet */
+const SLOW_REQUEST_MS = 3000;
 
 // Public site stays read-only for everyone. Anything that changes the sheet needs an editor session (OWASP A01).
 const PROTECTED_PAGES = ['/add'];
@@ -16,7 +21,15 @@ const json = (body: unknown, status: number) =>
 
 const matches = (path: string, list: string[]) => list.some((p) => path === p || path.startsWith(`${p}/`));
 
-export const onRequest = defineMiddleware(async (context, next) => {
+export const onRequest = defineMiddleware((context, next) => {
+  const requestId = newRequestId(context.request.headers.get('x-vercel-id'));
+  context.locals.requestId = requestId;
+  // Every log line written while handling this request carries the id (see utils/log.ts)
+  return runWithRequest(requestId, () => handle(context, next, requestId));
+});
+
+async function handle(context: APIContext, next: MiddlewareNext, requestId: string): Promise<Response> {
+  const started = Date.now();
   const { request, cookies, url } = context;
   const path = url.pathname.replace(/\/+$/, '') || '/';
   const production = import.meta.env.PROD;
@@ -46,7 +59,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       try {
         active = !!(await findActiveUser(user.email));
       } catch (err) {
-        console.error('[auth] could not check the user table:', err instanceof Error ? err.message : err);
+        log.error('auth_user_table_check_failed', errorInfo(err));
         response = isApi ? json({ error: 'Could not verify your access right now. Please try again.' }, 503) : context.redirect('/login?error=failed');
       }
       if (!response && !active) {
@@ -62,7 +75,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   const res = response ?? (await next());
-  const headers: Record<string, string> = securityHeaders(production);
+  const headers: Record<string, string> = { ...securityHeaders(production), 'X-Request-Id': requestId };
+  // Ops signal without noise: only failures and slow requests, no query strings, never who (just whether signed in)
+  const ms = Date.now() - started;
+  if (!path.startsWith('/_astro') && (res.status >= 500 || ms > SLOW_REQUEST_MS)) {
+    log[res.status >= 500 ? 'error' : 'warn']('request', { method: request.method, path, status: res.status, ms, signedIn: Boolean(context.locals.user) });
+  }
   // Pages are cached per session: signing in or out changes the cookie, so a cached guest copy is never reused
   if ((res.headers.get('content-type') || '').includes('text/html')) headers.Vary = 'Cookie';
   try {
@@ -74,4 +92,4 @@ export const onRequest = defineMiddleware(async (context, next) => {
     for (const [k, v] of Object.entries(headers)) copy.headers.set(k, v);
     return copy;
   }
-});
+}

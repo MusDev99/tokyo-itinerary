@@ -17,6 +17,7 @@ import { parseActivity } from '../../utils/parseActivity';
 import { parsePlace } from '../../types/place';
 import { ConflictError, clientError } from '../../utils/security';
 import { recordAudit } from '../../utils/users';
+import { errorInfo, log } from '../../utils/log';
 
 const MAX_ACTIVITIES = 50;
 
@@ -92,7 +93,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       try {
         await saveTripDates(result.tab, dates);
       } catch (err) {
-        console.error('saveTripDates failed', err instanceof Error ? err.message : 'unknown');
+        log.error('save_trip_dates_failed', errorInfo(err));
       }
     }
     // Save the confirmed location (best-effort: itinerary rows are already written)

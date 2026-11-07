@@ -10,6 +10,7 @@ import { parseActivity } from '../../utils/parseActivity';
 import { chunk } from '../../utils/chunk';
 import type { ActivityInput } from '../../utils/googleSheets';
 import { partsFromStops, stopsFromParts, tabNameFromTitle, uniqueSlug, validateStops, legacyTripSlug, type Stop, type TripMeta } from '../../utils/trips';
+import { errorInfo, log } from '../../utils/log';
 
 // Create and edit titled trips. Needs a signed-in, active editor (PROTECTED_API in src/middleware.ts).
 const json = (body: unknown, status = 200) =>
@@ -83,7 +84,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       throw err;
     }
     const place = parsePlace(body.place);
-    if (place) await savePlace(tab, place).catch((err) => console.error('savePlace failed', err instanceof Error ? err.message : 'unknown'));
+    if (place) await savePlace(tab, place).catch((err) => log.error('save_place_failed', errorInfo(err)));
     await recordAudit({ email: who(locals), action: 'create_trip', tab, target: title.slice(0, 120) });
     return json({ ok: true, tab, slug, href: `/trips/${slug}` });
   } catch (err: any) {

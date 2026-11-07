@@ -1,6 +1,7 @@
 import { AUDIT_HEADERS, USER_HEADERS, auditRow, canLinkGoogleId, findUserByEmail, isActiveUser, parseUserRows, userRow, type UserRecord } from './userTable';
 import { appendSheetRow, ensureHiddenTab, readSheetRows, updateSheetRow } from './googleSheets';
 import type { GoogleProfile } from './auth';
+import { errorInfo, log } from './log.ts';
 
 const USERS_TAB = '_users';
 const AUDIT_TAB = '_audit';
@@ -18,7 +19,7 @@ async function loadUsers(force = false) {
   if (!rows) {
     // First run: create the hidden tab so the admin sees the columns to fill in
     await ensureHiddenTab(USERS_TAB, USER_HEADERS).catch((err) =>
-      console.error('[users] could not create the _users tab:', err instanceof Error ? err.message : err)
+      log.error('users_tab_create_failed', errorInfo(err))
     );
     rows = [[...USER_HEADERS]];
   }
@@ -57,7 +58,7 @@ export async function registerLogin(profile: GoogleProfile): Promise<LoginResult
     );
     g.__USERS_CACHE__ = undefined;
   } catch (err) {
-    console.error('[users] could not update the user row:', err instanceof Error ? err.message : err);
+    log.error('user_row_update_failed', errorInfo(err));
   }
   return { ok: true, user: updated };
 }
@@ -71,6 +72,6 @@ export async function recordAudit(entry: { email: string; action: string; tab?: 
     }
     await appendSheetRow(AUDIT_TAB, auditRow(entry));
   } catch (err) {
-    console.error('[audit] could not record entry:', err instanceof Error ? err.message : err);
+    log.error('audit_write_failed', errorInfo(err));
   }
 }

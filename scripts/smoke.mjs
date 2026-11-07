@@ -24,8 +24,20 @@ check('a returning guest gets the trips', seen.status === 200, `HTTP ${seen.stat
 const login = await req('/login');
 check('/login is reachable', login.status === 200, `HTTP ${login.status}`);
 
-for (const [method, path] of [['POST', '/api/itinerary'], ['PATCH', '/api/itinerary'], ['DELETE', '/api/itinerary'], ['POST', '/api/place']]) {
-  const r = await req(path, { method, headers: { 'content-type': 'application/json' }, body: '{}' });
+check('responses carry a request id (x-request-id)', home.headers.has('x-request-id'), home.headers.get('x-request-id') ?? 'missing');
+
+const health = await req('/api/health');
+let healthBody = {};
+try { healthBody = await health.json(); } catch { /* not JSON */ }
+check('/api/health answers and the trip sheet is readable', health.status === 200 && ['ok', 'degraded'].includes(healthBody.status), `HTTP ${health.status} ${healthBody.status ?? ''} v${healthBody.version ?? '?'}`);
+check('/api/health is not cached', /no-store/.test(health.headers.get('cache-control') ?? ''));
+check('/api/health shows no details to anonymous callers', !('checks' in healthBody) && !('stats' in healthBody));
+
+const sg = await req('/api/suggestions');
+check('GET /api/suggestions is public and read-only', sg.status === 200, `HTTP ${sg.status}`);
+
+for (const [method, path] of [['POST', '/api/itinerary'], ['PATCH', '/api/itinerary'], ['DELETE', '/api/itinerary'], ['POST', '/api/place'], ['POST', '/api/trips'], ['PATCH', '/api/trips'], ['POST', '/api/trips/copy'], ['GET', '/api/pocket?tab=x'], ['POST', '/api/pocket']]) {
+  const r = await req(path, { method, headers: { 'content-type': 'application/json' }, ...(method === 'GET' ? {} : { body: '{}' }) });
   check(`${method} ${path} without session is refused`, r.status === 401 || r.status === 503, `HTTP ${r.status}`);
 }
 const sync = await req('/api/sheets-sync');
