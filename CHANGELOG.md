@@ -3,6 +3,13 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-07 05:27 — Feat: a proper trip PDF
+
+- **Redesigned, branded PDF.** Cover with the PlanTravel logo, trip title, cities, dates and four facts (days, places, cities, estimated cost); an **at-a-glance table** (day, date, city, highlights, places, cost); **what it costs** (total, and a bar breakdown by kind of spending); then every day as a **timeline** in time order: time, place, category, location as a tappable Google Maps link, cost, description and tips in a highlighted box. Running header and footer on every page with "Page X of Y" and a link back to the trip.
+- **Fixed old problems:** the title and file name were hard-coded to "Tokyo 2025", the currency to JPY, costs from different currencies were added together, and an empty trip crashed it. Now it uses the trip's own title, cities and dates, shows each currency separately ("1,800 JPY + 30 MYR"), builds fine when empty, and downloads as `<trip-title>-itinerary.pdf`.
+- **Japanese text works.** The old code fetched a font from a CDN but never registered it. Now a subset of Noto Sans JP (OFL, about 1.3 MB compressed, JIS X 0208) is served from our own origin and loaded only when the trip has Japanese/Chinese/Korean text; without it those characters are dropped instead of printing boxes. Emoji are removed for print.
+- New `tripPdf.ts` (tested model) and `pdfRender.ts` (drawing, runs in Node too); the button uses the shared `Button` with a busy state and toasts. Tests: `tripPdf.test.ts`.
+
 ## 2026-11-07 05:16 — Chore: operations (health check, structured logs, runbook, dependencies)
 
 - **`GET /api/health`** for uptime monitors: `ok` / `degraded` / `down` (503 only when the trip sheet cannot be read), answered from the warm cache so polling costs no Sheets quota. Anonymous callers get status and version only; `x-health-token` = `HEALTH_TOKEN` adds the individual checks and counters.

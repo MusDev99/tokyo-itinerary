@@ -76,7 +76,7 @@ const countryDataSource = country.stats.hasItinerary
 
         <!-- Export actions side by side (Law of Proximity): PDF is the primary, calendar the secondary -->
         <div class="flex flex-col sm:flex-row items-center justify-center gap-3 my-6 sm:my-8">
-          <PDFDownload itinerary={country.itinerary} client:visible />
+          <PDFDownload itinerary={country.itinerary} title={`${country.name} trip`} href={`/${country.slug}/itinerary`} currency={country.currency} client:visible />
           <CalendarExport feedPath={`/${country.slug}/calendar.ics`} client:visible />
         </div>
       </div>

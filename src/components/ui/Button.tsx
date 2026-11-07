@@ -33,6 +33,8 @@ interface Props {
   className?: string;
   onClick?: (e: MouseEvent) => void;
   buttonRef?: Ref<HTMLButtonElement>;
+  onPointerEnter?: (e: PointerEvent) => void;
+  onFocus?: (e: FocusEvent) => void;
   'aria-label'?: string;
   children: ComponentChildren;
 }

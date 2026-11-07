@@ -16,9 +16,11 @@ interface Props {
   /** The trip's itinerary page (state: /japan/tokyo, plain country: /korea/itinerary); also where check-ins are saved */
   itineraryHref: string;
   feedPath: string;
+  /** Second line on the PDF cover, e.g. "Tokyo → Osaka · Japan" */
+  subtitle?: string;
 }
 
-const { name, flag, region, currency, days, itineraryHref, feedPath } = Astro.props;
+const { name, flag, region, currency, days, itineraryHref, feedPath, subtitle } = Astro.props;
 ---
 
 <!--
@@ -30,7 +32,7 @@ const { name, flag, region, currency, days, itineraryHref, feedPath } = Astro.pr
 <div class="space-y-6 sm:space-y-8">
   <DaysOverview days={days} currency={currency} itineraryHref={itineraryHref} />
   <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-    <PDFDownload itinerary={days} client:visible />
+    <PDFDownload itinerary={days} title={name} subtitle={subtitle} href={itineraryHref} currency={currency} client:visible />
     <CalendarExport feedPath={feedPath} client:visible />
   </div>
 </div>

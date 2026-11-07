@@ -5,7 +5,7 @@ import Header from '../../../components/Header.astro';
 import Footer from '../../../components/Footer.astro';
 import CountrySubNav from '../../../components/CountrySubNav.astro';
 import TripOverview from '../../../components/TripOverview.astro';
-import { getAllCountriesWithSheets, tripBySlug } from '../../../utils/countries';
+import { getAllCountriesWithSheets, tripBySlug, tripCitiesLabel } from '../../../utils/countries';
 
 Astro.response.headers.set('Cache-Control', pageCacheControl(Boolean(Astro.locals.user)));
 
@@ -29,6 +29,7 @@ const base = `/trips/${stateMeta.slug}`;
         days={stateMeta.itinerary}
         itineraryHref={base}
         feedPath={`${base}/calendar.ics`}
+        subtitle={[tripCitiesLabel(stateMeta), baseCountry.name].filter(Boolean).join(' · ')}
       />
     ) : (
       <div class="glass-effect rounded-2xl p-8 text-center border border-primary/20">
