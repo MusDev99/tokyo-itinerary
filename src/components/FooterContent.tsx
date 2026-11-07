@@ -174,6 +174,10 @@ export default function FooterContent({ destinations, year, canEdit = false }: P
             <span className="text-text/60">© {year}</span>
             <span className="text-text/40"> · </span>
             <a href="/welcome" className="inline-flex items-center min-h-11 py-2 font-semibold text-primary underline-offset-2 hover:underline">How it works</a>
+            <span className="text-text/40"> · </span>
+            <a href="/privacy" className="inline-flex items-center min-h-11 py-2 font-semibold text-primary underline-offset-2 hover:underline">Privacy</a>
+            <span className="text-text/40"> · </span>
+            <a href="/terms" className="inline-flex items-center min-h-11 py-2 font-semibold text-primary underline-offset-2 hover:underline">Terms</a>
           </p>
           <p className="flex flex-wrap items-center justify-center sm:justify-start gap-x-1.5 gap-y-1 text-xs text-text/60">
             <span>Built with</span>

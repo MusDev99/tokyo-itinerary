@@ -1,0 +1,130 @@
+---
+import LegalPage from '../components/LegalPage.astro';
+import { legalConfig } from '../utils/legal';
+
+const cfg = legalConfig({ ...(import.meta.env as Record<string, string | undefined>), ...process.env });
+const toc = [
+  { id: 'who', title: 'Who this is from' },
+  { id: 'collect', title: 'What we collect' },
+  { id: 'visibility', title: 'Who can see what' },
+  { id: 'storage', title: 'Cookies and storage on your device' },
+  { id: 'services', title: 'Services that receive data' },
+  { id: 'why', title: 'Why we use data' },
+  { id: 'keep', title: 'How long we keep it' },
+  { id: 'security', title: 'Keeping it safe' },
+  { id: 'rights', title: 'Your choices and rights' },
+  { id: 'changes', title: 'Changes to this notice' },
+];
+---
+
+<LegalPage
+  title="Privacy notice"
+  description="What PlanTravel collects, who can see it, which cookies and outside services it uses, and how to ask about your data."
+  toc={toc}
+  other={{ href: '/terms', label: 'Terms of use' }}
+>
+  <section id="who">
+    <h2>1. Who this is from</h2>
+    <p>PlanTravel is a trip-planning tool operated by <strong>{cfg.company}</strong> ("we", "us"). This notice explains what personal information the tool handles and what we do with it. It covers the website, the trip pages, the PDF and calendar exports and the signed-in editing screens.</p>
+  </section>
+
+  <section id="collect">
+    <h2>2. What we collect</h2>
+    <ul class="item-list">
+      <li>
+        <strong>When you just visit.</strong>
+        <span class="meta">Our hosting provider keeps ordinary request logs (such as your IP address, browser type and the page asked for). Our own logs record only errors and slow requests: the page path, the result, how long it took and a random reference number. They do not record who you are.</span>
+      </li>
+      <li>
+        <strong>Trip information.</strong>
+        <span class="meta">Agents type in trip titles, cities, dates, places, times, notes, estimated prices and map links. <em>This is shown on public pages.</em> Please do not put travellers' names, passport numbers, phone numbers or other personal details into itinerary fields.</span>
+      </li>
+      <li>
+        <strong>Agent accounts.</strong>
+        <span class="meta">People who edit sign in with Google. We receive and store their name, email address, profile picture and Google account ID, whether the account is active, and when it was created and last used.</span>
+      </li>
+      <li>
+        <strong>Edit history.</strong>
+        <span class="meta">Each change is recorded with the time, the agent's email, what was done (for example "update activity") and the trip and a short title. Notes, booking codes and links are not copied into this history.</span>
+      </li>
+      <li>
+        <strong>Pocket (bookings and documents).</strong>
+        <span class="meta">Flights, stays, document details (visa, passport, insurance, booking), reference codes, notes and links to files kept elsewhere. We do not store uploaded files. Pocket is shown only to signed-in agents.</span>
+      </li>
+      <li>
+        <strong>What you type into searches.</strong>
+        <span class="meta">The place name an agent searches for, and a trip's saved location for prayer times, are sent to the services listed in section 5.</span>
+      </li>
+    </ul>
+    <p>We do not run advertising, sell personal information, or use analytics or tracking cookies of our own.</p>
+  </section>
+
+  <section id="visibility">
+    <h2>3. Who can see what</h2>
+    <ul>
+      <li><strong>Anyone with the address</strong> can open trip pages, the client share page, the PDF and the calendar feed. Trip pages are public and there is no password on them.</li>
+      <li><strong>Signed-in agents</strong> (people on our access list) can edit trips. <strong>Every signed-in agent can open the Pocket of every trip.</strong></li>
+      <li><strong>Administrators</strong> who own the spreadsheet can see everything in it, including the access list and edit history.</li>
+    </ul>
+  </section>
+
+  <section id="storage">
+    <h2>4. Cookies and storage on your device</h2>
+    <ul class="item-list">
+      <li><strong><code>tk_session</code></strong><span class="meta">Keeps an agent signed in. Signed, not readable by scripts, lasts 7 days, only set after sign-in. Needed for editing.</span></li>
+      <li><strong><code>tk_oauth</code></strong><span class="meta">Short-lived safety token during Google sign-in. Lasts 10 minutes and is deleted when sign-in finishes.</span></li>
+      <li><strong><code>pt_welcome</code></strong><span class="meta">Remembers that you have seen the welcome page so it is not shown on every visit. Lasts 1 year. Contains no personal information.</span></li>
+      <li><strong>Settings kept only in your browser</strong><span class="meta">Your chosen season theme and motion level, an unfinished new-trip draft (kept up to a week), packing-checklist ticks and "on time / running late" check-ins for a trip day. These never leave your device.</span></li>
+      <li><strong>Offline copy</strong><span class="meta">So trips can be read without signal, the app saves public pages and its own files in your browser. Agent-only screens are not saved, and signing out clears the saved pages.</span></li>
+    </ul>
+    <p>You can clear all of this in your browser settings at any time. Editing will ask you to sign in again.</p>
+  </section>
+
+  <section id="services">
+    <h2>5. Services that receive data</h2>
+    <p>PlanTravel relies on other companies. They receive only what is needed for the job below and have their own privacy policies.</p>
+    <ul class="item-list">
+      <li><strong>Google</strong><span class="meta">Sign-in (name, email, picture, account ID are given to us). Google Sheets is where trip data is stored. Google Fonts: when a page loads, your browser asks Google for the typefaces, so Google can see your IP address.</span></li>
+      <li><strong>Vercel</strong><span class="meta">Hosts the website and keeps ordinary request logs.</span></li>
+      <li><strong>Open-Meteo</strong><span class="meta">Turns a place name an agent searches for into a location (sent from our server).</span></li>
+      <li><strong>Aladhan</strong><span class="meta">Prayer times and Qibla direction for a trip's saved location and dates (sent from our server).</span></li>
+      <li><strong>open.er-api.com and jsDelivr (currency data)</strong><span class="meta">Your browser fetches exchange rates for the cost views. This shares your IP address with them.</span></li>
+      <li><strong>YouTube (privacy-enhanced mode)</strong><span class="meta">Only if you press play on a video on a place. Nothing is loaded from YouTube before that.</span></li>
+      <li><strong>Google Maps, Google Calendar, WhatsApp</strong><span class="meta">Only when you click a link or button that opens them. What you do there is covered by their policies.</span></li>
+    </ul>
+  </section>
+
+  <section id="why">
+    <h2>6. Why we use data</h2>
+    <ul>
+      <li>To show and edit trips, make PDF and calendar exports, and let you share a trip.</li>
+      <li>To keep editing limited to people we have allowed, and to keep a record of changes in case something goes wrong.</li>
+      <li>To keep the service running and secure (error and slow-request logs, protection against abuse).</li>
+    </ul>
+    <p>We do not use personal information for marketing and we do not sell it. We share it only with the services in section 5, and where the law requires.</p>
+  </section>
+
+  <section id="keep">
+    <h2>7. How long we keep it</h2>
+    <ul>
+      <li><strong>Trips and Pocket items</strong> stay until an agent deletes them. Google Sheets keeps an older-versions history for some time after a deletion.</li>
+      <li><strong>Agent accounts and edit history</strong> are kept while the person has access and afterwards for accountability. An administrator can disable an account at any time.</li>
+      <li><strong>Our error logs</strong> are kept for the period set by our hosting plan. Your browser's data stays until you clear it.</li>
+    </ul>
+  </section>
+
+  <section id="security">
+    <h2>8. Keeping it safe</h2>
+    <p>Connections use HTTPS. Editing needs a Google sign-in and a place on the access list, which is checked on every change. Sign-in cookies are signed and hidden from page scripts. Secrets and tokens are kept out of our logs. No system is perfectly secure, so please keep personal details out of public itinerary fields and tell us at once if you think something was exposed.</p>
+  </section>
+
+  <section id="rights">
+    <h2>9. Your choices and rights</h2>
+    <p>Where the law gives you rights, such as the Personal Data Protection Act 2010 in Malaysia or similar laws elsewhere, you can ask us to tell you what we hold about you, correct it, or delete it, and you can withdraw consent where we rely on it. Contact us using the details at the end of this page. You can also clear your browser data and sign out at any time.</p>
+  </section>
+
+  <section id="changes">
+    <h2>10. Changes to this notice</h2>
+    <p>When we change this notice in a meaningful way we update the date at the top. Please check back from time to time.</p>
+  </section>
+</LegalPage>

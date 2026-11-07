@@ -1,0 +1,94 @@
+---
+import LegalPage from '../components/LegalPage.astro';
+import { legalConfig } from '../utils/legal';
+
+const cfg = legalConfig({ ...(import.meta.env as Record<string, string | undefined>), ...process.env });
+const toc = [
+  { id: 'service', title: 'What PlanTravel is' },
+  { id: 'access', title: 'Using it and accounts' },
+  { id: 'content', title: 'Your content' },
+  { id: 'rules', title: 'Rules of use' },
+  { id: 'accuracy', title: 'Plans, prices and accuracy' },
+  { id: 'availability', title: 'Availability' },
+  { id: 'liability', title: 'Responsibility' },
+  { id: 'ending', title: 'Ending access' },
+  { id: 'changes', title: 'Changes to these terms' },
+  ...(cfg.governingLaw ? [{ id: 'law', title: 'Governing law' }] : []),
+];
+---
+
+<LegalPage
+  title="Terms of use"
+  description="The rules for using PlanTravel: what it is, who can edit, what you may enter, and what to check before you travel."
+  toc={toc}
+  other={{ href: '/privacy', label: 'Privacy notice' }}
+>
+  <section id="service">
+    <h2>1. What PlanTravel is</h2>
+    <p>PlanTravel is a tool for planning trips and sharing the plan: day-by-day itineraries, estimated costs, a bookings pocket, and PDF and calendar exports. It is run by <strong>{cfg.company}</strong> ("we", "us"). By using it you agree to these terms. If you do not agree, please do not use it.</p>
+    <p><strong>A plan is not a booking.</strong> Nothing on PlanTravel reserves a flight, hotel, ticket or tour, and it is not travel, legal, medical or visa advice.</p>
+  </section>
+
+  <section id="access">
+    <h2>2. Using it and accounts</h2>
+    <ul>
+      <li>Anyone can view trip pages, the client share page, the PDF and the calendar feed.</li>
+      <li>Editing is for people we have invited: you sign in with your Google account and must be on our access list. Use only your own account and keep it secure. You are responsible for what is done with it.</li>
+      <li>Everyone who can sign in can edit any trip and can open every trip's Pocket. Only invite people you trust with that.</li>
+      <li>We can disable an account at any time, for example when someone leaves or if the rules below are broken.</li>
+    </ul>
+  </section>
+
+  <section id="content">
+    <h2>3. Your content</h2>
+    <p>You keep ownership of what you enter. You allow us to store, show, copy and export it as part of running PlanTravel, including showing it on public trip pages. You confirm you have the right to enter it.</p>
+    <p><strong>Trip pages are public.</strong> Do not put travellers' personal details (names, passport or ID numbers, phone numbers, health information) into itinerary fields. Keep booking details in Pocket, remembering that every signed-in agent can see it.</p>
+  </section>
+
+  <section id="rules">
+    <h2>4. Rules of use</h2>
+    <ul>
+      <li>Do not enter anything unlawful, misleading, abusive or that infringes someone else's rights.</li>
+      <li>Do not try to get around sign-in or other limits, probe or attack the service, or overload it (for example with automated bulk requests).</li>
+      <li>Do not pretend to be someone else or use another person's account.</li>
+      <li>Do not use PlanTravel to send unsolicited messages.</li>
+    </ul>
+  </section>
+
+  <section id="accuracy">
+    <h2>5. Plans, prices and accuracy</h2>
+    <ul>
+      <li><strong>Prices are estimates</strong> typed in by agents. Amounts in different currencies are shown side by side and are not converted for you. Exchange rates, where shown, come from outside services and move.</li>
+      <li>Opening hours, times, addresses, map links, prayer times and weather-related information come from agents or outside services and can be wrong or out of date.</li>
+      <li>Flights, hotels, tours and attractions are run by other companies with their own terms and changes. Check with them before you travel, and check visa, health and entry rules with official sources.</li>
+      <li>Pages saved for offline reading may be older than the latest plan.</li>
+    </ul>
+  </section>
+
+  <section id="availability">
+    <h2>6. Availability</h2>
+    <p>We try to keep PlanTravel available, but it is provided "as is" and "as available". It may be slow, interrupted or changed, for example when a service it depends on (such as Google Sheets) is unavailable. We may add, change or remove features.</p>
+  </section>
+
+  <section id="liability">
+    <h2>7. Responsibility</h2>
+    <p>To the fullest extent the law allows, we are not responsible for losses that come from relying on a plan, price or time shown in PlanTravel, from third-party services, or from interruptions to the service, including indirect or consequential losses such as lost bookings, fares, deposits or profit. Nothing in these terms limits responsibility that cannot be limited by law.</p>
+  </section>
+
+  <section id="ending">
+    <h2>8. Ending access</h2>
+    <p>You can stop using PlanTravel at any time. We can suspend or end access if these terms are broken or the service is closed. Rules about content, accuracy and responsibility continue to apply afterwards.</p>
+  </section>
+
+  <section id="changes">
+    <h2>9. Changes to these terms</h2>
+    <p>We may update these terms. The date at the top shows the latest version, and using PlanTravel after a change means you accept it.</p>
+  </section>
+
+  {cfg.governingLaw && (
+    <section id="law">
+      <h2>10. Governing law</h2>
+      <p>These terms are governed by the laws of {cfg.governingLaw}.</p>
+    </section>
+  )}
+</LegalPage>
