@@ -12,7 +12,7 @@ import EmptyState from '../../../components/ui/EmptyState';
 import { tripRevision } from '../../../utils/revision';
 import { getTripDates } from '../../../utils/googleSheets';
 import { toIsoDate } from '../../../utils/calendar';
-import { getAllCountriesWithSheets, tripBySlug } from '../../../utils/countries';
+import { getAllCountriesWithSheets, tripBySlug, tripCitiesLabel } from '../../../utils/countries';
 
 Astro.response.headers.set('Cache-Control', pageCacheControl(Boolean(Astro.locals.user)));
 
@@ -26,6 +26,7 @@ const canEdit = Boolean(Astro.locals.user);
 const tripDates = canEdit ? await getTripDates(stateMeta.tabName) : null;
 // Same inputs the API compares against (saved range, else the first/last planned day), for edit-conflict detection
 const liveRange = tripDates ?? (stateMeta.stats.firstDate && stateMeta.stats.lastDate ? { start: stateMeta.stats.firstDate.slice(0, 10), end: stateMeta.stats.lastDate.slice(0, 10) } : null);
+const pdfSubtitle = [tripCitiesLabel(stateMeta), baseCountry.name].filter(Boolean).join(' · ');
 const tripRev = canEdit ? tripRevision({ title: stateMeta.title, start: liveRange?.start, end: liveRange?.end, stops: stateMeta.stops }) : undefined;
 const planned = canEdit
   ? stateMeta.itinerary
@@ -72,7 +73,7 @@ const planned = canEdit
 
         <!-- Export actions side by side (Law of Proximity): PDF is the primary, calendar the secondary -->
         <div class="flex flex-col sm:flex-row items-center justify-center gap-3 my-6 sm:my-8">
-          <PDFDownload itinerary={country.itinerary} client:visible />
+          <PDFDownload itinerary={country.itinerary} title={stateMeta.title} subtitle={pdfSubtitle} href={`/trips/${stateMeta.slug}`} currency={stateMeta.currency} client:visible />
           <CalendarExport feedPath={`/trips/${stateMeta.slug}/calendar.ics`} client:visible />
         </div>
       </div>
