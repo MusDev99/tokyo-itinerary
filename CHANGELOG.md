@@ -3,6 +3,11 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-07 05:34 — Fix: master did not build (major dependency bumps reverted)
+
+- **The production build on `master` was broken.** Dependabot major bumps had been merged: **Tailwind 3 to 4** (needs a different PostCSS plugin and a rewritten config; the build failed with "use `@tailwindcss/postcss`"), plus Preact 10 to 11 and `@types/react` / `@types/react-dom` 18 to 19. Reverted those four to their previous ranges (Tailwind 3.4, Preact 10, React types 18); the minor and patch updates stay. Tests 203 pass, build OK, `npm audit --omit=dev` 0 vulnerabilities.
+- **So it cannot happen again:** Dependabot no longer proposes major versions (they are manual migrations), and a new `Verify` workflow runs the tests and the production build on every pull request and on `master`.
+
 ## 2026-11-07 05:27 — Feat: a proper trip PDF
 
 - **Redesigned, branded PDF.** Cover with the PlanTravel logo, trip title, cities, dates and four facts (days, places, cities, estimated cost); an **at-a-glance table** (day, date, city, highlights, places, cost); **what it costs** (total, and a bar breakdown by kind of spending); then every day as a **timeline** in time order: time, place, category, location as a tappable Google Maps link, cost, description and tips in a highlighted box. Running header and footer on every page with "Page X of Y" and a link back to the trip.
