@@ -237,7 +237,7 @@ export default function PocketSheet({ kind: initialKind, item, defaultDate = '',
                     <FormField label="Notes" htmlFor="pk-notes" className="col-span-2">
                       <textarea id="pk-notes" rows={2} maxLength={2000} className={inputClass} value={draft.notes} onInput={(e) => patch({ notes: (e.target as HTMLTextAreaElement).value })} />
                     </FormField>
-                    <p className="col-span-2 text-micro text-text/60">Everyone with edit access to the sheet can read this. Don't store passport numbers.</p>
+                    <p className="col-span-2 text-micro text-text/60">Everyone who can edit trips can read this. Don't store passport numbers.</p>
                   </div>
                 )}
               </div>

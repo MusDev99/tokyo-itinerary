@@ -3,6 +3,11 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-07 05:54 — Fix: no "Google Sheet" wording for visitors, and the guest note is gone
+
+- **Welcome page:** removed "Guests can read every trip. Signing in lets you add and edit; your name and email go to the Users sheet." (and its "Everyone can read every trip" variant). The chip "Synced to Google Sheets" now says "Saved automatically"; the line "keep it all in your Google Sheet" (page and search description) says "keep it all in one place"; step 1 no longer says every trip is open to read; step 2 says costs and times are "saved with the trip".
+- **Other screens:** "We can't reach your trip sheet" is now "We can't load your trips right now" (hint: contact your administrator); the Pocket note says "Everyone who can edit trips can read this"; the suggestions picker says "trips already planned".
+- Developer and operator documents still describe the spreadsheet as the data store; only visitor-facing text changed.
 ## 2026-11-07 05:53 — Fix: the back arrow on a trip led to a 404 page
 
 - **Bug (from a screen recording):** on a trip page the header back arrow opened "Oops! Page Not Found". The arrow went back in history only when the browser reported a same-site referrer, which it does not after the app's soft navigation (the referrer is only the page that started the visit). Otherwise it went "up" by cutting the last part of the address, and from `/trips/<trip>` that is `/trips`, which is not a page.

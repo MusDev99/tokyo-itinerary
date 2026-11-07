@@ -42,7 +42,7 @@ const FEATURES = [
 
 <Layout
   title="PlanTravel – Plan the trip. Live the day."
-  description="Browse trips around the world, plan them day by day with costs and maps, and keep everything in your Google Sheet. Free to look around as a guest."
+  description="Browse trips around the world, plan them day by day with costs and maps, and keep everything in one place. Free to look around as a guest."
   seasonBackground={false}
 >
   <!-- Set before the first paint of the sections below, so hidden-until-revealed never flashes (see data-reveal) -->
@@ -80,7 +80,7 @@ const FEATURES = [
           <span class="gradient-text block">Live the day.</span>
         </h1>
         <p data-reveal class="mt-4 max-w-sm leading-6 text-text/70">
-          Browse trips around the world, plan them day by day with costs and maps, and keep it all in your Google Sheet.
+          Browse trips around the world, plan them day by day with costs and maps, and keep it all in one place.
         </p>
 
         <!-- Phones: the action follows the pitch (thumb reach); the feature list follows the action. -->
@@ -126,17 +126,10 @@ const FEATURES = [
             </>
           )}
         </div>
-        <p data-reveal class="mt-4 text-center text-xs leading-5 text-text/65">
-          {user
-            ? 'You are signed in, so you can add and edit trips.'
-            : canSignIn
-              ? 'Guests can read every trip. Signing in lets you add and edit; your name and email go to the Users sheet.'
-              : 'Everyone can read every trip. Editing is switched off on this site.'}
-        </p>
       </div>
     </section>
 
-    <!-- The world so far: real numbers and real places from the sheet; each chip is a guest's first tap -->
+    <!-- The world so far: real numbers and real places from the trips; each chip is a guest's first tap -->
     {places.length > 0 && (
       <section data-reveal aria-labelledby="world-heading" class="mt-14 sm:mt-20">
         <div class="glass-effect rounded-3xl p-5 sm:p-8">
