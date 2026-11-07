@@ -14,11 +14,14 @@ interface Props {
   noindex?: boolean;
   /** false: the page paints its own backdrop (the welcome page), so the animated season layer is not mounted. */
   seasonBackground?: boolean;
+  /** Path of a 1200x630 preview image (link previews in WhatsApp, iMessage, Slack...) */
+  image?: string;
 }
 
 const DEFAULT_DESCRIPTION =
   'Day-by-day travel itineraries with maps, budget analytics, currency conversion and travel tools for every trip.';
-const { title, description = DEFAULT_DESCRIPTION, noindex = false, seasonBackground = true } = Astro.props;
+const { title, description = DEFAULT_DESCRIPTION, noindex = false, seasonBackground = true, image } = Astro.props;
+const imageUrl = image ? new URL(image, Astro.url.origin).toString() : '';
 // Canonical drops the query string so ?country=... variants don't compete with the clean URL
 // Soft navigation: header, tab dock and content swap in place instead of reloading the page. PUBLIC_SOFT_NAV=0 turns it off.
 const softNav = import.meta.env.PUBLIC_SOFT_NAV !== '0';
@@ -49,7 +52,10 @@ const canonical = new URL(Astro.url.pathname, Astro.url.origin).toString();
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    <meta name="twitter:card" content="summary" />
+    {imageUrl && <meta property="og:image" content={imageUrl} />}
+    {imageUrl && <meta property="og:image:width" content="1200" />}
+    {imageUrl && <meta property="og:image:height" content="630" />}
+    <meta name="twitter:card" content={imageUrl ? 'summary_large_image' : 'summary'} />
     <meta name="theme-color" content="#7c3aed" />
     {softNav && <ClientRouter />}
     <script is:inline>

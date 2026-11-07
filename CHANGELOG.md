@@ -3,6 +3,14 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-07 05:39 — Feat: share a trip (WhatsApp) and a client page
+
+- **Share button** on every trip (an icon in the trip header, a labelled button on the client page): **WhatsApp** (opens a chat with a ready message: bold trip title, cities, dates, days and the link), **More apps** (the phone's own share sheet, shown only where the browser has one) and **Copy link**. Dates read "1–7 Mar 2025".
+- **Client page** `/trips/<slug>/share`: what you send a traveller. Clean and read-only (no editing controls, no tab bar, brand only), trip title and summary, days/places/cities, every day in time order with category, tappable map link, description and highlighted tips, plus Share, PDF and Add-to-calendar buttons. **Costs are hidden until the reader ticks "Show costs"** (works without JavaScript and prints as shown). Prints cleanly. `noindex`, so search engines skip it.
+- **WhatsApp preview card:** pages can set a preview image (`Layout` `image`): the client page uses a new branded 1200x630 card (`public/og-share.png`) with the trip's summary as the description.
+- The web page is built from the same model as the PDF, so numbers and order always match. Smoke test also checks the share page (served, noindex, preview image, no edit controls). Tests: `share.test.ts`.
+- Honest limit: the page is **as public as every other trip page** (there is no per-trip privacy yet).
+
 ## 2026-11-07 05:34 — Fix: master did not build (major dependency bumps reverted)
 
 - **The production build on `master` was broken.** Dependabot major bumps had been merged: **Tailwind 3 to 4** (needs a different PostCSS plugin and a rewritten config; the build failed with "use `@tailwindcss/postcss`"), plus Preact 10 to 11 and `@types/react` / `@types/react-dom` 18 to 19. Reverted those four to their previous ranges (Tailwind 3.4, Preact 10, React types 18); the minor and patch updates stay. Tests 203 pass, build OK, `npm audit --omit=dev` 0 vulnerabilities.
