@@ -2,7 +2,8 @@ import type { APIRoute } from 'astro';
 import { appendActivities, deleteTrip, getTripDates, getTripMetas, savePlace, saveTripDates, saveTripMeta } from '../../utils/googleSheets';
 import { getAllCountriesWithSheets, findTripByTab } from '../../utils/countries';
 import { parsePlace } from '../../types/place';
-import { clientError } from '../../utils/security';
+import { ConflictError, clientError } from '../../utils/security';
+import { tripRevision } from '../../utils/revision';
 import { recordAudit } from '../../utils/users';
 import { validateRange, buildDays } from '../../utils/tripDraft';
 import { parseActivity } from '../../utils/parseActivity';
@@ -107,6 +108,13 @@ export const PATCH: APIRoute = async ({ request, locals }) => {
     const base: Omit<TripMeta, 'tab'> = current
       ? { title: current.title, slug: current.slug, country: current.country, stops: current.stops, createdBy: current.createdBy, createdAt: current.createdAt, copiedFrom: current.copiedFrom }
       : { title: trip.title, slug: trip.slug || legacyTripSlug(country.name, null), country: country.name, stops: [], createdBy: '', createdAt: '', copiedFrom: '' };
+
+    // Edit conflict: compare what the person was looking at with the trip as it is right now
+    const liveRange = (await getTripDates(trip.tabName)) ?? (trip.stats.firstDate && trip.stats.lastDate ? { start: trip.stats.firstDate.slice(0, 10), end: trip.stats.lastDate.slice(0, 10) } : null);
+    const sentRev = str(body.rev, 20);
+    if (sentRev && body.force !== true && sentRev !== tripRevision({ title: base.title, start: liveRange?.start, end: liveRange?.end, stops: base.stops })) {
+      return json({ error: 'This trip was changed by someone else while you were editing.', conflict: true }, 409);
+    }
 
     const next = { ...base };
     if (body.title !== undefined) {

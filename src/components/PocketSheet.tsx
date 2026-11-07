@@ -12,6 +12,7 @@ import AnalogTimePicker from './AnalogTimePicker';
 import { inputClass } from './inputClass';
 import InlineError from './ui/InlineError';
 import Button from './ui/Button';
+import ConflictNotice from './ui/ConflictNotice';
 
 export type PocketDraft = Omit<PocketItem, 'id' | 'createdBy' | 'createdAt'>;
 
@@ -38,15 +39,17 @@ interface Props {
   item?: PocketItem | null;
   defaultDate?: string;
   /** Resolves to field errors (or nothing on success) */
-  onSave: (draft: PocketDraft, id?: string) => Promise<Record<string, string> | void>;
+  onSave: (draft: PocketDraft, id?: string, force?: boolean) => Promise<Record<string, string> | void>;
   onClose: () => void;
+  /** Re-load the list (conflict: show what the other person saved) */
+  onReload?: () => void;
 }
 
 /**
  * "Put it in Pocket": type chooser, then one short form.
  * Hick's Law: required fields first, the rest behind "More details". Fitts's Law: bottom sheet, 44px targets.
  */
-export default function PocketSheet({ kind: initialKind, item, defaultDate = '', onSave, onClose }: Props) {
+export default function PocketSheet({ kind: initialKind, item, defaultDate = '', onSave, onClose, onReload }: Props) {
   const [kind, setKind] = useState<PocketKind | null>(item ? item.kind : initialKind);
   const [draft, setDraft] = useState<PocketDraft>(() => {
     if (item) { const { id, createdBy, createdAt, ...rest } = item; return rest; }
@@ -72,12 +75,12 @@ export default function PocketSheet({ kind: initialKind, item, defaultDate = '',
   const detail = (k: string, v: string) => setDraft((d) => ({ ...d, details: { ...d.details, [k]: v } }));
   const choose = (k: PocketKind) => { setKind(k); setDraft(emptyDraft(k, defaultDate)); setMore(false); setErrs({}); };
 
-  const submit = async (e: Event) => {
+  const submit = async (e: Event, force = false) => {
     e.preventDefault();
     if (!kind) return;
     setBusy(true);
     try {
-      const result = await onSave({ ...draft, kind }, item?.id);
+      const result = await onSave({ ...draft, kind }, item?.id, force);
       if (result) setErrs(result);
     } finally {
       setBusy(false);
@@ -240,7 +243,11 @@ export default function PocketSheet({ kind: initialKind, item, defaultDate = '',
               </div>
             )}
 
-            <InlineError message={errs._} />
+            {errs._conflict ? (
+              <ConflictNotice message={errs._} busy={busy} onReload={() => { onClose(); onReload?.(); }} onForce={() => submit(new Event('submit'), true)} />
+            ) : (
+              <InlineError message={errs._} />
+            )}
 
             <div className="flex gap-2">
               <Button variant="soft" onClick={() => (item || initialKind ? onClose() : setKind(null))}>{item || initialKind ? 'Cancel' : 'Back'}</Button>

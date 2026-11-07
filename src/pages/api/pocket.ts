@@ -2,7 +2,8 @@ import type { APIRoute } from 'astro';
 import { listPocket, addPocket, updatePocket, deletePocket } from '../../utils/googleSheets';
 import { getAllCountriesWithSheets, findTripByTab } from '../../utils/countries';
 import { parsePocketItem, sortItems } from '../../utils/pocket';
-import { clientError } from '../../utils/security';
+import { ConflictError, clientError } from '../../utils/security';
+import { pocketRevision } from '../../utils/revision';
 import { recordAudit } from '../../utils/users';
 
 // Every verb (GET too) needs a signed-in, active editor: see PROTECTED_API in src/middleware.ts.
@@ -29,7 +30,8 @@ export const GET: APIRoute = async ({ url }) => {
   try {
     const tab = await knownTab(str(url.searchParams.get('tab'), 100));
     if (!tab) return json({ error: 'Unknown trip' }, 404);
-    const items = sortItems(await listPocket(tab)).map(({ rowNumber, ...item }) => item);
+    // `rev` lets an edit detect that somebody else changed the item meanwhile (see utils/revision.ts)
+    const items = sortItems(await listPocket(tab)).map(({ rowNumber, ...item }) => ({ ...item, rev: pocketRevision(item as any) }));
     return json({ ok: true, items });
   } catch (err: any) {
     return json({ error: clientError(err, 'Could not load your Pocket') }, 500);
@@ -62,10 +64,12 @@ export const PATCH: APIRoute = async ({ request, locals }) => {
     if (!tab) return json({ error: 'Unknown trip' }, 404);
     const parsed = parsePocketItem(body?.item);
     if (parsed.errors) return json({ error: 'Please fix the highlighted fields', fieldErrors: parsed.errors }, 400);
-    if (!(await updatePocket(tab, id, parsed.value!))) return json({ error: 'Item not found' }, 404);
+    const saved = await updatePocket(tab, id, parsed.value!, { rev: str(body?.rev, 20), force: body?.force === true });
+    if (!saved) return json({ error: 'Item not found' }, 404);
     await recordAudit({ email: who(locals), action: 'pocket_update', tab, target: target(parsed.value!) });
-    return json({ ok: true });
+    return json({ ok: true, rev: pocketRevision(saved as any) });
   } catch (err: any) {
+    if (err instanceof ConflictError) return json({ error: err.message, conflict: true }, 409);
     return json({ error: clientError(err, 'Could not update your Pocket') }, 500);
   }
 };
@@ -77,10 +81,11 @@ export const DELETE: APIRoute = async ({ request, locals }) => {
   try {
     const tab = await knownTab(str(body?.tab, 100));
     if (!tab) return json({ error: 'Unknown trip' }, 404);
-    if (!(await deletePocket(tab, id))) return json({ error: 'Item not found' }, 404);
+    if (!(await deletePocket(tab, id, { rev: str(body?.rev, 20), force: body?.force === true }))) return json({ error: 'Item not found' }, 404);
     await recordAudit({ email: who(locals), action: 'pocket_delete', tab, target: id });
     return json({ ok: true });
   } catch (err: any) {
+    if (err instanceof ConflictError) return json({ error: err.message, conflict: true }, 409);
     return json({ error: clientError(err, 'Could not delete from your Pocket') }, 500);
   }
 };

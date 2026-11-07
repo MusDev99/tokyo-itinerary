@@ -64,6 +64,7 @@ function TimelineItemBase(props: TimelineItemProps) {
   const [draft, setDraft] = useState<ActivityDraft | null>(null);
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState('');
+  const [forceDelete, setForceDelete] = useState(false);
 
   const toDraft = (): ActivityDraft => ({
       // Sheet dates come in many shapes (ISO, "Nov 30", serial numbers): the picker needs ISO
@@ -91,9 +92,9 @@ function TimelineItemBase(props: TimelineItemProps) {
     return [...set].sort();
   };
 
-  const saveEdit = async (d: ActivityDraft): Promise<Record<string, string> | void> => {
-    const r = await apiFetch('/api/itinerary', { method: 'PATCH', body: { tab, ...rowRef, activity: draftToPayload(d) } });
-    if (!r.ok) return { ...(r.data?.rowErrors?.[0] || {}), _: r.error };
+  const saveEdit = async (d: ActivityDraft, force = false): Promise<Record<string, string> | void> => {
+    const r = await apiFetch('/api/itinerary', { method: 'PATCH', body: { tab, ...rowRef, rev: props.rev, force, activity: draftToPayload(d) } });
+    if (!r.ok) return { ...(r.data?.rowErrors?.[0] || {}), _: r.error, ...(r.status === 409 ? { _conflict: '1' } : {}) };
   };
   // Delete happens at once and the toast offers Undo (Nielsen: easy reversal beats a "can't be undone" warning):
   // Undo adds the same place back (it lands at the same day and time; a new row at the end of the sheet).
@@ -101,9 +102,15 @@ function TimelineItemBase(props: TimelineItemProps) {
     const payload = draftToPayload(toDraft());
     setBusy(true);
     setActionError('');
-    const r = await apiFetch('/api/itinerary', { method: 'DELETE', body: { tab, ...rowRef, title } });
+    const r = await apiFetch('/api/itinerary', { method: 'DELETE', body: { tab, ...rowRef, title, rev: props.rev, force: forceDelete } });
     setBusy(false);
-    if (!r.ok) { if (r.kind !== 'signed-out') setActionError(r.error); return; }
+    if (!r.ok) {
+      if (r.kind === 'signed-out') return;
+      // Changed by someone else: say so and let the next press delete anyway
+      if (r.status === 409) { setForceDelete(true); setActionError('Someone changed this place since you opened the page. Delete it anyway?'); return; }
+      setActionError(r.error);
+      return;
+    }
     toast.success(`Deleted “${title}”`, {
       action: {
         label: 'Undo',
@@ -353,11 +360,11 @@ function TimelineItemBase(props: TimelineItemProps) {
         open={confirmOpen}
         title="Delete this activity?"
         message={<>“{title}” will be removed from the itinerary. You can undo right after.</>}
-        confirmLabel="Delete activity"
+        confirmLabel={forceDelete ? 'Delete anyway' : 'Delete activity'}
         busy={busy}
         error={confirmOpen ? actionError : ''}
         onConfirm={remove}
-        onCancel={() => setConfirmOpen(false)}
+        onCancel={() => { setConfirmOpen(false); setForceDelete(false); setActionError(''); }}
       />
     </div>
   );

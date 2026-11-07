@@ -67,6 +67,14 @@ export function securityHeaders(production: boolean): Record<string, string> {
 }
 
 /** An error whose message is safe to show to the person using the app. Everything else is logged, not leaked (A09/A05). */
+/** The thing being edited changed since the person loaded it (edit conflict): the API answers 409. */
+export class ConflictError extends Error {
+  constructor(message = 'Someone else changed this while you were editing it.') {
+    super(message);
+    this.name = 'ConflictError';
+  }
+}
+
 export class UserError extends Error {
   constructor(message: string) {
     super(message);

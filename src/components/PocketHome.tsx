@@ -103,11 +103,12 @@ export default function PocketHome({ tab, signedIn, loginHref, tripStart, hasIti
   const bookings = sorted.filter((i) => i.kind === 'flight' || i.kind === 'stay' || i.kind === 'doc');
   const notes = sorted.filter((i) => i.kind === 'note');
 
-  const save = async (draft: PocketDraft, id?: string): Promise<Record<string, string> | void> => {
-    const r = await apiFetch('/api/pocket', { method: id ? 'PATCH' : 'POST', body: { tab, id, item: draft, website: '' } });
-    if (!r.ok) return r.data?.fieldErrors || { _: r.error };
+  const save = async (draft: PocketDraft, id?: string, force = false): Promise<Record<string, string> | void> => {
+    const rev = id ? items?.find((i) => i.id === id)?.rev : undefined;
+    const r = await apiFetch('/api/pocket', { method: id ? 'PATCH' : 'POST', body: { tab, id, item: draft, rev, force, website: '' } });
+    if (!r.ok) return r.data?.fieldErrors || { _: r.error, ...(r.status === 409 ? { _conflict: '1' } : {}) };
     // Show it at once (Doherty Threshold): the server's copy is already in the response, no second round trip
-    if (id) setItems((prev) => (prev || []).map((i) => (i.id === id ? { ...i, ...draft } : i)));
+    if (id) setItems((prev) => (prev || []).map((i) => (i.id === id ? { ...i, ...draft, rev: r.data.rev } : i)));
     else if (r.data.item) setItems((prev) => [...(prev || []), r.data.item as PocketItem]);
     else await load();
     setSheet(null);
@@ -115,10 +116,11 @@ export default function PocketHome({ tab, signedIn, loginHref, tripStart, hasIti
   };
 
   const toggleDone = async (item: PocketItem) => {
-    const { id, createdBy, createdAt, ...rest } = item;
+    const { id, createdBy, createdAt, rev, ...rest } = item;
     setItems((prev) => (prev || []).map((i) => (i.id === id ? { ...i, done: !i.done } : i))); // optimistic (Doherty)
-    const r = await apiFetch('/api/pocket', { method: 'PATCH', body: { tab, id, item: { ...rest, done: !item.done } } });
-    if (!r.ok) load();
+    const r = await apiFetch('/api/pocket', { method: 'PATCH', body: { tab, id, rev, item: { ...rest, done: !item.done } } });
+    if (!r.ok) { load(); return; } // includes a conflict: the list reloads with what the other person saved
+    setItems((prev) => (prev || []).map((i) => (i.id === id ? { ...i, rev: r.data.rev } : i)));
   };
 
   // Optimistic: the row leaves the list when you confirm; it comes back with a message if the server says no
@@ -129,10 +131,10 @@ export default function PocketHome({ tab, signedIn, loginHref, tripStart, hasIti
     setItems((prev) => (prev || []).filter((i) => i.id !== gone.id));
     setDel(null);
     setDelError('');
-    const r = await apiFetch('/api/pocket', { method: 'DELETE', body: { tab, id: gone.id } });
+    const r = await apiFetch('/api/pocket', { method: 'DELETE', body: { tab, id: gone.id, rev: gone.rev } });
     if (r.ok) {
       // Undo puts it back as a new item (same content, new id): easy reversal instead of a "can't be undone" warning
-      const { id: _id, createdBy: _by, createdAt: _at, ...rest } = gone;
+      const { id: _id, createdBy: _by, createdAt: _at, rev: _rev, ...rest } = gone;
       toast.success(`Removed “${gone.title}”`, {
         action: {
           label: 'Undo',
@@ -146,6 +148,11 @@ export default function PocketHome({ tab, signedIn, loginHref, tripStart, hasIti
     }
     if (r.kind === 'signed-out') return;
     setItems(before);
+    if (r.status === 409) {
+      await load(); // show what the other person saved before deciding again
+      setLoadError(`“${gone.title}” was changed by someone else, so it was not removed. Check the latest and remove it again if you still want to.`);
+      return;
+    }
     setLoadError(`“${gone.title}” could not be removed: ${r.error}`);
   };
 
@@ -255,7 +262,7 @@ export default function PocketHome({ tab, signedIn, loginHref, tripStart, hasIti
       </Section>
 
       {sheet && (
-        <PocketSheet kind={sheet.kind} item={sheet.item} defaultDate={tripStart} onSave={save} onClose={() => setSheet(null)} />
+        <PocketSheet kind={sheet.kind} item={sheet.item} defaultDate={tripStart} onSave={save} onClose={() => setSheet(null)} onReload={load} />
       )}
       <ConfirmDialog open={Boolean(del)} title="Remove from Pocket?" message={del ? `“${del.title}” will be removed for everyone with access.` : ''}
         confirmLabel="Remove" busy={false} error={delError} onConfirm={confirmDelete} onCancel={() => setDel(null)} />

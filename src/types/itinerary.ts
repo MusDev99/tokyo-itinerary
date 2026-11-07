@@ -29,6 +29,8 @@ export interface TimelineItem {
   country?: string;
   images?: string;
   youtubeUrl?: string;
+  /** Fingerprint of the editable fields as loaded; sent back with an edit so the server can spot a conflict */
+  rev?: string;
 }
 
 export interface DayItinerary {

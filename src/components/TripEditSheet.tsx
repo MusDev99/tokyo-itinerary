@@ -16,6 +16,7 @@ import FormField from './FormField';
 import CalendarPicker from './CalendarPicker';
 import Button from './ui/Button';
 import InlineError from './ui/InlineError';
+import ConflictNotice from './ui/ConflictNotice';
 
 interface Props {
   tab: string;
@@ -23,6 +24,8 @@ interface Props {
   /** The trip's saved date range (null = never set) */
   dates: { start: string; end: string } | null;
   stops: Stop[];
+  /** Fingerprint of title, dates and cities as loaded (conflict detection) */
+  rev?: string;
   onClose: () => void;
 }
 
@@ -33,13 +36,14 @@ interface Row { city: string; days: number }
  * trip"), same rows as the wizard's Cities step (Jakob: familiar), live preview (Doherty).
  * Places already in the itinerary are never moved or deleted by this; only where new places can go changes.
  */
-export default function TripEditSheet({ tab, title: initialTitle, dates, stops, onClose }: Props) {
+export default function TripEditSheet({ tab, title: initialTitle, dates, stops, rev, onClose }: Props) {
   const [title, setTitle] = useState(initialTitle);
   const [start, setStart] = useState(dates?.start || '');
   const [end, setEnd] = useState(dates?.end || '');
   const [rows, setRows] = useState<Row[]>(() => partsFromStops(stops).map((p) => ({ city: p.city, days: p.days })));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [conflict, setConflict] = useState(false);
   const [touched, setTouched] = useState(false);
   const sheet = useRef<HTMLDivElement>(null);
 
@@ -72,19 +76,25 @@ export default function TripEditSheet({ tab, title: initialTitle, dates, stops, 
     : [...all, { city: '', days: 1 }]));
   const setRow = (i: number, p: Partial<Row>) => setRows((all) => all.map((r, j) => (j === i ? { ...r, ...p } : r)));
 
-  const save = async (e: Event) => {
+  const save = async (e: Event, force = false) => {
     e.preventDefault();
     setTouched(true);
     if (!ready) return;
     setBusy(true);
     setError('');
+    setConflict(false);
     const changedDates = datesOk && (start !== dates?.start || end !== dates?.end);
-    const body: Record<string, unknown> = { tab, title: title.trim() };
+    const body: Record<string, unknown> = { tab, title: title.trim(), rev, force };
     if (changedDates) body.dates = { start, end };
     body.stops = rows.map((r) => ({ city: r.city.trim(), days: r.days }));
     const r = await apiFetch('/api/trips', { method: 'PATCH', body });
     setBusy(false);
-    if (!r.ok) { if (r.kind !== 'signed-out') setError(r.error); return; }
+    if (!r.ok) {
+      if (r.kind === 'signed-out') return;
+      setError(r.error);
+      setConflict(r.status === 409);
+      return;
+    }
     toast.success('Trip updated');
     onClose();
     refreshPage();
@@ -153,7 +163,11 @@ export default function TripEditSheet({ tab, title: initialTitle, dates, stops, 
           </div>
 
           <p className="text-micro text-text/60">Places already in the itinerary stay where they are. Changing the dates only changes where new places can go.</p>
-          <InlineError message={error} />
+          {conflict ? (
+            <ConflictNotice message={error} busy={busy} onReload={() => { onClose(); refreshPage(); }} onForce={() => save(new Event('submit'), true)} />
+          ) : (
+            <InlineError message={error} />
+          )}
           <div className="flex gap-2">
             <Button variant="soft" onClick={onClose}>Cancel</Button>
             <Button type="submit" className="flex-1" busy={busy} busyLabel="Saving…">Save changes</Button>

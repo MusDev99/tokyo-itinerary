@@ -12,7 +12,7 @@ interface Props {
   /** When set, the page shows one trip (its slug addresses /trips/<slug>). */
   state?: { slug: string; name: string; title?: string; cities?: string[]; legacy?: boolean };
   /** Shows edit / delete controls inside the card (editors only act on them; the API enforces auth) */
-  manage?: { tab: string; title: string; activityCount: number; afterDeleteHref: string; dates?: { start: string; end: string } | null; stops?: Stop[] };
+  manage?: { tab: string; title: string; activityCount: number; afterDeleteHref: string; dates?: { start: string; end: string } | null; stops?: Stop[]; rev?: string };
 }
 
 const { country, activeTab, state, manage } = Astro.props;
@@ -118,6 +118,7 @@ const stats = [
             afterDeleteHref={manage.afterDeleteHref}
             dates={manage.dates ?? null}
             stops={manage.stops ?? []}
+            rev={manage.rev}
           />
         )}
       </div>

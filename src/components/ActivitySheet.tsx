@@ -12,6 +12,8 @@ import AnalogTimePicker from './AnalogTimePicker';
 import { MoreFields, inputClass, type ActivityDraft } from './ActivityFields';
 import InlineError from './ui/InlineError';
 import Button from './ui/Button';
+import ConflictNotice from './ui/ConflictNotice';
+import { refreshPage } from '../utils/refresh';
 
 export type SaveResult = Record<string, string> | void;
 
@@ -32,7 +34,8 @@ interface Props {
   /** City of a day (from the trip's stops), used when a day is picked */
   cityForDate?: (iso: string) => string;
   /** Returns field errors (keys: title, date, time, price_amount, _ for a general message) or nothing on success */
-  onSave: (draft: ActivityDraft) => Promise<SaveResult>;
+  /** `force` = the person chose to overwrite a conflicting change by someone else */
+  onSave: (draft: ActivityDraft, force?: boolean) => Promise<SaveResult>;
   /** `saved` = number of places saved while the sheet was open */
   onClose: (saved: number) => void;
 }
@@ -119,7 +122,7 @@ export default function ActivitySheet({ mode, initial, days, plannedDays = [], c
     setErrs((e) => ({ ...e, date: '' }));
   };
 
-  const submit = async (e: Event) => {
+  const submit = async (e: Event, force = false) => {
     e.preventDefault();
     const local: Record<string, string> = {};
     if (!draft.title.trim()) local.title = 'Give this place a name';
@@ -131,7 +134,7 @@ export default function ActivitySheet({ mode, initial, days, plannedDays = [], c
     }
     setBusy(true);
     try {
-      const result = await onSave(draft);
+      const result = await onSave(draft, force);
       if (result) {
         setErrs(result);
         return;
@@ -264,7 +267,11 @@ export default function ActivitySheet({ mode, initial, days, plannedDays = [], c
               )}
             </div>
 
-            <InlineError message={errs._} />
+            {errs._conflict ? (
+              <ConflictNotice message={errs._} busy={busy} onReload={() => { onClose(0); refreshPage(); }} onForce={() => submit(new Event('submit'), true)} />
+            ) : (
+              <InlineError message={errs._} />
+            )}
             <div role="status" aria-live="polite" className="min-h-[1.25rem] text-sm font-bold text-success-strong">{toast}</div>
           </div>
 
