@@ -38,6 +38,8 @@ Why a fixed staging domain: Google OAuth needs exact redirect URIs (`https://<ho
 | `ADMIN_WHATSAPP` | recommended | Number people are sent to when their email is not registered |
 | `HEALTH_TOKEN` | optional | Lets a monitor read the detailed health checks (header `x-health-token`) |
 | `PUBLIC_SOFT_NAV` | optional | `0` turns off soft navigation (emergency switch) |
+| `PUBLIC_COMPANY_NAME`, `PUBLIC_CONTACT_EMAIL`, `PUBLIC_GOVERNING_LAW` | recommended | Who operates the service, how to reach them, and the governing-law clause; shown on `/privacy` and `/terms`. The clause appears only when set |
+| `PUBLIC_LEGAL_REVIEWED` | before launch | `1` once a lawyer has reviewed `/privacy` and `/terms`. Until then both pages show a "Draft: not yet reviewed" notice |
 
 ## 👥 People and access
 
@@ -124,4 +126,5 @@ Until automatic backups exist, make a manual copy before risky work and weekly: 
 | ☐ | `_users` contains exactly the people who should edit, nobody else |
 | ☐ | A weekly sheet copy is scheduled (calendar reminder) and one restore was practised |
 | ☐ | `npm audit --omit=dev` shows 0 vulnerabilities; Dependabot enabled |
+| ☐ | `/privacy` and `/terms` reviewed by a lawyer for your business and country, company name and contact set, then `PUBLIC_LEGAL_REVIEWED=1` (the "Draft" notice disappears) |
 | ☐ | Owner and backup contact for incidents written down: ______________________ |

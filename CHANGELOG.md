@@ -3,6 +3,13 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-07 05:48 — Feat: privacy notice and terms of use
+
+- **New `/privacy` and `/terms`**, linked from the footer (and from the client share page). The privacy notice is written from what the app really does: what is collected (visitors, public trip data, agent accounts, edit history, Pocket), **who can see what** (public trip pages; every signed-in agent can read every Pocket), each cookie and browser-storage item with its lifetime (`tk_session`, `tk_oauth`, `pt_welcome`, settings kept on the device, the offline copy), and every outside service that receives data (Google sign-in, cloud storage and Fonts, Vercel, Open-Meteo, Aladhan, currency data, YouTube only on play, Maps/Calendar/WhatsApp only on click), plus purposes, retention, security and how to ask about your data. The terms cover what PlanTravel is (a plan is not a booking), accounts, content, rules, price and time accuracy, availability, responsibility and ending access.
+- **Nothing is hard-coded about a company:** name, contact email, WhatsApp and governing law come from `PUBLIC_COMPANY_NAME`, `PUBLIC_CONTACT_EMAIL`, `ADMIN_WHATSAPP`, `PUBLIC_GOVERNING_LAW` (the governing-law clause appears only when set).
+- **Draft guard:** both pages show "Draft: not yet reviewed by a lawyer" until `PUBLIC_LEGAL_REVIEWED=1`; the smoke test fails on https while the notice shows, so unreviewed text cannot go live unnoticed.
+- The pages read no spreadsheet and no user data (reachable during an outage), are in the sitemap (saved for offline reading) and are tap-target and mobile checked. Tests: `legal.test.ts`; runbook and `.env.example` updated.
+
 ## 2026-11-07 05:39 — Feat: share a trip (WhatsApp) and a client page
 
 - **Share button** on every trip (an icon in the trip header, a labelled button on the client page): **WhatsApp** (opens a chat with a ready message: bold trip title, cities, dates, days and the link), **More apps** (the phone's own share sheet, shown only where the browser has one) and **Copy link**. Dates read "1–7 Mar 2025".

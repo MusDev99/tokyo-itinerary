@@ -1,0 +1,91 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { LEGAL_UPDATED, contactLinks, legalConfig } from '../utils/legal';
+
+interface Props {
+  title: string;
+  description: string;
+  toc: Array<{ id: string; title: string }>;
+  /** The other legal page, linked at the end */
+  other: { href: string; label: string };
+}
+const { title, description, toc, other } = Astro.props;
+
+// Reads no spreadsheet and no user data: these pages must stay reachable when everything else is down.
+const cfg = legalConfig({ ...(import.meta.env as Record<string, string | undefined>), ...process.env });
+const contacts = contactLinks(cfg);
+// The draft notice below is a guard against launching unreviewed legal text by accident: it disappears when PUBLIC_LEGAL_REVIEWED=1
+const updated = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${LEGAL_UPDATED}T00:00:00Z`));
+// Same rule as every page: never `public` (no shared caches); the text itself is static
+Astro.response.headers.set('Cache-Control', 'private, max-age=300');
+---
+
+<Layout title={`${title} · PlanTravel`} description={description}>
+  <main class="legal w-full max-w-2xl mx-auto px-3.5 sm:px-6 py-5 sm:py-8 space-y-5">
+    <div class="flex items-center justify-between gap-3 px-1">
+      <a href="/" class="focus-ring inline-flex items-center gap-2.5 min-h-11 rounded-lg" aria-label="PlanTravel home">
+        <img src="/logo.svg" alt="" width="32" height="32" class="w-8 h-8" />
+        <span class="text-base font-extrabold text-text tracking-tight">PlanTravel</span>
+      </a>
+      <a href={other.href} class="focus-ring inline-flex items-center min-h-11 px-2 text-sm font-bold text-primary hover:underline">{other.label}</a>
+    </div>
+
+    {!cfg.reviewed && (
+      <div role="note" class="rounded-2xl border border-warning/50 bg-warning/10 px-4 py-3 text-sm text-warning-strong">
+        <p class="font-extrabold">Draft: not yet reviewed by a lawyer</p>
+        <p>This text describes what PlanTravel does, but it has not had a legal review. Have it checked for your business and country before real customers use the service, then set <code>PUBLIC_LEGAL_REVIEWED=1</code>.</p>
+      </div>
+    )}
+
+    <article class="glass-effect rounded-2xl p-4 sm:p-7 border border-primary/20 shadow-md space-y-6">
+      <header class="space-y-1.5">
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-text tracking-tight">{title}</h1>
+        <p class="text-sm text-text/70">Last updated {updated}</p>
+      </header>
+
+      <nav aria-label={`${title} contents`} class="rounded-xl bg-white/50 border border-primary/15 px-4 py-3">
+        <p class="text-micro font-bold uppercase tracking-wide text-text/60 mb-1">On this page</p>
+        <ol class="grid gap-x-6 sm:grid-cols-2 text-sm font-semibold">
+          {toc.map((t, i) => (
+            <li><a href={`#${t.id}`} class="inline-flex items-center min-h-11 text-primary hover:underline">{i + 1}. {t.title}</a></li>
+          ))}
+        </ol>
+      </nav>
+
+      <slot />
+
+      <section id="contact" class="space-y-2">
+        <h2>Contact</h2>
+        {contacts.length > 0 ? (
+          <>
+            <p>Questions about this page, or a request about your data? Contact {cfg.company}:</p>
+            <ul>
+              {contacts.map((c) => <li><a href={c.href} class="text-primary font-semibold hover:underline">{c.label}</a></li>)}
+            </ul>
+          </>
+        ) : (
+          <p>Questions about this page, or a request about your data? Contact the administrator who gave you access to {cfg.company}.</p>
+        )}
+      </section>
+    </article>
+
+    <footer class="px-1 pb-6 text-center text-micro text-text/60">
+      <a href="/privacy" class="inline-flex items-center min-h-11 px-2 font-semibold hover:underline">Privacy</a>
+      <span aria-hidden="true">·</span>
+      <a href="/terms" class="inline-flex items-center min-h-11 px-2 font-semibold hover:underline">Terms</a>
+    </footer>
+  </main>
+</Layout>
+
+<style is:global>
+  .legal h2 { font-size: 1.125rem; line-height: 1.4; font-weight: 800; color: var(--color-text); margin-bottom: .5rem; scroll-margin-top: 5rem; }
+  .legal section > p, .legal section > ul, .legal section > ol { font-size: .9375rem; line-height: 1.65; color: color-mix(in srgb, var(--color-text) 82%, transparent); }
+  .legal section > p + p, .legal section > p + ul, .legal section > ul + p { margin-top: .6rem; }
+  .legal ul { list-style: disc; padding-left: 1.25rem; }
+  .legal ul li + li { margin-top: .3rem; }
+  .legal code { font-size: .85em; padding: .05rem .3rem; border-radius: .35rem; background: color-mix(in srgb, var(--color-primary) 12%, transparent); }
+  .legal .item-list { list-style: none; padding: 0; display: grid; gap: .6rem; }
+  .legal .item-list > li { margin: 0; padding: .7rem .85rem; border-radius: .9rem; background: rgb(255 255 255 / .5); border: 1px solid color-mix(in srgb, var(--color-primary) 15%, transparent); }
+  .legal .item-list strong { color: var(--color-text); }
+  .legal .item-list .meta { display: block; font-size: .8125rem; color: color-mix(in srgb, var(--color-text) 74%, transparent); margin-top: .15rem; }
+</style>

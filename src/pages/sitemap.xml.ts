@@ -5,7 +5,8 @@ import { errorInfo, log } from '../utils/log';
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 export const GET: APIRoute = async ({ url }) => {
-  const paths = new Set<string>(['/']);
+  // The legal pages are public and static: listed so they are also saved for offline reading
+  const paths = new Set<string>(['/', '/privacy', '/terms']);
   try {
     const { countries } = await getAllCountriesWithSheets();
     for (const c of countries) {
