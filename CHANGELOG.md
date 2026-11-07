@@ -3,6 +3,14 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-07 05:08 — Perf: scale (cheaper writes, bounded retries, row limit)
+
+- **An edit no longer makes everybody re-read the whole sheet.** Adding, editing or deleting a place now re-reads just that trip's tab and patches the cache (4 Sheets requests, other tabs untouched), where before the cache was cleared and the next viewer waited for a full read of every trip (6+ requests at 100 trips). Verified against a fake Sheets API: 0 full reads after a write, other trips untouched, content correct.
+- **Rate limits no longer hang pages.** Retries honour `Retry-After`, use jittered exponential waits and stop at a 10 second budget (they used to sleep 16 s, 32 s, 48 s: up to 96 s). A 429 closes a shared gate; while it is closed, readers serve the last good data with no Sheets calls. A cold start with Google throttling now answers in about 9 s with "can't reach your trip sheet" instead of hanging.
+- **No more invisible rows.** The sheet is read up to row 2000; a save that would pass it is refused with "This trip has room for only N more places" instead of silently saving rows nobody can see (limit 1,999 places per trip).
+- Counters (`sheetsStats`) for the coming health check. New `docs/architecture/scaling.md`: limits, quota math, signals for moving to a database and a phased Firestore migration plan.
+- Tests: `scale.test.ts` (retry delays, gate, per-tab cache patch, row limit).
+
 ## 2026-11-07 04:34 — Feat: no more silent overwrites when two people edit
 
 - **Edit conflicts are detected.** Before, the last save silently won. Now each place, Pocket item and trip's settings carries a short fingerprint of what you were looking at; if it changed meanwhile (another agent, or a direct edit in Google Sheets) the save is refused with **409** and you choose **Reload latest** or **Save mine anyway**. Deleting a place someone else changed asks "Delete it anyway?"; a Pocket tick or removal that clashes reloads the list with a message.

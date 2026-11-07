@@ -5,6 +5,8 @@ import type { DayItinerary, TimelineItem } from '../types/itinerary';
 import type { Place } from '../types/place';
 import { ConflictError, UserError, safeHttpUrl, sheetText, youtubeEmbedUrl } from './security.ts';
 import { activityRevision, pocketRevision } from './revision.ts';
+import { DEFAULT_RETRY_BUDGET_MS, canRetry, quotaGate, retryDelayMs, sheetsStats } from './quota.ts';
+import { rowLimitError } from './cacheTabs.ts';
 import { cacheState, timed, type Timed } from './swr.ts';
 import { chunk, mapPool } from './chunk.ts';
 import { fixtureTabs, fixtureMetas } from './fixture.ts';
@@ -467,22 +469,34 @@ const IGNORED_TAB_SLUGS = new Set([
 const BATCH_TABS = 25;
 const BATCH_PARALLEL = 4;
 
+/**
+ * One Sheets call with bounded retries on 429/503: waits honour Retry-After, grow exponentially with jitter and stop
+ * at a time budget (a page never sleeps for a minute; see quota.ts). A 429 also closes the shared quota gate so other
+ * readers that already have data serve it instead of retrying together.
+ */
 async function fetchSheetsApiWithRetry(
   url: string,
   init: RequestInit,
-  maxRetries = 3
+  budgetMs = DEFAULT_RETRY_BUDGET_MS
 ): Promise<Response> {
   let attempt = 0;
+  let waited = 0;
   while (true) {
+    sheetsStats.calls++;
     const res = await fetch(url, init);
-    if ((res.status === 429 || res.status === 503) && attempt < maxRetries) {
+    if (res.status === 429 || res.status === 503) {
       attempt++;
-      const waitSec = attempt * 16; // 16s, 32s, 48s to clear 60-second quota window
-      console.warn(
-        `⏳ Google Sheets API rate limit (${res.status}) hit. Waiting ${waitSec}s for quota window to reset (retry ${attempt}/${maxRetries})...`
-      );
-      await new Promise((resolve) => setTimeout(resolve, waitSec * 1000));
-      continue;
+      sheetsStats.rateLimited++;
+      sheetsStats.lastLimitedAt = Date.now();
+      const delay = retryDelayMs(attempt, res.headers.get('retry-after'));
+      if (res.status === 429) quotaGate.noteLimited(Date.now(), delay);
+      if (attempt < 6 && canRetry(waited, delay, budgetMs)) {
+        sheetsStats.retries++;
+        console.warn(`⏳ Google Sheets rate limit (${res.status}); retry ${attempt} in ${Math.round(delay / 100) / 10}s`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        waited += delay;
+        continue;
+      }
     }
     return res;
   }
@@ -723,6 +737,44 @@ function clearSheetsCache() {
   placeRowsCache = null;
 }
 
+/**
+ * Hooks the trip-data cache (countries.ts) registers, so this file can keep that cache correct after a write without
+ * importing it (countries.ts imports this file).
+ */
+export const cacheHooks: {
+  /** Re-read one tab and patch it into the cache; false = could not (unknown tab, newer write): clear instead */
+  refreshTab?: (tab: string) => Promise<boolean>;
+  /** Last used sheet row of a cached tab, or null when it is not cached */
+  lastRow?: (tab: string) => number | null;
+} = {};
+
+/**
+ * After rows of one existing tab were added, changed or removed: refresh just that tab in the cache (one small read)
+ * instead of dropping everything, so a busy team's edits do not make every viewer wait for a full re-read.
+ * Any problem falls back to the old behaviour (clear, full re-read on next view).
+ */
+async function afterRowWrite(tab: string): Promise<void> {
+  const g = globalThis as any;
+  g.__TOKYO_SHEETS_GEN__ = (g.__TOKYO_SHEETS_GEN__ ?? 0) + 1; // an older in-flight full read must not re-cache old rows
+  g.__TOKYO_SHEETS_INFLIGHT__ = undefined;
+  try {
+    if (await cacheHooks.refreshTab?.(tab)) { sheetsStats.targetedRefreshes++; return; }
+  } catch (err) {
+    console.warn('targeted refresh failed, clearing the cache instead', err);
+  }
+  g.__TOKYO_SHEETS_CACHE__ = undefined;
+}
+
+/** Reads one trip tab's rows (same range as the full read). */
+export async function readTabRows(tab: string): Promise<string[][]> {
+  const ctx = await writeContext();
+  const data = await sheetsRequest<{ values?: string[][] }>(
+    ctx,
+    `${SHEETS_BASE}/${encodeURIComponent(ctx.spreadsheetId)}/values/${encodeURIComponent(`${quoteTab(tab)}!A1:Z2000`)}`
+  );
+  return data.values || [];
+}
+
 async function writeContext() {
   const creds = loadServiceAccountCredentials();
   const spreadsheetId = resolveSpreadsheetId();
@@ -861,6 +913,13 @@ export async function appendActivities(
     tab = tabName;
   }
 
+  // The sheet is read up to row 2000: refuse instead of saving rows nobody could ever see
+  const lastRow = cacheHooks.lastRow?.(tab);
+  if (lastRow != null && activities.length) {
+    const limit = rowLimitError(lastRow, activities.length);
+    if (limit) throw new UserError(limit);
+  }
+
   const headers = await ensureHeaders(ctx, spreadsheetId, tab, activities.some((a) => a.city) ? ['city'] : []);
   const ids = activities.map(() => crypto.randomUUID());
   const rows = activities.map((a, i) => recordToRow(headers, activityToRecord(a, ids[i])));
@@ -876,7 +935,8 @@ export async function appendActivities(
     );
   }
 
-  clearSheetsCache();
+  if (created) clearSheetsCache(); // a new tab changes the trip list: full re-read
+  else await afterRowWrite(tab);
   return { tab, created, ids };
 }
 
@@ -974,7 +1034,7 @@ export async function updateActivity(tabName: string, ref: RowRef, a: ActivityIn
     )}?valueInputOption=USER_ENTERED`,
     { method: 'PUT', body: JSON.stringify({ values: [merged] }) }
   );
-  clearSheetsCache();
+  await afterRowWrite(tab);
 }
 
 export async function deleteActivity(tabName: string, ref: RowRef, opts?: ConflictOpts): Promise<void> {
@@ -1003,7 +1063,7 @@ export async function deleteActivity(tabName: string, ref: RowRef, opts?: Confli
       ],
     }),
   });
-  clearSheetsCache();
+  await afterRowWrite(match.title);
 }
 
 /** Deletes a whole trip tab. Refuses to delete the last remaining tab. */
