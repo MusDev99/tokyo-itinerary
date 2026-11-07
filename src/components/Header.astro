@@ -1,5 +1,5 @@
 ---
-import { getAllCountriesWithSheets } from '../utils/countries';
+import { getAllCountriesWithSheets, plainCountryTrip } from '../utils/countries';
 import MobileNav from './MobileNav';
 import BackButton from './BackButton';
 import UserMenu from './UserMenu';
@@ -29,6 +29,13 @@ const navLinks = countries.map((country) => {
 
 const currentPath = Astro.url.pathname;
 
+// Where "up" goes from a trip when there is no earlier page: its country page (home for a plain-country trip)
+const tripParents: Record<string, string> = {};
+for (const c of countries) {
+  const plain = plainCountryTrip(c);
+  for (const st of c.states) tripParents[st.slug] = plain && plain.slug === st.slug ? '/' : `/${c.slug}`;
+}
+
 // Past ~6 destinations the pill row overflows: keep the first few (plus the one you are in) and move the rest to "More".
 const MAX_PILLS = 5;
 const activeIdx = navLinks.findIndex((l) => currentPath === l.hubHref || currentPath.startsWith(`/${l.slug}/`));
@@ -55,7 +62,7 @@ const mobileCountries = countries.map((c) => ({
       <!-- Brand / Home Link (Jakob's Law & Fitts's Law) -->
       <div class="flex items-center gap-2 sm:gap-4">
         <!-- Back to the previous page (hidden on the home page) -->
-        <BackButton path={Astro.url.pathname} client:idle />
+        <BackButton path={Astro.url.pathname} tripParents={tripParents} client:idle />
         <a
           href="/"
           class="flex items-center gap-2.5 py-2 group focus-ring rounded-lg"
