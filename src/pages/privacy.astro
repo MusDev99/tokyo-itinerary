@@ -64,7 +64,7 @@ const toc = [
     <ul>
       <li><strong>Anyone with the address</strong> can open trip pages, the client share page, the PDF and the calendar feed. Trip pages are public and there is no password on them.</li>
       <li><strong>Signed-in agents</strong> (people on our access list) can edit trips. <strong>Every signed-in agent can open the Pocket of every trip.</strong></li>
-      <li><strong>Administrators</strong> who own the spreadsheet can see everything in it, including the access list and edit history.</li>
+      <li><strong>Administrators</strong> who manage our data storage can see everything in it, including the access list and edit history.</li>
     </ul>
   </section>
 
@@ -84,7 +84,7 @@ const toc = [
     <h2>5. Services that receive data</h2>
     <p>PlanTravel relies on other companies. They receive only what is needed for the job below and have their own privacy policies.</p>
     <ul class="item-list">
-      <li><strong>Google</strong><span class="meta">Sign-in (name, email, picture, account ID are given to us). Google Sheets is where trip data is stored. Google Fonts: when a page loads, your browser asks Google for the typefaces, so Google can see your IP address.</span></li>
+      <li><strong>Google</strong><span class="meta">Sign-in (name, email, picture, account ID are given to us). Google also provides the cloud storage where trip data is kept. Google Fonts: when a page loads, your browser asks Google for the typefaces, so Google can see your IP address.</span></li>
       <li><strong>Vercel</strong><span class="meta">Hosts the website and keeps ordinary request logs.</span></li>
       <li><strong>Open-Meteo</strong><span class="meta">Turns a place name an agent searches for into a location (sent from our server).</span></li>
       <li><strong>Aladhan</strong><span class="meta">Prayer times and Qibla direction for a trip's saved location and dates (sent from our server).</span></li>
@@ -107,7 +107,7 @@ const toc = [
   <section id="keep">
     <h2>7. How long we keep it</h2>
     <ul>
-      <li><strong>Trips and Pocket items</strong> stay until an agent deletes them. Google Sheets keeps an older-versions history for some time after a deletion.</li>
+      <li><strong>Trips and Pocket items</strong> stay until an agent deletes them. Our storage provider keeps older versions for some time after a deletion.</li>
       <li><strong>Agent accounts and edit history</strong> are kept while the person has access and afterwards for accountability. An administrator can disable an account at any time.</li>
       <li><strong>Our error logs</strong> are kept for the period set by our hosting plan. Your browser's data stays until you clear it.</li>
     </ul>
