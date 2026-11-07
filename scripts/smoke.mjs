@@ -21,6 +21,9 @@ check('first visit to / goes to /welcome', first.status === 302 && (first.header
 const seen = await req('/', { headers: { accept: 'text/html', 'user-agent': 'Mozilla/5.0 smoke', cookie: 'pt_welcome=1' } });
 check('a returning guest gets the trips', seen.status === 200, `HTTP ${seen.status}`);
 
+const tripsPrefix = await req('/trips');
+check('/trips is not a dead end (redirects home)', tripsPrefix.status >= 300 && tripsPrefix.status < 400 && (tripsPrefix.headers.get('location') ?? '') === '/', `HTTP ${tripsPrefix.status}`);
+
 const login = await req('/login');
 check('/login is reachable', login.status === 200, `HTTP ${login.status}`);
 
@@ -43,6 +46,14 @@ if (tripPath) {
   check('client share page is noindex', /name="robots" content="noindex/.test(html));
   check('client share page has a link-preview image', /property="og:image"/.test(html));
   check('client share page has no editing controls', !/aria-label="(Edit|Delete) trip"/.test(html));
+}
+
+for (const page of ['/privacy', '/terms']) {
+  const r = await req(page);
+  const html = r.status === 200 ? await r.text() : '';
+  check(`${page} is served`, r.status === 200, `HTTP ${r.status}`);
+  check(`${page} is not cached publicly`, !/public/.test(r.headers.get('cache-control') ?? ''));
+  if (base.startsWith('https://')) check(`${page} is no longer marked as a draft`, !html.includes('not yet reviewed by a lawyer'), 'set PUBLIC_LEGAL_REVIEWED=1 after legal review');
 }
 
 const sg = await req('/api/suggestions');
