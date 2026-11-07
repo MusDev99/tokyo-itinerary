@@ -3,6 +3,12 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-07 05:53 — Fix: the back arrow on a trip led to a 404 page
+
+- **Bug (from a screen recording):** on a trip page the header back arrow opened "Oops! Page Not Found". The arrow went back in history only when the browser reported a same-site referrer, which it does not after the app's soft navigation (the referrer is only the page that started the visit). Otherwise it went "up" by cutting the last part of the address, and from `/trips/<trip>` that is `/trips`, which is not a page.
+- **Fix:** soft navigation now counts (the router's own history position decides whether there is an earlier page of the site), so back returns to the page you came from. With nothing to return to (a link opened from a message, a new tab) it goes **up to the trip's country page**, or home for a plain-country trip. The Pocket, Analysis and Overview tabs do the same; the client share page goes to its trip. `/trips` on its own now redirects home instead of showing a 404, so old links and typed addresses recover too.
+- Pure `backTarget` / `hasSiteHistory` (tested); the smoke test checks `/trips` redirects. Reproduced and re-checked in a browser: deep link to a trip, deep link to a tab, soft navigation from home, `/trips`.
+
 ## 2026-11-07 05:39 — Feat: share a trip (WhatsApp) and a client page
 
 - **Share button** on every trip (an icon in the trip header, a labelled button on the client page): **WhatsApp** (opens a chat with a ready message: bold trip title, cities, dates, days and the link), **More apps** (the phone's own share sheet, shown only where the browser has one) and **Copy link**. Dates read "1–7 Mar 2025".
