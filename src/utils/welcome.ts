@@ -45,7 +45,7 @@ export function worldTotals(countries: Array<{ stats: { hasItinerary: boolean; t
 
 /** The three "how it works" steps, in order (one definition for the page and its tests). */
 export const WELCOME_STEPS = [
-  { id: 'browse', icon: '🌏', title: 'Browse', text: 'Pick a country or city. Every trip is open to read, no account needed.' },
-  { id: 'plan', icon: '🗓️', title: 'Plan', text: 'Sign in to add days and activities. Costs and times are saved to your Google Sheet.' },
+  { id: 'browse', icon: '🌏', title: 'Browse', text: 'Pick a country or city and open its day-by-day plan.' },
+  { id: 'plan', icon: '🗓️', title: 'Plan', text: 'Sign in to add days and activities. Costs and times are saved with the trip.' },
   { id: 'go', icon: '🧭', title: 'Go', text: "On the trip, Today shows what's on now and next. Everything you saved reads offline." },
 ] as const;

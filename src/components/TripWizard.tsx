@@ -300,7 +300,7 @@ export default function TripWizard({ countries = [], trips = [], initialCountry 
         {phase === 'picks' && (
           <>
             <h2 className="text-lg font-extrabold text-text">Pick places others loved</h2>
-            <p className="text-xs text-text/70">From the trips already in the sheet, most used first. You choose where and when next.</p>
+            <p className="text-xs text-text/70">From the trips already planned, most used first. You choose where and when next.</p>
             <SuggestionPicker picks={picks} onPicks={setPicks} initialCity="" />
             {touched && !ready.picks && <p className="text-micro font-semibold text-danger-strong">Pick at least one place, or switch to “From scratch”.</p>}
           </>

@@ -149,7 +149,7 @@ import { COLLAPSE_AFTER } from '../utils/countryList';
       {trips.length === 0 && (
         <section aria-label="No trips to show" class="glass-effect rounded-2xl p-4 sm:p-6 border border-primary/20">
           {sheetProblem ? (
-            <EmptyState icon="🛠️" title="We can't reach your trip sheet right now" hint="Nothing is lost. Try again in a moment; if it keeps happening, check the Google Sheet connection.">
+            <EmptyState icon="🛠️" title="We can't load your trips right now" hint="Nothing is lost. Try again in a moment; if it keeps happening, contact your administrator.">
               <a href="/" data-astro-reload class="touch-target focus-ring inline-flex items-center justify-center min-h-11 px-5 rounded-xl bg-primary text-white text-sm font-extrabold shadow-md">Try again</a>
             </EmptyState>
           ) : (

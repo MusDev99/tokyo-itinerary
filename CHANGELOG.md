@@ -3,6 +3,12 @@
 All notable changes to this project are recorded here, newest first.
 Each entry has a date and time (Malaysia time, UTC+8) and a short description of what changed.
 
+## 2026-11-07 05:56 — Fix: no "Google Sheet" wording for visitors, and the guest note is gone
+
+- **Welcome page:** removed "Guests can read every trip. Signing in lets you add and edit; your name and email go to the Users sheet." (and its "Everyone can read every trip" variant). The chip "Synced to Google Sheets" now says "Saved automatically"; the line "keep it all in your Google Sheet" (page and search description) says "keep it all in one place"; step 1 no longer says every trip is open to read; step 2 says costs and times are "saved with the trip".
+- **Other screens:** "We can't reach your trip sheet" is now "We can't load your trips right now" (hint: contact your administrator); the Pocket note says "Everyone who can edit trips can read this"; the suggestions picker says "trips already planned".
+- Developer and operator documents still describe the spreadsheet as the data store; only visitor-facing text changed.
+
 ## 2026-11-07 05:39 — Feat: share a trip (WhatsApp) and a client page
 
 - **Share button** on every trip (an icon in the trip header, a labelled button on the client page): **WhatsApp** (opens a chat with a ready message: bold trip title, cities, dates, days and the link), **More apps** (the phone's own share sheet, shown only where the browser has one) and **Copy link**. Dates read "1–7 Mar 2025".
