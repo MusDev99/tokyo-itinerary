@@ -2,7 +2,12 @@ import type { DayItinerary } from '../types/itinerary';
 import { cacheState, timed, type Timed } from './swr';
 import { WORLD_COUNTRIES, worldCountry } from './worldCountries';
 import { cityForDay, citiesLabel, legacyTripSlug, orderedCities, RESERVED_TRIP_SLUGS, uniqueSlug, type Stop, type TripMeta } from './trips';
+import { quotaGate, sheetsStats } from './quota';
+import { applyTabUpdate, lastUsedRow, tabSlug, type RawTrips } from './cacheTabs';
 import {
+  cacheHooks,
+  readTabRows,
+  rowsToDayItinerary,
   pullCountriesFromGoogleSheets,
   getTripMetas,
   resolveSpreadsheetId,
@@ -483,6 +488,8 @@ export const tripCitiesLabel = (t: Pick<StateMetadata, 'cities'>) => citiesLabel
 interface GlobalSheetsCache extends Timed {
   countries: CountryMetadata[];
   syncResult: SheetSyncResult;
+  /** What `countries` was built from, so one tab can be re-read and patched after a write (see cacheTabs.ts) */
+  raw?: RawTrips & { metas: TripMeta[] };
 }
 
 const g = globalThis as unknown as {
@@ -547,19 +554,33 @@ function startSheetsFetch(): Promise<{ countries: CountryMetadata[]; syncResult:
       return { countries: [], syncResult: unconfiguredResult };
     }
 
+    // Google just told us to slow down: serve what we already have instead of every reader retrying at once
+    const closedFor = quotaGate.closedFor(Date.now());
+    if (closedFor > 0 && g.__TOKYO_SHEETS_LAST_GOOD__) {
+      sheetsStats.servedFromGate++;
+      return g.__TOKYO_SHEETS_LAST_GOOD__;
+    }
+
+    const t0 = Date.now();
     const { result, itineraries, tabTitles } = await pullCountriesFromGoogleSheets({
       spreadsheetId,
     });
+    sheetsStats.lastReadMs = Date.now() - t0;
+    sheetsStats.lastReadAt = Date.now();
+    sheetsStats.fullReads++;
+    if (result.source === 'error') { sheetsStats.lastError = (result.error || '').slice(0, 200); sheetsStats.lastErrorAt = Date.now(); }
 
     if (result.source === 'google-sheets') {
-      const sheetCountries = buildCountries(itineraries, tabTitles, await getTripMetas());
+      const metas = await getTripMetas();
+      const sheetCountries = buildCountries(itineraries, tabTitles, metas);
 
       const sorted = sortCountries(sheetCountries);
       if (gen !== (g.__TOKYO_SHEETS_GEN__ ?? 0)) return { countries: sorted, syncResult: result };
       g.__TOKYO_SHEETS_CACHE__ = {
         countries: sorted,
         syncResult: result,
-        ...timed(Date.now()), // writes clear this, so edits made in the app show up immediately
+        raw: { itineraries, tabTitles, metas },
+        ...timed(Date.now()), // a write re-reads just its tab (or clears this), so edits show up immediately
       };
       g.__TOKYO_SHEETS_LAST_GOOD__ = {
         countries: sorted,
@@ -623,3 +644,36 @@ export function tripBySlug(countries: CountryMetadata[], tripSlug?: string, page
 export function stateTrip(countries: CountryMetadata[], countrySlug?: string, stateSlug?: string, page = 'Itinerary') {
   return tripBySlug(countries, legacyTripSlug(countrySlug || '', stateSlug || ''), page);
 }
+
+
+// ---------------------------------------------------------------------------
+// After a write to one tab: re-read just that tab and patch the cache (hooks used by googleSheets.ts)
+// ---------------------------------------------------------------------------
+
+cacheHooks.refreshTab = async (tab: string): Promise<boolean> => {
+  const cached = g.__TOKYO_SHEETS_CACHE__;
+  if (!cached?.raw) return false;
+  const gen = g.__TOKYO_SHEETS_GEN__ ?? 0;
+  const rows = await readTabRows(tab);
+  // Another write happened while we were reading (or the cache was replaced): do not patch with possibly old rows
+  if (gen !== (g.__TOKYO_SHEETS_GEN__ ?? 0) || g.__TOKYO_SHEETS_CACHE__ !== cached) return false;
+  const next = applyTabUpdate(cached.raw, tab, (title) => rowsToDayItinerary(rows, 'USD', title));
+  if (!next) return false;
+
+  const countries = sortCountries(buildCountries(next.itineraries, next.tabTitles, cached.raw.metas));
+  const all = Object.values(next.itineraries);
+  const syncResult: SheetSyncResult = {
+    ...cached.syncResult,
+    totalDays: all.reduce((n, d) => n + d.length, 0),
+    totalActivities: all.reduce((n, d) => n + d.reduce((m, x) => m + x.items.length, 0), 0),
+    syncedAt: new Date().toISOString(),
+  };
+  g.__TOKYO_SHEETS_CACHE__ = { countries, syncResult, raw: { ...next, metas: cached.raw.metas }, ...timed(Date.now()) };
+  g.__TOKYO_SHEETS_LAST_GOOD__ = { countries, syncResult };
+  return true;
+};
+
+cacheHooks.lastRow = (tab: string): number | null => {
+  const days = g.__TOKYO_SHEETS_CACHE__?.raw?.itineraries[tabSlug(tab)];
+  return days ? lastUsedRow(days) : null;
+};
